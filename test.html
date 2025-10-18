@@ -1,0 +1,389 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PROUZ Mini App — Tap to Earn</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/modern-normalize/1.1.0/modern-normalize.min.css" />
+<style>
+  :root {
+    --bg1: #0b1220;
+    --bg2: #0f1b2b;
+    --accent: #ffd166;
+    --muted: #bfcad6;
+    --card: rgba(255,255,255,0.03);
+  }
+  html,body{height:100%}
+  body{
+    min-height:100vh;
+    margin:0;
+    font-family: Inter, system-ui, sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,var(--bg1),var(--bg2));
+    color:#fff;
+    padding:20px;
+  }
+  .container{
+    width:100%;
+    max-width:900px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:16px;
+    padding:18px;
+    box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+    display:grid;
+    grid-template-columns: 1fr 360px;
+    gap:18px;
+  }
+  .left{padding:12px}
+  .right{padding:12px; background:var(--card); border-radius:12px}
+  h1{margin:0 0 8px 0; font-size:20px}
+  p.lead{color:var(--muted); margin-top:6px; margin-bottom:12px}
+  .tapBtn{
+    width:100%;
+    padding:28px;
+    border-radius:14px;
+    font-size:28px;
+    border:none;
+    cursor:pointer;
+    background:linear-gradient(90deg,var(--accent),#ffb703);
+    color:#111;
+    box-shadow: 0 6px 20px rgba(255,177,3,0.12);
+  }
+  .stats{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
+  .card{
+    background: rgba(255,255,255,0.03);
+    padding:10px;
+    border-radius:10px;
+    min-width:120px;
+  }
+  .small{font-size:12px;color:var(--muted)}
+  .big{font-size:20px;font-weight:700}
+  .connectBtn{
+    width:100%;
+    padding:10px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.06);
+    background:transparent;
+    color:var(--accent);
+    cursor:pointer;
+    margin-bottom:8px;
+  }
+  .claimBtn{
+    width:100%;
+    padding:10px;
+    border-radius:10px;
+    border:none;
+    background:#16a085;
+    color:#fff;
+    cursor:pointer;
+    margin-top:8px;
+  }
+  .log{font-size:12px;color:var(--muted);margin-top:8px; max-height:120px; overflow:auto}
+  footer{grid-column:1/-1; margin-top:10px; text-align:center; color:var(--muted); font-size:13px}
+  @media (max-width:880px){
+    .container{grid-template-columns:1fr; padding:12px}
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="left">
+      <h1>🐯 PROUZ — Tap to Earn</h1>
+      <p class="lead">Har bosishda token yig‘ing. Wallet ulab, yig‘ilgan off-chain balansni on-chain ga claim qiling.</p>
+
+      <button id="tapBtn" class="tapBtn">TAP</button>
+      <div class="stats">
+        <div class="card">
+          <div class="small">Local taps</div>
+          <div id="localTaps" class="big">0</div>
+        </div>
+        <div class="card">
+          <div class="small">Unclaimed PROUZ</div>
+          <div id="unclaimed" class="big">0.000000</div>
+        </div>
+        <div class="card">
+          <div class="small">PROUZ balance (on-chain)</div>
+          <div id="onchain" class="big">—</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <button id="claimBtn" class="claimBtn">Claim to Wallet</button>
+      </div>
+
+      <div class="log" id="log"></div>
+    </div>
+
+    <div class="right">
+      <h2 style="margin-top:0">Wallet & Info</h2>
+
+      <div style="margin-bottom:8px">
+        <button id="connectBtn" class="connectBtn">Connect Wallet</button>
+      </div>
+
+      <div style="display:flex;gap:8px;flex-direction:column">
+        <div class="card">
+          <div class="small">Connected wallet</div>
+          <div id="address" class="big">Not connected</div>
+        </div>
+
+        <div class="card">
+          <div class="small">BNB Balance</div>
+          <div id="bnb" class="big">—</div>
+        </div>
+
+        <div class="card">
+          <div class="small">Token price (USD)</div>
+          <div id="price" class="big">—</div>
+        </div>
+
+        <div class="card" style="margin-top:8px">
+          <div class="small">Referral</div>
+          <div id="ref" class="big">—</div>
+          <div class="small" style="margin-top:6px">Share this link to invite: <br><a id="refLink" href="#" style="color:var(--accent)">t.me/yourbot?start=REFID</a></div>
+        </div>
+      </div>
+    </div>
+
+    <footer>Powered by PROUZ • Demo Mini App</footer>
+  </div>
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- ethers and web3modal (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.2/dist/ethers.min.js"></script>
+  <script src="https://unpkg.com/@walletconnect/web3modal@2.6.3/dist/index.umd.min.js"></script>
+  <script>
+  (async function(){
+    // CONFIG
+    const TOKEN_ADDRESS = "0x6a73F66A7d0b34F86A91C503b5FddDD3A14FCfa0".toLowerCase();
+    const TOKEN_DECIMALS = 6; // PROUZ has 6 decimals as per your settings
+    const BSC_RPC = "https://bsc-dataseed.binance.org/";
+    const BACKEND_BASE = ""; // leave empty to call same origin (/api/...). If your backend is on Vercel root, e.g. https://proguzmir.vercel.app, keep empty.
+
+    // Telegram WebApp
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    const initDataUnsafe = tg.initDataUnsafe || {};
+    const tgUser = initDataUnsafe.user || null;
+    log("Telegram user:", tgUser ? (tgUser.first_name || "") + " (id:" + tgUser.id + ")" : "no");
+
+    // Referral: try Telegram start param first, fallback to URL query `ref`
+    let refId = null;
+    try {
+      if (initDataUnsafe.start_param) refId = initDataUnsafe.start_param;
+    } catch(e){}
+    if (!refId) {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has("ref")) refId = urlParams.get("ref");
+    }
+    if (!refId && tgUser) refId = "tg" + tgUser.id; // fallback to tg id for demo
+
+    document.getElementById("ref").textContent = refId || "—";
+    // Build share link (replace your bot username)
+    const botUsername = "proguzmir_bot";
+    const refLink = `https://t.me/${botUsername}?start=${encodeURIComponent(refId || "")}`;
+    const refAnchor = document.getElementById("refLink");
+    refAnchor.href = refLink;
+    refAnchor.textContent = refLink;
+
+    // Simple logger
+    function log(...args){
+      const el = document.getElementById("log");
+      const line = document.createElement("div");
+      line.textContent = args.map(a=>typeof a==="object"?JSON.stringify(a):a).join(" ");
+      el.prepend(line);
+      console.log(...args);
+    }
+
+    // Web3Modal + ethers provider setup (WalletConnect v2 via CDN wrapper)
+    const Web3Modal = window.Web3Modal.default;
+    const modal = new Web3Modal({
+      projectId: "demo", // for production use WalletConnect projectId
+      // note: CDN distribution may not include all features; this demo uses WalletConnect-like flow
+      cacheProvider: false
+    });
+
+    let provider = null;
+    let signer = null;
+    let ethProvider = null; // ethers provider
+
+    async function connectWallet(){
+      try{
+        provider = await modal.connect(); // this may open wallet selection
+        // If provider has request method -> wrap with ethers
+        ethProvider = new ethers.BrowserProvider(provider);
+        signer = await ethProvider.getSigner();
+        const address = await signer.getAddress();
+        document.getElementById("address").textContent = address;
+        log("Wallet connected:", address);
+        await updateOnchainBalances(address);
+      }catch(err){
+        log("Wallet connect canceled or failed", err.message || err);
+      }
+    }
+
+    document.getElementById("connectBtn").addEventListener("click", connectWallet);
+
+    // Fallback RPC provider for read-only calls
+    const readProvider = new ethers.JsonRpcProvider(BSC_RPC);
+
+    async function getTokenBalance(address){
+      try{
+        const erc20Abi = [
+          "function balanceOf(address) view returns (uint256)",
+          "function symbol() view returns (string)",
+          "function decimals() view returns (uint8)"
+        ];
+        const token = new ethers.Contract(TOKEN_ADDRESS, erc20Abi, readProvider);
+        const bal = await token.balanceOf(address);
+        // token decimals we set from config; attempt to read if possible
+        let decimals = TOKEN_DECIMALS;
+        try {
+          decimals = Number(await token.decimals());
+        } catch(e){}
+        return Number(ethers.formatUnits(bal, decimals));
+      }catch(e){
+        log("Token balance read failed", e.message || e);
+        return 0;
+      }
+    }
+
+    async function getBNBBalance(address){
+      try{
+        const b = await readProvider.getBalance(address);
+        return Number(ethers.formatEther(b));
+      }catch(e){
+        log("BNB balance read failed", e.message || e);
+        return 0;
+      }
+    }
+
+    async function updateOnchainBalances(address){
+      document.getElementById("onchain").textContent = "loading...";
+      document.getElementById("bnb").textContent = "loading...";
+      const [tbal, bbal] = await Promise.all([getTokenBalance(address), getBNBBalance(address)]);
+      document.getElementById("onchain").textContent = tbal.toFixed(6);
+      document.getElementById("bnb").textContent = bbal.toFixed(4) + " BNB";
+    }
+
+    // Tap logic (local counter + send to backend)
+    const TAP_VALUE_PROUZ = 0.0001; // each tap = 0.0001 PROUZ (example)
+    let localTaps = 0;
+    let unclaimed = 0;
+
+    const tapBtn = document.getElementById("tapBtn");
+    const localTapsEl = document.getElementById("localTaps");
+    const unclaimedEl = document.getElementById("unclaimed");
+    const claimBtn = document.getElementById("claimBtn");
+
+    tapBtn.addEventListener("click", async () => {
+      // UI quick feedback
+      localTaps++;
+      unclaimed += TAP_VALUE_PROUZ;
+      localTapsEl.textContent = localTaps;
+      unclaimedEl.textContent = unclaimed.toFixed(6);
+
+      // Send tap event to backend (record for referral / anti-cheat)
+      try{
+        const payload = {
+          telegram_id: tgUser ? tgUser.id : null,
+          ref: refId,
+          taps: 1
+        };
+        // POST to backend endpoint (server must implement /api/tap)
+        const res = await fetch((BACKEND_BASE || "") + "/api/tap", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if(!res.ok) {
+          const txt = await res.text();
+          log("Backend /api/tap error", res.status, txt);
+        } else {
+          const j = await res.json().catch(()=>null);
+          log("Tap recorded", j || "ok");
+        }
+      }catch(e){
+        log("Tap send failed (offline?)", e.message || e);
+      }
+    });
+
+    // Claim: user must be connected (wallet) to claim on-chain.
+    claimBtn.addEventListener("click", async () => {
+      if(!signer){
+        log("Please connect wallet first");
+        alert("Iltimos: hamyonni ulang (Connect Wallet)");
+        return;
+      }
+      if(unclaimed <= 0){
+        log("No unclaimed PROUZ");
+        alert("Sizda claim qilish uchun PROUZ yo'q");
+        return;
+      }
+
+      // Send claim request to backend:
+      // backend should verify user's taps, anti-cheat, calculate amount and perform token transfer
+      try{
+        const address = await signer.getAddress();
+        const payload = {
+          telegram_id: tgUser ? tgUser.id : null,
+          wallet_address: address,
+          amount: unclaimed,
+          ref: refId
+        };
+        const res = await fetch((BACKEND_BASE || "") + "/api/claim", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if(!res.ok){
+          const txt = await res.text();
+          log("Claim error", res.status, txt);
+          alert("Claim request failed: " + res.status);
+          return;
+        }
+        const j = await res.json();
+        log("Claim submitted:", j);
+        // On success, assume backend will send tokens on-chain. Reset local
+        unclaimed = 0;
+        localTaps = 0;
+        localTapsEl.textContent = localTaps;
+        unclaimedEl.textContent = unclaimed.toFixed(6);
+        alert("Claim submitted. Token transfer will follow when backend processes it.");
+      }catch(e){
+        log("Claim failed", e.message || e);
+      }
+    });
+
+    // Optional: fetch token price (demo uses CoinGecko like endpoint)
+    async function fetchPrice(){
+      try {
+        // NOTE: this endpoint is placeholder — implement backend route /api/price to proxy CoinGecko if needed
+        const res = await fetch((BACKEND_BASE || "") + "/api/price");
+        if(!res.ok){ document.getElementById("price").textContent = "—"; return; }
+        const j = await res.json();
+        document.getElementById("price").textContent = (j.price_usd || 0).toFixed(4) + " $";
+      } catch(e){
+        document.getElementById("price").textContent = "—";
+      }
+    }
+
+    // try to detect if wallet already connected by Web3Modal cache (not using cache in demo)
+    await fetchPrice();
+
+    // Expose debug on window
+    window.proouz = {
+      connectWallet, updateOnchainBalances, getTokenBalance
+    };
+
+    log("Frontend initialized.");
+  })();
+  </script>
+</body>
+</html>

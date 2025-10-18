@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "[my-framework] build --output public"
+    "main": "[my-framework] build --output public"
   },
   "keywords": [],
   "author": "",
