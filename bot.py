@@ -219,6 +219,27 @@ async def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text("Menu:", reply_markup=main_menu_keyboard())
 
+from telegram import InputFile
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    data = load_data()
+    user = ensure_user(data, update.effective_user.id, update.effective_user.full_name)
+    save_data(data)
+
+    # ✅ Rasm yuborish
+    photo_path = os.path.join(os.path.dirname(__file__), "logotive.png")
+    if os.path.exists(photo_path):
+        await update.message.reply_photo(
+            photo=InputFile(photo_path),
+            caption=f"Assalomu alaykum, {update.effective_user.first_name}!\nMenu:",
+            reply_markup=main_menu_keyboard()
+        )
+    else:
+        await update.message.reply_text(
+            f"Assalomu alaykum, {update.effective_user.first_name}!\nMenu:",
+            reply_markup=main_menu_keyboard()
+        )
+
 def main():
     token = os.getenv("TELEGRAM_TOKEN")
     if not token:
