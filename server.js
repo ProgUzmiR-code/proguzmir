@@ -6,8 +6,8 @@ dotenv.config();
 const app = express();
 
 app.use(bodyParser.json());
-
-const TOKEN = process.env.BOT_TOKEN;
+const TelegramBot = require('node-telegram-bot-api');
+const TOKEN = '8491176215:AAGWwxPL3Yz9or7MOLGCdD4ka6mPfOf_hMk';
 const PORT = process.env.PORT || 3000;
 
 // Asosiy test route
