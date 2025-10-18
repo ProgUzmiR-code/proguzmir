@@ -267,14 +267,25 @@
     ];
 
     // Init state (default PRC = 0.0000000000000037 PRC -> 3700 wei)
+    // --- YANGI: foydalanuvchiga xos key yaratish funksiyasi ---
+    function makeUserKey(baseKey, wallet) {
+      return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest";
+    }
+    // --- YANGILANGAN loadState() ---
     function loadState() {
-      const prc = localStorage.getItem(KEY_PRC) || "3700";
-      const diamond = parseInt(localStorage.getItem(KEY_DIAMOND) || "0", 10);
       const wallet = localStorage.getItem(KEY_WALLET) || "";
-      const tapsUsed = parseInt(localStorage.getItem(KEY_TAPS_USED) || "0", 10);
-      const tapCap = parseInt(localStorage.getItem(KEY_TAP_CAP) || String(DEFAULT_TAP_CAP), 10);
-      const selectedSkin = localStorage.getItem(KEY_SELECTED_SKIN) || ""; // id of skin
-      return { prcWei: BigInt(prc), diamond: diamond, wallet: wallet, tapsUsed: tapsUsed, tapCap: tapCap, selectedSkin: selectedSkin };
+      const keyPRC = makeUserKey(KEY_PRC, wallet);
+      const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
+      const keyTaps = makeUserKey(KEY_TAPS_USED, wallet);
+      const keyCap = makeUserKey(KEY_TAP_CAP, wallet);
+      const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
+
+      const prc = localStorage.getItem(keyPRC) || "0";
+      const diamond = parseInt(localStorage.getItem(keyDiamond) || "0", 10);
+      const tapsUsed = parseInt(localStorage.getItem(keyTaps) || "0", 10);
+      const tapCap = parseInt(localStorage.getItem(keyCap) || String(DEFAULT_TAP_CAP), 10);
+      const selectedSkin = localStorage.getItem(keySkin) || "";
+      return { prcWei: BigInt(prc), diamond, wallet, tapsUsed, tapCap, selectedSkin };
     }
     // yangi helper: jami PRC (sotib olingan prcWei + diamond*conversion)
     function getTotalPRCWei(state) {
@@ -306,16 +317,29 @@
       return true;
     }
 
+    // --- YANGILANGAN saveState() ---
     function saveState(state) {
-      localStorage.setItem(KEY_PRC, state.prcWei.toString());
-      localStorage.setItem(KEY_DIAMOND, String(state.diamond));
-      if (state.wallet) localStorage.setItem(KEY_WALLET, state.wallet); else localStorage.removeItem(KEY_WALLET);
-      localStorage.setItem(KEY_TAPS_USED, String(state.tapsUsed));
-      localStorage.setItem(KEY_TAP_CAP, String(state.tapCap));
-      if (state.selectedSkin) localStorage.setItem(KEY_SELECTED_SKIN, state.selectedSkin); else localStorage.removeItem(KEY_SELECTED_SKIN);
-      // header balansni total PRC bilan yangilaymiz (prcWei + diamond*conversion)
+      const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
+      const keyPRC = makeUserKey(KEY_PRC, wallet);
+      const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
+      const keyTaps = makeUserKey(KEY_TAPS_USED, wallet);
+      const keyCap = makeUserKey(KEY_TAP_CAP, wallet);
+      const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
+
+      localStorage.setItem(keyPRC, state.prcWei.toString());
+      localStorage.setItem(keyDiamond, String(state.diamond));
+      localStorage.setItem(keyTaps, String(state.tapsUsed));
+      localStorage.setItem(keyCap, String(state.tapCap));
+      if (state.selectedSkin)
+        localStorage.setItem(keySkin, state.selectedSkin);
+      else localStorage.removeItem(keySkin);
+
+      if (state.wallet)
+        localStorage.setItem(KEY_WALLET, state.wallet);
+
       const total = getTotalPRCWei(state);
-      document.getElementById('headerBalance') && (document.getElementById('headerBalance').textContent = "💰 PRC balans: " + fmtPRC(total));
+      const header = document.getElementById('headerBalance');
+      if (header) header.textContent = "💰 PRC balans: " + fmtPRC(total);
     }
 
     // doim 18 onlik ko'rsatadi (full precision)
