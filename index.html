@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="uz">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,12 +8,14 @@
   <style>
     body {
       /* rasm markazda, qaytarilmasin, to'liq ekranni qoplasin */
-      background-image: url('/image/bacgraund.jpg');
+      background-image: url('image/background.jpg');
       background-position: center center;
       background-repeat: no-repeat;
       background-size: cover;
-      background-attachment: fixed; /* desktop uchun; mobilda brauzer cheklashi mumkin */
-      background-color: #06121a; /* rasm yuklanmasa fallback rang */
+      background-attachment: fixed;
+      /* desktop uchun; mobilda brauzer cheklashi mumkin */
+      background-color: #06121a;
+      /* rasm yuklanmasa fallback rang */
       color: white;
       text-align: center;
       font-family: sans-serif;
@@ -24,37 +27,46 @@
       padding: 20px;
       box-sizing: border-box;
     }
-    h1 { margin-bottom: 10px; }
+
+    h1 {
+      margin-bottom: 10px;
+    }
 
     /* NAV: hozir pastda paydo bo'ladi (fixed) */
     .nav {
-      display:flex;
-      gap:8px;
-      margin-bottom:16px;
-      flex-wrap:wrap;
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
       position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0,0,0,0.35);
+      background: rgba(0, 0, 0, 0.35);
       padding: 8px;
       border-radius: 12px;
       z-index: 60;
     }
+
     .tab {
-      background: rgba(255,255,255,0.08);
-      border-radius:8px;
-      padding:8px 12px;
-      cursor:pointer;
-      user-select:none;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      user-select: none;
       color: #fff;
-      font-weight:600;
+      font-weight: 600;
     }
-    .tab.active { background: rgba(255,255,255,0.16); }
+
+    .tab.active {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
     /* RESPONSIVE LAYOUT */
     :root {
       --header-height: 64px;
     }
+
     .header {
       position: fixed;
       top: 12px;
@@ -65,39 +77,101 @@
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      background: rgba(0,0,0,0.12);
+      background: rgba(0, 0, 0, 0.12);
       padding: 6px 12px;
       border-radius: 10px;
       z-index: 90;
       box-sizing: border-box;
     }
-    .header img { width:48px; height:auto; border-radius:6px; display:block; }
-    .header .balance { font-weight:700; color:#fff; text-align:right; font-size:15px; }
+
+    .header img {
+      width: 48px;
+      height: auto;
+      border-radius: 6px;
+      display: block;
+    }
+
+    .header .balance {
+      font-weight: 700;
+      color: #fff;
+      text-align: right;
+      font-size: 15px;
+    }
 
     /* panel: yuqoridagi header uchun joy qoldirish va pastdagi nav uchun safe-area */
-    .panel { max-width:420px; width:100%; text-align:left; padding-top: calc(var(--header-height) + 12px); padding-bottom: calc(100px + env(safe-area-inset-bottom)); box-sizing: border-box; }
+    .panel {
+      max-width: 420px;
+      width: 100%;
+      text-align: left;
+      padding-top: calc(var(--header-height) + 12px);
+      padding-bottom: calc(100px + env(safe-area-inset-bottom));
+      box-sizing: border-box;
+    }
 
     /* tap-area va rasm responsivligi */
-    .tap-area { text-align:center; margin-top: 6px; }
-    #tapBtn { width: 100%; max-width: 320px; height: auto; touch-action: manipulation; }
+    .tap-area {
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    #tapBtn {
+      width: 100%;
+      max-width: 320px;
+      height: auto;
+      touch-action: manipulation;
+    }
 
     /* nav safe-area */
-    .nav { bottom: calc(20px + env(safe-area-inset-bottom)); }
+    .nav {
+      bottom: calc(20px + env(safe-area-inset-bottom));
+    }
 
     /* Media queries: telefonlar va planshetlar */
     @media (max-width: 480px) {
-      :root { --header-height: 56px; }
-      .header img { width:40px; }
-      .header .balance { font-size:13px; }
-      .panel { padding-top: calc(var(--header-height) + 8px); padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
-      #tapBtn { max-width: 180px; }
-      button.btn, .input { font-size:15px; padding:12px; }
+      :root {
+        --header-height: 56px;
+      }
+
+      .header img {
+        width: 40px;
+      }
+
+      .header .balance {
+        font-size: 13px;
+      }
+
+      .panel {
+        padding-top: calc(var(--header-height) + 8px);
+        padding-bottom: calc(84px + env(safe-area-inset-bottom));
+      }
+
+      #tapBtn {
+        max-width: 180px;
+      }
+
+      button.btn,
+      .input {
+        font-size: 15px;
+        padding: 12px;
+      }
     }
+
     @media (min-width:481px) and (max-width:1024px) {
-      :root { --header-height: 60px; }
-      .header img { width:44px; }
-      .header .balance { font-size:15px; }
-      #tapBtn { max-width: 240px; }
+      :root {
+        --header-height: 60px;
+      }
+
+      .header img {
+        width: 44px;
+      }
+
+      .header .balance {
+        font-size: 15px;
+      }
+
+      #tapBtn {
+        max-width: 240px;
+      }
     }
 
     /* eski #topLogo qoidasi o'rnini yangi header style oladi */
@@ -111,20 +185,33 @@
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      background: rgba(0,0,0,0.12); /* xohlasangiz shaffoflikni o'zgartiring */
+      background: rgba(0, 0, 0, 0.12);
+      /* xohlasangiz shaffoflikni o'zgartiring */
       padding: 6px 12px;
       border-radius: 10px;
       z-index: 90;
       box-sizing: border-box;
     }
-    .header img { width:48px; height:auto; border-radius:6px; display:block; }
-    .header .balance { font-weight:700; color:#fff; text-align:right; }
+
+    .header img {
+      width: 48px;
+      height: auto;
+      border-radius: 6px;
+      display: block;
+    }
+
+    .header .balance {
+      font-weight: 700;
+      color: #fff;
+      text-align: right;
+    }
   </style>
 </head>
+
 <body>
   <!-- o'zgardi: endi header container (logo chapda, balans oʻngda) -->
   <div class="header" aria-hidden="false">
-    <img src="/image/logo.png" alt="logo" />
+    <img src="image/logo.png" alt="logo" />
     <div class="balance" id="headerBalance">💰 PRC balans: 0.0000000000000037 PRC</div>
   </div>
 
@@ -154,7 +241,7 @@
     const BASE_WEI = 1000n; // 0.000000000000001000 PRC -> 1e-15 / 1e-18 = 1000 wei
     const DIAMOND_TO_WEI = 10n; // 1 diamond = 000000000000000010 PRC -> 1e-17 / 1e-18 = 10 wei
 
-    const RANKS = ["bronze","silver","gold","smart gold","platinium","master"];
+    const RANKS = ["bronze", "silver", "gold", "smart gold", "platinium", "master"];
 
     // Local storage keys (yangi fields: tapsUsed, tapCap)
     const KEY_PRC = "proguzmir_prc_wei";
@@ -171,12 +258,12 @@
     // Skinlar ro'yxati
     const SKIN_COST_WEI = 500000000000000n; // 0.0005 PRC = 5e14 wei
     const SKINS = [
-      { id: "bronza", name:"Bronza", file:"/image/Bronza.png" },
-      { id: "silver", name:"Silver", file:"/image/silver.png" },
-      { id: "gold", name:"Gold", file:"/image/gold.png" },
-      { id: "smart", name:"Smart Gold", file:"/image/Smart_gold.png" },
-      { id: "plat", name:"Platinium", file:"/image/Platinium.png" },
-      { id: "master", name:"Master", file:"/image/Master.png" }
+      { id: "bronza", name: "Bronza", file: "image/Bronza.png" },
+      { id: "silver", name: "Silver", file: "image/silver.png" },
+      { id: "gold", name: "Gold", file: "image/gold.png" },
+      { id: "smart", name: "Smart Gold", file: "image/Smart_gold.png" },
+      { id: "plat", name: "Platinium", file: "image/Platinium.png" },
+      { id: "master", name: "Master", file: "image/Master.png" }
     ];
 
     // Init state (default PRC = 0.0000000000000037 PRC -> 3700 wei)
@@ -243,8 +330,8 @@
 
     function getRankFromWei(wei) {
       if (wei < BASE_WEI) return "bronze";
-      for (let i=1;i<RANKS.length;i++) {
-        const thr = BASE_WEI * (3n ** BigInt(i-1));
+      for (let i = 1; i < RANKS.length; i++) {
+        const thr = BASE_WEI * (3n ** BigInt(i - 1));
         if (wei < thr * 3n) return RANKS[i];
       }
       return "master";
@@ -270,7 +357,7 @@
       const rank = getRankFromWei(s.prcWei);
       const defaultTapImg = rankImage(rank);
       const selectedSkin = s.selectedSkin;
-      const skinObj = SKINS.find(x=>x.id===selectedSkin);
+      const skinObj = SKINS.find(x => x.id === selectedSkin);
       const displayImg = skinObj ? skinObj.file : defaultTapImg;
 
       content.innerHTML = `
@@ -283,7 +370,7 @@
           <div class="row"><div>Taps used:</div><div id="tapsInfo">${s.tapsUsed} / ${s.tapCap}</div></div>
           <div style="display:flex; gap:8px; margin-top:10px; align-items:center;">
             <select id="skinSelect" class="input" style="max-width:220px;">
-              ${SKINS.map(sk => `<option value="${sk.id}" ${sk.id===selectedSkin?'selected':''}>${sk.name}</option>`).join('')}
+              ${SKINS.map(sk => `<option value="${sk.id}" ${sk.id === selectedSkin ? 'selected' : ''}>${sk.name}</option>`).join('')}
             </select>
             <button class="btn" id="buySkinBtn">Skin sotib ol (0.0005 PRC)</button>
             <button class="btn" id="resetSkinBtn">Default rank</button>
@@ -299,27 +386,27 @@
       tapBtn.addEventListener('click', () => {
         const state = loadState();
         if (state.tapsUsed >= state.tapCap) { alert('Tap limitga yetdi. Ko‘proq taps sotib oling.'); return; }
-        tapBtn.classList.add('tap-press'); setTimeout(()=> tapBtn.classList.remove('tap-press'), 120);
+        tapBtn.classList.add('tap-press'); setTimeout(() => tapBtn.classList.remove('tap-press'), 120);
         state.tapsUsed += 1; state.diamond += 1;
         saveState(state);
         document.getElementById('diamondTop').textContent = '💎 ' + state.diamond + ' diamond';
         document.getElementById('tapsInfo').textContent = `${state.tapsUsed} / ${state.tapCap}`;
-        if (tg) tg.sendData(JSON.stringify({event:'tap',tapsUsed:state.tapsUsed,diamond:state.diamond,prc:state.prcWei.toString()}));
+        if (tg) tg.sendData(JSON.stringify({ event: 'tap', tapsUsed: state.tapsUsed, diamond: state.diamond, prc: state.prcWei.toString() }));
       });
 
       // buy skin
-      document.getElementById('buySkinBtn').addEventListener('click', ()=>{
+      document.getElementById('buySkinBtn').addEventListener('click', () => {
         const sel = document.getElementById('skinSelect').value;
         const state = loadState();
         if (!chargeCost(state, SKIN_COST_WEI)) { alert('Yetarli PRC yo‘q skin sotib olish uchun.'); return; }
         state.selectedSkin = sel;
         saveState(state);
-        alert('Skin sotib olindi: ' + SKINS.find(s=>s.id===sel).name);
+        alert('Skin sotib olindi: ' + SKINS.find(s => s.id === sel).name);
         renderGame();
-        if (tg) tg.sendData(JSON.stringify({event:'buy_skin',skin:sel,cost:SKIN_COST_WEI.toString()}));
+        if (tg) tg.sendData(JSON.stringify({ event: 'buy_skin', skin: sel, cost: SKIN_COST_WEI.toString() }));
       });
 
-      document.getElementById('resetSkinBtn').addEventListener('click', ()=>{
+      document.getElementById('resetSkinBtn').addEventListener('click', () => {
         const state = loadState();
         state.selectedSkin = "";
         saveState(state);
@@ -327,7 +414,7 @@
       });
 
       // buy taps (existing logic)
-      document.getElementById('buyTapsBtn').addEventListener('click', ()=>{
+      document.getElementById('buyTapsBtn').addEventListener('click', () => {
         const state = loadState();
         const cost = BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI;
         if (!chargeCost(state, cost)) { alert('Yetarli PRC yo‘q.'); return; }
@@ -335,7 +422,7 @@
         saveState(state);
         alert(`Sotib olindi: +${INCREASE_BLOCK} taps. Yangi cap: ${state.tapCap}`);
         renderGame();
-        if (tg) tg.sendData(JSON.stringify({event:'buy_taps',added:INCREASE_BLOCK,cost:cost.toString(),prc:getTotalPRCWei(state).toString()}));
+        if (tg) tg.sendData(JSON.stringify({ event: 'buy_taps', added: INCREASE_BLOCK, cost: cost.toString(), prc: getTotalPRCWei(state).toString() }));
       });
 
       // yangilangan header balansini ko'rsatish
@@ -347,10 +434,10 @@
       const s = loadState();
       const rank = getRankFromWei(s.prcWei);
       let thrText = '';
-      for (let i=0;i<RANKS.length;i++) {
-        if (i===0) thrText += `bronze: 0+\n`;
+      for (let i = 0; i < RANKS.length; i++) {
+        if (i === 0) thrText += `bronze: 0+\n`;
         else {
-          const t = BASE_WEI * (3n ** BigInt(i-1));
+          const t = BASE_WEI * (3n ** BigInt(i - 1));
           thrText += `${RANKS[i]}: >= ${fmtPRC(t)}\n`;
         }
       }
@@ -368,17 +455,17 @@
         <div style="margin-top:8px">Wallet: <div style="margin-top:6px"><input id="walletInput" class="input" placeholder="Wallet manzilingizni yozing" value="${s.wallet || ''}"></div></div>
         <div style="display:flex; gap:8px; margin-top:10px;"><button class="btn" id="connectBtn">Connect</button><button class="btn" id="disconnectBtn">Disconnect</button></div>
       `;
-      document.getElementById('connectBtn').addEventListener('click', ()=>{
+      document.getElementById('connectBtn').addEventListener('click', () => {
         const val = document.getElementById('walletInput').value.trim();
         s.wallet = val;
         saveState(s);
-        if (tg) tg.sendData(JSON.stringify({event:'wallet_connect',wallet:val}));
+        if (tg) tg.sendData(JSON.stringify({ event: 'wallet_connect', wallet: val }));
         alert('Wallet saqlandi.');
       });
-      document.getElementById('disconnectBtn').addEventListener('click', ()=>{
+      document.getElementById('disconnectBtn').addEventListener('click', () => {
         s.wallet = "";
         saveState(s);
-        if (tg) tg.sendData(JSON.stringify({event:'wallet_disconnect'}));
+        if (tg) tg.sendData(JSON.stringify({ event: 'wallet_disconnect' }));
         alert('Wallet uzildi.');
         renderWallet();
       });
@@ -393,24 +480,24 @@
           <div style="display:flex; gap:8px; margin-top:8px;"><button class="btn" id="buyBtn">🔁 Sotib olish</button><button class="btn" id="airdropBtn">🎁 Airdrop</button></div>
         </div>
       `;
-      document.getElementById('buyBtn').addEventListener('click', ()=>{
-        const q = parseInt(document.getElementById('buyQty').value || "0",10);
-        if (!q || q<=0) { alert('Iltimos to\'g\'ri miqdor kiriting'); return; }
+      document.getElementById('buyBtn').addEventListener('click', () => {
+        const q = parseInt(document.getElementById('buyQty').value || "0", 10);
+        if (!q || q <= 0) { alert('Iltimos to\'g\'ri miqdor kiriting'); return; }
         if (s.diamond < q) { alert('Yetarli diamond yo\'q'); return; }
         const gained = BigInt(q) * DIAMOND_TO_WEI;
         s.prcWei += gained;
         s.diamond -= q;
         saveState(s);
-        if (tg) tg.sendData(JSON.stringify({event:'buy',qty:q,gained: gained.toString()}));
+        if (tg) tg.sendData(JSON.stringify({ event: 'buy', qty: q, gained: gained.toString() }));
         // ko'rsatishda jami balansni ishlatamiz
         alert(`Sotib olindi: +${fmtPRC(gained)}. Yangi balans: ${fmtPRC(getTotalPRCWei(s))}`);
         renderMarket();
       });
-      document.getElementById('airdropBtn').addEventListener('click', ()=>{
+      document.getElementById('airdropBtn').addEventListener('click', () => {
         const inc = BASE_WEI; // namuna
         s.prcWei += inc;
         saveState(s);
-        if (tg) tg.sendData(JSON.stringify({event:'airdrop',inc:inc.toString()}));
+        if (tg) tg.sendData(JSON.stringify({ event: 'airdrop', inc: inc.toString() }));
         alert('Airdrop berildi: ' + fmtPRC(getTotalPRCWei(s)));
         renderMarket();
       });
@@ -423,19 +510,19 @@
         <div style="margin-top:8px">Missiya: "Kunlik vazifa" → bajaring va diamond oling.</div>
         <div style="text-align:center; margin-top:12px;"><button class="btn" id="doMission">Missiya bajarish (+1 diamond)</button></div>
       `;
-      document.getElementById('doMission').addEventListener('click', ()=>{
+      document.getElementById('doMission').addEventListener('click', () => {
         s.diamond += 1;
         saveState(s);
-        if (tg) tg.sendData(JSON.stringify({event:'mission',diamond:1}));
+        if (tg) tg.sendData(JSON.stringify({ event: 'mission', diamond: 1 }));
         alert('Missiya bajarildi: +1 diamond');
         renderEarn();
       });
     }
 
     // Tab switching (nav fixed at bottom visually)
-    document.querySelectorAll('.nav .tab').forEach(el=>{
-      el.addEventListener('click', ()=>{
-        document.querySelectorAll('.nav .tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.nav .tab').forEach(el => {
+      el.addEventListener('click', () => {
+        document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
         const tab = el.dataset.tab;
         if (tab === 'game') renderGame();
@@ -450,4 +537,5 @@
     renderGame();
   </script>
 </body>
+
 </html>
