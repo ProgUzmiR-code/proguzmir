@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PROUZ Mini App</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #0a0a0a, #1f1f1f);
+      color: white;
+      text-align: center;
+      font-family: sans-serif;
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    h1 { margin-bottom: 10px; }
+    #tapBtn {
+      background: gold;
+      color: black;
+      font-size: 22px;
+      padding: 20px 50px;
+      border-radius: 15px;
+      border: none;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    #tapBtn:active {
+      transform: scale(0.95);
+      background: orange;
+    }
+    #counter {
+      margin-top: 15px;
+      font-size: 28px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐯 PROUZ Tap to Earn</h1>
+  <button id="tapBtn">TAP</button>
+  <div id="counter">0 PROUZ</div>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    let count = 0;
+    const tapBtn = document.getElementById('tapBtn');
+    const counter = document.getElementById('counter');
+
+    tapBtn.addEventListener('click', () => {
+      count++;
+      counter.textContent = count + " PROUZ";
+    });
+  </script>
+</body>
+</html>
