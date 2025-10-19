@@ -466,25 +466,27 @@
         document.getElementById('tapsCount').textContent = `${state.energy} / ${state.maxEnergy}`;
       });
 
-      setInterval(() => {
-        const state = loadState();
-        if (state.energy < state.maxEnergy) {
-          state.energy += 1;
-          saveState(state);
-          document.getElementById('tapsCount').textContent = `${state.energy} / ${state.maxEnergy}`;
-        }
-      }, 1000); // har 500ms da +1
+      // setInterval(() => {
+      //   const state = loadState();
+      //   if (state.energy < state.maxEnergy) {
+      //     state.energy += 1;
+      //     saveState(state);
+      //     document.getElementById('tapsCount').textContent = `${state.energy} / ${state.maxEnergy}`;
+      //   }
+      // }, 1000); // har 500ms da +1
 
       // ENERGY recharge (visual-only increase of current energy until maxEnergy)
       function stopEnergyRecharge() { if (window._energyInterval) { clearInterval(window._energyInterval); window._energyInterval = null; } }
       function startEnergyRecharge() {
         stopEnergyRecharge();
         window._energyInterval = setInterval(() => {
-          const st = loadState();
-          if (st.energy >= st.maxEnergy) { stopEnergyRecharge(); return; }
-          st.energy = Math.min(st.maxEnergy, st.energy + 1);
-          saveState(st);
-        }, 500);
+          const state = loadState();
+        if (state.energy < state.maxEnergy) {
+          state.energy += 1;
+          saveState(state);
+          document.getElementById('tapsCount').textContent = `${state.energy} / ${state.maxEnergy}`;
+        }
+        }, 1000);
       }
       // start when game view shown
       startEnergyRecharge();
