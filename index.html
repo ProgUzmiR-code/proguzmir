@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProgUzmiR</title>
+  <style>
+    body {
+      /* rasm markazda, qaytarilmasin, to'liq ekranni qoplasin */
+      background-image: url('image/background.jpg');
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+      /* desktop uchun; mobilda brauzer cheklashi mumkin */
+      background-color: #06121a;
+      /* rasm yuklanmasa fallback rang */
+      color: white;
+      text-align: center;
+      font-family: sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    /* NAV: hozir pastda paydo bo'ladi (fixed) */
+    .nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.35);
+      padding: 8px;
+      border-radius: 12px;
+      z-index: 60;
+    }
+
+    .tab {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      user-select: none;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .tab.active {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    /* RESPONSIVE LAYOUT */
+    :root {
+      --header-height: 64px;
+    }
+
+    .header {
+      position: fixed;
+      top: 12px;
+      left: 20px;
+      right: 20px;
+      height: var(--header-height);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.12);
+      padding: 6px 12px;
+      border-radius: 10px;
+      z-index: 90;
+      box-sizing: border-box;
+    }
+
+    .header img {
+      width: 48px;
+      height: auto;
+      border-radius: 6px;
+      display: block;
+    }
+
+    .header .balance {
+      font-weight: 700;
+      color: #fff;
+      text-align: right;
+      font-size: 15px;
+    }
+
+    /* panel: yuqoridagi header uchun joy qoldirish va pastdagi nav uchun safe-area */
+    .panel {
+      max-width: 420px;
+      width: 100%;
+      text-align: left;
+      padding-top: calc(var(--header-height) + 12px);
+      padding-bottom: calc(100px + env(safe-area-inset-bottom));
+      box-sizing: border-box;
+    }
+
+    /* tap-area va rasm responsivligi */
+    .tap-area {
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    #tapBtn {
+      width: 100%;
+      max-width: 320px;
+      height: auto;
+      touch-action: manipulation;
+    }
+
+    /* nav safe-area */
+    .nav {
+      bottom: calc(20px + env(safe-area-inset-bottom));
+    }
+
+    /* Media queries: telefonlar va planshetlar */
+    @media (max-width: 480px) {
+      :root {
+        --header-height: 56px;
+      }
+
+      .header img {
+        width: 40px;
+      }
+
+      .header .balance {
+        font-size: 13px;
+      }
+
+      .panel {
+        padding-top: calc(var(--header-height) + 8px);
+        padding-bottom: calc(84px + env(safe-area-inset-bottom));
+      }
+
+      #tapBtn {
+        max-width: 180px;
+      }
+
+      button.btn,
+      .input {
+        font-size: 15px;
+        padding: 12px;
+      }
+    }
+
+    @media (min-width:481px) and (max-width:1024px) {
+      :root {
+        --header-height: 60px;
+      }
+
+      .header img {
+        width: 44px;
+      }
+
+      .header .balance {
+        font-size: 15px;
+      }
+
+      #tapBtn {
+        max-width: 240px;
+      }
+    }
+
+    /* eski #topLogo qoidasi o'rnini yangi header style oladi */
+    /* header: full-width style — logo chap, balans oʻngda, orasida ochiq joy */
+    .header {
+      position: fixed;
+      top: 12px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.12);
+      /* xohlasangiz shaffoflikni o'zgartiring */
+      padding: 6px 12px;
+      border-radius: 10px;
+      z-index: 90;
+      box-sizing: border-box;
+    }
+
+    .header img {
+      width: 48px;
+      height: auto;
+      border-radius: 6px;
+      display: block;
+    }
+
+    .header .balance {
+      font-weight: 700;
+      color: #fff;
+      text-align: right;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- o'zgardi: endi header container (logo chapda, balans oʻngda) -->
+  <div class="header" aria-hidden="false">
+    <img src="./image/logo.png" alt="logo" />
+    <div class="balance" id="headerBalance">💰 PRC balans: 0.0000000000000037 PRC</div>
+  </div>
+
+  <!-- panel qoladi yuqorida, nav vizual pastda owing to fixed CSS -->
+  <div class="panel" id="content">
+    <!-- bo'limlar JavaScript orqali yuklanadi -->
+  </div>
+
+  <div class="nav" role="tablist" aria-label="Navigation">
+    <div class="tab active" data-tab="game">Game</div>
+    <div class="tab" data-tab="rank">Rank</div>
+    <div class="tab" data-tab="wallet">WALLET</div>
+    <div class="tab" data-tab="market">Market</div>
+    <div class="tab" data-tab="earn">Earn</div>
+  </div>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if (tg) tg.expand();
+
+    // BigInt birlik: 18 onlik (wei)
+    const DECIMALS = 18n;
+    const UNIT = 10n ** DECIMALS;
+
+    // Konstantalar (BigInt wei da)
+    const BASE_WEI = 1000n; // 0.000000000000001000 PRC -> 1e-15 / 1e-18 = 1000 wei
+    const DIAMOND_TO_WEI = 10n; // 1 diamond = 000000000000000010 PRC -> 1e-17 / 1e-18 = 10 wei
+
+    const RANKS = ["bronze", "silver", "gold", "smart gold", "platinium", "master"];
+
+    // Local storage keys (yangi fields: tapsUsed, tapCap)
+    const KEY_PRC = "proguzmir_prc_wei";
+    const KEY_DIAMOND = "proguzmir_diamond";
+    const KEY_WALLET = "proguzmir_wallet";
+    const KEY_TAPS_USED = "proguzmir_taps_used";
+    const KEY_TAP_CAP = "proguzmir_tap_cap";
+    const KEY_SELECTED_SKIN = "proguzmir_selected_skin";
+
+    // Default tap cap va blok o'lchami
+    const DEFAULT_TAP_CAP = 1000;
+    const INCREASE_BLOCK = 1000; // qancha tapped limitni oshiramiz har xaridda
+
+    // Skinlar ro'yxati
+    const SKIN_COST_WEI = 500000000000000n; // 0.0005 PRC = 5e14 wei
+    const SKINS = [
+      { id: "bronza", name: "Bronza", file: "./image/Bronza.png" },
+      { id: "silver", name: "Silver", file: "./image/silver.png" },
+      { id: "gold", name: "Gold", file: "./image/gold.png" },
+      { id: "smart", name: "Smart Gold", file: "./image/Smart_gold.png" },
+      { id: "plat", name: "Platinium", file: "./image/Platinium.png" },
+      { id: "master", name: "Master", file: "./image/Master.png" }
+    ];
+
+    // Init state (default PRC = 0.0000000000000037 PRC -> 3700 wei)
+    // --- YANGI: foydalanuvchiga xos key yaratish funksiyasi ---
+    function makeUserKey(baseKey, wallet) {
+      return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest";
+    }
+    // --- YANGILANGAN loadState() ---
+    function loadState() {
+      const wallet = localStorage.getItem(KEY_WALLET) || "";
+      const keyPRC = makeUserKey(KEY_PRC, wallet);
+      const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
+      const keyTaps = makeUserKey(KEY_TAPS_USED, wallet);
+      const keyCap = makeUserKey(KEY_TAP_CAP, wallet);
+      const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
+
+      const prc = localStorage.getItem(keyPRC) || "0";
+      const diamond = parseInt(localStorage.getItem(keyDiamond) || "0", 10);
+      const tapsUsed = parseInt(localStorage.getItem(keyTaps) || "0", 10);
+      const tapCap = parseInt(localStorage.getItem(keyCap) || String(DEFAULT_TAP_CAP), 10);
+      const selectedSkin = localStorage.getItem(keySkin) || "";
+      return { prcWei: BigInt(prc), diamond, wallet, tapsUsed, tapCap, selectedSkin };
+    }
+    // yangi helper: jami PRC (sotib olingan prcWei + diamond*conversion)
+    function getTotalPRCWei(state) {
+      return state.prcWei + BigInt(state.diamond) * DIAMOND_TO_WEI;
+    }
+
+    // xaridni to'lash: avval prcWei dan, yetmasa diamondlardan (butun diamond birliklari)
+    function chargeCost(state, costWei) {
+      const total = getTotalPRCWei(state);
+      if (total < costWei) return false;
+      // agar prcWei yetarli bo'lsa to'g'ridan-to'g'ri kamaytiramiz
+      if (state.prcWei >= costWei) {
+        state.prcWei -= costWei;
+        saveState(state);
+        return true;
+      }
+      // aks holda prcWei ni bo'shatib, qolganni diamondlardan olamiz
+      let remaining = costWei - state.prcWei;
+      state.prcWei = 0n;
+      // qancha diamond kerak: ceil(remaining / DIAMOND_TO_WEI)
+      const diamondsNeeded = Number((remaining + DIAMOND_TO_WEI - 1n) / DIAMOND_TO_WEI);
+      // kamaytirish
+      state.diamond = Math.max(0, state.diamond - diamondsNeeded);
+      // agar overpay bo'lsa (diamond birliklari tufayli), qaytimni prcWei ga qo'shamiz
+      const paidByDiamondsWei = BigInt(diamondsNeeded) * DIAMOND_TO_WEI;
+      const overpay = paidByDiamondsWei - remaining;
+      if (overpay > 0n) state.prcWei += overpay;
+      saveState(state);
+      return true;
+    }
+
+    // --- YANGILANGAN saveState() ---
+    function saveState(state) {
+      const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
+      const keyPRC = makeUserKey(KEY_PRC, wallet);
+      const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
+      const keyTaps = makeUserKey(KEY_TAPS_USED, wallet);
+      const keyCap = makeUserKey(KEY_TAP_CAP, wallet);
+      const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
+
+      localStorage.setItem(keyPRC, state.prcWei.toString());
+      localStorage.setItem(keyDiamond, String(state.diamond));
+      localStorage.setItem(keyTaps, String(state.tapsUsed));
+      localStorage.setItem(keyCap, String(state.tapCap));
+      if (state.selectedSkin)
+        localStorage.setItem(keySkin, state.selectedSkin);
+      else localStorage.removeItem(keySkin);
+
+      if (state.wallet)
+        localStorage.setItem(KEY_WALLET, state.wallet);
+
+      const total = getTotalPRCWei(state);
+      const header = document.getElementById('headerBalance');
+      if (header) header.textContent = "💰 PRC balans: " + fmtPRC(total);
+    }
+
+    // doim 18 onlik ko'rsatadi (full precision)
+    function fmtPRC(wei) {
+      const negative = wei < 0n;
+      if (negative) wei = -wei;
+      const whole = (wei / UNIT).toString();
+      // frac always padded to DECIMALS (18) digits
+      const frac = (wei % UNIT).toString().padStart(Number(DECIMALS), '0');
+      return (negative ? '-' : '') + whole + '.' + frac + ' PRC';
+    }
+
+    function getRankFromWei(wei) {
+      if (wei < BASE_WEI) return "bronze";
+      for (let i = 1; i < RANKS.length; i++) {
+        const thr = BASE_WEI * (3n ** BigInt(i - 1));
+        if (wei < thr * 3n) return RANKS[i];
+      }
+      return "master";
+    }
+
+    // rank -> image helper
+    function rankImage(rank) {
+      const map = {
+        "bronze": "./image/Bronza.png",
+        "silver": "./image/silver.png",
+        "gold": "./image/gold.png",
+        "smart gold": "./image/Smart_gold.png",
+        "platinium": "./image/Platinium.png",
+        "master": "./image/Master.png"
+      };
+      return map[rank] || "./image/logo.png";
+    }
+
+    // UI rendering per tab (Game updated with taps logic)
+    const content = document.getElementById('content');
+    function renderGame() {
+      const s = loadState();
+      const rank = getRankFromWei(s.prcWei);
+      const defaultTapImg = rankImage(rank);
+      const selectedSkin = s.selectedSkin;
+      const skinObj = SKINS.find(x => x.id === selectedSkin);
+      const displayImg = skinObj ? skinObj.file : defaultTapImg;
+
+      content.innerHTML = `
+        <div class="tap-area">
+          <div id="diamondTop" style="font-size:20px; margin-bottom:10px;">💎 ${s.diamond} diamond</div>
+          <img id="tapBtn" src="${displayImg}" alt="tap">
+        </div>
+
+        <div style="margin-top:14px;">
+          <div class="row"><div>Taps used:</div><div id="tapsInfo">${s.tapsUsed} / ${s.tapCap}</div></div>
+          <div style="display:flex; gap:8px; margin-top:10px; align-items:center;">
+            <select id="skinSelect" class="input" style="max-width:220px;">
+              ${SKINS.map(sk => `<option value="${sk.id}" ${sk.id === selectedSkin ? 'selected' : ''}>${sk.name}</option>`).join('')}
+            </select>
+            <button class="btn" id="buySkinBtn">Skin sotib ol (0.0005 PRC)</button>
+            <button class="btn" id="resetSkinBtn">Default rank</button>
+          </div>
+          <div style="text-align:center; margin-top:12px;">
+            <button class="btn" id="buyTapsBtn">Buy +${INCREASE_BLOCK} taps (cost: ${fmtPRC(BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI)})</button>
+          </div>
+        </div>
+      `;
+
+      // yangilangan tap tasviri va animatsiya
+      const tapBtn = document.getElementById('tapBtn');
+      tapBtn.addEventListener('click', () => {
+        const state = loadState();
+        if (state.tapsUsed >= state.tapCap) { alert('Tap limitga yetdi. Ko‘proq taps sotib oling.'); return; }
+        tapBtn.classList.add('tap-press'); setTimeout(() => tapBtn.classList.remove('tap-press'), 120);
+        state.tapsUsed += 1; state.diamond += 1;
+        saveState(state);
+        document.getElementById('diamondTop').textContent = '💎 ' + state.diamond + ' diamond';
+        document.getElementById('tapsInfo').textContent = `${state.tapsUsed} / ${state.tapCap}`;
+        if (tg) tg.sendData(JSON.stringify({ event: 'tap', tapsUsed: state.tapsUsed, diamond: state.diamond, prc: state.prcWei.toString() }));
+      });
+
+      // buy skin
+      document.getElementById('buySkinBtn').addEventListener('click', () => {
+        const sel = document.getElementById('skinSelect').value;
+        const state = loadState();
+        if (!chargeCost(state, SKIN_COST_WEI)) { alert('Yetarli PRC yo‘q skin sotib olish uchun.'); return; }
+        state.selectedSkin = sel;
+        saveState(state);
+        alert('Skin sotib olindi: ' + SKINS.find(s => s.id === sel).name);
+        renderGame();
+        if (tg) tg.sendData(JSON.stringify({ event: 'buy_skin', skin: sel, cost: SKIN_COST_WEI.toString() }));
+      });
+
+      document.getElementById('resetSkinBtn').addEventListener('click', () => {
+        const state = loadState();
+        state.selectedSkin = "";
+        saveState(state);
+        renderGame();
+      });
+
+      // buy taps (existing logic)
+      document.getElementById('buyTapsBtn').addEventListener('click', () => {
+        const state = loadState();
+        const cost = BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI;
+        if (!chargeCost(state, cost)) { alert('Yetarli PRC yo‘q.'); return; }
+        state.tapCap += INCREASE_BLOCK;
+        saveState(state);
+        alert(`Sotib olindi: +${INCREASE_BLOCK} taps. Yangi cap: ${state.tapCap}`);
+        renderGame();
+        if (tg) tg.sendData(JSON.stringify({ event: 'buy_taps', added: INCREASE_BLOCK, cost: cost.toString(), prc: getTotalPRCWei(state).toString() }));
+      });
+
+      // yangilangan header balansini ko'rsatish
+      // headerni jami balans bilan yangilaymiz (prcWei + diamond*conversion)
+      document.getElementById('headerBalance') && (document.getElementById('headerBalance').textContent = "💰 PRC balans: " + fmtPRC(getTotalPRCWei(s)));
+    }
+
+    function renderRank() {
+      const s = loadState();
+      const rank = getRankFromWei(s.prcWei);
+      let thrText = '';
+      for (let i = 0; i < RANKS.length; i++) {
+        if (i === 0) thrText += `bronze: 0+\n`;
+        else {
+          const t = BASE_WEI * (3n ** BigInt(i - 1));
+          thrText += `${RANKS[i]}: >= ${fmtPRC(t)}\n`;
+        }
+      }
+      // PRC ko'rsatishda jami balansni ishlatamiz (sotib olingan + diamond ekv.)
+      content.innerHTML = `
+        <div class="row"><div>🏷 Hozirgi rank:</div><div><b>${rank}</b></div></div>
+        <pre style="white-space:pre-wrap; color:#ddd; margin-top:8px;">PRC: ${fmtPRC(getTotalPRCWei(s))}\nReferallar: (local)\n\nThresholds:\n${thrText}</pre>
+      `;
+    }
+
+    function renderWallet() {
+      const s = loadState();
+      content.innerHTML = `
+        <div class="row"><div>💰 PRC balans:</div><div id="prc">${fmtPRC(getTotalPRCWei(s))}</div></div>
+        <div style="margin-top:8px">Wallet: <div style="margin-top:6px"><input id="walletInput" class="input" placeholder="Wallet manzilingizni yozing" value="${s.wallet || ''}"></div></div>
+        <div style="display:flex; gap:8px; margin-top:10px;"><button class="btn" id="connectBtn">Connect</button><button class="btn" id="disconnectBtn">Disconnect</button></div>
+      `;
+      document.getElementById('connectBtn').addEventListener('click', () => {
+        const val = document.getElementById('walletInput').value.trim();
+        s.wallet = val;
+        saveState(s);
+        if (tg) tg.sendData(JSON.stringify({ event: 'wallet_connect', wallet: val }));
+        alert('Wallet saqlandi.');
+      });
+      document.getElementById('disconnectBtn').addEventListener('click', () => {
+        s.wallet = "";
+        saveState(s);
+        if (tg) tg.sendData(JSON.stringify({ event: 'wallet_disconnect' }));
+        alert('Wallet uzildi.');
+        renderWallet();
+      });
+    }
+
+    function renderMarket() {
+      const s = loadState();
+      content.innerHTML = `
+        <div class="row"><div>📊 Narx (statik):</div><div>1 diamond = ${fmtPRC(DIAMOND_TO_WEI)}</div></div>
+        <div style="margin-top:8px">
+          <div class="row"><div>Sotib olish (diamond ni PRC ga):</div><div><input id="buyQty" class="input" placeholder="miqdor (diamond)"></div></div>
+          <div style="display:flex; gap:8px; margin-top:8px;"><button class="btn" id="buyBtn">🔁 Sotib olish</button><button class="btn" id="airdropBtn">🎁 Airdrop</button></div>
+        </div>
+      `;
+      document.getElementById('buyBtn').addEventListener('click', () => {
+        const q = parseInt(document.getElementById('buyQty').value || "0", 10);
+        if (!q || q <= 0) { alert('Iltimos to\'g\'ri miqdor kiriting'); return; }
+        if (s.diamond < q) { alert('Yetarli diamond yo\'q'); return; }
+        const gained = BigInt(q) * DIAMOND_TO_WEI;
+        s.prcWei += gained;
+        s.diamond -= q;
+        saveState(s);
+        if (tg) tg.sendData(JSON.stringify({ event: 'buy', qty: q, gained: gained.toString() }));
+        // ko'rsatishda jami balansni ishlatamiz
+        alert(`Sotib olindi: +${fmtPRC(gained)}. Yangi balans: ${fmtPRC(getTotalPRCWei(s))}`);
+        renderMarket();
+      });
+      document.getElementById('airdropBtn').addEventListener('click', () => {
+        const inc = BASE_WEI; // namuna
+        s.prcWei += inc;
+        saveState(s);
+        if (tg) tg.sendData(JSON.stringify({ event: 'airdrop', inc: inc.toString() }));
+        alert('Airdrop berildi: ' + fmtPRC(getTotalPRCWei(s)));
+        renderMarket();
+      });
+    }
+
+    function renderEarn() {
+      const s = loadState();
+      content.innerHTML = `
+        <div class="row"><div>💎 Diamond:</div><div id="diamond">${s.diamond}</div></div>
+        <div style="margin-top:8px">Missiya: "Kunlik vazifa" → bajaring va diamond oling.</div>
+        <div style="text-align:center; margin-top:12px;"><button class="btn" id="doMission">Missiya bajarish (+1 diamond)</button></div>
+      `;
+      document.getElementById('doMission').addEventListener('click', () => {
+        s.diamond += 1;
+        saveState(s);
+        if (tg) tg.sendData(JSON.stringify({ event: 'mission', diamond: 1 }));
+        alert('Missiya bajarildi: +1 diamond');
+        renderEarn();
+      });
+    }
+
+    // Tab switching (nav fixed at bottom visually)
+    document.querySelectorAll('.nav .tab').forEach(el => {
+      el.addEventListener('click', () => {
+        document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        const tab = el.dataset.tab;
+        if (tab === 'game') renderGame();
+        if (tab === 'rank') renderRank();
+        if (tab === 'wallet') renderWallet();
+        if (tab === 'market') renderMarket();
+        if (tab === 'earn') renderEarn();
+      });
+    });
+
+    // default
+    renderGame();
+  </script>
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyAmW5uertXKHhRj_TWVnj6HA6v4KSLGPLE",
+    authDomain: "proguzmirr-test.firebaseapp.com",
+    projectId: "proguzmirr-test",
+    storageBucket: "proguzmirr-test.firebasestorage.app",
+    messagingSenderId: "1096450580993",
+    appId: "1:1096450580993:web:d4ab624556283632759600",
+    measurementId: "G-B0PPCYTY3S"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+</body>
+
+</html>
