@@ -388,7 +388,7 @@
 
       content.innerHTML = `
         <div class="tap-area">
-          <div id="diamondTop" style="font-size:20px; margin-bottom:10px;">💎 ${s.diamond} diamond</div>
+          <div id="diamondTop" style="font-size:20px; margin-bottom:10px;">💎 ${s.diamond} </div>
           <img id="tapBtn" src="${displayImg}" alt="tap">
         </div>
 
@@ -415,7 +415,7 @@
         tapBtn.classList.add('tap-press'); setTimeout(() => tapBtn.classList.remove('tap-press'), 120);
         state.tapsUsed += 1; state.diamond += 1;
         saveState(state);
-        document.getElementById('diamondTop').textContent = '💎 ' + state.diamond + ' diamond';
+        document.getElementById('diamondTop').textContent = '💎 ' + state.diamond;
         document.getElementById('tapsInfo').textContent = `${state.tapsUsed} / ${state.tapCap}`;
         if (tg) tg.sendData(JSON.stringify({ event: 'tap', tapsUsed: state.tapsUsed, diamond: state.diamond, prc: state.prcWei.toString() }));
       });
