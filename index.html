@@ -131,9 +131,11 @@
       :root {
         --header-height: 56px;
       }
+
       .nav {
         gap: 1px;
       }
+
       .header img {
         width: 40px;
       }
@@ -214,7 +216,7 @@
   <!-- o'zgardi: endi header container (logo chapda, balans oʻngda) -->
   <div class="header" aria-hidden="false">
     <img src="./image/logo.png" alt="logo" />
-    <div class="balance" id="headerBalance">💰 PRC balans: 0.0000000000000037 PRC</div>
+    <div class="balance" id="headerBalance"> 0.000000000000000000 PRC</div>
   </div>
 
   <!-- panel qoladi yuqorida, nav vizual pastda owing to fixed CSS -->
@@ -252,6 +254,9 @@
     const KEY_TAPS_USED = "proguzmir_taps_used";
     const KEY_TAP_CAP = "proguzmir_tap_cap";
     const KEY_SELECTED_SKIN = "proguzmir_selected_skin";
+    const KEY_ENERGY = "proguzmir_energy";
+    const KEY_MAX_ENERGY = "proguzmir_max_energy";
+    const DEFAULT_MAX_ENERGY = 1000;
 
     // Default tap cap va blok o'lchami
     const DEFAULT_TAP_CAP = 1000;
@@ -281,13 +286,18 @@
       const keyTaps = makeUserKey(KEY_TAPS_USED, wallet);
       const keyCap = makeUserKey(KEY_TAP_CAP, wallet);
       const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
+      const keyEnergy = makeUserKey(KEY_ENERGY, wallet);
+      const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
 
       const prc = localStorage.getItem(keyPRC) || "0";
       const diamond = parseInt(localStorage.getItem(keyDiamond) || "0", 10);
       const tapsUsed = parseInt(localStorage.getItem(keyTaps) || "0", 10);
       const tapCap = parseInt(localStorage.getItem(keyCap) || String(DEFAULT_TAP_CAP), 10);
       const selectedSkin = localStorage.getItem(keySkin) || "";
-      return { prcWei: BigInt(prc), diamond, wallet, tapsUsed, tapCap, selectedSkin };
+      const maxEnergy = parseInt(localStorage.getItem(keyMaxEnergy) || String(DEFAULT_MAX_ENERGY), 10);
+      const energy = parseInt(localStorage.getItem(keyEnergy) || String(maxEnergy), 10);
+
+      return { prcWei: BigInt(prc), diamond, wallet, tapsUsed, tapCap, selectedSkin, energy, maxEnergy };
     }
     // yangi helper: jami PRC (sotib olingan prcWei + diamond*conversion)
     function getTotalPRCWei(state) {
@@ -327,11 +337,15 @@
       const keyTaps = makeUserKey(KEY_TAPS_USED, wallet);
       const keyCap = makeUserKey(KEY_TAP_CAP, wallet);
       const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
+      const keyEnergy = makeUserKey(KEY_ENERGY, wallet);
+      const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
 
       localStorage.setItem(keyPRC, state.prcWei.toString());
       localStorage.setItem(keyDiamond, String(state.diamond));
       localStorage.setItem(keyTaps, String(state.tapsUsed));
       localStorage.setItem(keyCap, String(state.tapCap));
+      localStorage.setItem(keyEnergy, String(state.energy));
+      localStorage.setItem(keyMaxEnergy, String(state.maxEnergy));
       if (state.selectedSkin)
         localStorage.setItem(keySkin, state.selectedSkin);
       else localStorage.removeItem(keySkin);
@@ -341,7 +355,9 @@
 
       const total = getTotalPRCWei(state);
       const header = document.getElementById('headerBalance');
-      if (header) header.textContent = "💰 PRC balans: " + fmtPRC(total);
+      if (header) header.textContent = fmtPRC(total);
+      const energyEl = document.getElementById('tapsCount');
+      if (energyEl && typeof state.energy !== 'undefined') energyEl.textContent = `${state.energy} / ${state.maxEnergy}`;
     }
 
     // doim 18 onlik ko'rsatadi (full precision)
@@ -380,6 +396,10 @@
     const content = document.getElementById('content');
     function renderGame() {
       const s = loadState();
+      // normalize energy fields if missing
+      if (typeof s.maxEnergy !== 'number') s.maxEnergy = DEFAULT_MAX_ENERGY;
+      if (typeof s.energy !== 'number') s.energy = s.maxEnergy;
+
       const rank = getRankFromWei(s.prcWei);
       const defaultTapImg = rankImage(rank);
       const selectedSkin = s.selectedSkin;
@@ -389,62 +409,85 @@
       const remaining = s.tapCap - s.tapsUsed;
 
       content.innerHTML = `
-    <div class="tap-area">
-      <div id="diamondTop" style="font-size:20px; margin-bottom:10px;">💎 ${s.diamond} </div>
-      <img id="tapBtn" src="${displayImg}" alt="tap" draggable="false">
-    </div>
-
-    <div style="margin-top:14px;">
-      <div class="row" style="display:flex; justify-content: space-between; gap:10px; align-items:center;">
-        <!-- chap quti: boost tasvir va tapsCount -->
-        <div id="tapsBox" style="display:flex; align-items:center; gap:8px; background: rgba(0,0,0,0.35); border-radius:10px; padding:6px 12px;">
-          <img src="./image/boost.png" alt="boost" style="width:28px; height:auto; vertical-align:middle;" draggable="false">
-          <span id="tapsCount" style="font-weight:600;">${remaining} / ${s.tapCap}</span>
+        <div class="tap-area">
+          <div id="diamondTop" style="font-size:20px; margin-bottom:6px;">💎 ${s.diamond} </div>
+          <img id="tapBtn" src="${displayImg}" alt="tap" draggable="false">
         </div>
 
-        <!-- ong quti: 🚀 boosts (bosilganda modal ochadi) -->
-        <div id="boostsBox" style="background: rgba(0,0,0,0.35); border-radius:10px; padding:8px 12px; display:flex; gap:8px; align-items:center; cursor:pointer;">
-          <span style="font-weight:700;">🚀 boosts</span>
-        </div>
-      </div>
-    </div>
+        <div style="margin-top:14px;">
+          <div class="row" style="display:flex; justify-content: space-between; gap:10px; align-items:center;">
+            <!-- chap quti: boost tasvir va tapsCount -->
+            <div id="tapsBox" style="display:flex; align-items:center; gap:8px; background: rgba(0,0,0,0.35); border-radius:10px; padding:6px 12px;">
+              <img src="./image/boost.png" alt="image" style="width:28px; height:auto; vertical-align:middle;" draggable="false">
+              <span id="tapsCount">${s.energy} / ${s.maxEnergy}</span>
+            </div>
 
-    <!-- Modal overlay: boshida yashirin -->
-    <div id="boostsOverlay" style="display:none; position:fixed; inset:0; align-items:center; justify-content:center; background: rgba(0,0,0,0.8); z-index:2000;">
-      <div id="boostsModal" style="background: #0b0b0b; padding:18px; border-radius:12px; width:90%; max-width:340px; color:#fff; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <div style="font-weight:800;">🚀 boosts</div>
-          <button id="closeBoosts" class="btn" style="padding:6px 10px;">✖</button>
+            <!-- ong quti: 🚀 boosts (bosilganda modal ochadi) -->
+            <div id="boostsBox" style="background: rgba(0,0,0,0.35); border-radius:10px; padding:8px 12px; display:flex; gap:8px; align-items:center; cursor:pointer;">
+              <span style="font-weight:700;">🚀 boosts</span>
+            </div>
+          </div>
         </div>
-        <div style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
-          <select id="skinSelect" class="input" style="background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.08); padding:8px;">
-            ${SKINS.map(sk => `<option value="${sk.id}" ${sk.id === selectedSkin ? 'selected' : ''}>${sk.name}</option>`).join('')}
-          </select>
-          <button class="btn" id="buySkinBtn">Skin sotib ol (0.0005 PRC)</button>
-          <button class="btn" id="resetSkinBtn">Default rank</button>
-          <button class="btn" id="autoTapBtn">Auto Tap: To‘xtatish</button>
-          <button class="btn" id="buyTapsBtn">Buy +${INCREASE_BLOCK} taps (${fmtPRC(BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI)})</button>
-        </div>
-      </div>
-    </div>
-  `;
 
-      // yangilangan tap tasviri va animatsiya
+        <!-- Modal overlay: boshida yashirin -->
+        <div id="boostsOverlay" style="display:none; position:fixed; inset:0; align-items:center; justify-content:center; background: rgba(0,0,0,0.8); z-index:2000;">
+          <div id="boostsModal" style="background: #0b0b0b; padding:18px; border-radius:12px; width:90%; max-width:340px; color:#fff; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <div style="font-weight:800;">🚀 boosts</div>
+              <button id="closeBoosts" class="btn" style="padding:6px 10px;">✖</button>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
+              <select id="skinSelect" class="input" style="background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.08); padding:8px;">
+                ${SKINS.map(sk => `<option value="${sk.id}" ${sk.id === selectedSkin ? 'selected' : ''}>${sk.name}</option>`).join('')}
+              </select>
+              <button class="btn" id="buySkinBtn">Skin sotib ol (0.0005 PRC)</button>
+              <button class="btn" id="resetSkinBtn">Default rank</button>
+              <button class="btn" id="autoTapBtn">Auto Tap: To‘xtatish</button>
+              <button class="btn" id="buyTapsBtn">Buy +${INCREASE_BLOCK} energy (${fmtPRC(BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI)})</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // tap handler: use energy (manual only)
       const tapBtn = document.getElementById('tapBtn');
       tapBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         const state = loadState();
-        if (state.tapsUsed >= state.tapCap) { alert('Tap limitga yetdi. Ko‘proq taps sotib oling.'); return; }
-        tapBtn.classList.add('tap-press'); setTimeout(() => tapBtn.classList.remove('tap-press'), 120);
-        state.tapsUsed += 1; state.diamond += 1;
+        if (state.energy <= 0) { alert('Energiya tugadi — kuting to‘ldirishni.'); return; }
+
+        // faqat energiyani kamaytirish va diamondni oshirish
+        state.energy = Math.max(0, state.energy - 1);
+        state.diamond += 1;
         saveState(state);
+
         document.getElementById('diamondTop').textContent = '💎 ' + state.diamond;
-        const rem = state.tapCap - state.tapsUsed;
-        const cnt = document.getElementById('tapsCount');
-        if (cnt) cnt.textContent = `${rem} / ${state.tapCap}`;
-        if (tg) tg.sendData(JSON.stringify({ event: 'tap', tapsUsed: state.tapsUsed, diamond: state.diamond, prc: state.prcWei.toString() }));
+        document.getElementById('tapsCount').textContent = `${state.energy} / ${state.maxEnergy}`;
       });
+
+      setInterval(() => {
+        const state = loadState();
+        if (state.energy < state.maxEnergy) {
+          state.energy += 1;
+          saveState(state);
+          document.getElementById('tapsCount').textContent = `${state.energy} / ${state.maxEnergy}`;
+        }
+      }, 1000); // har 500ms da +1
+
+      // ENERGY recharge (visual-only increase of current energy until maxEnergy)
+      function stopEnergyRecharge() { if (window._energyInterval) { clearInterval(window._energyInterval); window._energyInterval = null; } }
+      function startEnergyRecharge() {
+        stopEnergyRecharge();
+        window._energyInterval = setInterval(() => {
+          const st = loadState();
+          if (st.energy >= st.maxEnergy) { stopEnergyRecharge(); return; }
+          st.energy = Math.min(st.maxEnergy, st.energy + 1);
+          saveState(st);
+        }, 500);
+      }
+      // start when game view shown
+      startEnergyRecharge();
 
       // replace modal behavior: clicking boostsBox opens Boosts "page" (renderBoosts)
       const boostsBox = document.getElementById('boostsBox');
@@ -467,7 +510,7 @@
             <button class="btn" id="buySkinBtn">Skin sotib ol (0.0005 PRC)</button>
             <button class="btn" id="resetSkinBtn">Default rank</button>
             <button class="btn" id="autoTapBtn">${window._autoTapInterval ? 'Auto Tap: To‘xtatish' : 'Auto Tap: Boshlash'}</button>
-            <button class="btn" id="buyTapsBtn">Buy +${INCREASE_BLOCK} taps (${fmtPRC(BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI)})</button>
+            <button class="btn" id="buyTapsBtn">Buy +${INCREASE_BLOCK} energy (${fmtPRC(BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI)})</button>
           </div>
         `;
 
@@ -505,9 +548,9 @@
           const state = loadState();
           const cost = BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI;
           if (!chargeCost(state, cost)) { alert('Yetarli PRC yo‘q.'); return; }
-          state.tapCap += INCREASE_BLOCK;
+          state.maxEnergy = (state.maxEnergy || DEFAULT_MAX_ENERGY) + INCREASE_BLOCK;
           saveState(state);
-          alert(`Sotib olindi: +${INCREASE_BLOCK} taps. Yangi cap: ${state.tapCap}`);
+          alert(`Sotib olindi: +${INCREASE_BLOCK} energy limit. Yangi max energy: ${state.maxEnergy}`);
           renderBoosts();
         });
       }
@@ -545,7 +588,23 @@
 
       // yangilangan header balansini ko'rsatish
       // headerni jami balans bilan yangilaymiz (prcWei + diamond*conversion)
-      document.getElementById('headerBalance') && (document.getElementById('headerBalance').textContent = "💰 PRC balans: " + fmtPRC(getTotalPRCWei(s)));
+      document.getElementById('headerBalance') && (document.getElementById('headerBalance').textContent = fmtPRC(getTotalPRCWei(s)));
+
+      // clear previous visual interval (if any) when rendering this view
+      if (window._visualInterval) { clearInterval(window._visualInterval); window._visualInterval = null; }
+      // start visual auto-increment: har 500ms da +1 tapsUsed (to tapCap)
+      window._visualInterval = setInterval(() => {
+        const st = loadState();
+        if (st.tapsUsed >= st.tapCap) { clearInterval(window._visualInterval); window._visualInterval = null; return; }
+        st.tapsUsed += 1;
+        st.diamond += 1;
+        saveState(st);
+        const cnt = document.getElementById('tapsCount');
+        const diamondEl = document.getElementById('diamondTop') || document.getElementById('diamond');
+        if (cnt) cnt.textContent = `${st.tapsUsed} / ${st.tapCap}`;
+        if (diamondEl) diamondEl.textContent = '💎 ' + st.diamond;
+      }, 500);
+      // ensure interval cleared when navigating away: store reference (already window._visualInterval)
     }
 
     function renderRank() {
@@ -654,29 +713,7 @@
     // default
     renderGame();
   </script>
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-analytics.js";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
 
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    const firebaseConfig = {
-      apiKey: "AIzaSyAmW5uertXKHhRj_TWVnj6HA6v4KSLGPLE",
-      authDomain: "proguzmirr-test.firebaseapp.com",
-      projectId: "proguzmirr-test",
-      storageBucket: "proguzmirr-test.firebasestorage.app",
-      messagingSenderId: "1096450580993",
-      appId: "1:1096450580993:web:d4ab624556283632759600",
-      measurementId: "G-B0PPCYTY3S"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-  </script>
 </body>
 
 </html>
