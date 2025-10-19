@@ -123,7 +123,7 @@
 
     /* nav safe-area */
     .nav {
-      bottom: calc(5px + env(safe-area-inset-bottom));
+      bottom: calc(20px + env(safe-area-inset-bottom));
     }
 
     /* Media queries: telefonlar va planshetlar */
@@ -196,7 +196,7 @@
     }
 
     .header img {
-      width: 48px;
+      width: 60px;
       height: auto;
       border-radius: 6px;
       display: block;
@@ -386,39 +386,131 @@
       const skinObj = SKINS.find(x => x.id === selectedSkin);
       const displayImg = skinObj ? skinObj.file : defaultTapImg;
 
+      const remaining = s.tapCap - s.tapsUsed;
+
       content.innerHTML = `
-        <div class="tap-area">
-          <div id="diamondTop" style="font-size:20px; margin-bottom:10px;">💎 ${s.diamond} </div>
-          <img id="tapBtn" src="${displayImg}" alt="tap">
+    <div class="tap-area">
+      <div id="diamondTop" style="font-size:20px; margin-bottom:10px;">💎 ${s.diamond} </div>
+      <img id="tapBtn" src="${displayImg}" alt="tap" draggable="false">
+    </div>
+
+    <div style="margin-top:14px;">
+      <div class="row" style="display:flex; justify-content: space-between; gap:10px; align-items:center;">
+        <!-- chap quti: boost tasvir va tapsCount -->
+        <div id="tapsBox" style="display:flex; align-items:center; gap:8px; background: rgba(0,0,0,0.35); border-radius:10px; padding:6px 12px;">
+          <img src="./image/boost.png" alt="boost" style="width:28px; height:auto; vertical-align:middle;" draggable="false">
+          <span id="tapsCount" style="font-weight:600;">${remaining} / ${s.tapCap}</span>
         </div>
 
-        <div style="margin-top:14px;">
-          <div class="row"><div>Taps used:</div><div id="tapsInfo">${s.tapsUsed} / ${s.tapCap}</div></div>
-          <div style="display:flex; gap:8px; margin-top:10px; align-items:center;">
-            <select id="skinSelect" class="input" style="max-width:220px;">
-              ${SKINS.map(sk => `<option value="${sk.id}" ${sk.id === selectedSkin ? 'selected' : ''}>${sk.name}</option>`).join('')}
-            </select>
-            <button class="btn" id="buySkinBtn">Skin sotib ol (0.0005 PRC)</button>
-            <button class="btn" id="resetSkinBtn">Default rank</button>
-          </div>
-          <div style="text-align:center; margin-top:12px;">
-            <button class="btn" id="buyTapsBtn">Buy +${INCREASE_BLOCK} taps (cost: ${fmtPRC(BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI)})</button>
-          </div>
+        <!-- ong quti: 🚀 boosts (bosilganda modal ochadi) -->
+        <div id="boostsBox" style="background: rgba(0,0,0,0.35); border-radius:10px; padding:8px 12px; display:flex; gap:8px; align-items:center; cursor:pointer;">
+          <span style="font-weight:700;">🚀 boosts</span>
         </div>
-      `;
+      </div>
+    </div>
+
+    <!-- Modal overlay: boshida yashirin -->
+    <div id="boostsOverlay" style="display:none; position:fixed; inset:0; align-items:center; justify-content:center; background: rgba(0,0,0,0.8); z-index:2000;">
+      <div id="boostsModal" style="background: #0b0b0b; padding:18px; border-radius:12px; width:90%; max-width:340px; color:#fff; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div style="font-weight:800;">🚀 boosts</div>
+          <button id="closeBoosts" class="btn" style="padding:6px 10px;">✖</button>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
+          <select id="skinSelect" class="input" style="background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.08); padding:8px;">
+            ${SKINS.map(sk => `<option value="${sk.id}" ${sk.id === selectedSkin ? 'selected' : ''}>${sk.name}</option>`).join('')}
+          </select>
+          <button class="btn" id="buySkinBtn">Skin sotib ol (0.0005 PRC)</button>
+          <button class="btn" id="resetSkinBtn">Default rank</button>
+          <button class="btn" id="autoTapBtn">Auto Tap: To‘xtatish</button>
+          <button class="btn" id="buyTapsBtn">Buy +${INCREASE_BLOCK} taps (${fmtPRC(BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI)})</button>
+        </div>
+      </div>
+    </div>
+  `;
 
       // yangilangan tap tasviri va animatsiya
       const tapBtn = document.getElementById('tapBtn');
-      tapBtn.addEventListener('click', () => {
+      tapBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         const state = loadState();
         if (state.tapsUsed >= state.tapCap) { alert('Tap limitga yetdi. Ko‘proq taps sotib oling.'); return; }
         tapBtn.classList.add('tap-press'); setTimeout(() => tapBtn.classList.remove('tap-press'), 120);
         state.tapsUsed += 1; state.diamond += 1;
         saveState(state);
         document.getElementById('diamondTop').textContent = '💎 ' + state.diamond;
-        document.getElementById('tapsInfo').textContent = `${state.tapsUsed} / ${state.tapCap}`;
+        const rem = state.tapCap - state.tapsUsed;
+        const cnt = document.getElementById('tapsCount');
+        if (cnt) cnt.textContent = `${rem} / ${state.tapCap}`;
         if (tg) tg.sendData(JSON.stringify({ event: 'tap', tapsUsed: state.tapsUsed, diamond: state.diamond, prc: state.prcWei.toString() }));
       });
+
+      // replace modal behavior: clicking boostsBox opens Boosts "page" (renderBoosts)
+      const boostsBox = document.getElementById('boostsBox');
+      if (boostsBox) {
+        boostsBox.addEventListener('click', (ev) => { ev.stopPropagation(); renderBoosts(); });
+      }
+
+      // --- NEW: renderBoosts shows dedicated Boosts page (like navigating to a tab) ---
+      function renderBoosts() {
+        const s2 = loadState();
+        content.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div style="font-weight:800;">🚀 boosts</div>
+            <button id="closeBoosts" class="btn">Chiqish</button>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
+            <select id="skinSelect" class="input" style="background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.08); padding:8px;">
+              ${SKINS.map(sk => `<option value="${sk.id}" ${sk.id === s2.selectedSkin ? 'selected' : ''}>${sk.name}</option>`).join('')}
+            </select>
+            <button class="btn" id="buySkinBtn">Skin sotib ol (0.0005 PRC)</button>
+            <button class="btn" id="resetSkinBtn">Default rank</button>
+            <button class="btn" id="autoTapBtn">${window._autoTapInterval ? 'Auto Tap: To‘xtatish' : 'Auto Tap: Boshlash'}</button>
+            <button class="btn" id="buyTapsBtn">Buy +${INCREASE_BLOCK} taps (${fmtPRC(BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI)})</button>
+          </div>
+        `;
+
+        // close -> go back to game view
+        document.getElementById('closeBoosts').addEventListener('click', () => renderGame());
+
+        // buy skin in Boosts page
+        document.getElementById('buySkinBtn').addEventListener('click', () => {
+          const sel = document.getElementById('skinSelect').value;
+          const state = loadState();
+          if (!chargeCost(state, SKIN_COST_WEI)) { alert('Yetarli PRC yo‘q skin sotib olish uchun.'); return; }
+          state.selectedSkin = sel;
+          saveState(state);
+          alert('Skin sotib olindi: ' + SKINS.find(s => s.id === sel).name);
+          renderBoosts();
+        });
+
+        // reset skin
+        document.getElementById('resetSkinBtn').addEventListener('click', () => {
+          const state = loadState();
+          state.selectedSkin = "";
+          saveState(state);
+          renderBoosts();
+        });
+
+        // auto tap toggle
+        document.getElementById('autoTapBtn').addEventListener('click', () => {
+          if (window._autoTapInterval) stopAutoTap(); else startAutoTap();
+          const btn = document.getElementById('autoTapBtn');
+          if (btn) btn.textContent = window._autoTapInterval ? 'Auto Tap: To‘xtatish' : 'Auto Tap: Boshlash';
+        });
+
+        // buy taps
+        document.getElementById('buyTapsBtn').addEventListener('click', () => {
+          const state = loadState();
+          const cost = BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI;
+          if (!chargeCost(state, cost)) { alert('Yetarli PRC yo‘q.'); return; }
+          state.tapCap += INCREASE_BLOCK;
+          saveState(state);
+          alert(`Sotib olindi: +${INCREASE_BLOCK} taps. Yangi cap: ${state.tapCap}`);
+          renderBoosts();
+        });
+      }
 
       // buy skin
       document.getElementById('buySkinBtn').addEventListener('click', () => {
