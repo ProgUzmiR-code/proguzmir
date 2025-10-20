@@ -295,7 +295,10 @@
       const tapCap = parseInt(localStorage.getItem(keyCap) || String(DEFAULT_TAP_CAP), 10);
       const selectedSkin = localStorage.getItem(keySkin) || "";
       const maxEnergy = parseInt(localStorage.getItem(keyMaxEnergy) || String(DEFAULT_MAX_ENERGY), 10);
-      const energy = parseInt(localStorage.getItem(keyEnergy) || String(maxEnergy), 10);
+      let energy = parseInt(localStorage.getItem(keyEnergy) || String(maxEnergy), 10);
+      // clamp energy to maxEnergy to avoid >max on corrupted storage
+      if (Number.isNaN(energy)) energy = maxEnergy;
+      if (energy > maxEnergy) energy = maxEnergy;
 
       return { prcWei: BigInt(prc), diamond, wallet, tapsUsed, tapCap, selectedSkin, energy, maxEnergy };
     }
@@ -344,8 +347,11 @@
       localStorage.setItem(keyDiamond, String(state.diamond));
       localStorage.setItem(keyTaps, String(state.tapsUsed));
       localStorage.setItem(keyCap, String(state.tapCap));
-      localStorage.setItem(keyEnergy, String(state.energy));
-      localStorage.setItem(keyMaxEnergy, String(state.maxEnergy));
+      // ensure energy/maxEnergy saved with sensible defaults (avoid writing "undefined")
+      const maxE = (typeof state.maxEnergy === 'number' && !Number.isNaN(state.maxEnergy)) ? state.maxEnergy : DEFAULT_MAX_ENERGY;
+      const en = (typeof state.energy === 'number' && !Number.isNaN(state.energy)) ? Math.min(state.energy, maxE) : maxE;
+      localStorage.setItem(keyEnergy, String(en));
+      localStorage.setItem(keyMaxEnergy, String(maxE));
       if (state.selectedSkin)
         localStorage.setItem(keySkin, state.selectedSkin);
       else localStorage.removeItem(keySkin);
@@ -473,17 +479,7 @@
       function stopEnergyRecharge() { if (window._energyInterval) { clearInterval(window._energyInterval); window._energyInterval = null; } }
       function startEnergyRecharge() {
         stopEnergyRecharge();
-        const state = loadState();
-
-        // yangi foydalanuvchi yoki energiya yo'q bo'lsa — to'liq qilib qo'yamiz
-        if (typeof state.energy !== 'number' || state.energy <= 0) {
-          state.energy = state.maxEnergy || 1000; // default 1000
-          saveState(state);
-          document.getElementById('tapsCount').textContent = `${state.energy} / ${state.maxEnergy || 1000}`;
-        }
-
-        // endi doimiy to‘lish jarayoni
-        window._energyInterval = setInterval(() => {
+        setInterval(() => {
           const state = loadState();
           if (state.energy < state.maxEnergy) {
             state.energy += 1;
