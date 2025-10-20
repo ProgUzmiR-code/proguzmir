@@ -473,7 +473,17 @@
       function stopEnergyRecharge() { if (window._energyInterval) { clearInterval(window._energyInterval); window._energyInterval = null; } }
       function startEnergyRecharge() {
         stopEnergyRecharge();
-        setInterval(() => {
+        const state = loadState();
+
+        // yangi foydalanuvchi yoki energiya yo'q bo'lsa — to'liq qilib qo'yamiz
+        if (typeof state.energy !== 'number' || state.energy <= 0) {
+          state.energy = state.maxEnergy || 1000; // default 1000
+          saveState(state);
+          document.getElementById('tapsCount').textContent = `${state.energy} / ${state.maxEnergy || 1000}`;
+        }
+
+        // endi doimiy to‘lish jarayoni
+        window._energyInterval = setInterval(() => {
           const state = loadState();
           if (state.energy < state.maxEnergy) {
             state.energy += 1;
