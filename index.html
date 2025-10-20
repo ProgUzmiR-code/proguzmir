@@ -396,7 +396,8 @@
     const content = document.getElementById('content');
     function renderGame() {
       const s = loadState();
-      // normalize energy fields if missing
+      // update header balance immediately on render (fix: showed 0 before any saveState)
+      document.getElementById('headerBalance') && (document.getElementById('headerBalance').textContent = "💰 PRC balans: " + fmtPRC(getTotalPRCWei(s)));
       if (typeof s.maxEnergy !== 'number') s.maxEnergy = DEFAULT_MAX_ENERGY;
       if (typeof s.energy !== 'number') s.energy = s.maxEnergy;
 
@@ -461,16 +462,12 @@
         state.energy = Math.max(0, state.energy - 1);
         state.diamond += 1;
         saveState(state);
-        document.addEventListener('DOMContentLoaded', () => {
-          const state = loadState();
-
-          // 💎 Balans (diamond) ni ko‘rsatish
         document.getElementById('diamondTop').textContent = '💎 ' + state.diamond;
         document.getElementById('tapsCount').textContent = `${state.energy} / ${state.maxEnergy}`;
       });
 
       setInterval(() => {
-          const state = loadState();
+        const state = loadState();
         if (state.energy < state.maxEnergy) {
           state.energy += 1;
           saveState(state);
@@ -637,6 +634,7 @@
         <div style="margin-top:8px">Wallet: <div style="margin-top:6px"><input id="walletInput" class="input" placeholder="Wallet manzilingizni yozing" value="${s.wallet || ''}"></div></div>
         <div style="display:flex; gap:8px; margin-top:10px;"><button class="btn" id="connectBtn">Connect</button><button class="btn" id="disconnectBtn">Disconnect</button></div>
       `;
+
       document.getElementById('connectBtn').addEventListener('click', () => {
         const val = document.getElementById('walletInput').value.trim();
         s.wallet = val;
@@ -662,6 +660,7 @@
           <div style="display:flex; gap:8px; margin-top:8px;"><button class="btn" id="buyBtn">🔁 Sotib olish</button><button class="btn" id="airdropBtn">🎁 Airdrop</button></div>
         </div>
       `;
+
       document.getElementById('buyBtn').addEventListener('click', () => {
         const q = parseInt(document.getElementById('buyQty').value || "0", 10);
         if (!q || q <= 0) { alert('Iltimos to\'g\'ri miqdor kiriting'); return; }
@@ -717,6 +716,7 @@
 
     // default
     renderGame();
+
   </script>
 
 </body>
