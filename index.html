@@ -462,32 +462,26 @@
         state.energy = Math.max(0, state.energy - 1);
         state.diamond += 1;
         saveState(state);
+
         document.getElementById('diamondTop').textContent = '💎 ' + state.diamond;
         document.getElementById('tapsCount').textContent = `${state.energy} / ${state.maxEnergy}`;
       });
 
-      setInterval(() => {
-        const state = loadState();
-        if (state.energy < state.maxEnergy) {
-          state.energy += 1;
-          saveState(state);
-          document.getElementById('tapsCount').textContent = `${state.energy} / ${state.maxEnergy}`;
-        }
-      }, 1000); // har 500ms da +1
+
 
       // ENERGY recharge (visual-only increase of current energy until maxEnergy)
-      // function stopEnergyRecharge() { if (window._energyInterval) { clearInterval(window._energyInterval); window._energyInterval = null; } }
-      // function startEnergyRecharge() {
-      //   stopEnergyRecharge();
-      //   window._energyInterval = setInterval(() => {
-      //     const state = loadState();
-      //     if (state.energy < state.maxEnergy) {
-      //       state.energy += 1;
-      //       saveState(state);
-      //       document.getElementById('tapsCount').textContent = `${state.energy} / ${state.maxEnergy}`;
-      //     }
-      //   }, 1000);
-      // }
+      function stopEnergyRecharge() { if (window._energyInterval) { clearInterval(window._energyInterval); window._energyInterval = null; } }
+      function startEnergyRecharge() {
+        stopEnergyRecharge();
+        setInterval(() => {
+          const state = loadState();
+          if (state.energy < state.maxEnergy) {
+            state.energy += 1;
+            saveState(state);
+            document.getElementById('tapsCount').textContent = `${state.energy} / ${state.maxEnergy}`;
+          }
+        }, 1000); // har 1000ms da +1
+      }
       // start when game view shown
       startEnergyRecharge();
 
@@ -634,7 +628,6 @@
         <div style="margin-top:8px">Wallet: <div style="margin-top:6px"><input id="walletInput" class="input" placeholder="Wallet manzilingizni yozing" value="${s.wallet || ''}"></div></div>
         <div style="display:flex; gap:8px; margin-top:10px;"><button class="btn" id="connectBtn">Connect</button><button class="btn" id="disconnectBtn">Disconnect</button></div>
       `;
-
       document.getElementById('connectBtn').addEventListener('click', () => {
         const val = document.getElementById('walletInput').value.trim();
         s.wallet = val;
@@ -660,7 +653,6 @@
           <div style="display:flex; gap:8px; margin-top:8px;"><button class="btn" id="buyBtn">🔁 Sotib olish</button><button class="btn" id="airdropBtn">🎁 Airdrop</button></div>
         </div>
       `;
-
       document.getElementById('buyBtn').addEventListener('click', () => {
         const q = parseInt(document.getElementById('buyQty').value || "0", 10);
         if (!q || q <= 0) { alert('Iltimos to\'g\'ri miqdor kiriting'); return; }
@@ -716,7 +708,6 @@
 
     // default
     renderGame();
-
   </script>
 
 </body>
