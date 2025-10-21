@@ -17,6 +17,14 @@
         /* Eski IE uchun */
       }
 
+      img {
+        pointer-events: none;
+        user-select: none;
+        -webkit-user-drag: none;
+        -webkit-touch-callout: none;
+        /* Safari, iPhone */
+      }
+
       /* rasm markazda, qaytarilmasin, to'liq ekranni qoplasin */
       background-image: url('image/background.jpg');
       background-position: center center;
@@ -686,6 +694,9 @@
     renderGame();
     document.addEventListener('contextmenu', event => event.preventDefault());
     document.addEventListener('selectstart', event => event.preventDefault());
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('dragstart', e => e.preventDefault());
+    document.addEventListener('touchstart', e => e.preventDefault());
   </script>
 
 </body>
