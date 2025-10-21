@@ -22,8 +22,11 @@
         user-select: none;
         -webkit-user-drag: none;
         -webkit-touch-callout: none;
+        -webkit-user-drag: none;
         /* Safari, iPhone */
       }
+
+
 
       /* rasm markazda, qaytarilmasin, to'liq ekranni qoplasin */
       background-image: url('image/background.jpg');
@@ -138,7 +141,7 @@
       height: auto;
       touch-action: manipulation;
       margin-top: -20px;
-      pointer-events:painted;
+      pointer-events: painted;
     }
 
     /* nav safe-area */
@@ -693,6 +696,9 @@
 
     // default
     renderGame();
+    document.querySelectorAll('img').forEach(img => {
+      img.addEventListener('contextmenu', e => e.preventDefault()); // O‘ng bosish menyusini o‘chiradi
+    });
     document.addEventListener('contextmenu', event => event.preventDefault());
     document.addEventListener('selectstart', event => event.preventDefault());
     document.addEventListener('contextmenu', e => e.preventDefault());
