@@ -1,15 +1,5 @@
 import os
 import json
-
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-
-keyboard = [
-    [InlineKeyboardButton("🚀 Open Full Screen", web_app=WebAppInfo(url="https://seningsayting.com"))]
-]
-reply_markup = InlineKeyboardMarkup(keyboard)
-
-# NOTE: Do not call await at module level; send this message from inside an async handler (e.g. start).
-
 from decimal import Decimal, getcontext
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
@@ -249,13 +239,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"Assalomu alaykum, {update.effective_user.first_name}!\nMenu:",
             reply_markup=main_menu_keyboard()
         )
-
-    # send the Web App full-screen launch button from inside the async handler
-    try:
-        await update.message.reply_text("Launch the app:", reply_markup=reply_markup)
-    except Exception:
-        # if update.message is not available for some reason, ignore silently
-        pass
 
 def main():
     token = os.getenv("TELEGRAM_TOKEN")
