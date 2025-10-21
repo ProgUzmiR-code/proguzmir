@@ -7,6 +7,16 @@
   <title>ProgUzmiR</title>
   <style>
     body {
+      * {
+        user-select: none;
+        -webkit-user-select: none;
+        /* iPhone/Android uchun */
+        -moz-user-select: none;
+        /* Firefox uchun */
+        -ms-user-select: none;
+        /* Eski IE uchun */
+      }
+
       /* rasm markazda, qaytarilmasin, to'liq ekranni qoplasin */
       background-image: url('image/background.jpg');
       background-position: center center;
@@ -674,6 +684,8 @@
 
     // default
     renderGame();
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.addEventListener('selectstart', event => event.preventDefault());
   </script>
 
 </body>
