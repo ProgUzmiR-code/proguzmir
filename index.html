@@ -29,7 +29,7 @@
 
 
       /* rasm markazda, qaytarilmasin, to'liq ekranni qoplasin */
-      background-image: url('image/background.jpg');
+      background-image: url('image/background1.jpg');
       background-position: center center;
       background-repeat: no-repeat;
       background-size: cover;
@@ -90,13 +90,12 @@
 
     .header {
       position: fixed;
-      top: 12px;
+      top: 5px;
       height: var(--header-height);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      background: rgba(0, 0, 0, 0.12);
+      background: rgba(0, 0, 0, 0.5);
       padding: 6px 12px;
       border-radius: 10px;
       z-index: 90;
@@ -104,7 +103,8 @@
     }
 
     .header img {
-      width: 80px;
+      width: 70px;
+      margin-left: -18px;
       height: auto;
       border-radius: 6px;
       display: block;
@@ -144,6 +144,37 @@
       pointer-events: painted;
     }
 
+    #tabShop,
+    #tabSkins {
+      width: 150px;
+      height: 40px;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #tabShop:hover,
+    #tabSkins:hover {
+      background: rgba(91, 89, 89, 0.5);
+      border-radius: 10px;
+    }
+
+    .btn-group {
+      display: flex;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.5);
+      border-block: 1px solid #fff;
+    }
+
+    button.btn {
+      color: #fff;
+      padding: 10px 10px 10px 10px;
+      background: rgba(8, 96, 211, 0.21);
+      border-radius: 10px;
+    }
+
+
     /* nav safe-area */
     .nav {
       bottom: calc(20px + env(safe-area-inset-bottom));
@@ -160,14 +191,15 @@
       }
 
       .header {
-        background: rgba(0, 0, 0, 0.12);
+        background: rgba(0, 0, 0, 0.5);
         /* xohlasangiz shaffoflikni o'zgartiring */
         padding: 6px 12px;
-        width: 95%;
+        width: 97%;
       }
 
       .header img {
-        width: 80px;
+        width: 70px;
+        margin-left: -18px;
       }
 
       .header .balance {
@@ -196,7 +228,8 @@
       }
 
       .header img {
-        width: 44px;
+        width: 70px;
+        margin-left: -18px;
       }
 
 
@@ -215,7 +248,7 @@
         justify-content: space-between;
         align-items: center;
         gap: 12px;
-        background: rgba(0, 0, 0, 0.12);
+        background: rgba(0, 0, 0, 0.5);
         /* xohlasangiz shaffoflikni o'zgartiring */
         padding: 6px 12px;
         width: 90%;
@@ -296,12 +329,12 @@
     // Skinlar ro'yxati
     const SKIN_COST_WEI = 500000000000000n; // 0.0005 PRC = 5e14 wei
     const SKINS = [
-      { id: "bronza", name: "Bronza", file: "./image/Bronza.png" },
-      { id: "silver", name: "Silver", file: "./image/silver.png" },
-      { id: "gold", name: "Gold", file: "./image/gold.png" },
-      { id: "smart", name: "Smart Gold", file: "./image/Smart_gold.png" },
-      { id: "plat", name: "Platinium", file: "./image/Platinium.png" },
-      { id: "master", name: "Master", file: "./image/Master.png" }
+      { id: "bronza.png", name: "Bronza", file: "./image/Bronza.png" },
+      { id: "silver.png", name: "Silver", file: "./image/silver.png" },
+      { id: "gold.png", name: "Gold", file: "./image/gold.png" },
+      { id: "smart_gold.png", name: "Smart Gold", file: "./image/Smart_gold.png" },
+      { id: "platinium.png", name: "Platinium", file: "./image/Platinium.png" },
+      { id: "master.png", name: "Master", file: "./image/Master.png" }
     ];
 
     // Init state (default PRC = 0.0000000000000037 PRC -> 3700 wei)
@@ -403,8 +436,41 @@
       if (negative) wei = -wei;
       const whole = (wei / UNIT).toString();
       // frac always padded to DECIMALS (18) digits
-      const frac = (wei % UNIT).toString().padStart(Number(DECIMALS), '0');
-      return (negative ? '-' : '') + whole + '.' + frac + ' PRC';
+      let frac = (wei % UNIT).toString().padStart(Number(DECIMALS), '0');
+
+      // remove trailing zeros (so 0.000010000... -> 0.00001)
+      let lastNonZero = -1;
+      for (let i = frac.length - 1; i >= 0; i--) {
+        if (frac[i] !== '0') { lastNonZero = i; break; }
+      }
+      if (lastNonZero === -1) {
+        // all zeros => show .0
+        return (negative ? '-' : '') + whole + '.0 PRC';
+      }
+      frac = frac.slice(0, lastNonZero + 1);
+
+      // compress runs of the same digit:
+      // for any run of the same digit with length >= 3, output "d{n}" (e.g. 0{14}, 2{5})
+      function compressFraction(s) {
+        let out = '';
+        let i = 0;
+        while (i < s.length) {
+          const ch = s[i];
+          let j = i + 1;
+          while (j < s.length && s[j] === ch) j++;
+          const len = j - i;
+          if (len >= 3) {
+            out += ch + '{' + len + '}';
+          } else {
+            out += ch.repeat(len);
+          }
+          i = j;
+        }
+        return out;
+      }
+
+      const compressedFrac = compressFraction(frac);
+      return (negative ? '-' : '') + whole + '.' + compressedFrac + ' PRC';
     }
 
     function getRankFromWei(wei) {
@@ -561,8 +627,8 @@
 
       // --- NEW: renderShop (card layout) ---
       const SHOP_ITEMS = [
-        { id: 'energyPack', name: 'Energy +1000', img: './shop/card1', type: 'energy', amount: INCREASE_BLOCK, costWei: BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI },
-        { id: 'tapPack', name: 'Taps +1000', img: './shop/card2', type: 'taps', amount: INCREASE_BLOCK, costWei: BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI }
+        { id: 'energyPack', name: 'Energy +1000', img: './image/boost.png', type: 'energy', amount: INCREASE_BLOCK, costWei: BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI },
+        { id: 'tapPack', name: 'Taps +1000', img: './image/coin.png', type: 'taps', amount: INCREASE_BLOCK, costWei: BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI }
       ];
       function renderShop() {
         hideNav();
@@ -571,17 +637,16 @@
         content.innerHTML = `
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
             <button id="backFromShop" class="btn">◀</button>
-            <div style="flex:1; text-align:center; font-weight:800;">🏬 Shop</div>
-            <div style="display:flex; gap:8px;">
-              <button id="tabShop" class="btn">Shop</button>
-              <button id="tabSkins" class="btn">Skins</button>
+            <div class="btn-group">
+              <div id="tabShop" class="btn">Shop</div>
+              <div id="tabSkins" class="btn">Skins</div>
             </div>
           </div>
           <div style="display:flex; gap:12px; margin-top:6px;">
             <div id="shopCol" style="flex:1; display:flex; flex-direction:column; gap:12px;">
               ${SHOP_ITEMS.map(it => `
-                <div class="shop-item" data-id="${it.id}" style="background:rgba(255,255,255,0.03); border-radius:12px; padding:12px;">
-                  <img src="${it.img}" alt="${it.name}" style="width:100%; height:90px; object-fit:cover; border-radius:8px;">
+                <div class="shop-item" data-id="${it.id}" style=" margin-bottom: 20px; display: flex; background:rgba(0,0,0,0.5); border-radius:12px; padding:12px;">
+                  <img src="${it.img}" alt="${it.name}" style="width:100px; object-fit:cover; border-radius:8px;">
                   <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
                     <div><b>${it.name}</b><div style="color:#ccc; font-size:13px;">Cost: ${fmtPRC(it.costWei)}</div></div>
                     <button class="btn buyShopBtn" data-id="${it.id}">Buy</button>
@@ -591,8 +656,8 @@
             </div>
             <div id="skinCol" style="flex:1; display:flex; flex-direction:column; gap:12px; display:none;">
               ${SKINS.map(sk => `
-                <div class="skin-item" data-skin="${sk.id}" style="background:rgba(255,255,255,0.03); border-radius:12px; padding:12px;">
-                  <img src="./skin/${sk.id}" alt="${sk.name}" style="width:100%; height:78px; object-fit:cover; border-radius:8px;">
+                <div class="skin-item" data-skin="${sk.id}" style="    margin-bottom: 20px; background:rgba(0,0,0,0.5); border-radius:12px; padding:12px;">
+                  <img src="./image/${sk.id}" alt="${sk.name}" style="width:200px;  object-fit:cover; border-radius:8px;">
                   <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
                     <div><b>${sk.name}</b><div style="color:#ccc; font-size:13px;">Skin for your tap</div></div>
                     <button class="btn buySkinBtn" data-skin="${sk.id}">Buy</button>
