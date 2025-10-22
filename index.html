@@ -220,6 +220,7 @@
         font-size: 15px;
         padding: 12px;
       }
+
       .btn.buyShopBtn {
         margin-left: 30px;
       }
@@ -275,6 +276,41 @@
         align-items: center;
       }
     }
+
+    /* Loading overlay: shows only the image that sharpens over time */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgb(0, 0, 0);
+      z-index: 10000;
+      transition: opacity 300ms ease;
+    }
+
+    .loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    .loading-img {
+      width: 220px;
+      max-width: 70%;
+      /* filter: blur(12px); */
+      opacity: 0.65;
+      transition: filter 700ms ease, opacity 400ms ease, transform 700ms ease;
+      transform: scale(1.02);
+      /* border-radius: 10px; */
+      /* box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6); */
+    }
+
+    .loading-img.sharp {
+      filter: blur(0);
+      opacity: 1;
+      transform: scale(1);
+    }
   </style>
 </head>
 
@@ -297,6 +333,11 @@
     <div class="tab" data-tab="wallet">WALLET</div>
     <div class="tab" data-tab="market">Market</div>
     <div class="tab" data-tab="earn">Earn</div>
+  </div>
+
+  <!-- Loading overlay (shows on app start) -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <img id="loadingImg" class="loading-img" src="./loading.png" alt="loading">
   </div>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -749,6 +790,29 @@
       }
     } // end of function renderGame()
 
+    // Loading helpers: show overlay, animate image from blurred -> sharp, then hide
+    function showLoading() {
+      const overlay = document.getElementById('loadingOverlay');
+      const img = document.getElementById('loadingImg');
+      if (!overlay || !img) return;
+      overlay.classList.remove('hidden');
+      // ensure start state (blurred)
+      img.classList.remove('sharp');
+      // small delay to allow CSS applied, then sharpen
+      requestAnimationFrame(() => {
+        setTimeout(() => img.classList.add('sharp'), 60);
+      });
+    }
+
+    function hideLoading() {
+      const overlay = document.getElementById('loadingOverlay');
+      const img = document.getElementById('loadingImg');
+      if (!overlay) return;
+      // reverse visual quickly, then hide overlay after transition
+      if (img) img.classList.remove('sharp');
+      overlay.classList.add('hidden');
+    }
+
     // Tab switching (nav fixed at bottom visually)
     document.querySelectorAll('.nav .tab').forEach(el => {
       el.addEventListener('click', () => {
@@ -763,8 +827,15 @@
       });
     });
 
-    // default
-    renderGame();
+    // default: show loading first, then render and hide overlay
+    showLoading();
+    // wait a moment for the sharp animation, then render UI and hide loading
+    setTimeout(() => {
+      renderGame();
+      // allow a bit for render and final visual — then hide overlay
+      setTimeout(hideLoading, 350);
+    }, 700);
+
     document.querySelectorAll('img').forEach(img => {
       img.addEventListener('contextmenu', e => e.preventDefault()); // O‘ng bosish menyusini o‘chiradi
     });
