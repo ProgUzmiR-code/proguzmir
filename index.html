@@ -6,28 +6,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ProgUzmiR</title>
   <style>
+    /* --- FIX: global non-select and image rules must NOT be nested inside body --- */
+    *,
+    *::before,
+    *::after {
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+
+    img {
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      -webkit-touch-callout: none;
+      -webkit-user-drag: none;
+    }
+
+
+
+    /* body styles */
     body {
-      * {
-        user-select: none;
-        -webkit-user-select: none;
-        /* iPhone/Android uchun */
-        -moz-user-select: none;
-        /* Firefox uchun */
-        -ms-user-select: none;
-        /* Eski IE uchun */
-      }
-
-      img {
-        pointer-events: none;
-        user-select: none;
-        -webkit-user-drag: none;
-        -webkit-touch-callout: none;
-        -webkit-user-drag: none;
-        /* Safari, iPhone */
-      }
-
-
-
       /* rasm markazda, qaytarilmasin, to'liq ekranni qoplasin */
       background-image: url('image/background1.jpg');
       background-position: center center;
