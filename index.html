@@ -89,22 +89,22 @@
     }
 
     .header {
+      width: 50%;
       position: fixed;
-      top: 5px;
+      top: 7px;
       height: var(--header-height);
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: rgba(0, 0, 0, 0.5);
       padding: 6px 12px;
-      border-radius: 10px;
+      border-radius: 15px;
       z-index: 90;
       box-sizing: border-box;
     }
 
     .header img {
       width: 70px;
-      margin-left: -18px;
       height: auto;
       border-radius: 6px;
       display: block;
@@ -353,7 +353,6 @@
 
   <!-- Loading overlay (shows on app start) -->
   <div id="loadingOverlay" class="loading-overlay hidden" aria-hidden="true" role="status" aria-live="polite">
-    <img   src="./loading" alt="" aria-hidden="true">
     <svg id="loadingImg" class="loading-img" viewBox="0 0 210 297" xmlns:xlink="http://www.w3.org/1999/xlink"
       xmlns="http://www.w3.org/2000/svg">
       <defs>
