@@ -720,7 +720,11 @@
             </div>
           </div>
         `;
-        document.getElementById('backFromShop').addEventListener('click', () => { showNav(); renderGame(); });
+        document.getElementById('backFromShop').addEventListener('click', () => {
+          showNav();
+          renderGame();
+          hideTelegramBack(); // ✅ bosh sahifaga qaytganida "❌" holatni qayta yoqadi
+        });
         // tab handlers
         const tabShop = document.getElementById('tabShop');
         const tabSkins = document.getElementById('tabSkins');
@@ -791,7 +795,13 @@
             <div style="flex:1;"></div>
           </div>
         `;
-        document.getElementById('backFromGames').addEventListener('click', () => { showNav(); renderGame(); });
+
+
+        document.getElementById('backFromGames').addEventListener('click', () => {
+          showNav();
+          renderGame();
+          hideTelegramBack(); // ✅ shu yerda ham kerak
+        });
         document.querySelectorAll('.playGameBtn').forEach(btn => {
           btn.addEventListener('click', () => {
             const id = btn.dataset.id;
@@ -935,19 +945,23 @@
 
 
     // helper functions to control Telegram BackButton
+
+
+    // --- Telegram BackButton boshqaruv funksiyalari ---
     function showTelegramBack(handler) {
-      if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp && window.Telegram.WebApp.BackButton) {
+      if (window.Telegram?.WebApp?.BackButton) {
         try {
           window.Telegram.WebApp.BackButton.show();
           window.Telegram.WebApp.BackButton.onClick(handler);
         } catch (e) { /* ignore */ }
       }
     }
+
     function hideTelegramBack() {
-      if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp && window.Telegram.WebApp.BackButton) {
+      if (window.Telegram?.WebApp?.BackButton) {
         try {
           window.Telegram.WebApp.BackButton.hide();
-          // reset handler to noop
+          // handlerni bekor qilamiz
           window.Telegram.WebApp.BackButton.onClick(() => { });
         } catch (e) { /* ignore */ }
       }
