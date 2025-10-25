@@ -345,7 +345,7 @@
 
   <div class="nav" role="tablist" aria-label="Navigation">
     <div class="tab active" data-tab="game">Game</div>
-    <div class="tab" data-tab="rank"><a href="./shop.html">Rank</a></div>
+    <div class="tab" data-tab="rank">Rank</div>
     <div class="tab" data-tab="wallet">WALLET</div>
     <div class="tab" data-tab="market">Market</div>
     <div class="tab" data-tab="earn">Earn</div>
@@ -375,9 +375,22 @@
   </div>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <script>
     const tg = window.Telegram && window.Telegram.WebApp;
     if (tg) tg.expand();
+      // Headerni ochish (white bar chiqadi)
+  tg.expand();
+
+  // Back tugmasini yoqish
+  tg.BackButton.show();
+
+  // Tugma bosilganda nima bo‘lishini yozish
+  tg.BackButton.onClick(() => {
+    // Masalan: Telegram bot oynasiga qaytish
+    tg.close();
+  });
 
     // BigInt birlik: 18 onlik (wei)
     const DECIMALS = 18n;
