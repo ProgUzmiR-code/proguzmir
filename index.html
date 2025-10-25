@@ -640,10 +640,10 @@
 
       // quick open handlers (top-left previews) — skin preview now opens shop (skin tab inside shop)
       const skinPreview = document.getElementById('skinCardPreview');
-      if (skinPreview) skinPreview.addEventListener('click', (ev) => { ev.stopPropagation(); renderShop(); });
+      if (skinPreview) skinPreview.addEventListener('click', (ev) => { ev.stopPropagation(); window.location.href = './shop.html'; });
 
       const shopPreview = document.getElementById('shopCardPreview');
-      if (shopPreview) shopPreview.addEventListener('click', (ev) => { ev.stopPropagation(); renderShop(); });
+      if (shopPreview) shopPreview.addEventListener('click', (ev) => { ev.stopPropagation(); window.location.href = './shop.html'; });
       const gamePreview = document.getElementById('gameCardPreview');
       if (gamePreview) gamePreview.addEventListener('click', (ev) => { ev.stopPropagation(); renderGames(); });
 
@@ -672,7 +672,7 @@
       function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
 
       // --- NEW: renderBoosts shows dedicated Boosts page (like navigating to a tab) ---
-      
+
 
       // --- NEW: renderShop (card layout) ---
       const SHOP_ITEMS = [
