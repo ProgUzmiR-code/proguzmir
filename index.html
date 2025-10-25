@@ -375,22 +375,24 @@
   </div>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
   <script>
     const tg = window.Telegram && window.Telegram.WebApp;
-    if (tg) tg.expand();
-      // Headerni ochish (white bar chiqadi)
-  tg.expand();
-
-  // Back tugmasini yoqish
-  tg.BackButton.show();
-
-  // Tugma bosilganda nima bo‘lishini yozish
-  tg.BackButton.onClick(() => {
-    // Masalan: Telegram bot oynasiga qaytish
-    tg.close();
-  });
+    if (tg) {
+      try { tg.expand(); } catch (e) { }
+      try { tg.BackButton.show(); } catch (e) { }
+      // BackButton behavior: on main view -> close app; on games view -> go back to main
+      tg.BackButton.onClick(() => {
+        if (window.currentView === 'games') {
+          renderGame();
+          window.currentView = 'game';
+          // ensure BackButton stays visible for index context
+          try { tg.BackButton.show(); } catch (e) { }
+        } else {
+          // default: close mini app from main view
+          try { tg.close(); } catch (e) { }
+        }
+      });
+    }
 
     // BigInt birlik: 18 onlik (wei)
     const DECIMALS = 18n;
@@ -590,6 +592,7 @@
     const content = document.getElementById('content');
     function renderGame() {
       const s = loadState();
+      window.currentView = 'game';
       // update header balance immediately on render
       document.getElementById('headerBalance') && (document.getElementById('headerBalance').innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(getTotalPRCWei(s)));
       if (typeof s.maxEnergy !== 'number') s.maxEnergy = DEFAULT_MAX_ENERGY;
@@ -685,7 +688,7 @@
       function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
 
       // --- NEW: renderBoosts shows dedicated Boosts page (like navigating to a tab) ---
-      
+
 
       // --- NEW: renderShop (card layout) ---
       const SHOP_ITEMS = [
@@ -777,6 +780,7 @@
       function renderGames() {
         hideNav();
         const s = loadState();
+        window.currentView = 'games';
         content.innerHTML = `
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
             <button id="backFromGames" style=" left:12px; top:12px; z-index:1200;">◀</button>
