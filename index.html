@@ -617,9 +617,7 @@
           <div id="tapsBox" style="display:flex; align-items:center; gap:8px; background: rgba(0,0,0,0.35); border-radius:10px; padding:6px 12px;">
             ⚡️<span id="tapsCount">${s.energy} / ${s.maxEnergy}</span>
           </div>
-          <div id="boostsBox" style="background: rgba(0,0,0,0.35); border-radius:10px; padding:8px 12px; display:flex; gap:8px; align-items:center; cursor:pointer;">
-            <span style="font-weight:700;">🚀 boosts</span>
-          </div>
+          
         </div>
       </div>
      `;
@@ -674,33 +672,7 @@
       function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
 
       // --- NEW: renderBoosts shows dedicated Boosts page (like navigating to a tab) ---
-      function renderBoosts() {
-        hideNav();
-        const s2 = loadState();
-        content.innerHTML = `
-          <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-            <button id="backFromBoosts" style=" left:12px; top:12px; z-index:1200;">◀</button>
-            <div style="flex:1; text-align:center; font-weight:800;">🚀 Boosts</div>
-          </div>
-          <div style="display:flex; flex-direction:column; gap:12px; margin-top:6px;">
-            <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:12px;">
-              <div style="font-weight:800;">Energy Pack</div>
-              <div style="color:#ccc; margin-top:6px;">Increase your max energy by +${INCREASE_BLOCK}.</div>
-              <div style="margin-top:8px;"><button id="buyTapsBtn" class="btn">Buy +${INCREASE_BLOCK} energy (${fmtPRC(BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI)})</button></div>
-            </div>
-          </div>
-        `;
-        document.getElementById('backFromBoosts').addEventListener('click', () => { showNav(); renderGame(); });
-        document.getElementById('buyTapsBtn').addEventListener('click', () => {
-          const state = loadState();
-          const cost = BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI;
-          if (!chargeCost(state, cost)) { alert('Yetarli PRC yo‘q.'); return; }
-          state.maxEnergy = (state.maxEnergy || DEFAULT_MAX_ENERGY) + INCREASE_BLOCK;
-          saveState(state);
-          alert(`Sotib olindi: +${INCREASE_BLOCK} energy limit. Yangi max energy: ${state.maxEnergy}`);
-          renderBoosts();
-        });
-      }
+      
 
       // --- NEW: renderShop (card layout) ---
       const SHOP_ITEMS = [
