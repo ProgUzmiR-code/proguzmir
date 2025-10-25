@@ -685,6 +685,7 @@
     // UI rendering per tab (Game updated with taps logic)
     const content = document.getElementById('content');
     function renderGame() {
+      hideTelegramBack();
       const s = loadState();
       // update header balance immediately on render
       document.getElementById('headerBalance') && (document.getElementById('headerBalance').innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(getTotalPRCWei(s)));
