@@ -375,24 +375,11 @@
   </div>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <script>
     const tg = window.Telegram && window.Telegram.WebApp;
-    if (tg) {
-      try { tg.expand(); } catch (e) { }
-      try { tg.BackButton.show(); } catch (e) { }
-      // BackButton behavior: on main view -> close app; on games view -> go back to main
-      tg.BackButton.onClick(() => {
-        if (window.currentView === 'games') {
-          renderGame();
-          window.currentView = 'game';
-          // ensure BackButton stays visible for index context
-          try { tg.BackButton.show(); } catch (e) { }
-        } else {
-          // default: close mini app from main view
-          try { tg.close(); } catch (e) { }
-        }
-      });
-    }
+    if (tg) tg.expand();
 
     // BigInt birlik: 18 onlik (wei)
     const DECIMALS = 18n;
@@ -592,7 +579,6 @@
     const content = document.getElementById('content');
     function renderGame() {
       const s = loadState();
-      window.currentView = 'game';
       // update header balance immediately on render
       document.getElementById('headerBalance') && (document.getElementById('headerBalance').innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(getTotalPRCWei(s)));
       if (typeof s.maxEnergy !== 'number') s.maxEnergy = DEFAULT_MAX_ENERGY;
@@ -698,6 +684,9 @@
       function renderShop() {
         hideNav();
         const s = loadState();
+        // show Telegram BackButton and set it to return to main renderGame
+        showTelegramBack(() => { showNav(); renderGame(); });
+
         // header with back and internal tabs
         content.innerHTML = `
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
@@ -780,7 +769,9 @@
       function renderGames() {
         hideNav();
         const s = loadState();
-        window.currentView = 'games';
+        // show Telegram BackButton and set it to return to main renderGame
+        showTelegramBack(() => { showNav(); renderGame(); });
+
         content.innerHTML = `
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
             <button id="backFromGames" style=" left:12px; top:12px; z-index:1200;">◀</button>
@@ -942,6 +933,27 @@
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('dragstart', e => e.preventDefault());
     document.addEventListener('touchstart', e => e.preventDefault());
+
+
+    // helper functions to control Telegram BackButton
+    function showTelegramBack(handler) {
+      if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp && window.Telegram.WebApp.BackButton) {
+        try {
+          window.Telegram.WebApp.BackButton.show();
+          window.Telegram.WebApp.BackButton.onClick(handler);
+        } catch (e) { /* ignore */ }
+      }
+    }
+    function hideTelegramBack() {
+      if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp && window.Telegram.WebApp.BackButton) {
+        try {
+          window.Telegram.WebApp.BackButton.hide();
+          // reset handler to noop
+          window.Telegram.WebApp.BackButton.onClick(() => { });
+        } catch (e) { /* ignore */ }
+      }
+    }
+
   </script>
 
 </body>

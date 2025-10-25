@@ -76,16 +76,6 @@
   <div id="shopList" class="shop-list"></div>
 
   <script>
-    const tg = window.Telegram && window.Telegram.WebApp;
-    if (tg) {
-      try { tg.expand(); } catch (e) { }
-      try { tg.BackButton.show(); } catch (e) { }
-      // On shop page back -> go to main index
-      tg.BackButton.onClick(() => { window.location.href = './index.html'; });
-      // hide back button if leaving page (optional cleanup)
-      window.addEventListener('beforeunload', () => { try { tg.BackButton.hide(); } catch (e) { } });
-    }
-
     // Minimal helpers (match index.html keys/logic)
     const DIAMOND_TO_WEI = 1n;
     const KEY_PRC = "proguzmir_prc_wei";
@@ -172,6 +162,21 @@
         i = j;
       }
       return (negative ? '-' : '') + whole + '.' + out + ' PRC';
+    }
+
+    // Telegram BackButton support for standalone shop page
+    const tg = (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+    if (tg) {
+      try { tg.expand(); } catch (e) { }
+      // show back button and navigate back to index.html when pressed
+      try {
+        tg.BackButton.show();
+        tg.BackButton.onClick(() => { window.location.href = './index.html'; });
+      } catch (e) { /* ignore */ }
+      // also hide when leaving page (optional cleanup)
+      window.addEventListener('beforeunload', () => {
+        try { tg.BackButton.hide(); } catch (e) { }
+      });
     }
 
     // render shop
