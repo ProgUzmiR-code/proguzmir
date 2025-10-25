@@ -721,7 +721,12 @@
             </div>
           </div>
         `;
-        document.getElementById('backFromShop').addEventListener('click', () => { showNav(); renderGame(); });
+        document.getElementById('backFromShop').addEventListener('click', () => {
+          showNav();
+          renderGame();
+          // restore Telegram & nav
+          enterMainView();
+        });
         // tab handlers
         const tabShop = document.getElementById('tabShop');
         const tabSkins = document.getElementById('tabSkins');
@@ -792,7 +797,12 @@
             <div style="flex:1;"></div>
           </div>
         `;
-        document.getElementById('backFromGames').addEventListener('click', () => { showNav(); renderGame(); });
+        document.getElementById('backFromGames').addEventListener('click', () => {
+          showNav();
+          renderGame();
+          // restore Telegram & nav
+          enterMainView();
+        });
         document.querySelectorAll('.playGameBtn').forEach(btn => {
           btn.addEventListener('click', () => {
             const id = btn.dataset.id;
@@ -802,6 +812,19 @@
         });
       }
     } // end of function renderGame()
+
+    // --- NEW helper: set active bottom tab reliably ---
+    function setActiveTab(name) {
+      document.querySelectorAll('.nav .tab').forEach(t => {
+        if (t.dataset.tab === name) t.classList.add('active'); else t.classList.remove('active');
+      });
+    }
+
+    // ensure main screen hides Telegram back and sets tab
+    function enterMainView() {
+      hideTelegramBack();
+      setActiveTab('game');
+    }
 
     // Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
     (function () {
@@ -906,13 +929,13 @@
       });
     }
 
-    // Tab switching (nav fixed at bottom visually)
+    // Tab switching (nav fixed at bottom visually) — ensure hiding Telegram back when switching to home
     document.querySelectorAll('.nav .tab').forEach(el => {
       el.addEventListener('click', () => {
         document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
         const tab = el.dataset.tab;
-        if (tab === 'game') renderGame();
+        if (tab === 'game') { renderGame(); enterMainView(); }
         if (tab === 'rank') renderRank();
         if (tab === 'wallet') renderWallet();
         if (tab === 'market') renderMarket();
