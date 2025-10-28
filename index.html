@@ -820,7 +820,7 @@
           <div id="tapsBox" style="display:flex; align-items:center; gap:8px; background: rgba(0,0,0,0.35); border-radius:10px; padding:6px 12px;">
             ⚡️<span id="tapsCount">${s.energy} / ${s.maxEnergy}</span>
           </div>
-          <div id="shareStory" class="reklanma2">
+          <div  class="reklanma2">
             <img class="reklanma" width="20" src="./image/reklanma.png" alt="">
             <div class="reklanma1">
             ⚡️ <span>+1000</span>
@@ -829,6 +829,23 @@
         </div>
       </div>
      `;
+
+     // --- Share Story funksiyasi --- //
+setTimeout(() => {
+  const reklanma = document.querySelector('.reklanma2');
+  if (reklanma) {
+    reklanma.addEventListener('click', () => {
+      if (Telegram && Telegram.WebApp && Telegram.WebApp.shareStory) {
+        Telegram.WebApp.shareStory({
+          media_url: "./image/background1.jpg", // bu yerga story rasmi URL manzilini qo'y
+          caption: "I have successfully withdrawn 0.01 TON from PROGUZ, you can also play!"
+        });
+      } else {
+        alert("");
+      }
+    });
+  }
+}, 300);
 
           // tap handler: use energy (manual only) 
           const tapBtn = document.getElementById('tapBtn');
@@ -995,12 +1012,7 @@
             <div style="flex:1;"></div>
           </div>
         `;
-             document.getElementById("shareStory").addEventListener("click", () => {
-    Telegram.WebApp.shareStory({
-      media_url: "./image/background1.jpg", // rasm manzili
-      caption: "I have successfully withdrawn 0.01 TON from prouz, you can also play!"
-    });
-  });
+             
 
             document.querySelectorAll('.playGameBtn').forEach(btn => {
               btn.addEventListener('click', () => {
