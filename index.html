@@ -564,9 +564,16 @@
         <div id="loadingText" class="loading-text" style="display:none; color:#fff; font-weight:700; font-size:18px;">
           loading...</div>
       </div>
+      <button id="shareStory">Share Story</button>
 
-
-
+<script>
+  document.getElementById("shareStory").addEventListener("click", () => {
+    Telegram.WebApp.shareStory({
+      media_url: "https://example.com/your_image.jpg", // rasm manzili
+      caption: "I have successfully withdrawn 0.01 TON from FOXCOIN, you can also play!"
+    });
+  });
+</script>
 
       <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -988,7 +995,12 @@
             <div style="flex:1;"></div>
           </div>
         `;
-
+             document.getElementById("shareStory").addEventListener("click", () => {
+    Telegram.WebApp.shareStory({
+      media_url: "./image/background1.jpg", // rasm manzili
+      caption: "I have successfully withdrawn 0.01 TON from prouz, you can also play!"
+    });
+  });
 
             document.querySelectorAll('.playGameBtn').forEach(btn => {
               btn.addEventListener('click', () => {
@@ -1157,12 +1169,7 @@
 
         // --- Story share + claim handling for reklanma2 ---
         
-         document.getElementById("shareStory").addEventListener("click", () => {
-    Telegram.WebApp.shareStory({
-      media_url: "/image/background1.jpg", // rasm manzili
-      caption: "I have successfully withdrawn 0.01 TON from Prouz, you can also play!"
-    });
-  });
+        
       </script>
 
 </body>
