@@ -747,5 +747,151 @@ function p(e, t, n) {
     }
 }
 
+// yangi key: claim expiry (per-wallet)
+const KEY_CLAIM_EXP = "proguzmir_claim_exp";
+
+// helper: claim expiry per user
+function getClaimExpiry() {
+	const wallet = localStorage.getItem(KEY_WALLET) || "";
+	return Number(localStorage.getItem(makeUserKey(KEY_CLAIM_EXP, wallet)) || 0);
+}
+function setClaimExpiry(ts) {
+	const wallet = localStorage.getItem(KEY_WALLET) || "";
+	localStorage.setItem(makeUserKey(KEY_CLAIM_EXP, wallet), String(ts));
+}
+function clearClaimExpiry() {
+	const wallet = localStorage.getItem(KEY_WALLET) || "";
+	localStorage.removeItem(makeUserKey(KEY_CLAIM_EXP, wallet));
+}
+
+// helper: next midnight timestamp (ms)
+function nextMidnightTs() {
+	const d = new Date();
+	d.setHours(24,0,0,0);
+	return d.getTime();
+}
+
+// format remaining ms to "HH:MM:SS"
+function formatRemaining(ms) {
+	if (ms <= 0) return '00:00:00';
+	const s = Math.floor(ms/1000);
+	const hh = String(Math.floor(s/3600)).padStart(2,'0');
+	const mm = String(Math.floor((s%3600)/60)).padStart(2,'0');
+	const ss = String(s%60).padStart(2,'0');
+	return `${hh}:${mm}:${ss}`;
+}
+
+// animate header + floating text for PRC add
+function animatePRCAdd(amountWei) {
+	const header = document.getElementById('headerBalance');
+	if (!header) return;
+	// tiny pulse
+	header.style.transition = 'transform 220ms ease';
+	header.style.transform = 'scale(1.08)';
+	setTimeout(()=> header.style.transform = '', 220);
+
+	// floating +text
+	const floatEl = document.createElement('div');
+	floatEl.textContent = '+' + fmtPRC(amountWei).replace(' PRC','');
+	Object.assign(floatEl.style, {
+		position: 'fixed', right: '18px', top: '14px',
+		background: 'rgba(0,0,0,0.6)', color:'#fff', padding:'6px 10px',
+		borderRadius:'8px', zIndex:9999, opacity: '0', transform:'translateY(8px)',
+		transition:'opacity 400ms, transform 400ms'
+	});
+	document.body.appendChild(floatEl);
+	requestAnimationFrame(()=> {
+		floatEl.style.opacity = '1'; floatEl.style.transform = 'translateY(-18px)';
+	});
+	setTimeout(()=> {
+		floatEl.style.opacity = '0'; floatEl.style.transform = 'translateY(-36px)';
+		setTimeout(()=> floatEl.remove(), 420);
+	}, 1000);
+}
+
+// Reklanma/Claim renderer + updater
+let _claimInterval = null;
+function renderReklanmaBlock() {
+	const rek = document.querySelector('.reklanma2');
+	if (!rek) return;
+
+	// cleanup previous interval
+	if (_claimInterval) { clearInterval(_claimInterval); _claimInterval = null; }
+
+	const expiry = getClaimExpiry();
+	const now = Date.now();
+
+	if (expiry && expiry > now) {
+		// already claimed: show countdown until expiry (midnight)
+		rek.innerHTML = `
+			<div style="display:flex; align-items:center; gap:8px;">
+			  <div style="font-weight:700; color:#fff;">CLAIMED</div>
+			  <div id="claimCountdown" style="font-weight:700; color:#ffd700;">${formatRemaining(expiry - now)}</div>
+			</div>
+		`;
+		// update every second; when expired, clear and re-render
+		_claimInterval = setInterval(()=> {
+			const e = getClaimExpiry();
+			const now2 = Date.now();
+			const cdEl = document.getElementById('claimCountdown');
+			if (!e || e <= now2) {
+				clearClaimExpiry();
+				clearInterval(_claimInterval); _claimInterval = null;
+				// restore original reklanma UI by re-rendering game (cheap)
+				renderGame();
+				return;
+			}
+			if (cdEl) cdEl.textContent = formatRemaining(e - now2);
+		}, 1000);
+		return;
+	}
+
+	// Not claimed yet: show share icon + text (original)
+	rek.innerHTML = `
+		<img class="reklanma" width="20" src="./image/reklanma.png" alt="">
+		<div class="reklanma1" style="display:flex; align-items:center; gap:6px; color:#fff;">
+			<span style="font-weight:700;">Share & Claim</span>
+		</div>
+	`;
+	// attach click -> share -> then show CLAIM button
+	rek.onclick = async () => {
+		// prepare share args
+		const currentUrl = (location.protocol === 'file:' ? 'https://YOUR_PUBLIC_DOMAIN' : window.location.origin) + '/image/background1.jpg';
+		const args = { link: currentUrl, text: 'I have successfully withdrawn 0.01 TON from PROGUZ, you can also play!', btnName: 'Play PROGUZ', currentUrl };
+
+		// call p() to share; success callback will provide boolean
+		p(window.Telegram || window, args, (success) => {
+			if (!success) { showToast('Share bajarilmadi.'); return; }
+			// replace reklanma with Claim button (active)
+			rek.innerHTML = `
+				<div style="display:flex; align-items:center; gap:8px;">
+				  <div style="font-weight:700; color:#fff;">Story jo'natildi!</div>
+				  <button id="claimBtn" class="btn" style="margin-left:6px;">CLAIM</button>
+				</div>
+			`;
+			const claimBtn = document.getElementById('claimBtn');
+			if (!claimBtn) return;
+			claimBtn.addEventListener('click', () => {
+				// give BASE_WEI PRC
+				const st = loadState();
+				st.prcWei = (st.prcWei || 0n) + BASE_WEI;
+				saveState(st);
+				// animate add
+				animatePRCAdd(BASE_WEI);
+				// set expiry to next midnight
+				const expiryTs = nextMidnightTs();
+				setClaimExpiry(expiryTs);
+				// show claimed UI (countdown)
+				renderReklanmaBlock();
+			});
+		});
+	};
+}
+
+// call renderReklanmaBlock after content rendered
+// Replace the old reklanma2 init: call this function here
+// right after content.innerHTML for game view add:
+renderReklanmaBlock();
+
 
 
