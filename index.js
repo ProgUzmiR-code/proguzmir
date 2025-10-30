@@ -250,28 +250,57 @@ function renderGame() {
       </div>
      `;
 
-    // --- Share Story / reklanma2 handler (BEPUL: fallback hech qanday to'lov qilmaydi) ---
+    // --- Share Story / reklanma2 handler (robust fallback: Telegram -> Web Share -> t.me link) ---
     setTimeout(() => {
         const reklanma = document.querySelector('.reklanma2');
         if (!reklanma) return;
         reklanma.addEventListener('click', async () => {
-            const mediaUrl = window.location.origin + '/image/background1.jpg';
+            const caption = "I have successfully withdrawn 0.01 TON from PROGUZ, you can also play!";
+            // ensure absolute HTTPS URL (Telegram may require public URL)
+            const mediaUrl = (location.protocol === 'file:' ? 'https://YOUR_PUBLIC_DOMAIN/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
+
+            // Debug info (konsolda ko'rish uchun)
+            console.debug('shareStory attempt', { tg: !!window.Telegram?.WebApp, shareStory: typeof window.Telegram?.WebApp?.shareStory === 'function' });
+
+            // 1) native Telegram WebApp shareStory (if available)
             const tgWebApp = window.Telegram?.WebApp;
             if (tgWebApp && typeof tgWebApp.shareStory === 'function') {
                 try {
-                    // BEPUL share — hech qanday charge yoki PRC sarfi yo'q
-                    tgWebApp.shareStory({
-                        media_url: mediaUrl,
-                        caption: "I have successfully withdrawn 0.01 TON from PROGUZ, you can also play!"
-                    });
+                    await tgWebApp.shareStory({ media_url: mediaUrl, caption });
                     showToast('Story yuborildi!');
                     return;
                 } catch (err) {
-                    console.warn('shareStory xatosi:', err);
+                    console.warn('shareStory error:', err);
                 }
             }
-            // Agar Telegram shareStory ishlamasa — faqat xabar ko'rsatamiz, hech qanday pul yechilmaydi
-            showToast('Sharing mavjud emas — iltimos, Telegram ichida oching yoki keyin urinib ko‘ring.');
+
+            // 2) try native Web Share API (mobile browsers)
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: 'PROGUZ', text: caption, url: mediaUrl });
+                    showToast('Share tugallandi!');
+                    return;
+                } catch (err) {
+                    console.warn('navigator.share error:', err);
+                }
+            }
+
+            // 3) fallback: open Telegram web share link (new tab)
+            try {
+                const shareUrl = 'https://t.me/share/url?url=' + encodeURIComponent(mediaUrl) + '&text=' + encodeURIComponent(caption);
+                const w = window.open(shareUrl, '_blank');
+                if (w) {
+                    showToast('Telegram share oynasi ochildi.');
+                } else {
+                    showToast('Yangi oynani ochib bo‘lmadi — iltimos Telegram ichida oching.');
+                }
+                return;
+            } catch (err) {
+                console.warn('t.me fallback error:', err);
+            }
+
+            // 4) final fallback: notify user
+            showToast('Sharing mavjud emas — iltimos, Telegram mobil ilovasida oching.');
         });
     }, 300);
 
