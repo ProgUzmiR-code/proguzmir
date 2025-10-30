@@ -360,8 +360,7 @@ function renderGame() {
 
     // --- NEW: renderShop (card layout) ---
     const SHOP_ITEMS = [
-        { id: 'energyPack', name: 'Energy +1000', img: './image/boost.png', type: 'energy', amount: INCREASE_BLOCK, costWei: BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI },
-        { id: 'tapPack', name: 'Taps +1000', img: './image/coin.png', type: 'taps', amount: INCREASE_BLOCK, costWei: BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI }
+        { id: 'energyPack', name: 'Energy +1000', img: './image/boost.png', type: 'energy', amount: INCREASE_BLOCK, costWei: BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI }
     ];
     function renderShop() {
         hideNav();
