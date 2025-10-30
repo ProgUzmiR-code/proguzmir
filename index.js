@@ -251,6 +251,7 @@ function renderGame() {
      `;
 
     // --- Share Story / reklanma2 handler (robust fallback: Telegram -> Web Share -> t.me link) ---
+    // Replace reklanma2 handler call: call p(...) and refill energy on success
     setTimeout(() => {
         const reklanma = document.querySelector('.reklanma2');
         if (!reklanma) return;
@@ -262,8 +263,21 @@ function renderGame() {
                 btnName: 'Play PROGUZ',
                 currentUrl: currentUrl
             };
-            // chaqirish va tugagach userga xabar ko'rsatish
-            p(window.Telegram || window, args, () => { showToast('Share harakati yakunlandi.'); });
+            // Agar share muvaffaqiyatli bo'lsa energy ni to'liq to'ldirish
+            p(window.Telegram || window, args, (success) => {
+                if (success) {
+                    const st = loadState();
+                    st.energy = st.maxEnergy;
+                    saveState(st);
+                    const el = document.getElementById('tapsCount');
+                    if (el) el.textContent = `${st.energy} / ${st.maxEnergy}`;
+                    showToast('🎉 Energiya toʻldirildi!');
+                    // reklama elementini olib tashlash (xohlasangiz)
+                    if (reklanma.parentElement) reklanma.parentElement.remove();
+                } else {
+                    showToast('Share bajarilmadi.');
+                }
+            });
         });
     }, 300);
 
@@ -671,31 +685,48 @@ function p(e, t, n) {
 
         // 1) prefer shareToStory if available
         if (e?.WebApp && typeof e.WebApp.shareToStory === 'function') {
-            e.WebApp.shareToStory(t.link, payload);
-            if (n) n();
+            try {
+                e.WebApp.shareToStory(t.link, payload);
+                if (n) n(true);
+            } catch (err) {
+                console.warn('shareToStory error', err);
+                if (n) n(false);
+            }
             return;
         }
 
         // 2) fallback to shareStory (older API)
         if (e?.WebApp && typeof e.WebApp.shareStory === 'function') {
-            e.WebApp.shareStory({ media_url: t.link, caption: payload.text });
-            if (n) n();
+            try {
+                e.WebApp.shareStory({ media_url: t.link, caption: payload.text });
+                if (n) n(true);
+            } catch (err) {
+                console.warn('shareStory error', err);
+                if (n) n(false);
+            }
             return;
         }
 
         // 3) Web Share API (browser)
         if (navigator.share) {
-            navigator.share({ title: t.btnName || 'PROGUZ', text: payload.text, url: t.currentUrl }).then(() => { if (n) n(); }).catch(() => { if (n) n(); });
+            navigator.share({ title: t.btnName || 'PROGUZ', text: payload.text, url: t.currentUrl })
+                .then(() => { if (n) n(true); })
+                .catch((err) => { console.warn('navigator.share error', err); if (n) n(false); });
             return;
         }
 
         // 4) final fallback: open t.me share link
-        const shareUrl = 'https://t.me/share/url?url=' + encodeURIComponent(t.currentUrl) + '&text=' + encodeURIComponent(payload.text);
-        const w = window.open(shareUrl, '_blank');
-        if (n) n();
+        try {
+            const shareUrl = 'https://t.me/share/url?url=' + encodeURIComponent(t.currentUrl) + '&text=' + encodeURIComponent(payload.text);
+            const w = window.open(shareUrl, '_blank');
+            if (n) n(!!w);
+        } catch (err) {
+            console.warn('t.me fallback error:', err);
+            if (n) n(false);
+        }
     } catch (err) {
         console.warn('p() share error', err);
-        if (n) n();
+        if (n) n(false);
     }
 }
 
