@@ -128,6 +128,14 @@ function saveState(state) {
     if (header) header.innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(total);
     const energyEl = document.getElementById('tapsCount');
     if (energyEl && typeof state.energy !== 'undefined') energyEl.textContent = `${state.energy} / ${state.maxEnergy}`;
+
+    // Safely call optional snapshot/sync functions if they exist
+    try {
+        if (typeof saveSnapshotToLocal === 'function') saveSnapshotToLocal(state);
+        if (typeof syncToServer === 'function') syncToServer(state);
+    } catch (err) {
+        console.warn('saveState: snapshot/sync error', err);
+    }
 }
 
 // doim 18 onlik ko'rsatadi (full precision)
@@ -275,7 +283,7 @@ function renderGame() {
                     showToast('Share bajarilmadi.');
                     return;
                 }
-                // show CLAIM UI
+                // share muvaffaqiyatli bo'ldi — CLAIM UI chiqarish
                 rek.innerHTML = `
                     <div style="display:flex; align-items:center; gap:8px;">
                       <div style="font-weight:700; color:#fff;">Story jo'natildi!</div>
@@ -285,19 +293,13 @@ function renderGame() {
                 const claimBtn = document.getElementById('claimBtn');
                 if (claimBtn) {
                     claimBtn.addEventListener('click', () => {
-                        // give BASE_WEI to user PRC
-                        const st = loadState();
-                        st.prcWei = BigInt(st.prcWei) + BASE_WEI;
-                        // mark claimed today
                         const todayStr = new Date().toISOString().slice(0,10);
                         setClaimDateForCurrentUser(todayStr);
+                        const st = loadState();
+                        st.prcWei = BigInt(st.prcWei) + BASE_WEI;
                         saveState(st);
-                        // animate and update UI
                         animateAddPRC('+' + fmtPRC(BASE_WEI));
-                        const el = document.getElementById('tapsCount');
-                        if (el) el.textContent = `${st.energy} / ${st.maxEnergy}`;
                         showToast('🎉 Claim qabul qilindi: 0.000000000000001000 PRC');
-                        // switch reklanma to countdown (renderGame will handle initial countdown on next render)
                         renderGame();
                     });
                 }
@@ -313,12 +315,29 @@ function renderGame() {
         const state = loadState();
         if (state.energy <= 0) { alert('Energiya tugadi — kuting to‘ldirishni.'); return; }
 
+        // update model
         state.energy = Math.max(0, state.energy - 1);
         state.diamond += 1;
-        saveState(state);
 
-        document.getElementById('diamondTop').textContent = '💎 ' + state.diamond;
-        document.getElementById('tapsCount').textContent = `${state.energy} / ${state.maxEnergy}`;
+        // update UI immediately (don't rely on saveState to succeed)
+        const diamondEl = document.getElementById('diamondTop');
+        if (diamondEl) diamondEl.textContent = '💎 ' + state.diamond;
+        const tapsEl = document.getElementById('tapsCount');
+        if (tapsEl) tapsEl.textContent = `${state.energy} / ${state.maxEnergy}`;
+
+        // persist, but guard against errors so UI remains responsive
+        try {
+            saveState(state);
+        } catch (err) {
+            console.error('Failed to save state on tap:', err);
+            // As a fallback ensure localStorage has the latest values
+            try {
+                const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
+                localStorage.setItem(makeUserKey(KEY_PRC, wallet), state.prcWei.toString());
+                localStorage.setItem(makeUserKey(KEY_DIAMOND, wallet), String(state.diamond));
+                localStorage.setItem(makeUserKey(KEY_ENERGY, wallet), String(state.energy));
+            } catch (e) { /* ignore fallback errors */ }
+        }
     });
 
     // quick open handlers (top-left previews) — skin preview now opens shop (skin tab inside shop)
@@ -850,55 +869,47 @@ function animateAddPRC(text) {
     })();
 
     // eski reklanma setup kodini quyidagi bilan almashtiring (yangi claim saqlash mexanizmini qo'shib)
-    // reklanma ustiga bosilganda ishlaydigan yangi handler
+    // reklanma ustiga bosilganda ishlaydigan yangi handler (toʻgʻrilangan)
     setTimeout(() => {
         const reklanma = document.querySelector('.reklanma2');
         if (!reklanma) return;
 
-        // eski listenerlarni olib tashlash (agar mavjud bo'lsa) va yangi listener qo'shamiz
+        // eski listenerlarni olib tashlash va yangisini qo'shish
         reklanma.replaceWith(reklanma.cloneNode(true));
         const rek = document.querySelector('.reklanma2');
         rek.addEventListener('click', () => {
-            // agar bugun allaqachon claim qilingan bo'lsa, xabar beramiz
-            if (isClaimedToday()) { showToast('Siz allaqachon claim qildingiz. Keyinroq qayta urinib ko‘ring.'); return; }
+            if (isClaimedToday()) { showToast('1 kun kuting'); return; }
 
-            // tayyor share ma'lumotlari
-            const currentUrl = (location.protocol === 'file:' ? 'https://YOUR_PUBLIC_DOMAIN' + '/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
+            const currentUrl = (location.protocol === 'file:' ? 'https://YOUR_PUBLIC_DOMAIN/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
             const args = {
                 link: currentUrl,
                 text: 'I have successfully withdrawn 0.01 TON from PROGUZ, you can also play!',
                 btnName: 'Play PROGUZ',
                 currentUrl: currentUrl
             };
-            // share urinishini amalga oshiramiz
+
             p(window.Telegram || window, args, (success) => {
                 if (!success) {
                     showToast('Share bajarilmadi.');
                     return;
                 }
-                // share muvaffaqiyatli bo'ldi — endi reklanma elementini Claim UI ga o'zgartiramiz
-                // sodda Claim UI: matn + tugma
+                // share muvaffaqiyatli bo'ldi — CLAIM UI chiqarish
                 rek.innerHTML = `
                     <div style="display:flex; align-items:center; gap:8px;">
                       <div style="font-weight:700; color:#fff;">Story jo'natildi!</div>
                       <button id="claimBtn" class="btn" style="margin-left:6px;">CLAIM</button>
                     </div>
                 `;
-                // Claim tugmasiga listener
                 const claimBtn = document.getElementById('claimBtn');
                 if (claimBtn) {
                     claimBtn.addEventListener('click', () => {
-                        // bugun claim qilinganini belgilaymiz
                         const todayStr = new Date().toISOString().slice(0,10);
                         setClaimDateForCurrentUser(todayStr);
-                        // PRC ni yangilaymiz
                         const st = loadState();
                         st.prcWei = BigInt(st.prcWei) + BASE_WEI;
                         saveState(st);
-                        // animatsiya va xabar
                         animateAddPRC('+' + fmtPRC(BASE_WEI));
-                        showToast('🎉 Claim qabul qilindi: 0.000000000000001000 PRC');
-                        // reklamaning yangi holatini ko'rsatish uchun qayta render qilamiz
+                        showToast('🎉 +1000PRC');
                         renderGame();
                     });
                 }
