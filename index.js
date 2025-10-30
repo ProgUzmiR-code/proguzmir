@@ -250,21 +250,29 @@ function renderGame() {
       </div>
      `;
 
-    // --- Share Story funksiyasi --- //
+    // --- Share Story / reklanma2 handler (BEPUL: fallback hech qanday to'lov qilmaydi) ---
     setTimeout(() => {
         const reklanma = document.querySelector('.reklanma2');
-        if (reklanma) {
-            reklanma.addEventListener('click', () => {
-                if (Telegram && Telegram.WebApp && Telegram.WebApp.shareStory) {
-                    Telegram.WebApp.shareStory({
-                        media_url: "./image/background1.jpg", // bu yerga story rasmi URL manzilini qo'y
+        if (!reklanma) return;
+        reklanma.addEventListener('click', async () => {
+            const mediaUrl = window.location.origin + '/image/background1.jpg';
+            const tgWebApp = window.Telegram?.WebApp;
+            if (tgWebApp && typeof tgWebApp.shareStory === 'function') {
+                try {
+                    // BEPUL share — hech qanday charge yoki PRC sarfi yo'q
+                    tgWebApp.shareStory({
+                        media_url: mediaUrl,
                         caption: "I have successfully withdrawn 0.01 TON from PROGUZ, you can also play!"
                     });
-                } else {
-                    alert("");
+                    showToast('Story yuborildi!');
+                    return;
+                } catch (err) {
+                    console.warn('shareStory xatosi:', err);
                 }
-            });
-        }
+            }
+            // Agar Telegram shareStory ishlamasa — faqat xabar ko'rsatamiz, hech qanday pul yechilmaydi
+            showToast('Sharing mavjud emas — iltimos, Telegram ichida oching yoki keyin urinib ko‘ring.');
+        });
     }, 300);
 
     // tap handler: use energy (manual only) 
@@ -294,16 +302,17 @@ function renderGame() {
 
     // energy auto-recharge (existing)
     if (window._energyInterval) { clearInterval(window._energyInterval); window._energyInterval = null; }
+    // Doimiy interval: har soniyada tekshiradi va faqat kerak bo'lsa oshiradi.
     window._energyInterval = setInterval(() => {
         const st = loadState();
+        if (typeof st.energy !== 'number' || typeof st.maxEnergy !== 'number') return;
         if (st.energy < st.maxEnergy) {
             st.energy = Math.min(st.maxEnergy, st.energy + 1);
             saveState(st);
             const el = document.getElementById('tapsCount');
             if (el) el.textContent = `${st.energy} / ${st.maxEnergy}`;
-        } else {
-            clearInterval(window._energyInterval); window._energyInterval = null;
         }
+        // Eslatma: intervalni endi avtomatik clear qilmaymiz — shu bilan energiya pasayganda qayta tiklanadi.
     }, 1000);
 
     // replace modal behavior: clicking boostsBox opens Boosts "page" (renderBoosts)
@@ -619,30 +628,30 @@ function hideTelegramBack() {
 }
 
 // --- Story share + claim handling for reklanma2 ---
-const reklama2 = document.querySelector('.reklanma2');
-if (reklama2) {
-    reklama2.addEventListener('click', () => {
-        // claim: 0.00001 TON (10 PRC)
-        const state = loadState();
-        const claimAmountWei = 10_000_000_000_000_000n; // 10 PRC
-        if (state.prcWei < claimAmountWei) {
-            alert('Yetarli PRC yo‘q. Iltimos, avval PRC to‘plang.');
-            return;
-        }
-        // remove reklama2 element
-        reklama2.parentElement.remove();
-        // charge cost (from PRC)
-        chargeCost(state, claimAmountWei);
-        // add diamond reward: 0.00001 TON = 10 PRC -> 10 diamond
-        state.diamond += 10;
-        saveState(state);
-        // show updated diamond balance
-        const diamondTop = document.getElementById('diamondTop');
-        if (diamondTop) diamondTop.textContent = '💎 ' + state.diamond;
-        // simple toast notification
-        showToast('🎉 10 diamond qo‘shildi!');
-    });
-}
+// const reklama2 = document.querySelector('.reklanma2');
+// if (reklama2) {
+//     reklama2.addEventListener('click', () => {
+//         // claim: 0.00001 TON (10 PRC)
+//         const state = loadState();
+//         const claimAmountWei = 10_000_000_000_000_000n; // 10 PRC
+//         if (state.prcWei < claimAmountWei) {
+//             alert('Yetarli PRC yo‘q. Iltimos, avval PRC to‘plang.');
+//             return;
+//         }
+//         // remove reklama2 element
+//         reklama2.parentElement.remove();
+//         // charge cost (from PRC)
+//         chargeCost(state, claimAmountWei);
+//         // add diamond reward: 0.00001 TON = 10 PRC -> 10 diamond
+//         state.diamond += 10;
+//         saveState(state);
+//         // show updated diamond balance
+//         const diamondTop = document.getElementById('diamondTop');
+//         if (diamondTop) diamondTop.textContent = '💎 ' + state.diamond;
+//         // simple toast notification
+//         showToast('🎉 10 diamond qo‘shildi!');
+//     });
+// }
 
 // simple toast notification function
 function showToast(message) {
