@@ -250,32 +250,49 @@ function renderGame() {
       </div>
      `;
 
-    // --- Share Story / reklanma2 handler (robust fallback: Telegram -> Web Share -> t.me link) ---
-    // Replace reklanma2 handler call: call p(...) and refill energy on success
+    // --- Share Story / reklanma2 handler: share qilingach Claim tugmasi chiqadi, claim bosilganda energiya to'ldiriladi ---
     setTimeout(() => {
         const reklanma = document.querySelector('.reklanma2');
         if (!reklanma) return;
-        reklanma.addEventListener('click', () => {
+        // old listenerni olib tashlash (agar mavjud bo'lsa) va yangi listener qo'shamiz
+        reklanma.replaceWith(reklanma.cloneNode(true));
+        const rek = document.querySelector('.reklanma2');
+        rek.addEventListener('click', () => {
+            // tayyor share ma'lumotlari
             const currentUrl = (location.protocol === 'file:' ? 'https://YOUR_PUBLIC_DOMAIN' + '/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
             const args = {
-                link: currentUrl, // media/url to share
+                link: currentUrl,
                 text: 'I have successfully withdrawn 0.01 TON from PROGUZ, you can also play!',
                 btnName: 'Play PROGUZ',
                 currentUrl: currentUrl
             };
-            // Agar share muvaffaqiyatli bo'lsa energy ni to'liq to'ldirish
+            // share urinishini amalga oshiramiz
             p(window.Telegram || window, args, (success) => {
-                if (success) {
-                    const st = loadState();
-                    st.energy = st.maxEnergy;
-                    saveState(st);
-                    const el = document.getElementById('tapsCount');
-                    if (el) el.textContent = `${st.energy} / ${st.maxEnergy}`;
-                    showToast('🎉 Energiya toʻldirildi!');
-                    // reklama elementini olib tashlash (xohlasangiz)
-                    if (reklanma.parentElement) reklanma.parentElement.remove();
-                } else {
+                if (!success) {
                     showToast('Share bajarilmadi.');
+                    return;
+                }
+                // share muvaffaqiyatli bo'ldi — endi reklanma elementini Claim UI ga o'zgartiramiz
+                // sodda Claim UI: matn + tugma
+                rek.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <div style="font-weight:700; color:#fff;">Story jo'natildi!</div>
+                      <button id="claimBtn" class="btn" style="margin-left:6px;">CLAIM</button>
+                    </div>
+                `;
+                // Claim tugmasiga listener
+                const claimBtn = document.getElementById('claimBtn');
+                if (claimBtn) {
+                    claimBtn.addEventListener('click', () => {
+                        const st = loadState();
+                        st.energy = st.maxEnergy;
+                        saveState(st);
+                        const el = document.getElementById('tapsCount');
+                        if (el) el.textContent = `${st.energy} / ${st.maxEnergy}`;
+                        showToast('🎉 Energiya toʻldirildi!');
+                        // claim qilinganini ko'rsatib reklama elementini olib tashlaymiz
+                        if (rek.parentElement) rek.parentElement.remove();
+                    });
                 }
             });
         });
