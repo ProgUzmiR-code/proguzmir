@@ -243,7 +243,7 @@ function renderGame() {
           <div  class="reklanma2">
             <img class="reklanma" width="20" src="./image/reklanma.png" alt="">
             <div class="reklanma1">
-            ⚡️ <span>+1000</span>
+                <span>+1000PRC</span>
             </div>
           </div>
         </div>
