@@ -917,5 +917,94 @@ function animateAddPRC(text) {
         });
     }, 300);
 
+// Saqlash: lokal snapshot (offline fallback)
+function saveSnapshotToLocal(state) {
+    try {
+        const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
+        const key = makeUserKey('proguzmir_snapshot', wallet);
+        const snap = {
+            prcWei: state.prcWei.toString(),
+            diamond: state.diamond,
+            tapsUsed: state.tapsUsed,
+            tapCap: state.tapCap,
+            selectedSkin: state.selectedSkin,
+            energy: state.energy,
+            maxEnergy: state.maxEnergy,
+            ts: Date.now()
+        };
+        localStorage.setItem(key, JSON.stringify(snap));
+    } catch (err) { console.warn('saveSnapshotToLocal error', err); }
+}
 
+// Sinxronizatsiya: serverga yuborish (no-blocking, xavfsiz)
+async function syncToServer(state) {
+    try {
+        const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
+        if (!wallet) return;
+        const snapshot = {
+            prcWei: state.prcWei.toString(),
+            diamond: state.diamond,
+            tapsUsed: state.tapsUsed,
+            tapCap: state.tapCap,
+            selectedSkin: state.selectedSkin,
+            energy: state.energy,
+            maxEnergy: state.maxEnergy,
+            ts: Date.now()
+        };
+        await fetch('/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: wallet, snapshot })
+        });
+    } catch (err) {
+        console.warn('syncToServer failed (will rely on local snapshot):', err);
+    }
+}
+
+// Serverdan snapshot olish
+async function loadSnapshotFromServer(userId) {
+    try {
+        const res = await fetch('/api/load?userId=' + encodeURIComponent(userId));
+        if (!res.ok) return null;
+        const data = await res.json();
+        // API returns snapshot object (as saved). Normalize and return.
+        return data;
+    } catch (err) {
+        console.warn('loadSnapshotFromServer error', err);
+        return null;
+    }
+}
+
+// Startup init: agar wallet mavjud bo'lsa server snapshotni yuklab, local bilan birlashtir
+(async function initializeStateOnStartup() {
+    // replace previous immediate render call (setTimeout(renderAndWait, 250)) with this bootstrap
+    try {
+        window.startLoader && window.startLoader();
+        const wallet = localStorage.getItem(KEY_WALLET) || "";
+        if (wallet) {
+            const serverSnap = await loadSnapshotFromServer(wallet);
+            if (serverSnap) {
+                // Merge server snapshot into local state (server is authoritative)
+                const st = loadState();
+                try {
+                    if (typeof serverSnap.prcWei === 'string') st.prcWei = BigInt(serverSnap.prcWei);
+                    if (typeof serverSnap.diamond !== 'undefined') st.diamond = Number(serverSnap.diamond) || 0;
+                    if (typeof serverSnap.tapsUsed !== 'undefined') st.tapsUsed = Number(serverSnap.tapsUsed) || 0;
+                    if (typeof serverSnap.tapCap !== 'undefined') st.tapCap = Number(serverSnap.tapCap) || st.tapCap;
+                    if (typeof serverSnap.selectedSkin !== 'undefined') st.selectedSkin = serverSnap.selectedSkin || st.selectedSkin;
+                    if (typeof serverSnap.energy !== 'undefined') st.energy = Number(serverSnap.energy) || st.energy;
+                    if (typeof serverSnap.maxEnergy !== 'undefined') st.maxEnergy = Number(serverSnap.maxEnergy) || st.maxEnergy;
+                } catch (err) {
+                    console.warn('Failed to merge server snapshot', err);
+                }
+                saveState(st); // persist merged state locally and attempt sync (syncToServer is safe)
+            }
+        }
+    } catch (err) {
+        console.warn('initializeStateOnStartup error', err);
+    } finally {
+        // small delay so loader visuals start
+        setTimeout(renderAndWait, 250);
+    }
+})();
 
