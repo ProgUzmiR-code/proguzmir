@@ -299,7 +299,7 @@ function renderGame() {
                         st.prcWei = BigInt(st.prcWei) + BASE_WEI;
                         saveState(st);
                         animateAddPRC('+' + fmtPRC(BASE_WEI));
-                        showToast('🎉 Claim qabul qilindi: 0.000000000000001000 PRC');
+                        showToast('🎉🎉🎉🎉🎉');
                         renderGame();
                     });
                 }
