@@ -925,7 +925,7 @@ async function syncToServer(state) {
             maxEnergy: state.maxEnergy,
             ts: Date.now()
         };
-        await fetch('/api/save', {
+        await fetch('/save', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: wallet, snapshot })
@@ -938,7 +938,7 @@ async function syncToServer(state) {
 // Serverdan snapshot olish
 async function loadSnapshotFromServer(userId) {
     try {
-        const res = await fetch('/api/load?userId=' + encodeURIComponent(userId));
+        const res = await fetch('/load?userId=' + encodeURIComponent(userId));
         if (!res.ok) return null;
         const data = await res.json();
         // API returns snapshot object (as saved). Normalize and return.

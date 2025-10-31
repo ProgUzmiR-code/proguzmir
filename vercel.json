@@ -1,10 +1,10 @@
 {
   "version": 2,
   "functions": {
-    "api/save.js": {
+    "save.js": {
       "runtime": "nodejs18.x"
     },
-    "api/load.js": {
+    "load.js": {
       "runtime": "nodejs18.x"
     }
   },
