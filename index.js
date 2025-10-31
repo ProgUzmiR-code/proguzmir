@@ -268,7 +268,7 @@ function renderGame() {
         const rek = document.querySelector('.reklanma2');
         rek.addEventListener('click', () => {
             // if already claimed today block
-            if (isClaimedToday()) { showToast('Siz allaqachon claim qildingiz. Keyinroq qayta urinib ko‘ring.'); return; }
+            if (isClaimedToday()) { showToast('1 kundan keyin'); return; }
 
             const currentUrl = (location.protocol === 'file:' ? 'https://YOUR_PUBLIC_DOMAIN' + '/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
             const args = {
