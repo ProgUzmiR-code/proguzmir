@@ -675,32 +675,6 @@ function hideTelegramBack() {
     }
 }
 
-// --- Story share + claim handling for reklanma2 ---
-// const reklama2 = document.querySelector('.reklanma2');
-// if (reklama2) {
-//     reklama2.addEventListener('click', () => {
-//         // claim: 0.00001 TON (10 PRC)
-//         const state = loadState();
-//         const claimAmountWei = 10_000_000_000_000_000n; // 10 PRC
-//         if (state.prcWei < claimAmountWei) {
-//             alert('Yetarli PRC yo‘q. Iltimos, avval PRC to‘plang.');
-//             return;
-//         }
-//         // remove reklama2 element
-//         reklama2.parentElement.remove();
-//         // charge cost (from PRC)
-//         chargeCost(state, claimAmountWei);
-//         // add diamond reward: 0.00001 TON = 10 PRC -> 10 diamond
-//         state.diamond += 10;
-//         saveState(state);
-//         // show updated diamond balance
-//         const diamondTop = document.getElementById('diamondTop');
-//         if (diamondTop) diamondTop.textContent = '💎 ' + state.diamond;
-//         // simple toast notification
-//         showToast('🎉 10 diamond qo‘shildi!');
-//     });
-// }
-
 // simple toast notification function
 function showToast(message) {
     const toast = document.createElement('div');
