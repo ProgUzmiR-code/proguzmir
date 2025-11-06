@@ -2,11 +2,19 @@ import { put } from '@vercel/blob';
 
 export default async function handler(req, res) {
   try {
-    const { userId, snapshot } = req.body || {};
-    if (!userId || !snapshot) return res.status(400).json({ ok:false, error:'missing' });
+    if (req.method !== 'POST') return res.status(405).json({ ok:false, error:'Method Not Allowed' });
 
-    await put(`progress/${userId}.json`, JSON.stringify(snapshot), {
+    const { userId, snapshot } = req.body || {};
+    if (!userId || !snapshot) return res.status(400).json({ ok:false, error:'missing userId or snapshot' });
+
+    // get token from environment (support multiple var names)
+    const TOKEN = process.env.uzmirstorage_READ_WRITE_TOKEN || process.env.VERCEL_BLOB_TOKEN || process.env.VERCEL_BLOB_READ_WRITE_TOKEN;
+    const path = `progress/${encodeURIComponent(userId)}.json`;
+
+    // put supports options; include access and token (best-effort)
+    await put(path, JSON.stringify(snapshot), {
       access: 'public',
+      token: TOKEN
     });
 
     res.status(200).json({ ok: true });
