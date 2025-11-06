@@ -892,7 +892,7 @@ function animateAddPRC(text) {
                         st.prcWei = BigInt(st.prcWei) + BASE_WEI;
                         saveState(st);
                         animateAddPRC('+' + fmtPRC(BASE_WEI));
-                        showToast('🎉 +1000PRC');
+                        showToast('🎉🎉🎉🎉🎉🎉');
                         // faqat reklanma elementini countdown ga o'tkazamiz, sahifani qayta render qilmaymiz
                         showReklanmaCountdown(rek);
                     });
