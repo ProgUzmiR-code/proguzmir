@@ -266,11 +266,18 @@ function renderGame() {
         // replace node to ensure no duplicate listeners
         reklanma.replaceWith(reklanma.cloneNode(true));
         const rek = document.querySelector('.reklanma2');
-        rek.addEventListener('click', () => {
-            // if already claimed today block
-            if (isClaimedToday()) { showToast('1 kundan keyin'); return; }
 
-            const currentUrl = (location.protocol === 'file:' ? 'https://YOUR_PUBLIC_DOMAIN' + '/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
+        // agar bugun allaqachon claim qilingan bo'lsa, bevosita countdown chiqaramiz
+        if (isClaimedToday()) {
+            showReklanmaCountdown(rek);
+            return;
+        }
+
+        // oddiy click handler: share -> show claim button (do NOT re-render whole page)
+        rek.addEventListener('click', () => {
+            if (isClaimedToday()) { showToast('1 kun kuting'); return; }
+
+            const currentUrl = (location.protocol === 'file:' ? 'https://YOUR_PUBLIC_DOMAIN/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
             const args = {
                 link: currentUrl,
                 text: 'I have successfully withdrawn 0.01 TON from PROGUZ, you can also play!',
@@ -283,7 +290,7 @@ function renderGame() {
                     showToast('Share bajarilmadi.');
                     return;
                 }
-                // share muvaffaqiyatli bo'ldi — CLAIM UI chiqarish
+                // show CLAIM button inside reklanma only
                 rek.innerHTML = `
                     <div style="display:flex; align-items:center; gap:8px;">
                       <div style="font-weight:700; color:#fff;">Story jo'natildi!</div>
@@ -299,8 +306,9 @@ function renderGame() {
                         st.prcWei = BigInt(st.prcWei) + BASE_WEI;
                         saveState(st);
                         animateAddPRC('+' + fmtPRC(BASE_WEI));
-                        showToast('🎉🎉🎉🎉🎉');
-                        renderGame();
+                        showToast('🎉 +1000PRC');
+                        // faqat reklanma elementini countdown ga o'tkazamiz, sahifani qayta render qilmaymiz
+                        showReklanmaCountdown(rek);
                     });
                 }
             });
@@ -848,11 +856,12 @@ function animateAddPRC(text) {
         const reklanma = document.querySelector('.reklanma2');
         if (!reklanma) return;
 
-        // eski listenerlarni olib tashlash va yangisini qo'shish
+        // replace node to ensure no duplicate listeners
         reklanma.replaceWith(reklanma.cloneNode(true));
         const rek = document.querySelector('.reklanma2');
         rek.addEventListener('click', () => {
-            if (isClaimedToday()) { showToast('1 kun kuting'); return; }
+            // if already claimed today block
+            if (isClaimedToday()) { showToast('1 kundan keyin'); return; }
 
             const currentUrl = (location.protocol === 'file:' ? 'https://YOUR_PUBLIC_DOMAIN/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
             const args = {
@@ -884,7 +893,8 @@ function animateAddPRC(text) {
                         saveState(st);
                         animateAddPRC('+' + fmtPRC(BASE_WEI));
                         showToast('🎉 +1000PRC');
-                        renderGame();
+                        // faqat reklanma elementini countdown ga o'tkazamiz, sahifani qayta render qilmaymiz
+                        showReklanmaCountdown(rek);
                     });
                 }
             });
