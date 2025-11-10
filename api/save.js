@@ -13,6 +13,8 @@ export default async function handler(req, res) {
 
     // get token from environment (support multiple var names)
     const TOKEN = process.env.uzmirstorage_READ_WRITE_TOKEN || process.env.VERCEL_BLOB_TOKEN || process.env.VERCEL_BLOB_READ_WRITE_TOKEN;
+    console.log('TOKEN:', TOKEN);
+    console.log('snapshot:', snapshot);
     const path = `progress/${encodeURIComponent(userId)}.json`;
 
     // put supports options; include access and token (best-effort)
