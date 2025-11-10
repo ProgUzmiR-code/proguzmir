@@ -1,5 +1,9 @@
 import { put } from '@vercel/blob';
-
+export const config = {
+  api: {
+    bodyParser: true,
+  },
+};
 export default async function handler(req, res) {
   try {
     if (req.method !== 'POST') return res.status(405).json({ ok:false, error:'Method Not Allowed' });

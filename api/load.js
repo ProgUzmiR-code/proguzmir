@@ -1,5 +1,10 @@
 import { get } from '@vercel/blob';
 
+export const config = {
+  api: {
+    bodyParser: true,
+  },
+};
 export default async function handler(req, res) {
   try {
     const { userId } = req.query || {};
