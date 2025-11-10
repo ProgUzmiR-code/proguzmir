@@ -1,11 +1,18 @@
 {
   "version": 2,
-  
+  "builds": [
+    { "src": "api/save.js", "use": "@vercel/node" },
+    { "src": "api/load.js", "use": "@vercel/node" },
+    { "src": "game/**/*.html", "use": "@vercel/static" },
+    { "src": "game/**/*.js", "use": "@vercel/static" },
+    { "src": "image/*", "use": "@vercel/static" },
+    { "src": "*.*", "use": "@vercel/static" }
+  ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/api/(.*)", "dest": "/api/save.js" },
+    { "src": "/api/(.*)", "dest": "/api/load.js" },
     { "src": "/game/(.*)", "dest": "/game/$1" },
     { "src": "/image/(.*)", "dest": "/image/$1" },
-    { "src": "/(.*)", "dest": "/$1.js" },
-    { "src": "/", "dest": "/" }
+    { "src": "/(.*)", "dest": "/$1.js" }
   ]
 }
