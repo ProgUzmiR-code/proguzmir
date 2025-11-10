@@ -19,7 +19,11 @@ export default async function handler(req, res) {
       console.warn('save: no token provided in env');
       // still try without token (some runtimes may use internal creds)
     }
-
+    console.log('========================');
+    console.log('[SAVE API] POST body:', req.body);
+    console.log('[SAVE API] TOKEN:', TOKEN ? TOKEN.slice(0, 20) + '...' : 'NONE');
+    console.log('[SAVE API] userId:', userId);
+    console.log('[SAVE API] snapshot:', snapshot);
     const path = `progress/${encodeURIComponent(userId)}.json`;
     // attempt write
     try {
