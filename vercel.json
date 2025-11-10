@@ -11,6 +11,6 @@
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/game/(.*)", "dest": "/game/$1" },
     { "src": "/image/(.*)", "dest": "/image/$1" },
-    { "src": "/(.*)", "dest": "/$1" }
+    { "src": "/(.*)", "dest": "/$1.js" }
   ]
 }
