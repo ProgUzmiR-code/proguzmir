@@ -927,82 +927,7 @@ function saveSnapshotToLocal(state) {
             ts: Date.now()
         };
         localStorage.setItem(key, JSON.stringify(snap));
-
-        // enqueue for server sync (ensures eventual consistency)
-        try {
-            enqueuePendingSnapshot(snap, wallet);
-        } catch (e) {
-           console.warn('enqueuePendingSnapshot failed', e);
-        }
     } catch (err) { console.warn('saveSnapshotToLocal error', err); }
-}
-
-// --- Pending snapshots queue (stored per-wallet in localStorage) ---
-function pendingKeyForWallet(wallet) { return makeUserKey('proguzmir_pending', wallet); }
-
-function getPendingSnapshots(wallet) {
-    try {
-        const raw = localStorage.getItem(pendingKeyForWallet(wallet)) || '[]';
-        return JSON.parse(raw);
-    } catch (e) { return []; }
-}
-function setPendingSnapshots(wallet, arr) {
-    try { localStorage.setItem(pendingKeyForWallet(wallet), JSON.stringify(arr)); } catch (e) { /* ignore */ }
-}
-
-function enqueuePendingSnapshot(snap, wallet) {
-    const w = wallet || localStorage.getItem(KEY_WALLET) || '';
-    const list = getPendingSnapshots(w);
-    list.push(snap);
-    setPendingSnapshots(w, list);
-}
-
-// Try to flush pending snapshots to server (FIFO)
-let _flushInProgress = false;
-async function flushPendingSnapshots() {
-    if (_flushInProgress) return;
-    _flushInProgress = true;
-    try {
-        const wallet = localStorage.getItem(KEY_WALLET) || "";
-        if (!wallet) return;
-        const list = getPendingSnapshots(wallet);
-        if (!Array.isArray(list) || list.length === 0) return;
-        // send in order
-        for (let i = 0; i < list.length; i++) {
-            const snap = list[i];
-            try {
-                const res = await fetch('/api/save', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: wallet, snapshot: snap })
-                });
-                if (!res.ok) throw new Error('network save failed: ' + res.status);
-                const body = await res.json();
-                if (body && body.ok && body.saved) {
-                    // remove first element and continue
-                    list.shift();
-                    setPendingSnapshots(wallet, list);
-                    i = -1; // reset loop to start from beginning of updated list
-                    continue;
-                } else {
-                    // if API accepted but verification failed, keep for retry
-                    console.warn('flushPendingSnapshots: api accepted but saved=false', body);
-                    break;
-                }
-            } catch (err) {
-                console.warn('flushPendingSnapshots error, will retry later', err);
-                break;
-            }
-        }
-    } finally {
-        _flushInProgress = false;
-    }
-}
-
-// trigger flush periodically and on visibility
-if (!window._pendingFlushInterval) {
-    window._pendingFlushInterval = setInterval(flushPendingSnapshots, 5000); // every 5s
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) flushPendingSnapshots(); });
 }
 
 // Sinxronizatsiya: serverga yuborish (no-blocking, xavfsiz)
@@ -1020,27 +945,11 @@ async function syncToServer(state) {
             maxEnergy: state.maxEnergy,
             ts: Date.now()
         };
-        // first immediate attempt
-        try {
-            const res = await fetch('/api/save', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: wallet, snapshot })
-            });
-            if (!res.ok) throw new Error('network error ' + res.status);
-            const body = await res.json();
-            if (body && body.ok && body.saved) {
-                // saved on server
-                return;
-            } else {
-                // enqueue for retry if not saved
-                enqueuePendingSnapshot(snapshot, wallet);
-            }
-        } catch (err) {
-            // network or other failure -> enqueue to pending queue
-            console.warn('syncToServer immediate attempt failed, enqueueing', err);
-            enqueuePendingSnapshot(snapshot, wallet);
-        }
+        await fetch('/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: wallet, snapshot })
+        });
     } catch (err) {
         console.warn('syncToServer failed (will rely on local snapshot):', err);
     }
