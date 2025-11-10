@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     const TOKEN = process.env.uzmirstorage_READ_WRITE_TOKEN || process.env.VERCEL_BLOB_TOKEN || process.env.VERCEL_BLOB_READ_WRITE_TOKEN;
     console.log('TOKEN:', TOKEN);
     console.log('snapshot:', snapshot);
-    const path = `progress/${encodeURIComponent(userId)}.json`;
+    const path = `${userId}.json`;
 
     // put supports options; include access and token (best-effort)
     await put(path, JSON.stringify(snapshot), {
