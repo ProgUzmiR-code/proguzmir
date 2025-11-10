@@ -1,7 +1,3 @@
-const tg = window.Telegram && window.Telegram.WebApp;
-if (tg) tg.expand();
-
-// BigInt birlik: 18 onlik (wei)
 const DECIMALS = 18n;
 const UNIT = 10n ** DECIMALS;
 
@@ -44,7 +40,17 @@ function makeUserKey(baseKey, wallet) {
 }
 // --- YANGILANGAN loadState() ---
 function loadState() {
-    const wallet = localStorage.getItem(KEY_WALLET) || "";
+    // prefer Telegram WebApp id when available (we store it as "tg_{id}" in KEY_WALLET)
+    let wallet = localStorage.getItem(KEY_WALLET) || "";
+    try {
+        const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+        if (tgId) {
+            // ensure the KEY_WALLET contains tg_{id} while in Telegram
+            wallet = 'tg_' + String(tgId);
+            localStorage.setItem(KEY_WALLET, wallet);
+        }
+    } catch (e) { /* ignore */ }
+
     const keyPRC = makeUserKey(KEY_PRC, wallet);
     const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
     const keyTaps = makeUserKey(KEY_TAPS_USED, wallet);
@@ -98,6 +104,7 @@ function chargeCost(state, costWei) {
 
 // --- YANGILANGAN saveState() ---
 function saveState(state) {
+    // prefer explicit state.wallet but fallback to persisted KEY_WALLET
     const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
     const keyPRC = makeUserKey(KEY_PRC, wallet);
     const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
@@ -106,6 +113,9 @@ function saveState(state) {
     const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
     const keyEnergy = makeUserKey(KEY_ENERGY, wallet);
     const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
+
+    // ensure state.wallet stored so subsequent loads use same identifier
+    if (!state.wallet && wallet) state.wallet = wallet;
 
     localStorage.setItem(keyPRC, state.prcWei.toString());
     localStorage.setItem(keyDiamond, String(state.diamond));
@@ -970,6 +980,8 @@ async function loadSnapshotFromServer(userId) {
             if (serverSnap) {
                 // Merge server snapshot into local state (server is authoritative)
                 const st = loadState();
+                // ensure st.wallet matches the key we used to load server snapshot
+                st.wallet = wallet;
                 try {
                     if (typeof serverSnap.prcWei === 'string') st.prcWei = BigInt(serverSnap.prcWei);
                     if (typeof serverSnap.diamond !== 'undefined') st.diamond = Number(serverSnap.diamond) || 0;
