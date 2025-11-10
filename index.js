@@ -1,7 +1,3 @@
-const tg = window.Telegram && window.Telegram.WebApp;
-if (tg) tg.expand();
-
-// BigInt birlik: 18 onlik (wei)
 const DECIMALS = 18n;
 const UNIT = 10n ** DECIMALS;
 
@@ -44,7 +40,17 @@ function makeUserKey(baseKey, wallet) {
 }
 // --- YANGILANGAN loadState() ---
 function loadState() {
-    const wallet = localStorage.getItem(KEY_WALLET) || "";
+    // prefer Telegram WebApp id when available (we store it as "tg_{id}" in KEY_WALLET)
+    let wallet = localStorage.getItem(KEY_WALLET) || "";
+    try {
+        const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+        if (tgId) {
+            // ensure the KEY_WALLET contains tg_{id} while in Telegram
+            wallet = 'tg_' + String(tgId);
+            localStorage.setItem(KEY_WALLET, wallet);
+        }
+    } catch (e) { /* ignore */ }
+
     const keyPRC = makeUserKey(KEY_PRC, wallet);
     const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
     const keyTaps = makeUserKey(KEY_TAPS_USED, wallet);
@@ -98,6 +104,7 @@ function chargeCost(state, costWei) {
 
 // --- YANGILANGAN saveState() ---
 function saveState(state) {
+    // prefer explicit state.wallet but fallback to persisted KEY_WALLET
     const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
     const keyPRC = makeUserKey(KEY_PRC, wallet);
     const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
@@ -106,6 +113,9 @@ function saveState(state) {
     const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
     const keyEnergy = makeUserKey(KEY_ENERGY, wallet);
     const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
+
+    // ensure state.wallet stored so subsequent loads use same identifier
+    if (!state.wallet && wallet) state.wallet = wallet;
 
     localStorage.setItem(keyPRC, state.prcWei.toString());
     localStorage.setItem(keyDiamond, String(state.diamond));
@@ -917,7 +927,82 @@ function saveSnapshotToLocal(state) {
             ts: Date.now()
         };
         localStorage.setItem(key, JSON.stringify(snap));
+
+        // enqueue for server sync (ensures eventual consistency)
+        try {
+            enqueuePendingSnapshot(snap, wallet);
+        } catch (e) {
+           console.warn('enqueuePendingSnapshot failed', e);
+        }
     } catch (err) { console.warn('saveSnapshotToLocal error', err); }
+}
+
+// --- Pending snapshots queue (stored per-wallet in localStorage) ---
+function pendingKeyForWallet(wallet) { return makeUserKey('proguzmir_pending', wallet); }
+
+function getPendingSnapshots(wallet) {
+    try {
+        const raw = localStorage.getItem(pendingKeyForWallet(wallet)) || '[]';
+        return JSON.parse(raw);
+    } catch (e) { return []; }
+}
+function setPendingSnapshots(wallet, arr) {
+    try { localStorage.setItem(pendingKeyForWallet(wallet), JSON.stringify(arr)); } catch (e) { /* ignore */ }
+}
+
+function enqueuePendingSnapshot(snap, wallet) {
+    const w = wallet || localStorage.getItem(KEY_WALLET) || '';
+    const list = getPendingSnapshots(w);
+    list.push(snap);
+    setPendingSnapshots(w, list);
+}
+
+// Try to flush pending snapshots to server (FIFO)
+let _flushInProgress = false;
+async function flushPendingSnapshots() {
+    if (_flushInProgress) return;
+    _flushInProgress = true;
+    try {
+        const wallet = localStorage.getItem(KEY_WALLET) || "";
+        if (!wallet) return;
+        const list = getPendingSnapshots(wallet);
+        if (!Array.isArray(list) || list.length === 0) return;
+        // send in order
+        for (let i = 0; i < list.length; i++) {
+            const snap = list[i];
+            try {
+                const res = await fetch('/api/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: wallet, snapshot: snap })
+                });
+                if (!res.ok) throw new Error('network save failed: ' + res.status);
+                const body = await res.json();
+                if (body && body.ok && body.saved) {
+                    // remove first element and continue
+                    list.shift();
+                    setPendingSnapshots(wallet, list);
+                    i = -1; // reset loop to start from beginning of updated list
+                    continue;
+                } else {
+                    // if API accepted but verification failed, keep for retry
+                    console.warn('flushPendingSnapshots: api accepted but saved=false', body);
+                    break;
+                }
+            } catch (err) {
+                console.warn('flushPendingSnapshots error, will retry later', err);
+                break;
+            }
+        }
+    } finally {
+        _flushInProgress = false;
+    }
+}
+
+// trigger flush periodically and on visibility
+if (!window._pendingFlushInterval) {
+    window._pendingFlushInterval = setInterval(flushPendingSnapshots, 5000); // every 5s
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) flushPendingSnapshots(); });
 }
 
 // Sinxronizatsiya: serverga yuborish (no-blocking, xavfsiz)
@@ -935,11 +1020,27 @@ async function syncToServer(state) {
             maxEnergy: state.maxEnergy,
             ts: Date.now()
         };
-        await fetch('/api/save', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: wallet, snapshot })
-        });
+        // first immediate attempt
+        try {
+            const res = await fetch('/api/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: wallet, snapshot })
+            });
+            if (!res.ok) throw new Error('network error ' + res.status);
+            const body = await res.json();
+            if (body && body.ok && body.saved) {
+                // saved on server
+                return;
+            } else {
+                // enqueue for retry if not saved
+                enqueuePendingSnapshot(snapshot, wallet);
+            }
+        } catch (err) {
+            // network or other failure -> enqueue to pending queue
+            console.warn('syncToServer immediate attempt failed, enqueueing', err);
+            enqueuePendingSnapshot(snapshot, wallet);
+        }
     } catch (err) {
         console.warn('syncToServer failed (will rely on local snapshot):', err);
     }
@@ -970,6 +1071,8 @@ async function loadSnapshotFromServer(userId) {
             if (serverSnap) {
                 // Merge server snapshot into local state (server is authoritative)
                 const st = loadState();
+                // ensure st.wallet matches the key we used to load server snapshot
+                st.wallet = wallet;
                 try {
                     if (typeof serverSnap.prcWei === 'string') st.prcWei = BigInt(serverSnap.prcWei);
                     if (typeof serverSnap.diamond !== 'undefined') st.diamond = Number(serverSnap.diamond) || 0;

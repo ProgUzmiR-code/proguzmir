@@ -1,4 +1,4 @@
-import { put, list} from '@vercel/blob';
+import { put, list } from '@vercel/blob';
 export const config = { api: { bodyParser: true } };
 
 function cleanToken(t) {
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ ok:false, error: 'put failed', detail: String(err) });
     }
 
-    // verify by reading back
+    // verify by reading back (best-effort)
     try {
       const blob = await get(path, { token: TOKEN });
       let data = null;
