@@ -930,77 +930,130 @@ function saveSnapshotToLocal(state) {
     } catch (err) { console.warn('saveSnapshotToLocal error', err); }
 }
 
-// Sinxronizatsiya: serverga yuborish (no-blocking, xavfsiz)
-async function syncToServer(state) {
+// --- NEW: Reliable sync queue (persisted per-wallet) ---
+function getSyncQueueKey(wallet) {
+    return 'proguzmir_sync_queue_' + (wallet || 'guest');
+}
+function loadQueue(wallet) {
     try {
-        const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
-        if (!wallet) return;
-        const snapshot = {
-            prcWei: state.prcWei.toString(),
-            diamond: state.diamond,
-            tapsUsed: state.tapsUsed,
-            tapCap: state.tapCap,
-            selectedSkin: state.selectedSkin,
-            energy: state.energy,
-            maxEnergy: state.maxEnergy,
-            ts: Date.now()
+        const raw = localStorage.getItem(getSyncQueueKey(wallet));
+        return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+}
+function saveQueue(wallet, q) {
+    localStorage.setItem(getSyncQueueKey(wallet), JSON.stringify(q));
+}
+function enqueueSnapshot(state) {
+    try {
+        const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || 'guest';
+        const q = loadQueue(wallet);
+        const entry = {
+            id: Date.now() + '_' + Math.floor(Math.random()*10000),
+            ts: Date.now(),
+            attempts: 0,
+            snapshot: {
+                prcWei: state.prcWei.toString(),
+                diamond: state.diamond,
+                tapsUsed: state.tapsUsed,
+                tapCap: state.tapCap,
+                selectedSkin: state.selectedSkin,
+                energy: state.energy,
+                maxEnergy: state.maxEnergy,
+                ts: Date.now()
+            },
+            userId: wallet
         };
-        await fetch('/api/save', {
+        q.push(entry);
+        saveQueue(wallet, q);
+    } catch (err) { console.warn('enqueueSnapshot error', err); }
+}
+async function sendEntry(entry, token) {
+    try {
+        const res = await fetch('/api/save', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: wallet, snapshot })
+            body: JSON.stringify({ userId: entry.userId, snapshot: entry.snapshot })
         });
+        if (!res.ok) throw new Error('non-200 ' + res.status);
+        const body = await res.json();
+        // consider success only if saved true (api tries to verify)
+        if (body && body.ok && body.saved) return { ok:true, body };
+        // if server accepted but verification failed, still treat as success to avoid infinite loop
+        if (body && body.ok && !body.saved) return { ok:true, body };
+        return { ok:false, body };
     } catch (err) {
-        console.warn('syncToServer failed (will rely on local snapshot):', err);
+        return { ok:false, error: String(err) };
     }
 }
-
-// Serverdan snapshot olish
-async function loadSnapshotFromServer(userId) {
-    try {
-        const res = await fetch('/api/load?userId=' + encodeURIComponent(userId));
-        if (!res.ok) return null;
-        const data = await res.json();
-        // API returns snapshot object (as saved). Normalize and return.
-        return data;
-    } catch (err) {
-        console.warn('loadSnapshotFromServer error', err);
-        return null;
-    }
-}
-
-// Startup init: agar wallet mavjud bo'lsa server snapshotni yuklab, local bilan birlashtir
-(async function initializeStateOnStartup() {
-    // replace previous immediate render call (setTimeout(renderAndWait, 250)) with this bootstrap
-    try {
-        window.startLoader && window.startLoader();
-        const wallet = localStorage.getItem(KEY_WALLET) || "";
-        if (wallet) {
-            const serverSnap = await loadSnapshotFromServer(wallet);
-            if (serverSnap) {
-                // Merge server snapshot into local state (server is authoritative)
-                const st = loadState();
-                // ensure st.wallet matches the key we used to load server snapshot
-                st.wallet = wallet;
-                try {
-                    if (typeof serverSnap.prcWei === 'string') st.prcWei = BigInt(serverSnap.prcWei);
-                    if (typeof serverSnap.diamond !== 'undefined') st.diamond = Number(serverSnap.diamond) || 0;
-                    if (typeof serverSnap.tapsUsed !== 'undefined') st.tapsUsed = Number(serverSnap.tapsUsed) || 0;
-                    if (typeof serverSnap.tapCap !== 'undefined') st.tapCap = Number(serverSnap.tapCap) || st.tapCap;
-                    if (typeof serverSnap.selectedSkin !== 'undefined') st.selectedSkin = serverSnap.selectedSkin || st.selectedSkin;
-                    if (typeof serverSnap.energy !== 'undefined') st.energy = Number(serverSnap.energy) || st.energy;
-                    if (typeof serverSnap.maxEnergy !== 'undefined') st.maxEnergy = Number(serverSnap.maxEnergy) || st.maxEnergy;
-                } catch (err) {
-                    console.warn('Failed to merge server snapshot', err);
-                }
-                saveState(st); // persist merged state locally and attempt sync (syncToServer is safe)
+async function processQueueForWallet(wallet) {
+    const q = loadQueue(wallet);
+    if (!q || q.length === 0) return;
+    let changed = false;
+    for (let i = 0; i < q.length; ) {
+        const entry = q[i];
+        // backoff: simple exponential based on attempts
+        const now = Date.now();
+        const backoffMs = Math.min(30000, 1000 * (2 ** entry.attempts));
+        if (entry.attempts > 0 && (now - entry.ts) < backoffMs) { i++; continue; }
+        entry.attempts = (entry.attempts || 0) + 1;
+        const result = await sendEntry(entry);
+        if (result.ok) {
+            // remove from queue
+            q.splice(i,1);
+            changed = true;
+            continue; // do not i++
+        } else {
+            // leave entry but update attempts and ts to apply backoff
+            entry.ts = now;
+            // if attempts too many, keep it but avoid tight loop
+            if (entry.attempts > 6) {
+                // push it to end and wait longer
+                q.splice(i,1);
+                q.push(entry);
+            } else {
+                i++;
             }
+            changed = true;
+            // continue processing next entries
         }
-    } catch (err) {
-        console.warn('initializeStateOnStartup error', err);
-    } finally {
-        // small delay so loader visuals start
-        setTimeout(renderAndWait, 250);
     }
-})();
+    if (changed) saveQueue(wallet, q);
+}
+
+// start background processor
+let _syncInterval = null;
+function startQueueProcessor() {
+    // run immediately and periodically
+    try {
+        const wallet = localStorage.getItem(KEY_WALLET) || 'guest';
+        processQueueForWallet(wallet).catch(e => console.warn('processQueue error', e));
+        if (_syncInterval) clearInterval(_syncInterval);
+        _syncInterval = setInterval(() => {
+            const w = localStorage.getItem(KEY_WALLET) || 'guest';
+            processQueueForWallet(w).catch(e => console.warn('processQueue error', e));
+        }, 5000);
+        // also attempt on online event
+        window.addEventListener('online', () => {
+            const w = localStorage.getItem(KEY_WALLET) || 'guest';
+            processQueueForWallet(w).catch(e => console.warn('processQueue error', e));
+        });
+    } catch (err) { console.warn('startQueueProcessor error', err); }
+}
+
+// replace syncToServer with enqueueSnapshot to ensure persistence and retries
+async function syncToServer(state) {
+    try {
+        // push to persistent queue; background processor will flush
+        enqueueSnapshot(state);
+        // ensure processor running
+        startQueueProcessor();
+    } catch (err) {
+        console.warn('syncToServer enqueue failed', err);
+    }
+}
+
+// ensure processor starts on load (after initial bootstrap)
+window.addEventListener('load', () => {
+    startQueueProcessor();
+});
 

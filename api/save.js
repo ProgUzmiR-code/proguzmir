@@ -1,4 +1,4 @@
-import { put, list } from '@vercel/blob';
+import { put, get } from '@vercel/blob';
 export const config = { api: { bodyParser: true } };
 
 function cleanToken(t) {
