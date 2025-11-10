@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "main": "[my-framework] build --output public"
+    "build": "[my-framework] build --output public"
   },
   "keywords": [],
   "author": "",
