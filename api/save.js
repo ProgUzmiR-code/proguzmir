@@ -28,6 +28,7 @@ export default async function handler(req, res) {
     // attempt write
     try {
       await put(path, JSON.stringify(snapshot), { access: 'public', token: TOKEN });
+      console.log('[SAVE API] ✅ put success:', path);
     } catch (err) {
       console.error('api/save put error:', err && err.message ? err.message : err);
       return res.status(500).json({ ok:false, error: 'put failed', detail: String(err) });
