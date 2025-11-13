@@ -102,7 +102,7 @@ function chargeCost(state, costWei) {
     return true;
 }
 
-// --- YANGILANGAN saveState() ---
+// --- YANGILANGAN saveState(): remove server sync, keep local snapshot only ---
 function saveState(state) {
     // prefer explicit state.wallet but fallback to persisted KEY_WALLET
     const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
@@ -139,12 +139,11 @@ function saveState(state) {
     const energyEl = document.getElementById('tapsCount');
     if (energyEl && typeof state.energy !== 'undefined') energyEl.textContent = `${state.energy} / ${state.maxEnergy}`;
 
-    // Safely call optional snapshot/sync functions if they exist
+    // Local-only snapshot (no server sync)
     try {
         if (typeof saveSnapshotToLocal === 'function') saveSnapshotToLocal(state);
-        if (typeof syncToServer === 'function') syncToServer(state);
     } catch (err) {
-        console.warn('saveState: snapshot/sync error', err);
+        console.warn('saveState: snapshot error', err);
     }
 }
 
@@ -930,77 +929,111 @@ function saveSnapshotToLocal(state) {
     } catch (err) { console.warn('saveSnapshotToLocal error', err); }
 }
 
-// Sinxronizatsiya: serverga yuborish (no-blocking, xavfsiz)
-async function syncToServer(state) {
-    try {
-        const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
-        if (!wallet) return;
-        const snapshot = {
-            prcWei: state.prcWei.toString(),
-            diamond: state.diamond,
-            tapsUsed: state.tapsUsed,
-            tapCap: state.tapCap,
-            selectedSkin: state.selectedSkin,
-            energy: state.energy,
-            maxEnergy: state.maxEnergy,
-            ts: Date.now()
-        };
-        await fetch('/api/save', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: wallet, snapshot })
-        });
-    } catch (err) {
-        console.warn('syncToServer failed (will rely on local snapshot):', err);
-    }
-}
+// --- NEW: profile modal + Telegram-based wallet assignment + local-only startup ---
+(function clientOnlyStartup() {
+	// prefer Telegram WebApp id when available (store as tg_{id})
+	try {
+		const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+		if (tgUser && tgUser.id) {
+			localStorage.setItem(KEY_WALLET, 'tg_' + String(tgUser.id));
+			// also populate header username if present
+			const nameNode = document.querySelector('.profile .username');
+			if (nameNode) {
+				const display = (tgUser.first_name || '') + (tgUser.last_name ? ' ' + tgUser.last_name : '');
+				nameNode.textContent = display || (tgUser.username ? '@' + tgUser.username : 'Telegram user');
+			}
+		}
+	} catch (err) { /* ignore */ }
 
-// Serverdan snapshot olish
-async function loadSnapshotFromServer(userId) {
-    try {
-        const res = await fetch('/api/load?userId=' + encodeURIComponent(userId));
-        if (!res.ok) return null;
-        const data = await res.json();
-        // API returns snapshot object (as saved). Normalize and return.
-        return data;
-    } catch (err) {
-        console.warn('loadSnapshotFromServer error', err);
-        return null;
-    }
-}
+	// simple local-only bootstrap: load state and render
+	try {
+		// render UI after small delay to allow loader visuals
+		setTimeout(() => {
+			renderAndWait();
+		}, 250);
+	} catch (err) {
+		console.warn('clientOnlyStartup error', err);
+	}
+})();
 
-// Startup init: agar wallet mavjud bo'lsa server snapshotni yuklab, local bilan birlashtir
-(async function initializeStateOnStartup() {
-    // replace previous immediate render call (setTimeout(renderAndWait, 250)) with this bootstrap
-    try {
-        window.startLoader && window.startLoader();
-        const wallet = localStorage.getItem(KEY_WALLET) || "";
-        if (wallet) {
-            const serverSnap = await loadSnapshotFromServer(wallet);
-            if (serverSnap) {
-                // Merge server snapshot into local state (server is authoritative)
-                const st = loadState();
-                // ensure st.wallet matches the key we used to load server snapshot
-                st.wallet = wallet;
-                try {
-                    if (typeof serverSnap.prcWei === 'string') st.prcWei = BigInt(serverSnap.prcWei);
-                    if (typeof serverSnap.diamond !== 'undefined') st.diamond = Number(serverSnap.diamond) || 0;
-                    if (typeof serverSnap.tapsUsed !== 'undefined') st.tapsUsed = Number(serverSnap.tapsUsed) || 0;
-                    if (typeof serverSnap.tapCap !== 'undefined') st.tapCap = Number(serverSnap.tapCap) || st.tapCap;
-                    if (typeof serverSnap.selectedSkin !== 'undefined') st.selectedSkin = serverSnap.selectedSkin || st.selectedSkin;
-                    if (typeof serverSnap.energy !== 'undefined') st.energy = Number(serverSnap.energy) || st.energy;
-                    if (typeof serverSnap.maxEnergy !== 'undefined') st.maxEnergy = Number(serverSnap.maxEnergy) || st.maxEnergy;
-                } catch (err) {
-                    console.warn('Failed to merge server snapshot', err);
-                }
-                saveState(st); // persist merged state locally and attempt sync (syncToServer is safe)
-            }
-        }
-    } catch (err) {
-        console.warn('initializeStateOnStartup error', err);
-    } finally {
-        // small delay so loader visuals start
-        setTimeout(renderAndWait, 250);
-    }
+// Profile modal: open when .profile clicked, show info from Telegram WebApp initDataUnsafe.user or localStorage
+(function setupProfileClick() {
+	document.addEventListener('DOMContentLoaded', () => {
+		const profile = document.querySelector('.profile');
+		if (!profile) return;
+		profile.style.cursor = 'pointer';
+		profile.addEventListener('click', (e) => {
+			e.preventDefault();
+			// gather info
+			let info = { id: null, first_name: null, last_name: null, username: null };
+			try {
+				const u = window.Telegram?.WebApp?.initDataUnsafe?.user;
+				if (u) {
+					info.id = u.id;
+					info.first_name = u.first_name || '';
+					info.last_name = u.last_name || '';
+					info.username = u.username || '';
+				}
+			} catch (err) { /* ignore */ }
+
+			// build modal
+			const overlay = document.createElement('div');
+			overlay.style.position = 'fixed';
+			overlay.style.inset = '0';
+			overlay.style.background = 'rgba(0,0,0,0.6)';
+			overlay.style.display = 'flex';
+			overlay.style.alignItems = 'center';
+			overlay.style.justifyContent = 'center';
+			overlay.style.zIndex = '20000';
+
+			const box = document.createElement('div');
+			box.style.background = '#07121a';
+			box.style.color = '#fff';
+			box.style.borderRadius = '12px';
+			box.style.padding = '18px';
+			box.style.minWidth = '260px';
+			box.style.boxShadow = '0 8px 40px rgba(0,0,0,0.6)';
+			box.style.textAlign = 'center';
+
+			// avatar: initials or default
+			const avatar = document.createElement('div');
+			avatar.style.width = '80px';
+			avatar.style.height = '80px';
+			avatar.style.margin = '0 auto 12px';
+			avatar.style.borderRadius = '50%';
+			avatar.style.display = 'flex';
+			avatar.style.alignItems = 'center';
+			avatar.style.justifyContent = 'center';
+			avatar.style.fontSize = '28px';
+			avatar.style.fontWeight = '700';
+			avatar.style.background = '#0b2230';
+			const initials = ((info.first_name||'').charAt(0) + (info.last_name||'').charAt(0)).toUpperCase() || (info.username? info.username.slice(0,2).toUpperCase() : 'TG');
+			avatar.textContent = initials;
+			box.appendChild(avatar);
+
+			const title = document.createElement('div');
+			title.style.fontWeight = '800';
+			title.style.marginBottom = '6px';
+			title.textContent = ((info.first_name || '') + (info.last_name ? ' ' + info.last_name : '')).trim() || (info.username ? '@' + info.username : 'Telegram user');
+			box.appendChild(title);
+
+			const sub = document.createElement('div');
+			sub.style.opacity = '0.85';
+			sub.style.fontSize = '13px';
+			sub.style.marginBottom = '12px';
+			sub.textContent = info.username ? '@' + info.username : `ID: ${info.id || 'unknown'}`;
+			box.appendChild(sub);
+
+			const closeBtn = document.createElement('button');
+			closeBtn.textContent = 'Close';
+			closeBtn.className = 'btn';
+			closeBtn.style.marginTop = '8px';
+			closeBtn.addEventListener('click', () => document.body.removeChild(overlay));
+			box.appendChild(closeBtn);
+
+			overlay.appendChild(box);
+			document.body.appendChild(overlay);
+		});
+	});
 })();
 

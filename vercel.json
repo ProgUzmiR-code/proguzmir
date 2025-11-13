@@ -1,8 +1,6 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/save.js", "use": "@vercel/node" },
-    { "src": "api/load.js", "use": "@vercel/node" },
     { "src": "game/**/*.html", "use": "@vercel/static" },
     { "src": "game/**/*.js", "use": "@vercel/static" },
     { "src": "image/*", "use": "@vercel/static" },
