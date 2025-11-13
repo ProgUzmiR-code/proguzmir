@@ -7,6 +7,27 @@
   <link rel="shortcut icon" href="./loading.svg" type="image/x-icon,jpg,png">
   <title>ProgUzmiR</title>
   <style>
+    html,
+    body,
+    #app {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #app {
+      min-height: 100vh;
+      /* viewport balandligini to'liq qoplaydi */
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-content {
+      flex: 1;
+      /* qolgan joyni egallaydi */
+      overflow: auto;
+    }
+
     body {
       * {
         user-select: none;
@@ -230,7 +251,8 @@
       border-radius: 8px;
       font-weight: 600;
     }
-   @media (min-width:481px) and (max-width:1024px) {
+
+    @media (min-width:481px) and (max-width:1024px) {
       :root {
         --header-height: 60px;
       }
@@ -277,7 +299,7 @@
         align-items: center;
       }
     }
-    
+
     /* Media queries: telefonlar va planshetlar */
     @media (max-width: 480px) {
       :root {
@@ -323,8 +345,6 @@
         margin-left: 30px;
       }
     }
-
-   
   </style>
 </head>
 
@@ -345,7 +365,8 @@
   <!-- Loading overlay (shows on app start) -->
   <div id="loadingOverlay" class="loading-overlay hidden" aria-hidden="true" role="status" aria-live="polite">
     <img id="loadingImg" class="loading-img" src="/loading.svg" alt="">
-    <div id="loadingText" class="loading-text" style="display:none; color:#fff; font-weight:700; font-size:18px;">loading...</div>
+    <div id="loadingText" class="loading-text" style="display:none; color:#fff; font-weight:700; font-size:18px;">
+      loading...</div>
   </div>
 
   <!-- panel: content rendered by JS -->
