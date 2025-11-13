@@ -189,10 +189,7 @@ function fmtPRC(wei) {
     const compressedFrac = compressFraction(frac);
     return (negative ? '-' : '') + whole + '.' + compressedFrac + ' PRC';
 }
-// api/fullscreen.js
-export default function handler(req, res) {
-  res.status(200).json({ message: "Fullscreen so‘rov frontendda bajariladi." });
-}
+
 
 function getRankFromWei(wei) {
     if (wei < BASE_WEI) return "bronze";

@@ -5,29 +5,38 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <link rel="shortcut icon" href="./loading.svg" type="image/x-icon,jpg,png">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    // 1-USUL: Oddiy va tez (tavsiya etiladi)
+    // Bu kodni hamma scriptlardan oldin ishga tushiring
+    
+    if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        
+        // Mini app'ni tayyor qilish
+        tg.ready();
+        
+        // To'liq ekran rejimiga o'tkazish
+        tg.expand();
+        
+        // Header va background ranglarini sozlash (ixtiyoriy)
+        tg.setHeaderColor('#2A2D3A'); // O'z rangingizni qo'ying
+        tg.setBackgroundColor('#ffffff'); // O'z rangingizni qo'ying
+        
+        // Viewport o'zgarishlarini kuzatish
+        tg.onEvent('viewportChanged', function() {
+            console.log('Viewport height:', tg.viewportHeight);
+            console.log('Is expanded:', tg.isExpanded);
+            
+            // Agar kerak bo'lsa, qayta expand qilish
+            if (!tg.isExpanded) {
+                tg.expand();
+            }
+        });
+    }
+</script>
   <title>ProgUzmiR</title>
   <style>
-    html,
-    body,
-    #app {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-
-    #app {
-      min-height: 100vh;
-      /* viewport balandligini to'liq qoplaydi */
-      display: flex;
-      flex-direction: column;
-    }
-
-    .main-content {
-      flex: 1;
-      /* qolgan joyni egallaydi */
-      overflow: auto;
-    }
-
     body {
       * {
         user-select: none;
@@ -251,8 +260,7 @@
       border-radius: 8px;
       font-weight: 600;
     }
-
-    @media (min-width:481px) and (max-width:1024px) {
+   @media (min-width:481px) and (max-width:1024px) {
       :root {
         --header-height: 60px;
       }
@@ -299,7 +307,7 @@
         align-items: center;
       }
     }
-
+    
     /* Media queries: telefonlar va planshetlar */
     @media (max-width: 480px) {
       :root {
@@ -345,6 +353,8 @@
         margin-left: 30px;
       }
     }
+
+   
   </style>
 </head>
 
@@ -365,15 +375,14 @@
   <!-- Loading overlay (shows on app start) -->
   <div id="loadingOverlay" class="loading-overlay hidden" aria-hidden="true" role="status" aria-live="polite">
     <img id="loadingImg" class="loading-img" src="/loading.svg" alt="">
-    <div id="loadingText" class="loading-text" style="display:none; color:#fff; font-weight:700; font-size:18px;">
-      loading...</div>
+    <div id="loadingText" class="loading-text" style="display:none; color:#fff; font-weight:700; font-size:18px;">loading...</div>
   </div>
 
   <!-- panel: content rendered by JS -->
   <div class="panel" id="content">
     <!-- bo'limlar JavaScript orqali yuklanadi -->
   </div>
-<button id="fsBtn">Full screen</button>
+
   <!-- single nav (keep only one instance) -->
   <div class="nav" role="tablist" aria-label="Navigation">
     <div class="tab active" data-tab="game">Game</div>
@@ -383,18 +392,9 @@
     <div class="tab" data-tab="earn">Earn</div>
   </div>
 
-<script>
-  document.getElementById('fsBtn').addEventListener('click', async () => {
-    try {
-      await document.documentElement.requestFullscreen();
-    } catch (e) {
-      console.error('Fullscreen failed:', e);
-    }
-  });
-</script>
-
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
   <script src="index.js"></script>
+  
 </body>
 
 </html>
