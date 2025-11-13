@@ -373,7 +373,7 @@
   <div class="panel" id="content">
     <!-- bo'limlar JavaScript orqali yuklanadi -->
   </div>
-
+<button id="fsBtn">Full screen</button>
   <!-- single nav (keep only one instance) -->
   <div class="nav" role="tablist" aria-label="Navigation">
     <div class="tab active" data-tab="game">Game</div>
@@ -382,6 +382,16 @@
     <div class="tab" data-tab="market">Market</div>
     <div class="tab" data-tab="earn">Earn</div>
   </div>
+
+<script>
+  document.getElementById('fsBtn').addEventListener('click', async () => {
+    try {
+      await document.documentElement.requestFullscreen();
+    } catch (e) {
+      console.error('Fullscreen failed:', e);
+    }
+  });
+</script>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="index.js"></script>
