@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@telegram-apps/sdk": "^3.11.8",
     "@vercel/blob": "^2.0.0",
     "axios": "^1.12.2",
     "cors": "^2.8.5",
