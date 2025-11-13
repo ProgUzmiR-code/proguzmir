@@ -4,12 +4,12 @@
     { "src": "game/**/*.html", "use": "@vercel/static" },
     { "src": "game/**/*.js", "use": "@vercel/static" },
     { "src": "image/*", "use": "@vercel/static" },
+    { "src": "server.js", "use": "@vercel/node" },
     { "src": "index.js", "use": "@vercel/static" },
     { "src": "index.html", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/api/save", "dest": "/api/save.js" },
-    { "src": "/api/load", "dest": "/api/load.js" },
+    { "src": "/server", "dest": "/server.js" },
     { "src": "/game/(.*)", "dest": "/game/$1" },
     { "src": "/image/(.*)", "dest": "/image/$1" },
     { "src": "/", "dest": "/index.html" }
