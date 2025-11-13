@@ -3,38 +3,6 @@ import json
 from decimal import Decimal, getcontext
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
-from aiogram import Bot, Dispatcher, types
-from aiogram.utils import executor
-
-# Bot tokeningizni bu yerga yozing
-BOT_TOKEN = "8491176215:AAGWwxPL3Yz9or7MOLGCdD4ka6mPfOf_hMk"
-
-bot = Bot(token=BOT_TOKEN)
-dp = Dispatcher(bot)
-
-# WebApp havolangiz (Vercel'da joylashtirilgan mini app manzili)
-WEBAPP_URL = "https://proguzmir.vercel.app/"
-
-@dp.message_handler(commands=['start'])
-async def start_command(message: types.Message):
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    webapp_button = types.KeyboardButton(
-        text="🚀 Open Mini App",
-        web_app=types.WebAppInfo(url=WEBAPP_URL)
-    )
-    keyboard.add(webapp_button)
-
-    await message.answer(
-        "Salom! 👋 Quyidagi tugmani bosing, mini app to‘liq ekranda ochiladi:",
-        reply_markup=keyboard
-    )
-
-if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True)
-
-
-
-    
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), "data.json")
 getcontext().prec = 50

@@ -3,9 +3,30 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <link rel="shortcut icon" href="./loading.svg" type="image/x-icon,jpg,png">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+import { viewport, init, isTMA } from "@telegram-apps/sdk";
+
+async function initTg() {
+  if (await isTMA()) {
+    init();
+    if (viewport.mount.isAvailable()) {
+      await viewport.mount();
+      viewport.expand(); // Расширяет приложение до максимальной высоты
+    }
+    if (viewport.requestFullscreen.isAvailable()) {
+      await viewport.requestFullscreen(); // Запрашивает полноэкранный режим
+    }
+  }
+}
+
+(async () => {
+  await initTg();
+})();
+
+</script>
   <title>ProgUzmiR</title>
   <style>
     body {
