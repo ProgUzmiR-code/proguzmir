@@ -3,32 +3,56 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <link rel="shortcut icon" href="./loading.svg" type="image/x-icon,jpg,png">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
-import { viewport, init, isTMA } from "@telegram-apps/sdk";
+    import { viewport, init, isTMA } from "@telegram-apps/sdk";
 
-async function initTg() {
-  if (await isTMA()) {
-    init();
-    if (viewport.mount.isAvailable()) {
-      await viewport.mount();
-      viewport.expand(); // Расширяет приложение до максимальной высоты
+    async function initTg() {
+      if (await isTMA()) {
+        init();
+        if (viewport.mount.isAvailable()) {
+          await viewport.mount();
+          viewport.expand(); // Расширяет приложение до максимальной высоты
+        }
+        if (viewport.requestFullscreen.isAvailable()) {
+          await viewport.requestFullscreen(); // Запрашивает полноэкранный режим
+        }
+      }
     }
-    if (viewport.requestFullscreen.isAvailable()) {
-      await viewport.requestFullscreen(); // Запрашивает полноэкранный режим
-    }
-  }
-}
 
-(async () => {
-  await initTg();
-})();
+    (async () => {
+      await initTg();
+    })();
 
-</script>
+  </script>
   <title>ProgUzmiR</title>
   <style>
+    :root {
+      --tg-viewport-height: 100vh;
+      --tg-viewport-stable-height: 100vh;
+    }
+
+    html, body, #root {
+      height: var(--tg-viewport-height, 100vh);
+      min-height: var(--tg-viewport-height, 100vh);
+    }
+
+    @media (orientation: landscape) {
+      body {
+        transform: rotate(90deg);
+        transform-origin: top left;
+        width: 100vh;
+        height: 100vw;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+    }
+
+
     body {
       * {
         user-select: none;
@@ -252,7 +276,8 @@ async function initTg() {
       border-radius: 8px;
       font-weight: 600;
     }
-   @media (min-width:481px) and (max-width:1024px) {
+
+    @media (min-width:481px) and (max-width:1024px) {
       :root {
         --header-height: 60px;
       }
@@ -299,7 +324,7 @@ async function initTg() {
         align-items: center;
       }
     }
-    
+
     /* Media queries: telefonlar va planshetlar */
     @media (max-width: 480px) {
       :root {
@@ -345,8 +370,6 @@ async function initTg() {
         margin-left: 30px;
       }
     }
-
-   
   </style>
 </head>
 
@@ -367,7 +390,8 @@ async function initTg() {
   <!-- Loading overlay (shows on app start) -->
   <div id="loadingOverlay" class="loading-overlay hidden" aria-hidden="true" role="status" aria-live="polite">
     <img id="loadingImg" class="loading-img" src="/loading.svg" alt="">
-    <div id="loadingText" class="loading-text" style="display:none; color:#fff; font-weight:700; font-size:18px;">loading...</div>
+    <div id="loadingText" class="loading-text" style="display:none; color:#fff; font-weight:700; font-size:18px;">
+      loading...</div>
   </div>
 
   <!-- panel: content rendered by JS -->
@@ -384,9 +408,9 @@ async function initTg() {
     <div class="tab" data-tab="earn">Earn</div>
   </div>
 
-  
+
   <script src="index.js"></script>
-  
+
 </body>
 
 </html>
