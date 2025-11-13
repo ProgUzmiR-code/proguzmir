@@ -14,6 +14,20 @@ const PORT = process.env.PORT || 3000;
 // use BOT_TOKEN env if provided, fallback to existing TOKEN constant
 const BOT_TOKEN = process.env.BOT_TOKEN || TOKEN;
 const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
+const { Telegraf, Markup } = require('telegraf');
+
+const bot = new Telegraf('8491176215:AAGWwxPL3Yz9or7MOLGCdD4ka6mPfOf_hMk');
+
+bot.start((ctx) => {
+    ctx.reply(
+        'Bosib mini appni oching 👇',
+        Markup.inlineKeyboard([
+            Markup.button.webApp('Play', 'https://proguzmir.vercel.app/')
+        ])
+    );
+});
+
+bot.launch();
 
 // Story check helper (best-effort / mocked via getUserProfilePhotos)
 
