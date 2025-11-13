@@ -6,35 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <link rel="shortcut icon" href="./loading.svg" type="image/x-icon,jpg,png">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script>
-    // 1-USUL: Oddiy va tez (tavsiya etiladi)
-    // Bu kodni hamma scriptlardan oldin ishga tushiring
-    
-    if (window.Telegram && window.Telegram.WebApp) {
-        const tg = window.Telegram.WebApp;
-        
-        // Mini app'ni tayyor qilish
-        tg.ready();
-        
-        // To'liq ekran rejimiga o'tkazish
-        tg.expand();
-        
-        // Header va background ranglarini sozlash (ixtiyoriy)
-        tg.setHeaderColor('#2A2D3A'); // O'z rangingizni qo'ying
-        tg.setBackgroundColor('#ffffff'); // O'z rangingizni qo'ying
-        
-        // Viewport o'zgarishlarini kuzatish
-        tg.onEvent('viewportChanged', function() {
-            console.log('Viewport height:', tg.viewportHeight);
-            console.log('Is expanded:', tg.isExpanded);
-            
-            // Agar kerak bo'lsa, qayta expand qilish
-            if (!tg.isExpanded) {
-                tg.expand();
-            }
-        });
-    }
-</script>
   <title>ProgUzmiR</title>
   <style>
     body {
