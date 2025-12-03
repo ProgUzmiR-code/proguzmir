@@ -1083,9 +1083,15 @@ document.querySelectorAll('.nav .tab').forEach(el => {
             // load rank page smoothly without refresh (no history.pushState)
             await loadHtmlIntoContent('./rank/rank.html');
         }
-        else if (tab === 'wallet') renderWallet();
-        else if (tab === 'market') renderMarket();
-        else if (tab === 'earn') renderEarn();
+        else if (tab === 'wallet') {
+            await loadHtmlIntoContent('./wallet/wallet.html');
+        }
+        else if (tab === 'market') {
+            await loadHtmlIntoContent('./friends/friends.html');
+        }
+        else if (tab === 'earn') {
+            await loadHtmlIntoContent('./earn/earn.html');
+        }
     });
 });
 
