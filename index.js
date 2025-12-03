@@ -1072,20 +1072,6 @@ async function loadHtmlIntoContent(url) {
   }
 }
 
-// handle browser history popstate to support back button
-window.addEventListener('popstate', (ev) => {
-  const state = ev.state || {};
-  if (state.tab === 'rank') {
-    loadHtmlIntoContent('/rank/rank.html');
-    // update active tab UI
-    document.querySelectorAll('.nav .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'rank'));
-  } else {
-    // default: render game tab
-    document.querySelectorAll('.nav .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === (state.tab || 'game')));
-    renderGame();
-  }
-});
-
 // Replace previous tab click handler block with enhanced loader
 document.querySelectorAll('.nav .tab').forEach(el => {
     el.addEventListener('click', async () => {
@@ -1094,10 +1080,8 @@ document.querySelectorAll('.nav .tab').forEach(el => {
         const tab = el.dataset.tab;
         if (tab === 'game') renderGame();
         else if (tab === 'rank') {
-            // load rank page smoothly without refresh
+            // load rank page smoothly without refresh (no history.pushState)
             await loadHtmlIntoContent('/rank/rank.html');
-            // push state to allow back navigation (use hash to avoid server routing issues)
-            history.pushState({ tab: 'rank' }, '', '#rank');
         }
         else if (tab === 'wallet') renderWallet();
         else if (tab === 'market') renderMarket();
