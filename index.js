@@ -1081,7 +1081,7 @@ document.querySelectorAll('.nav .tab').forEach(el => {
         if (tab === 'game') renderGame();
         else if (tab === 'rank') {
             // load rank page smoothly without refresh (no history.pushState)
-            await loadHtmlIntoContent('/rank/rank.html');
+            await loadHtmlIntoContent('./rank/rank.html');
         }
         else if (tab === 'wallet') renderWallet();
         else if (tab === 'market') renderMarket();
