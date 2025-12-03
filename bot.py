@@ -16,7 +16,6 @@ await message.answer(
 )
 
 
-
 DATA_FILE = os.path.join(os.path.dirname(__file__), "data.json")
 getcontext().prec = 50
 
