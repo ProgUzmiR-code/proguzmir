@@ -1,30 +1,16 @@
 import os
 import json
 from decimal import Decimal, getcontext
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, InputFile
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
 
-
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-
-keyboard = [
-    [InlineKeyboardButton("Play", web_app=WebAppInfo(url="https://proguzmir.vercel.app/"))]
-]
-await message.answer(
-    "Bosib mini appni oching 👇",
-    reply_markup=InlineKeyboardMarkup(keyboard)
-)
-
-
-
-DATA_FILE = os.path.join(os.path.dirname(__file__), "data.json")
 getcontext().prec = 50
 
+DATA_FILE = os.path.join(os.path.dirname(__file__), "data.json")
+
 RANKS = ["bronze", "silver", "gold", "smart gold", "platinium", "master"]
-# bazaviy threshold: bronze->silver
 BASE = Decimal("0.000000000000001000")
-# konvertatsiya
-DIAMOND_TO_PRC = Decimal("000000000000000010")  # 1 diamond in PRC units
+DIAMOND_TO_PRC = Decimal("0.000000000000000010")
 
 def load_data():
     if not os.path.exists(DATA_FILE):
@@ -47,7 +33,6 @@ def prc_decimal(v):
     return Decimal(v)
 
 def get_rank(prc_amount: Decimal):
-    # determine rank from PRC amount
     if prc_amount < BASE:
         return "bronze"
     thr = BASE
@@ -68,11 +53,40 @@ def main_menu_keyboard():
     return InlineKeyboardMarkup(kb)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Start command: handle /start and /start refXXX"""
     data = load_data()
     user = ensure_user(data, update.effective_user.id, update.effective_user.full_name)
+    
+    # Handle referral param if present
+    if context.args and context.args[0].startswith("ref"):
+        ref_id = context.args[0][3:]  # remove "ref" prefix
+        if ref_id and ref_id != str(update.effective_user.id):
+            ref_user = ensure_user(data, ref_id, f"ref_{ref_id}")
+            if str(update.effective_user.id) not in ref_user["referrals"]:
+                ref_user["referrals"].append(str(update.effective_user.id))
+    
     save_data(data)
-    txt = f"Assalomu alaykum, {update.effective_user.first_name}!\nMenu:"
-    await update.message.reply_text(txt, reply_markup=main_menu_keyboard())
+    
+    # Try to send with photo, fallback to text
+    photo_path = os.path.join(os.path.dirname(__file__), "logotype.png")
+    try:
+        if os.path.exists(photo_path):
+            await update.message.reply_photo(
+                photo=InputFile(photo_path),
+                caption=f"Assalomu alaykum, {update.effective_user.first_name}!\nMenu:",
+                reply_markup=main_menu_keyboard()
+            )
+        else:
+            await update.message.reply_text(
+                f"Assalomu alaykum, {update.effective_user.first_name}!\nMenu:",
+                reply_markup=main_menu_keyboard()
+            )
+    except Exception as e:
+        print(f"Error sending start message: {e}")
+        await update.message.reply_text(
+            f"Assalomu alaykum, {update.effective_user.first_name}!\nMenu:",
+            reply_markup=main_menu_keyboard()
+        )
 
 async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -93,7 +107,6 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(txt, reply_markup=InlineKeyboardMarkup(kb))
 
     elif query.data == "collect_tab":
-        # namuna: har bosishda kichik PRC qo'shish
         inc = Decimal("0.000000000000000100")
         cur = prc_decimal(user["prc"])
         cur += inc
@@ -108,7 +121,6 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif query.data == "menu_rank":
         prc = prc_decimal(user["prc"])
         rank = get_rank(prc)
-        # build thresholds display
         thr_text = []
         for i, r in enumerate(RANKS):
             if i == 0:
@@ -122,8 +134,7 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(txt, reply_markup=InlineKeyboardMarkup(kb))
 
     elif query.data == "get_ref":
-        # oddiy ref link: telg bot deep link with ref param
-        ref = f"{query.from_user.id}"
+        ref = str(query.from_user.id)
         bot_username = (await context.bot.get_me()).username
         link = f"https://t.me/{bot_username}?start=ref{ref}"
         await query.answer()
@@ -140,7 +151,7 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(txt, reply_markup=InlineKeyboardMarkup(kb))
 
     elif query.data == "connect_wallet":
-        await query.edit_message_text("Wallet manzilingizni yuboring (matn sifatida).", reply_markup=None)
+        await query.edit_message_text("Wallet manzilingizni yuboring (matn sifatida).")
         context.user_data["await_wallet"] = True
 
     elif query.data == "disconnect_wallet":
@@ -158,10 +169,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(txt, reply_markup=InlineKeyboardMarkup(kb))
 
     elif query.data == "buy_token":
-        # namuna: user 1 diamonddan PRC olishi
-        txt = "Sotib olish uchun miqdorni yozing (masalan: 1 diamond -> PRC)."
+        await query.edit_message_text("Miqdorni yozing (diamond):")
         context.user_data["await_buy"] = True
-        await query.edit_message_text(txt)
 
     elif query.data == "airdrop":
         inc = Decimal("0.000000000000001000")
@@ -172,7 +181,7 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(f"Airdrop berildi. Balans: {user['prc']}", reply_markup=main_menu_keyboard())
 
     elif query.data == "menu_earn":
-        txt = "Earn: missiyalarni bajarib diamond ishlang.\n1 diamond = 000000000000000010 PRC"
+        txt = "Earn: missiyalarni bajarib diamond ishlang.\n1 diamond = 0.000000000000000010 PRC"
         kb = [
             [InlineKeyboardButton("Missiya bajarish", callback_data="do_mission")],
             [InlineKeyboardButton("Orqaga", callback_data="menu_back")]
@@ -180,7 +189,6 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(txt, reply_markup=InlineKeyboardMarkup(kb))
 
     elif query.data == "do_mission":
-        # namuna missiya — userga 1 diamond berish
         curd = Decimal(user["diamond"]) + Decimal("1")
         user["diamond"] = format(curd, "f")
         save_data(data)
@@ -204,12 +212,10 @@ async def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if context.user_data.get("await_buy"):
-        # oddiy namuna: foydalanuvchi miqdorni diamondda yuboradi, konvertatsiya qilamiz
         try:
             qty = Decimal(txt)
             gained_prc = qty * DIAMOND_TO_PRC
             user["prc"] = format(prc_decimal(user["prc"]) + gained_prc, "f")
-            # agar diamonddan sotib olish bo'lsa, diamond kamaytirilsin (agar yetarli bo'lsa)
             if prc_decimal(user["diamond"]) >= qty:
                 user["diamond"] = format(prc_decimal(user["diamond"]) - qty, "f")
             save_data(data)
@@ -219,71 +225,23 @@ async def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("Xato format. Iltimos raqam kiriting.")
         return
 
-    # start with ref param handling
-    if txt.lower().startswith("/start ref"):
-        ref = txt[len("/start ref"):].strip()
-        if ref and ref != uid:
-            ref_user = ensure_user(data, ref, f"ref_{ref}")
-            if uid not in ref_user["referrals"]:
-                ref_user["referrals"].append(uid)
-                save_data(data)
-        await update.message.reply_text("Referal qabul qilindi. Menu:", reply_markup=main_menu_keyboard())
-        return
-
+    # default: show menu
     await update.message.reply_text("Menu:", reply_markup=main_menu_keyboard())
-
-from telegram import InputFile
-
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    data = load_data()
-    user = ensure_user(data, update.effective_user.id, update.effective_user.full_name)
-    save_data(data)
-
-    # ✅ Rasm yuborish
-    photo_path = os.path.join(os.path.dirname(__file__), "logotive.png")
-    if os.path.exists(photo_path):
-        await update.message.reply_photo(
-            photo=InputFile(photo_path),
-            caption=f"Assalomu alaykum, {update.effective_user.first_name}!\nMenu:",
-            reply_markup=main_menu_keyboard()
-        )
-    else:
-        await update.message.reply_text(
-            f"Assalomu alaykum, {update.effective_user.first_name}!\nMenu:",
-            reply_markup=main_menu_keyboard()
-        )
 
 def main():
     token = os.getenv("TELEGRAM_TOKEN")
     if not token:
         print("Iltimos TELEGRAM_TOKEN muhit o'zgaruvchisiga token qo'ying.")
         return
+    
     app = ApplicationBuilder().token(token).build()
+    
+    # Add handlers (no duplicates)
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler(["menu", "help", "balance", "game", "rank", "wallet", "market", "earn"], start))
     app.add_handler(CallbackQueryHandler(menu_callback))
-    app.add_handler(CommandHandler("menu", start))
-    app.add_handler(CommandHandler("help", start))
-    app.add_handler(CommandHandler("balance", start))
-    app.add_handler(CommandHandler("ping", start))
-    app.add_handler(CommandHandler("ref", start))
-    app.add_handler(CommandHandler("connect", start))
-    app.add_handler(CallbackQueryHandler(menu_callback))
-    app.add_handler(CommandHandler("stop", start))
-    app.add_handler(CommandHandler("back", start))
-    app.add_handler(CommandHandler("game", start))
-    app.add_handler(CommandHandler("rank", start))
-    app.add_handler(CommandHandler("wallet", start))
-    app.add_handler(CommandHandler("market", start))
-    app.add_handler(CommandHandler("earn", start))
-    app.add_handler(CommandHandler("collect", start))
-    app.add_handler(CommandHandler("buy", start))
-    app.add_handler(CommandHandler("airdrop", start))
-    app.add_handler(CommandHandler("mission", start))
-    app.add_handler(CommandHandler("ref", start))
-    app.add_handler(CommandHandler("invite", start))
-    app.add_handler(CallbackQueryHandler(menu_callback))
-    from telegram.ext import MessageHandler, filters
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, text_handler))
+    
     app.run_polling()
 
 if __name__ == "__main__":
