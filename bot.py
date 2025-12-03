@@ -1,21 +1,10 @@
 import os
 import json
 from decimal import Decimal, getcontext
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, InputFile
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
 
-
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-
-keyboard = [
-    [InlineKeyboardButton("Play", web_app=WebAppInfo(url="https://proguzmir.vercel.app/"))]
-]
-await message.answer(
-    "Bosib mini appni oching 👇",
-    reply_markup=InlineKeyboardMarkup(keyboard)
-)
-
-
+getcontext().prec = 50
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), "data.json")
 
