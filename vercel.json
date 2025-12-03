@@ -5,6 +5,12 @@
     { "src": "game/**/*.js", "use": "@vercel/static" },
     { "src": "rank/**/*.html", "use": "@vercel/static" },
     { "src": "rank/**/*.js", "use": "@vercel/static" },
+    { "src": "earn/**/*.html", "use": "@vercel/static" },
+    { "src": "earn/**/*.js", "use": "@vercel/static" },
+    { "src": "friends/**/*.html", "use": "@vercel/static" },
+    { "src": "friends/**/*.js", "use": "@vercel/static" },
+    { "src": "wallet/**/*.html", "use": "@vercel/static" },
+    { "src": "wallet/**/*.js", "use": "@vercel/static" },
     { "src": "image/*", "use": "@vercel/static" },
     { "src": "server.js", "use": "@vercel/node" },
     { "src": "index.js", "use": "@vercel/static" },
@@ -14,6 +20,9 @@
     { "src": "/server", "dest": "/server.js" },
     { "src": "/game/(.*)", "dest": "/game/$1" },
     { "src": "/rank/(.*)", "dest": "/rank/$1" },
+    { "src": "/earn/(.*)", "dest": "/rank/$1" },
+    { "src": "/friends/(.*)", "dest": "/rank/$1" },
+    { "src": "/wallet/(.*)", "dest": "/rank/$1" },
     { "src": "/image/(.*)", "dest": "/image/$1" },
     { "src": "/", "dest": "/index.html" }
   ]
