@@ -1038,3 +1038,70 @@ function saveSnapshotToLocal(state) {
 	});
 })();
 
+// add helper to load HTML fragment and execute scripts
+async function loadHtmlIntoContent(url) {
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) {
+      content.innerHTML = `<div style="padding:20px;color:#fff;">Xato: ${res.status} ${res.statusText}</div>`;
+      return;
+    }
+    const html = await res.text();
+    // set content
+    content.innerHTML = html;
+    // execute <script> tags found in html
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    const scripts = tmp.querySelectorAll('script');
+    scripts.forEach(s => {
+      const ns = document.createElement('script');
+      if (s.src) {
+        // preserve relative src
+        ns.src = s.getAttribute('src');
+        ns.async = false;
+      } else {
+        ns.textContent = s.textContent;
+      }
+      document.body.appendChild(ns);
+      // optional: remove after load (keeps DOM clean)
+      // ns.parentNode && ns.parentNode.removeChild(ns);
+    });
+  } catch (err) {
+    console.error('loadHtmlIntoContent error', err);
+    content.innerHTML = `<div style="padding:20px;color:#fff;">Yuklashda xato: ${String(err)}</div>`;
+  }
+}
+
+// handle browser history popstate to support back button
+window.addEventListener('popstate', (ev) => {
+  const state = ev.state || {};
+  if (state.tab === 'rank') {
+    loadHtmlIntoContent('/rank/rank.html');
+    // update active tab UI
+    document.querySelectorAll('.nav .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'rank'));
+  } else {
+    // default: render game tab
+    document.querySelectorAll('.nav .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === (state.tab || 'game')));
+    renderGame();
+  }
+});
+
+// Replace previous tab click handler block with enhanced loader
+document.querySelectorAll('.nav .tab').forEach(el => {
+    el.addEventListener('click', async () => {
+        document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        const tab = el.dataset.tab;
+        if (tab === 'game') renderGame();
+        else if (tab === 'rank') {
+            // load rank page smoothly without refresh
+            await loadHtmlIntoContent('/rank/rank.html');
+            // push state to allow back navigation (use hash to avoid server routing issues)
+            history.pushState({ tab: 'rank' }, '', '#rank');
+        }
+        else if (tab === 'wallet') renderWallet();
+        else if (tab === 'market') renderMarket();
+        else if (tab === 'earn') renderEarn();
+    });
+});
+
