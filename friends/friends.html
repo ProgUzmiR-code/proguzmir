@@ -4,53 +4,375 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+        }
+        
+        .frens-main {
+            width: 100%
+        }
+
+        .frens-main .total .total__title {
+            font-weight: 400;
+            font-family: var(--chakra-fonts-righteous);
+            font-size: 32px;
+            line-height: 1.25;
+            text-align: center;
+        }
+
+        .frens-main .total .total__num {
+            font-size: 1.71rem;
+            font-weight: 700
+        }
+
+        .frens-main .total .total__img {
+            background-repeat: no-repeat;
+            background-position: 50%;
+            background-size: contain;
+            position: relative;
+            z-index: 1;
+            width: 10rem;
+            margin: 5px auto;
+            position: absolute;
+            right: -3rem;
+            transform: rotateZ(-45deg);
+            animation: turnRightIn 1s ease-in-out forwards
+        }
+
+        @keyframes turnRightIn {
+            0% {
+                right: -10rem;
+                transform: rotateZ(-30deg)
+            }
+
+            to {
+                right: -3rem;
+                transform: rotateZ(-45deg)
+            }
+        }
+
+        .frens-main .total .total__img:after {
+            content: "";
+            padding-top: 100%;
+            display: block
+        }
+
+        .frens-main .invite {
+            width: 97%;
+            margin: 0 auto
+        }
+
+        .frens-main .invite .invite__title {
+            font-size: 1.06rem;
+            font-weight: 700;
+            text-align: left
+        }
+
+        .frens-main .invite .invite-main {
+            margin-top: 0.81rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.61rem
+        }
+
+        .frens-main .invite .invite-main .invite-item {
+            background: var(--grey-700);
+            border-radius: 0.97rem;
+            padding: 0.61rem 0.81rem;
+            gap: 0.81rem
+        }
+
+        .frens-main .invite .invite-main .invite-item,
+        .frens-main .invite .invite-main .invite-item .invite__img {
+            display: flex;
+            align-items: center
+        }
+
+        .frens-main .invite .invite-main .invite-item .invite__img {
+            min-width: 3.05rem;
+            width: 3.05rem;
+            height: 3.05rem;
+            border-radius: 0.77rem;
+            justify-content: center
+        }
+
+        .frens-main .invite .invite-main .invite-item .invite__img img {
+            width: 85%;
+            height: 85%
+        }
+
+        .frens-main .invite .invite-main .invite-item .invite__label {
+            font-size: 0.93rem;
+            font-weight: 300;
+            text-align: left;
+            line-height: 1.6
+        }
+
+        .frens-main .invite .invite-main .invite-item .invite__brief {
+            font-size: 0.85rem;
+            font-weight: 300;
+            text-align: left;
+            line-height: 1.4
+        }
+
+        .frens-main .invite.extra .invite-main {
+            display: flex;
+            width: 100%;
+            gap: 0.81rem;
+            flex-direction: row;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            verflow: auto;
+            -webkit-overflow-scroling: touch
+        }
+
+        .frens-main .invite.extra .invite-main::-webkit-scrollbar {
+            width: 0.04rem;
+            height: 0
+        }
+
+        .frens-main .invite.extra .invite-main::-webkit-scrollbar-thumb {
+            border-radius: 0.41rem;
+            background: rgba(199, 203, 212, 0.4)
+        }
+
+        .frens-main .invite.extra .invite-main::-webkit-scrollbar-track {
+            border-radius: 0.41rem
+        }
+
+        .frens-main .invite.extra .invite-item {
+            flex: 0 0 auto;
+            width: 90%
+        }
+
+        .frens-main .invite.extra .invite-item .invite__img {
+            background-color: hsla(0, 0%, 100%, 0.1)
+        }
+
+        .frens-main .invite.extra .invite-item .invite__img img {
+            width: auto
+        }
+
+        .frens-main .invite.extra .invite-item .invite_info {
+            flex: 1
+        }
+
+        .frens-main .invite__brief {
+            display: flex;
+            align-items: center
+        }
+
+        .frens-main .invite__brief img {
+            position: relative;
+            width: 1.22rem;
+            margin-right: 0.08rem
+        }
+
+        .frens-main .invite.extra .invite__process {
+            display: flex;
+            color: #fff;
+            align-items: center;
+            width: 100%
+        }
+
+        .frens-main .invite.extra .invite__process .process {
+            border-radius: 0.24rem;
+            height: 0.49rem;
+            overflow: hidden;
+            background-color: #bbb;
+            flex: 1;
+            margin-right: 0.24rem
+        }
+
+        .frens-main .invite.extra .invite__process .process .bar {
+            background-color: #fdcf1c;
+            border-radius: 0.24rem;
+            height: 0.49rem
+        }
+
+        .frens-main .invite.extra .invite__process span {
+            margin-left: 0.24rem;
+            color: #8f8181
+        }
+
+        .frens-main .fs {
+            width: 97%;
+            margin: 0 auto;
+            margin-top: 1.22rem;
+            padding-bottom: 4rem
+        }
+
+        .frens-main .fs .fs__title {
+            font-size: 1.06rem;
+            font-weight: 700;
+            text-align: left
+        }
+
+        .frens-main .fs .fs__title span {
+            font-weight: 100
+        }
+
+        .frens-main .fs .fs-list {
+            flex: 1;
+            height: 50vh;
+            margin-top: 0.49rem;
+            overflow-y: auto;
+            overflow-x: hidden
+        }
+
+        .frens-main .fs .fs-list .fs-item {
+            margin-bottom: 0.61rem;
+            background: hsla(0, 0%, 100%, 0.15);
+            border-radius: 0.81rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            justify-content: ecnter;
+            gap: 0.61rem;
+            padding: 0.73rem 0.81rem;
+            border-radius: 0.73rem
+        }
+
+        .frens-main .fs .fs-list .fs-item.active {
+            background: hsla(0, 0%, 100%, 0.15)
+        }
+
+        .frens-main .fs .fs-list .fs-item .item-icon {
+            font-size: 0.93rem;
+            color: #fff;
+            font-weight: 400;
+            width: 1.95rem;
+            text-align: center;
+            display: flex;
+            justify-content: center
+        }
+
+        .frens-main .fs .fs-list .fs-item .item-icon img {
+            display: block;
+            width: 1.95rem;
+            height: 1.95rem
+        }
+
+        .frens-main .fs .fs-list .fs-item .item-head {
+            width: 2.36rem;
+            height: 2.36rem;
+            border-radius: 50%;
+            background: #fff;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.89rem
+        }
+
+        .frens-main .fs .fs-list .fs-item .item-info {
+            flex: 1;
+            text-align: left;
+            margin-left: 5px
+        }
+
+        .frens-main .fs .fs-list .fs-item .item-info .item__label {
+            font-weight: 400;
+            font-family: var(--chakra-fonts-righteous);
+            font-size: 16px;
+            line-height: 1
+        }
+
+        .frens-main .fs .fs-list .fs-item .item-info .item__num {
+            position: relative;
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 1;
+            color: var(--chakra-colors-dark);
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem
+        }
+
+        .frens-main .fs .fs-list .fs-item .item-info .item__num img {
+            width: 0.89rem;
+            height: 0.89rem;
+            margin-left: 2px
+        }
+
+        .frens-main .fs .fs-list .fs-item .op {
+            font-size: 0.93rem;
+            color: hsla(0, 0%, 100%, 0.3)
+        }
+
+        .frens-main .fs .fs-list .fs-item .op.you {
+            color: #fff
+        }
+
+        .box {
+            display: flex;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .btn-send {
+            background: #ffd60a;
+            color: #ffffff;
+            position: fixed;
+            z-index: 2;
+            left: 0;
+            right: 0;
+            bottom: 5.04rem;
+            height: 3.01rem;
+            line-height: 3.01rem;
+            width: 90%;
+            margin: auto;
+            border-radius: 10px;
+            font-size: 1.06rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.81rem
+        }
+    </style>
     <title>Document</title>
 </head>
 
 <body>
-    <div data-v-71b4beba="" class="frens-main">
-        <div data-v-71b4beba="" class="total">
-            <div data-v-71b4beba="" class="total__title">Total rewards</div>
-            <div data-v-71b4beba="" class="row items-center justify-center q-mb-md"><!----><!----></div><!---->
+    <div class="frens-main">
+        <div class="total">
+            <div class="total__title">Total rewards</div>
+            <div class="row items-center justify-center q-mb-md"><!----><!----></div><!---->
         </div>
-        <div data-v-71b4beba="" class="invite">
-            <div data-v-71b4beba="" class="invite__title">Invite friends to get bonuses</div>
-            <div data-v-71b4beba="" class="invite-main">
-                <div data-v-71b4beba="" class="invite-item">
-                    <div data-v-71b4beba="" class="invite__img"><img data-v-71b4beba=""
-                            src="https://sp99.imgix.net/tg/ss/stake/game/icon/new/invite.png?&amp;dpr=1.25&amp;format=auto&amp;auto=format&amp;q=50">
-                    </div>
-                    <div data-v-71b4beba="" class="invite_info">
-                        <div data-v-71b4beba="" class="invite__label">Invite Friend</div><!----><!---->
+        <div class="invite">
+            <div class="invite__title">Invite friends to get bonuses</div>
+            <div class="invite-main">
+                <div class="invite-item">
+                    <div class="invite__img"><img src="https://sp99.imgix.net/tg/ss/stake/game/icon/new/invite.png?&amp;dpr=1.25&amp;format=auto&amp;auto=format&amp;q=50"></div>
+                    <div class="invite_info">
+                        <div class="invite__label">Invite Friend</div><!----><!---->
                     </div>
                 </div>
             </div>
         </div>
-        <div data-v-71b4beba="" class="fs">
-            <div data-v-71b4beba="" class="fs__title row justify-between items-center">
-                <div data-v-71b4beba="">Friends List <span data-v-71b4beba="">(0)</span></div><svg data-v-71b4beba=""
-                    focusable="false" width="1em" height="1em" viewBox="25 25 50 50" class="q-spinner q-spinner-mat"
-                    style="display: none;">
+        <div class="fs">
+            <div class="fs__title row justify-between items-center">
+                <div>Friends List <span>(0)</span></div><svg focusable="false" width="1em" height="1em"
+                    viewBox="25 25 50 50" class="q-spinner q-spinner-mat" style="display: none;">
                     <circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" stroke-width="5"
                         stroke-miterlimit="10" class="path"></circle>
                 </svg>
             </div><!---->
-            <div data-v-71b4beba="" class="item row items-center justify-center q-py-lg"
-                style="justify-content: center;">
-                <div data-v-644943bf="" data-v-71b4beba="" class="column items-center q-mt-sm">
+            <div class="box" >
+                <div data-v-644943bf="" class="column items-center q-mt-sm">
                     <div data-v-644943bf="" role="img" class="q-img overflow-hidden" style="width: 140px;">
                         <div style="padding-bottom: 100%;"></div>
-                        <div class="q-img__image absolute-full"
-                            style="background-size: cover; background-position: 50% 50%; background-image: url(&quot;https://sp99.imgix.net/tg/ss/stake/game/icon/new/null4.png?&amp;dpr=1.25&amp;format=auto&amp;auto=format&amp;q=50&quot;);">
+                        <div class="q-img__image absolute-full" style="background-size: cover; background-position: 50% 50%; display: flex; justify-content: center; "> <img src="https://sp99.imgix.net/tg/ss/stake/game/icon/new/null4.png?&amp;dpr=1.25&amp;format=auto&amp;auto=format&amp;q=50" alt="">
                         </div>
                         <div class="q-img__content absolute-full"></div>
                     </div><span data-v-644943bf="" class="q-mt-sm color">No data.</span>
                 </div>
             </div>
         </div>
-        <div data-v-71b4beba="" class="btn-send">
-            Send to invite
-        </div>
+        <div class="btn-send">Send to invite</div>
     </div>
 </body>
 
