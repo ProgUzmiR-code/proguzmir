@@ -8,12 +8,12 @@
   <link rel="shortcut icon" href="./loading.svg" type="image/x-icon,jpg,png">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
-    (function() {
+    (function () {
       try {
         // If Telegram WebApp is available, mark ready and expand UI.
         if (window.Telegram && window.Telegram.WebApp) {
-          try { window.Telegram.WebApp.ready && window.Telegram.WebApp.ready(); } catch(e){}
-          try { window.Telegram.WebApp.expand && window.Telegram.WebApp.expand(); } catch(e){}
+          try { window.Telegram.WebApp.ready && window.Telegram.WebApp.ready(); } catch (e) { }
+          try { window.Telegram.WebApp.expand && window.Telegram.WebApp.expand(); } catch (e) { }
           // Populate header username when initDataUnsafe is present
           const u = window.Telegram.WebApp.initDataUnsafe?.user;
           if (u) {
@@ -32,101 +32,215 @@
       }
     })();
   </script>
-  <title>ProgUzmiR</title>
+  <script>
+    function updateClipPath() {
+      const el = document.querySelector('.circle1');
+      const w = el.offsetWidth;
+
+      // O‘ng tomondagi bukilish xaritasi
+      const rightX = w - 14;     // 467 px o‘rniga dinamik
+
+      const path = ` M 10 0 L 0 0 L 2 7 A 10 10 0 0 0 14 15 L 10 15 L ${rightX} 15 C ${w} 15 ${w - 3} 6 ${w} 0 L ${w * 0.61} 0 L ${w * 0.60} 0 L ${w * 0.64} 15 A 1 10 0 0 0 0 15 L 0 0 `;
+
+      el.style.clipPath = `path("${path}")`;
+    }
+
+    window.addEventListener("resize", updateClipPath);
+    window.addEventListener("load", updateClipPath);
+
+
+  </script>
+  
+
   <style>
-    body {
     :root {
-      --tg-viewport-height: 100vh;
-      --tg-viewport-stable-height: 100vh;
+      --corner-d: 32px;
+      --bar-radius: 6px;
     }
 
-    html, body, #root {
-      height: var(--tg-viewport-height, 100vh);
-      min-height: var(--tg-viewport-height, 100vh);
-    }
+    body {
+      :root {
+        --tg-viewport-height: 100vh;
+        --tg-viewport-stable-height: 100vh;
 
-    @media (orientation: landscape) {
-      body {
-        transform: rotate(90deg);
-        transform-origin: top left;
-        width: 100vh;
-        height: 100vw;
-        position: absolute;
-        top: 0;
-        left: 0;
+
       }
-    }
+
+      html,
+      body,
+      #root {
+        height: var(--tg-viewport-height, 100vh);
+        min-height: var(--tg-viewport-height, 100vh);
+      }
+
+      @media (orientation: landscape) {
+        body {
+          transform: rotate(90deg);
+          transform-origin: top left;
+          width: 100vh;
+          height: 100vw;
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+      }
 
 
-    /* Global user-select disable (safe cross-browser) */
-    * {
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-    img {
-      pointer-events: none;
-      -webkit-user-drag: none;
-      -webkit-touch-callout: none;
-    }
+      /* Global user-select disable (safe cross-browser) */
+      * {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      img {
+        pointer-events: none;
+        -webkit-user-drag: none;
+        -webkit-touch-callout: none;
+      }
 
 
 
-    /* rasm markazda, qaytarilmasin, to'liq ekranni qoplasin */
-    background-image: url('image/background1.jpg');
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-attachment: fixed;
-    /* desktop uchun; mobilda brauzer cheklashi mumkin */
-    background-color: #06121a;
-    /* rasm yuklanmasa fallback rang */
-    color: white;
-    text-align: center;
-    font-family: sans-serif;
-    min-height: 100vh;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    box-sizing: border-box;
+      /* rasm markazda, qaytarilmasin, to'liq ekranni qoplasin */
+      background-image: url('image/background1.jpg');
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+      /* desktop uchun; mobilda brauzer cheklashi mumkin */
+      background-color: #06121a;
+      /* rasm yuklanmasa fallback rang */
+      color: white;
+      text-align: center;
+      font-family: sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
     h1 {
       margin-bottom: 10px;
     }
 
+
+
+    .nav .nav-indicator {
+      /* width: 90px;
+      height: 90px; */
+      padding: 34px 50px 17px 43px;
+      border-radius: 50%;
+      background-color: #1f2f3a;
+      position: absolute;
+      top: -10px;
+      left: calc(50% - 44px);
+      transition: left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1. 275);
+      z-index: 10;
+
+    }
+    .li {
+      flex: 1;
+      z-index: 10;
+    }
+
+    .nav .li .tab .nav-item-active {
+      transform: translateY(-20%);
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    #filter {
+      display: none;
+    }
+
     /* NAV: hozir pastda paydo bo'ladi (fixed) */
     .nav {
       display: flex;
-      gap: 8px;
-      margin-bottom: 5px;
-      /* flex-wrap: wrap; */
+      text-align: center;
+      justify-content: space-between;
+      bottom: 0px;
+      height: 80px;
+      width: 100%;
+      background-color: #1f2f3a;
+      /* bu yerga rasm URL qo'yiladi */
+      background-size: cover;
+      /*rasmni to‘liq qoplash */
+      background-position: center;
+      /*rasm markazlashtiriladi*/
       position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.35);
-      padding: 8px;
-      border-radius: 12px;
-      z-index: 60;
+      z-index: 10;
+
+    }
+
+    /* Circle orqali kesish */
+    .circle1 {
+      display: flex;
+      position: fixed;
+      height: 100%;
+      width: 100%;
+      background-image: url('image/background1.jpg');
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+      z-index: 1;
+
     }
 
     .tab {
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 8px;
-      padding: 8px 12px;
-      cursor: pointer;
-      user-select: none;
-      color: #fff;
-      font-weight: 600;
+      padding: 0 20px;
+      margin-top: 20px;
+      display: flex;
+      text-align: center;
+      flex-direction: column;
+      align-items: center;
+      z-index: 10;
+
     }
 
     .tab.active {
-      background: rgba(255, 255, 255, 0.16);
+      /* background: rgba(255, 255, 255, 0.16); */
     }
+
+    /*////////////////////////////////*/
+    .svgicon {
+      height: 45px;
+      width: 45px;
+      margin-top: -20px;
+      animation: gift-a1e8b28b 3s linear infinite;
+    }
+
+    @keyframes gift-a1e8b28b {
+      0% {
+        transform: rotate(0)
+      }
+
+      23% {
+        transform: rotate(0)
+      }
+
+      33% {
+        transform: rotate(-8deg)
+      }
+
+      50% {
+        transform: rotate(0)
+      }
+
+      67% {
+        transform: rotate(8deg)
+      }
+
+      to {
+        transform: rotate(0)
+      }
+    }
+
+
+
+
 
     /* RESPONSIVE LAYOUT */
     :root {
@@ -217,9 +331,9 @@
     }
 
     /* nav safe-area */
-    .nav {
+    /* .nav {
       bottom: calc(20px + env(safe-area-inset-bottom));
-    }
+    } */
 
     .reklanma {
       display: flex;
@@ -349,10 +463,10 @@
         font-size: 15px;
       }
 
-      .panel {
+      /* .panel {
         padding-top: calc(var(--header-height) + 8px);
         padding-bottom: calc(84px + env(safe-area-inset-bottom));
-      }
+      } */
 
       #tapBtn {
         max-width: 280px;
@@ -369,6 +483,10 @@
       }
     }
   </style>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.main.css" rel="stylesheet">
+
+  <title>ProgUzmiR</title>
 </head>
 
 <body>
@@ -399,14 +517,69 @@
 
   <!-- single nav (keep only one instance) -->
   <div class="nav" role="tablist" aria-label="Navigation">
-    <div class="tab active" data-tab="game">Game</div>
-    <div class="tab" data-tab="rank">Rank</div>
-    <div class="tab" data-tab="wallet">WALLET</div>
-    <div class="tab" data-tab="market">INVITE</div>
-    <div class="tab" data-tab="earn">Earn</div>
+    <div class="circle1"></div>
+    <span class="nav-indicator"></span>
+    <div class="li">
+      <div class="tab active" data-tab="game">
+        <span    class="i material-icons">videogame_asset</span>
+        GAME
+      </div>
+    </div>
+    <div class="li">
+      <div class="tab" data-tab="rank">
+        <span    class="i material-icons">emoji_events</span>
+        RANK
+      </div>
+    </div>
+    <div class="li">
+      <div   class="tab nav-item-active" data-tab="wallet">
+        <img   class="i svgicon" src="./image/coin.png" alt="">
+        WALLET
+      </div>
+    </div>
+    <div class="li">
+      <div  class="tab" data-tab="market">
+        <span    class="i material-icons">group_add</span>
+        INVITE
+      </div>
+    </div>
+    <div class="li">
+      <div class="tab" data-tab="earn">
+        <span    class="i material-icons">currency_exchange</span>
+        EARN
+      </div>
+    </div>
   </div>
 
+  <!-- filters -->
+  <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <defs>
+      <filter id="goo">
+        <feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="10" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
+        <feBlend in2="goo" in="SourceGraphic" result="mix" />
+      </filter>
+    </defs>
+  </svg>
+  <script>
+let nav = document.querySelector('.nav');
+let tabs = nav.querySelectorAll('.tab');
+let nav_indicator = nav.querySelector('.nav-indicator');
 
+tabs.forEach((tab, i) => {
+  tab.onclick = () => {
+
+    // eski active ni o‘chir
+    nav.querySelector('.tab.nav-item-active')?.classList.remove('nav-item-active');
+
+    // yangisiga qo‘y
+    tab.classList.add('nav-item-active');
+
+    // indikatorni harakatlantirish
+    nav_indicator.style.left = `calc(${i * 20 + 10}% - 45px)`;
+  };
+});
+  </script>
   <script src="index.js"></script>
 </body>
 

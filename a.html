@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shape with Image</title>
+<style>
+    body{
+        /* rasm markazda, qaytarilmasin, to'liq ekranni qoplasin */
+      background-image: url('image/background1.jpg');
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+      /* desktop uchun; mobilda brauzer cheklashi mumkin */
+      background-color: #06121a;
+      /* rasm yuklanmasa fallback rang */
+      color: white;
+      text-align: center;
+      font-family: sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+
+    }
+.nav {
+    display: flex;
+    text-align: center;
+    justify-content: space-between;
+    bottom: 0px;
+    height: 90px;
+    width: 100%;
+    background-color: #145986; /* bu yerga rasm URL qo'yiladi */
+    background-size: cover; /*rasmni to‘liq qoplash */
+    background-position: center; /*rasm markazlashtiriladi*/
+    position: fixed;
+}
+
+/* Circle orqali kesish */
+.circle1 {
+    display: flex;
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    background-image: url('image/background1.jpg');
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    z-index: 1;
+}
+.tab {
+    padding: 0 20px;
+    margin-top: 20px;
+    display: flex;
+    text-align: center;
+    flex-direction: column;
+    z-index: 10;
+}
+
+</style>
+ <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+</head>
+<body>
+
+<div class="nav">
+    <div class="circle1"></div>
+    <div class="tab" data-tab="earn">
+      <span class="material-icons">currency_exchange</span>
+      EARN
+    </div>
+    <div class="tab" data-tab="earn">
+      <span class="material-icons">currency_exchange</span>
+      EARN
+    </div>
+    <div class="tab" data-tab="earn">
+      <span class="material-icons">currency_exchange</span>
+      EARN
+    </div>
+    <div class="tab" data-tab="earn">
+      <span class="material-icons">currency_exchange</span>
+      EARN
+    </div>
+    
+</div>
+<script>
+function updateClipPath() {
+    const el = document.querySelector('.circle1');
+    const w = el.offsetWidth;
+
+    // O‘ng tomondagi bukilish xaritasi
+    const rightX = w - 10;     // 467 px o‘rniga dinamik
+
+    const path = ` M 10 0 L 1 0 L 1 7 A 10 10 0 0 0 14 15 L 10 15 L ${rightX} 15 C ${w} 15 ${w - 33} 7 ${w} 0 L ${w * 0.61} 0 L ${w * 0.60} 0 L ${w * 0.61} 15 A 1 10 0 0 0 0 15 L 0 0 `;
+
+    el.style.clipPath = `path("${path}")`;
+}
+
+window.addEventListener("resize", updateClipPath);
+window.addEventListener("load", updateClipPath);
+</script>
+</body>
+</html>
