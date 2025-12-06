@@ -1,43 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script>
+        function updateClipPath() {
+            const el = document.querySelector('.circle2');
+            const w = el.offsetWidth;
+            const h = el.offsetHeight;
+
+            const rightX = w - 15;
+
+            // Pastki bukilish chuqurligi (ichiga kirish chuqurligi)
+            const bottomIn = -1;
+
+            const path = ` M 10 0 L 0 0 L 2 7 A 10 10 0 0 0 14 15 L 10 15 L ${rightX} 15 C ${w} 15 ${w - 3} 6 ${w - 9} 0 L ${w * .61} 0 L ${w * 0.60} 0 L ${w * 0.61} 15 A 1 10 0 0 0 0 15 L 0 ${h - bottomIn} C 0 ${h - 10} 10 ${h - 10} 14 ${h - 10} L ${w - 14} ${h - 10} C ${w - 1} ${h - 10} ${w} ${h} ${w} ${h - bottomIn}  L ${w} 0`;
+
+            el.style.clipPath = `path("${path}")`;
+        }
+
+        window.addEventListener("resize", updateClipPath);
+        window.addEventListener("load", updateClipPath);
+    </script>
+
     <style>
-.nav {
-    display: flex;
-    gap: 8px;
-    position: fixed;
-    bottom: 0px;
-    background: #1a1a1a;
-    width: 500px;
-    height: 60px;
-    z-index: 60;
-    border-radius: 16px 16px 0 0; /* chap va o'ng yuqori burchaklar yumaloq */
-    overflow: hidden; /* ichidagi elementlar chetga chiqmasligi uchun */
-}
+        body {
+            /* rasm markazda, qaytarilmasin, to'liq ekranni qoplasin */
+            background-image: url('image/background1.jpg');
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            /* desktop uchun; mobilda brauzer cheklashi mumkin */
+            background-color: #06121a;
+            /* rasm yuklanmasa fallback rang */
+            color: white;
+            text-align: center;
+            font-family: sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
 
-.tab {
-    flex: 1; /* barcha tablar teng bo'lsin */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: #fff;
-    font-weight: 600;
-    position: relative;
-}
+        }
 
-.tab.active {
-    /* yuqori qismi ichkariga tushadigan shakl */
-    clip-path: polygon(0 100%, 0 20%, 50% 0%, 100% 20%, 100% 100%);
-    background: rgba(255, 255, 255, 0.16);
-}
-</style>
+        .circle2 {
+            display: flex;
+            position: fixed;
+            height: 70px;
+            width: 100%;
+            background-color: #06121a;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            z-index: 1;
+        }
+
+        /* RESPONSIVE LAYOUT */
+        :root {
+            --header-height: 64px;
+        }
+
+        .header {
+            width: 100%;
+            height: 70px;
+            padding: 50px 0;
+            background-color: #06121a;
+            display: flex;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+
+        .header, .loading-img {
+            position: fixed;
+            z-index: 10;
+        }
+        .header img {
+            width: 35px;
+        }
+        .header .balance, .profile {
+            display: flex;
+            font-weight: 700;
+            color: #fff;
+            text-align: right;
+            font-size: 19px;
+            z-index: 10;
+        }
+    </style>
 </head>
+
 <body>
-    
+    <div class="header" aria-hidden="false">
+        <div class="circle2"></div>
+        <div class="profile">
+            <img class="loading-img" src="./image/loading.svg" alt="">
+            <div class="username"></div>
+        </div>
+        <div class="balance" id="headerBalance">
+            <img src="./image/coin.png" alt="logo"
+                style="width:25px; height: 25px; margin-right: 10px; vertical-align:middle;">
+            0.000000000000000000 PRC</div>
+    </div>
 </body>
+
 </html>
