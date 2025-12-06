@@ -36,32 +36,14 @@
     function updateClipPath() {
       const el = document.querySelector('.circle1');
       const w = el.offsetWidth;
-
-      // O‘ng tomondagi bukilish xaritasi
-      const rightX = w - 14;     // 467 px o‘rniga dinamik
-
-      const path = ` M 10 0 L 0 0 L 2 7 A 10 10 0 0 0 14 15 L 10 15 L ${rightX} 15 C ${w} 15 ${w - 3} 6 ${w} 0 L ${w * 0.61} 0 L ${w * 0.60} 0 L ${w * 0.64} 15 A 1 10 0 0 0 0 15 L 0 0 `;
-
-      el.style.clipPath = `path("${path}")`;
-    }
-
-    window.addEventListener("resize", updateClipPath);
-    window.addEventListener("load", updateClipPath);
-
-
-  </script>
-  <script>
-    function updateClipPath() {
-      const el = document.querySelector('.circle2');
-      const w = el.offsetWidth;
       const h = el.offsetHeight;
 
-      const rightX = w - 14;
+      const rightX = w - 15;
 
       // Pastki bukilish chuqurligi (ichiga kirish chuqurligi)
-      const bottomIn = 12;
+      const bottomIn = -1;
 
-      const path = ` M 10 0 L 0 0 L 2 7 A 10 10 0 0 0 14 15 L 10 15 L ${rightX} 15 C ${w} 15 ${w - 3} 6 ${w} 0 L ${w * 0.61} 0 L ${w * 0.60} 0 L ${w * 0.64} 15 A 1 10 0 0 0 0 15 L 0 ${h - bottomIn} C 0 ${h} 10 ${h} 14 ${h - 5} L ${w - 14} ${h - 5} C ${w - 10} ${h} ${w} ${h} ${w} ${h - bottomIn}  L ${w} 0`;
+      const path = ` M 10 0 L 0 0 L 2 7 A 10 10 0 0 0 14 15 L 10 15 L ${rightX} 15 C ${w} 15 ${w - 3} 6 ${w - 9} 0 L ${w * .61} 0 L ${w * 0.60} 0 L ${w * 0.61} 15 A 1 10 0 0 0 0 15 L 0 ${h - bottomIn} C 0 ${h - 10} 10 ${h - 10} 14 ${h - 10} L ${w - 14} ${h - 10} C ${w - 1} ${h - 10} ${w} ${h} ${w} ${h - bottomIn}  L ${w} 0`;
 
       el.style.clipPath = `path("${path}")`;
     }
@@ -69,6 +51,7 @@
     window.addEventListener("resize", updateClipPath);
     window.addEventListener("load", updateClipPath);
   </script>
+
   <script>
     function updateClipPath() {
       const el = document.querySelector('.circle2');
@@ -183,9 +166,21 @@
       z-index: 10;
     }
 
-    .nav .li .tab .nav-item-active {
-      transform: translateY(-20%);
+    .nav .li .tab .i {
+      transition: 0.3s;
+      transform: translateY(0)scale(1);
+    }
+
+    .nav .li .tab .nav-item-active .i {
+      transform: translateY(0) scale(1);
       transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .nav .tab.active .i {
+      transform: translateY(-40%) scale(1.40);
+    }
+    .material-icons {
+      font-size: 30px !important;
     }
 
     #filter {
@@ -200,8 +195,6 @@
       bottom: 0px;
       height: 80px;
       width: 100%;
-      background-color: #1f2f3a;
-      /* bu yerga rasm URL qo'yiladi */
       background-size: cover;
       /*rasmni to‘liq qoplash */
       background-position: center;
@@ -217,13 +210,15 @@
       position: fixed;
       height: 100%;
       width: 100%;
-      background-image: url('image/background1.jpg');
       background-position: center center;
       background-repeat: no-repeat;
       background-size: cover;
       background-attachment: fixed;
       z-index: 1;
-      
+      background-color: #1f2f3a;
+      transform: rotate(180deg);
+      transform-origin: center;
+
     }
 
     .circle2 {
@@ -250,7 +245,7 @@
       flex-direction: column;
       align-items: center;
       z-index: 10;
-
+      cursor: pointer;
     }
 
     .tab.active {
@@ -261,6 +256,7 @@
     .svgicon {
       height: 45px;
       width: 45px;
+      transition: 0.3s  ease;
       margin-top: -20px;
       animation: gift-a1e8b28b 3s linear infinite;
     }
@@ -467,16 +463,16 @@
       /* eski #topLogo qoidasi o'rnini yangi header style oladi */
       /* header: full-width style — logo chap, balans oʻngda, orasida ochiq joy */
       .header {
-      width: 100%;
-      height: 70px;
-      padding: 50px 0;
-      background-color: #1f2f3a;
-      display: flex;
-      justify-content: space-between;
-      box-sizing: border-box;
-    }
+        width: 100%;
+        height: 70px;
+        padding: 50px 0;
+        background-color: #1f2f3a;
+        display: flex;
+        justify-content: space-between;
+        box-sizing: border-box;
+      }
 
-      
+
     }
 
     /* Media queries: telefonlar va planshetlar */
@@ -490,14 +486,14 @@
       }
 
       .header {
-      width: 100%;
-      height: 70px;
-      padding: 50px 0;
-      background-color: #1f2f3a;
-      display: flex;
-      justify-content: space-between;
-      box-sizing: border-box;
-    }
+        width: 100%;
+        height: 70px;
+        padding: 50px 0;
+        background-color: #1f2f3a;
+        display: flex;
+        justify-content: space-between;
+        box-sizing: border-box;
+      }
 
       .header img {
         width: 20px;
@@ -527,6 +523,9 @@
         margin-left: 30px;
       }
     }
+    #r {
+      margin-top: 5px;
+    }
   </style>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.main.css" rel="stylesheet">
@@ -539,14 +538,14 @@
   <div class="header" aria-hidden="false">
     <div class="circle2">
       <div class="profile">
-      <img src="./image/loading.svg" alt="">
-      <div class="username"></div>
+        <img src="./image/loading.svg" alt="">
+        <div class="username"></div>
+      </div>
+      <div class="balance" id="headerBalance"><img src="./image/coin.png" alt="logo"
+          style="width:25px; margin-right: 10px; vertical-align:middle;">
+        0.000000000000000000 PRC</div>
     </div>
-    <div class="balance" id="headerBalance"><img src="./image/coin.png" alt="logo"
-        style="width:25px; margin-right: 10px; vertical-align:middle;">
-      0.000000000000000000 PRC</div>
-    </div>
-    
+
   </div>
 
 
@@ -568,33 +567,33 @@
     <div class="circle1"></div>
     <span class="nav-indicator"></span>
     <div class="li">
-      <div class="tab active" data-tab="game">
+      <div class="tab " data-tab="game">
         <span class="i material-icons">videogame_asset</span>
-        GAME
+        <span id="r" >GAME</span>
       </div>
     </div>
     <div class="li">
-      <div class="tab" data-tab="rank">
+      <div class="tab " data-tab="rank">
         <span class="i material-icons">emoji_events</span>
-        RANK
+        <span id="r" >RANK</span>
       </div>
     </div>
     <div class="li">
       <div class="tab nav-item-active" data-tab="wallet">
         <img class="i svgicon" src="./image/coin.png" alt="">
-        WALLET
+        <span id="r" >WALLET</span>
       </div>
     </div>
     <div class="li">
       <div class="tab" data-tab="market">
         <span class="i material-icons">group_add</span>
-        INVITE
+        <span id="r" >INVITE</span>
       </div>
     </div>
     <div class="li">
       <div class="tab" data-tab="earn">
         <span class="i material-icons">currency_exchange</span>
-        EARN
+        <span id="r" >EARN</span>
       </div>
     </div>
   </div>
@@ -618,10 +617,10 @@
       tab.onclick = () => {
 
         // eski active ni o‘chir
-        nav.querySelector('.tab.nav-item-active')?.classList.remove('nav-item-active');
+        nav.querySelector('.tab.active')?.classList.remove('active');
 
         // yangisiga qo‘y
-        tab.classList.add('nav-item-active');
+        tab.classList.add('active');
 
         // indikatorni harakatlantirish
         nav_indicator.style.left = `calc(${i * 20 + 10}% - 45px)`;
