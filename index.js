@@ -233,7 +233,7 @@ function renderGame() {
     content.innerHTML = `
       <div class="tap-area">
         <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10px;">
-          <div id="dailyBtn" class="btn" style="margin-bottom:8px;padding:8px 12px;border-radius:8px;display: flex;flex-direction: column;cursor: pointer;">
+          <div id="dailyBtn" class="btn" style="margin-bottom:8px;padding: 2px 10px 25px;border-radius:8px;display: flex;flex-direction: column;cursor: pointer;"">
           <img style="width: 75px; height:75px;" src="./image/daily.png">
           <span class="text_daily">Daily</span>
         </div>
@@ -559,6 +559,139 @@ function renderGame() {
             });
         });
     }
+    // --- ADD: daily keys & helpers (place near other KEY_* declarations) ---
+const KEY_DAILY_WEEK_START = "proguzmir_daily_week_start";
+const KEY_DAILY_CLAIMS = "proguzmir_daily_claims"; // JSON array of 7 booleans
+
+function dailyWeekStartKey(wallet) { return makeUserKey(KEY_DAILY_WEEK_START, wallet); }
+function dailyClaimsKey(wallet) { return makeUserKey(KEY_DAILY_CLAIMS, wallet); }
+
+function getDailyData(wallet) {
+    // returns { weekStartISO, claims: [bool...7] }
+    const ws = localStorage.getItem(dailyWeekStartKey(wallet)) || null;
+    const clRaw = localStorage.getItem(dailyClaimsKey(wallet)) || null;
+    let claims = null;
+    try { claims = clRaw ? JSON.parse(clRaw) : null; } catch (e) { claims = null; }
+    if (!claims || !Array.isArray(claims) || claims.length !== 7) {
+        claims = [false, false, false, false, false, false, false];
+    }
+    return { weekStartISO: ws, claims };
+}
+function setDailyData(wallet, weekStartISO, claims) {
+    localStorage.setItem(dailyWeekStartKey(wallet), weekStartISO || "");
+    localStorage.setItem(dailyClaimsKey(wallet), JSON.stringify(claims));
+}
+
+// helper: get index (0..6) for today relative to weekStartISO; if weekStartISO null -> create new week start = today
+function getDailyIndexForToday(weekStartISO) {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    if (!weekStartISO) return 0;
+    const ws = new Date(weekStartISO);
+    ws.setHours(0, 0, 0, 0);
+    const diffDays = Math.floor((today - ws) / 86400000);
+    if (diffDays < 0 || diffDays > 6) return null; // out of current week
+    return diffDays;
+}
+
+// rewards: days 0..5 -> 1 diamond, day6 (7th day) -> bigday 5 diamonds
+const DAILY_REWARDS = [1, 1, 1, 1, 1, 1, 5];
+
+// --- ADD: renderDaily UI and logic (standalone page inside content) ---
+function renderDaily() {
+    const s = loadState();
+    const wallet = s.wallet || localStorage.getItem(KEY_WALLET) || "";
+    let { weekStartISO, claims } = getDailyData(wallet);
+
+    // if no weekStart or week expired, start new week today (weekStart = today)
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    if (!weekStartISO) {
+        weekStartISO = today.toISOString();
+        claims = [false, false, false, false, false, false, false];
+        setDailyData(wallet, weekStartISO, claims);
+    }
+    // compute today's index (0..6) or reset if outside range
+    let todayIndex = getDailyIndexForToday(weekStartISO);
+    if (todayIndex === null) {
+        // start new week
+        weekStartISO = today.toISOString();
+        claims = [false, false, false, false, false, false, false];
+        todayIndex = 0;
+        setDailyData(wallet, weekStartISO, claims);
+    }
+// show Telegram BackButton and set it to return to main renderGame
+        showTelegramBack(() => { showNav(); renderGame(); });
+    // build calendar markup
+    const items = [];
+    for (let i = 0; i < 7; i++) {
+        const dayNum = i + 1;
+        const claimed = !!claims[i];
+        const reward = DAILY_REWARDS[i];
+        const isToday = (i === todayIndex);
+        const cls = claimed ? 'claimed' : isToday ? 'today' : '';
+        const label = (i === 6) ? 'BIG DAY' : `Day ${dayNum}`;
+        items.push(`
+			<div class="daily-day ${cls}" data-index="${i}" style="display:flex;flex-direction:column;align-items:center;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;">
+				<img src="./image/daily.png" alt="${label}" style="width:62px;height:62px;object-fit:cover;border-radius:8px;margin-bottom:8px;opacity:${claimed ? 0.5 : 1}">
+				<div style="font-weight:700;margin-bottom:4px;">${label}</div>
+				<div style="font-size:13px;color:#ddd;margin-bottom:6px;">Reward: ${reward} 💎</div>
+				<div>${claimed ? '<span style="color:#8f8">Claimed</span>' : (isToday ? '<button class="claimTodayBtn">Claim</button>' : '<span style="opacity:0.6">Locked</span>')}</div>
+			</div>
+		`);
+    }
+
+    content.innerHTML = `
+		<div style="padding: 66px 18px 18px;"">
+			<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+				<button id="dailyBack" class="btn">Back</button>
+				<div style="font-weight:800;font-size:18px;">Daily Rewards</div>
+				<div style="width:72px"></div>
+			</div>
+			<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(80px, 1fr));gap:18px;">
+				${items.join('')}
+			</div>
+			<div style="margin-top:12px;color:#bbb;font-size:13px;">Collect today's reward. 7th day is BIGDAY.</div>
+		</div>
+	`;
+
+    // hide bottom nav and enable Telegram Back to return to game
+    hideNav();
+    showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
+
+    // back handler
+    document.getElementById('dailyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
+
+    // claim handler (only today's button)
+    const btn = content.querySelector('.claimTodayBtn');
+    if (btn) {
+        btn.addEventListener('click', () => {
+            // re-load to avoid race
+            const ddata = getDailyData(wallet);
+            const idx = getDailyIndexForToday(ddata.weekStartISO);
+            if (idx === null) {
+                // week expired, reset
+                const newStart = (new Date()).toISOString();
+                const newClaims = [false, false, false, false, false, false, false];
+                setDailyData(wallet, newStart, newClaims);
+                showToast('Week reset — claim again.');
+                renderDaily();
+                return;
+            }
+            if (ddata.claims[idx]) { showToast('Today already claimed'); return; }
+            // mark claimed
+            ddata.claims[idx] = true;
+            setDailyData(wallet, ddata.weekStartISO, ddata.claims);
+            // reward
+            const reward = DAILY_REWARDS[idx] || 1;
+            const st = loadState();
+            st.diamond = (st.diamond || 0) + reward;
+            saveState(st);
+            animateAddPRC('+' + reward + ' 💎');
+            showToast(`You received ${reward} diamonds!`);
+            // update UI locally
+            renderDaily();
+        });
+    }
+}
 } // end of function renderGame()
 
 // Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
@@ -1118,137 +1251,5 @@ document.querySelectorAll('.nav .tab').forEach(el => {
     });
 });
 
-// --- ADD: daily keys & helpers (place near other KEY_* declarations) ---
-const KEY_DAILY_WEEK_START = "proguzmir_daily_week_start";
-const KEY_DAILY_CLAIMS = "proguzmir_daily_claims"; // JSON array of 7 booleans
 
-function dailyWeekStartKey(wallet) { return makeUserKey(KEY_DAILY_WEEK_START, wallet); }
-function dailyClaimsKey(wallet) { return makeUserKey(KEY_DAILY_CLAIMS, wallet); }
-
-function getDailyData(wallet) {
-    // returns { weekStartISO, claims: [bool...7] }
-    const ws = localStorage.getItem(dailyWeekStartKey(wallet)) || null;
-    const clRaw = localStorage.getItem(dailyClaimsKey(wallet)) || null;
-    let claims = null;
-    try { claims = clRaw ? JSON.parse(clRaw) : null; } catch (e) { claims = null; }
-    if (!claims || !Array.isArray(claims) || claims.length !== 7) {
-        claims = [false, false, false, false, false, false, false];
-    }
-    return { weekStartISO: ws, claims };
-}
-function setDailyData(wallet, weekStartISO, claims) {
-    localStorage.setItem(dailyWeekStartKey(wallet), weekStartISO || "");
-    localStorage.setItem(dailyClaimsKey(wallet), JSON.stringify(claims));
-}
-
-// helper: get index (0..6) for today relative to weekStartISO; if weekStartISO null -> create new week start = today
-function getDailyIndexForToday(weekStartISO) {
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    if (!weekStartISO) return 0;
-    const ws = new Date(weekStartISO);
-    ws.setHours(0, 0, 0, 0);
-    const diffDays = Math.floor((today - ws) / 86400000);
-    if (diffDays < 0 || diffDays > 6) return null; // out of current week
-    return diffDays;
-}
-
-// rewards: days 0..5 -> 1 diamond, day6 (7th day) -> bigday 5 diamonds
-const DAILY_REWARDS = [1, 1, 1, 1, 1, 1, 5];
-
-// --- ADD: renderDaily UI and logic (standalone page inside content) ---
-function renderDaily() {
-    const s = loadState();
-    const wallet = s.wallet || localStorage.getItem(KEY_WALLET) || "";
-    let { weekStartISO, claims } = getDailyData(wallet);
-
-    // if no weekStart or week expired, start new week today (weekStart = today)
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    if (!weekStartISO) {
-        weekStartISO = today.toISOString();
-        claims = [false, false, false, false, false, false, false];
-        setDailyData(wallet, weekStartISO, claims);
-    }
-    // compute today's index (0..6) or reset if outside range
-    let todayIndex = getDailyIndexForToday(weekStartISO);
-    if (todayIndex === null) {
-        // start new week
-        weekStartISO = today.toISOString();
-        claims = [false, false, false, false, false, false, false];
-        todayIndex = 0;
-        setDailyData(wallet, weekStartISO, claims);
-    }
-// show Telegram BackButton and set it to return to main renderGame
-        showTelegramBack(() => { showNav(); renderGame(); });
-    // build calendar markup
-    const items = [];
-    for (let i = 0; i < 7; i++) {
-        const dayNum = i + 1;
-        const claimed = !!claims[i];
-        const reward = DAILY_REWARDS[i];
-        const isToday = (i === todayIndex);
-        const cls = claimed ? 'claimed' : isToday ? 'today' : '';
-        const label = (i === 6) ? 'BIG DAY' : `Day ${dayNum}`;
-        items.push(`
-			<div class="daily-day ${cls}" data-index="${i}" style="display:flex;flex-direction:column;align-items:center;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;">
-				<img src="./image/daily.png" alt="${label}" style="width:62px;height:62px;object-fit:cover;border-radius:8px;margin-bottom:8px;opacity:${claimed ? 0.5 : 1}">
-				<div style="font-weight:700;margin-bottom:4px;">${label}</div>
-				<div style="font-size:13px;color:#ddd;margin-bottom:6px;">Reward: ${reward} 💎</div>
-				<div>${claimed ? '<span style="color:#8f8">Claimed</span>' : (isToday ? '<button class="claimTodayBtn">Claim</button>' : '<span style="opacity:0.6">Locked</span>')}</div>
-			</div>
-		`);
-    }
-
-    content.innerHTML = `
-		<div style="padding: 66px 18px 18px;"">
-			<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-				<button id="dailyBack" class="btn">Back</button>
-				<div style="font-weight:800;font-size:18px;">Daily Rewards</div>
-				<div style="width:72px"></div>
-			</div>
-			<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(90px, 1fr));gap:18px;">
-				${items.join('')}
-			</div>
-			<div style="margin-top:12px;color:#bbb;font-size:13px;">Collect today's reward. 7th day is BIGDAY.</div>
-		</div>
-	`;
-
-    // hide bottom nav and enable Telegram Back to return to game
-    hideNav();
-    showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
-
-    // back handler
-    document.getElementById('dailyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
-
-    // claim handler (only today's button)
-    const btn = content.querySelector('.claimTodayBtn');
-    if (btn) {
-        btn.addEventListener('click', () => {
-            // re-load to avoid race
-            const ddata = getDailyData(wallet);
-            const idx = getDailyIndexForToday(ddata.weekStartISO);
-            if (idx === null) {
-                // week expired, reset
-                const newStart = (new Date()).toISOString();
-                const newClaims = [false, false, false, false, false, false, false];
-                setDailyData(wallet, newStart, newClaims);
-                showToast('Week reset — claim again.');
-                renderDaily();
-                return;
-            }
-            if (ddata.claims[idx]) { showToast('Today already claimed'); return; }
-            // mark claimed
-            ddata.claims[idx] = true;
-            setDailyData(wallet, ddata.weekStartISO, ddata.claims);
-            // reward
-            const reward = DAILY_REWARDS[idx] || 1;
-            const st = loadState();
-            st.diamond = (st.diamond || 0) + reward;
-            saveState(st);
-            animateAddPRC('+' + reward + ' 💎');
-            showToast(`You received ${reward} diamonds!`);
-            // update UI locally
-            renderDaily();
-        });
-    }
-}
 
