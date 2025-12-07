@@ -630,23 +630,23 @@ function renderDaily() {
         const cls = claimed ? 'claimed' : isToday ? 'today' : '';
         const label = (i === 6) ? 'BIG DAY' : `Day ${dayNum}`;
         items.push(`
-			<div class="daily-day ${cls}" data-index="${i}" style="display:flex;flex-direction:column;align-items:center;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;">
+			<div class="daily-day ${cls}" data-index="${i}" style="display:flex;flex-direction:column;align-items:center;padding:12px;background:rgba(0, 0, 0, 0.43);border-radius:10px;">
 				<img src="./image/daily.png" alt="${label}" style="width:62px;height:62px;object-fit:cover;border-radius:8px;margin-bottom:8px;opacity:${claimed ? 0.5 : 1}">
 				<div style="font-weight:700;margin-bottom:4px;">${label}</div>
-				<div style="font-size:13px;color:#ddd;margin-bottom:6px;">Reward: ${reward} 💎</div>
+				<div style="font-size:13px;color:#ddd;margin-bottom:6px;">Reward: ${reward}💎</div>
 				<div>${claimed ? '<span style="color:#8f8">Claimed</span>' : (isToday ? '<button class="claimTodayBtn">Claim</button>' : '<span style="opacity:0.6">Locked</span>')}</div>
 			</div>
 		`);
     }
 
     content.innerHTML = `
-		<div style="padding: 66px 18px 18px;"">
+		<div style="padding: 66px 2px 18px;"">
 			<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
 				<button id="dailyBack" class="btn">Back</button>
 				<div style="font-weight:800;font-size:18px;">Daily Rewards</div>
 				<div style="width:72px"></div>
 			</div>
-			<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(80px, 1fr));gap:18px;">
+			<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(80px, 1fr));gap:5px;">
 				${items.join('')}
 			</div>
 			<div style="margin-top:12px;color:#bbb;font-size:13px;">Collect today's reward. 7th day is BIGDAY.</div>
