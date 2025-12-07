@@ -237,9 +237,11 @@ async def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Menu:", reply_markup=main_menu_keyboard())
 
 def main():
+    # Get token from environment variable ONLY
     token = os.getenv("TELEGRAM_TOKEN") or os.getenv("BOT_TOKEN")
     if not token:
-        print("Iltimos TELEGRAM_TOKEN yoki BOT_TOKEN muhit o'zgaruvchisiga token qo'ying.")
+        print("❌ TELEGRAM_TOKEN or BOT_TOKEN environment variable not set")
+        print("   Set it in .env file before running")
         return
     
     app = ApplicationBuilder().token(token).build()

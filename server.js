@@ -1,11 +1,13 @@
 import axios from "axios";
 import { Telegraf, Markup } from "telegraf";
 
-// env dan token o‘qish
-const BOT_TOKEN = process.env.BOT_TOKEN;
-if (!BOT_TOKEN) throw new Error("BOT_TOKEN env topilmadi!");
+// Load token from environment ONLY - never hardcode
+const BOT_TOKEN = process.env.BOT_TOKEN || process.env.TELEGRAM_TOKEN;
+if (!BOT_TOKEN) {
+  throw new Error("❌ BOT_TOKEN or TELEGRAM_TOKEN environment variable not set. Add it to .env file.");
+}
 
-const API_URL = `https://api.telegram.org/bot${BOT_TOKEN="8491176215:AAGWwxPL3Yz9or7MOLGCdD4ka6mPfOf_hMk"}`;
+const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
 const bot = new Telegraf(BOT_TOKEN);
 
