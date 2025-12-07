@@ -646,7 +646,7 @@ function renderDaily() {
 				<div style="font-weight:800;font-size:18px;">Daily Rewards</div>
 				<div style="width:72px"></div>
 			</div>
-			<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(80px, 1fr));gap:5px;">
+			<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(90px, 1fr));gap:10px;">
 				${items.join('')}
 			</div>
 			<div style="margin-top:12px;color:#bbb;font-size:13px;">Collect today's reward. 7th day is BIGDAY.</div>
