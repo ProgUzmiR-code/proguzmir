@@ -15,6 +15,7 @@
     { "src": "server.js", "use": "@vercel/node" },
     { "src": "index.js", "use": "@vercel/static" },
     { "src": "index.html", "use": "@vercel/static" }
+    { "src": "api/bot.py", "use": "@vercel/python" }
   ],
   "routes": [
     { "src": "/server", "dest": "/server.js" },
@@ -24,6 +25,7 @@
     { "src": "/friends/(.*)", "dest": "/rank/$1" },
     { "src": "/wallet/(.*)", "dest": "/rank/$1" },
     { "src": "/image/(.*)", "dest": "/image/$1" },
-    { "src": "/", "dest": "/index.html" }
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/api/bot", "dest": "api/bot.py" }
   ]
 }

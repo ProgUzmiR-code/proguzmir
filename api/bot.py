@@ -4,6 +4,30 @@ from decimal import Decimal, getcontext
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, InputFile
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
 
+from aiohttp import web
+from aiogram import Bot, Dispatcher, types
+
+TOKEN = os.getenv("BOT_TOKEN=8491176215:AAGWwxPL3Yz9or7MOLGCdD4ka6mPfOf_hMk")
+bot = Bot(TOKEN)
+dp = Dispatcher()
+
+# Start handler
+@dp.message()
+async def start(msg: types.Message):
+    await msg.answer("Bot ishlayapti! 👌")
+
+async def webhook(request):
+    data = await request.json()
+    update = types.Update(**data)
+    await dp.feed_update(bot, update)
+    return web.Response(text="OK")
+
+# Aiohttp app (Vercel shuni chaqiradi)
+app = web.Application()
+app.router.add_post("/", webhook)
+
+# MUST: Vercel uchun handler
+handler = app
 getcontext().prec = 50
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), "data.json")
