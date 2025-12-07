@@ -67,25 +67,33 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     save_data(data)
     
-    # Try to send with photo, fallback to text
+    # Create inline keyboard with Play button (opens mini app)
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton(
+            "▶️ PLAY",
+            web_app=WebAppInfo(url="https://proguzmir.vercel.app/")
+        )]
+    ])
+    
+    # Try to send with photo
     photo_path = os.path.join(os.path.dirname(__file__), "logotype.png")
     try:
         if os.path.exists(photo_path):
             await update.message.reply_photo(
                 photo=InputFile(photo_path),
-                caption=f"Assalomu alaykum, {update.effective_user.first_name}!\nMenu:",
-                reply_markup=main_menu_keyboard()
+                caption=f"Assalomu alaykum, {update.effective_user.first_name}! 👋\n\nMini ilovani ochish uchun PLAY tugmasini bosing 👇",
+                reply_markup=keyboard
             )
         else:
             await update.message.reply_text(
-                f"Assalomu alaykum, {update.effective_user.first_name}!\nMenu:",
-                reply_markup=main_menu_keyboard()
+                f"Assalomu alaykum, {update.effective_user.first_name}! 👋\n\nMini ilovani ochish uchun PLAY tugmasini bosing 👇",
+                reply_markup=keyboard
             )
     except Exception as e:
         print(f"Error sending start message: {e}")
         await update.message.reply_text(
-            f"Assalomu alaykum, {update.effective_user.first_name}!\nMenu:",
-            reply_markup=main_menu_keyboard()
+            f"Assalomu alaykum, {update.effective_user.first_name}! 👋\n\nMini ilovani ochish uchun PLAY tugmasini bosing 👇",
+            reply_markup=keyboard
         )
 
 async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
