@@ -373,6 +373,23 @@ function renderGame() {
     const gamePreview = document.getElementById('gameCardPreview');
     if (gamePreview) gamePreview.addEventListener('click', (ev) => { ev.stopPropagation(); renderGames(); });
 
+    // --- ADD: daily button handler (fix for "dailyBtn" not responding) ---
+    const dailyBtn = document.getElementById('dailyBtn');
+    if (dailyBtn) {
+        dailyBtn.style.cursor = 'pointer';
+        dailyBtn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            // open daily screen; renderDaily is defined later in file
+            try {
+                renderDaily();
+            } catch (err) {
+                console.error('Error opening Daily screen:', err);
+                showToast && showToast('Xatolik: Daily bo\'lim ochilmadi');
+            }
+        });
+    }
+
     // energy auto-recharge (existing)
     if (window._energyInterval) { clearInterval(window._energyInterval); window._energyInterval = null; }
     // Doimiy interval: har soniyada tekshiradi va faqat kerak bo'lsa oshiradi.
@@ -1172,7 +1189,7 @@ function renderDaily() {
         const label = (i === 6) ? 'BIG DAY' : `Day ${dayNum}`;
         items.push(`
 			<div class="daily-day ${cls}" data-index="${i}" style="display:flex;flex-direction:column;align-items:center;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;">
-				<img src="./image/daily.avif" alt="${label}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;margin-bottom:8px;opacity:${claimed ? 0.5 : 1}">
+				<img src="./image/daily.png" alt="${label}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;margin-bottom:8px;opacity:${claimed ? 0.5 : 1}">
 				<div style="font-weight:700;margin-bottom:4px;">${label}</div>
 				<div style="font-size:13px;color:#ddd;margin-bottom:6px;">Reward: ${reward} 💎</div>
 				<div>${claimed ? '<span style="color:#8f8">Claimed</span>' : (isToday ? '<button class="claimTodayBtn">Claim</button>' : '<span style="opacity:0.6">Locked</span>')}</div>
@@ -1181,7 +1198,7 @@ function renderDaily() {
     }
 
     content.innerHTML = `
-		<div style="padding:18px;">
+		<div style="padding: 66px 0px 18px;"">
 			<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
 				<button id="dailyBack" class="btn">Back</button>
 				<div style="font-weight:800;font-size:18px;">Daily Rewards</div>
