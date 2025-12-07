@@ -232,7 +232,13 @@ function renderGame() {
     // top quick access: Skin (left), Shop (center), Game (right) — diamond THEN previews THEN tap
     content.innerHTML = `
       <div class="tap-area">
-        <div id="diamondTop" style="font-size:25px; margin-bottom:15px;">💎 ${s.diamond} </div>
+        <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10px;">
+          <div id="dailyBtn" class="btn" style="margin-bottom:8px;padding:8px 12px;border-radius:8px;display: flex;flex-direction: column;cursor: pointer;">
+          <img style="width: 75px; height:75px;" src="./image/daily.png">
+          <span class="text_daily">Daily</span>
+        </div>
+          <div id="diamondTop" style="font-size:25px; margin-bottom:8px;">💎 ${s.diamond} </div>
+        </div>
         <!-- previews row: diamond above, previews here, then tap below -->
         <div id="previewsRow" style="display:flex; justify-content: space-between; align-items: center;">
           
@@ -310,7 +316,7 @@ function renderGame() {
                 const claimBtn = document.getElementById('claimBtn');
                 if (claimBtn) {
                     claimBtn.addEventListener('click', () => {
-                        const todayStr = new Date().toISOString().slice(0,10);
+                        const todayStr = new Date().toISOString().slice(0, 10);
                         setClaimDateForCurrentUser(todayStr);
                         const st = loadState();
                         st.prcWei = BigInt(st.prcWei) + BASE_WEI;
@@ -786,7 +792,7 @@ function clearClaimDateForCurrentUser() {
 function isClaimedToday() {
     const d = getClaimDateForCurrentUser();
     if (!d) return false;
-    const today = new Date().toISOString().slice(0,10);
+    const today = new Date().toISOString().slice(0, 10);
     return d === today;
 }
 
@@ -795,7 +801,7 @@ function msUntilNextMidnight() {
     const now = new Date();
     const t = new Date(now);
     t.setDate(now.getDate() + 1);
-    t.setHours(0,0,0,0);
+    t.setHours(0, 0, 0, 0);
     return t - now;
 }
 
@@ -823,93 +829,93 @@ function animateAddPRC(text) {
 }
 
 // yangi kod: renderGame ichida reklanma uchun dastlabki sozlamalar
-    // After content.innerHTML is set — ensure reklanma reflects current claim state
-    (function setupReklanmaInitial() {
-        const reklanma = document.querySelector('.reklanma2');
-        if (!reklanma) return;
+// After content.innerHTML is set — ensure reklanma reflects current claim state
+(function setupReklanmaInitial() {
+    const reklanma = document.querySelector('.reklanma2');
+    if (!reklanma) return;
 
-        // if already claimed today -> show countdown (no claim button)
-        if (isClaimedToday()) {
-            // show countdown UI
-            const showCountdown = () => {
-                const msLeft = msUntilNextMidnight();
-                if (msLeft <= 0) {
-                    // midnight reached -> clear claim and re-render
-                    clearClaimDateForCurrentUser();
-                    renderGame();
-                    return;
-                }
-                const hrs = Math.floor(msLeft / 3600000);
-                const mins = Math.floor((msLeft % 3600000) / 60000);
-                const secs = Math.floor((msLeft % 60000) / 1000);
-                reklanma.innerHTML = `<div class="reklanma-count" style="color:#fff; font-weight:700;">Claim qilingan — qolgan vaqt: ${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}</div>`;
-            };
-            showCountdown();
-            // update har soniya
-            const intervalId = setInterval(() => {
-                if (!document.body.contains(reklanma)) { clearInterval(intervalId); return; }
-                const msLeft = msUntilNextMidnight();
-                if (msLeft <= 0) { clearInterval(intervalId); clearClaimDateForCurrentUser(); renderGame(); return; }
-                const hrs = Math.floor(msLeft / 3600000);
-                const mins = Math.floor((msLeft % 3600000) / 60000);
-                const secs = Math.floor((msLeft % 60000) / 1000);
-                const node = document.querySelector('.reklanma-count');
-                if (node) node.textContent = `Claim qilingan — qolgan vaqt: ${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-            }, 1000);
-            return;
-        }
-    })();
+    // if already claimed today -> show countdown (no claim button)
+    if (isClaimedToday()) {
+        // show countdown UI
+        const showCountdown = () => {
+            const msLeft = msUntilNextMidnight();
+            if (msLeft <= 0) {
+                // midnight reached -> clear claim and re-render
+                clearClaimDateForCurrentUser();
+                renderGame();
+                return;
+            }
+            const hrs = Math.floor(msLeft / 3600000);
+            const mins = Math.floor((msLeft % 3600000) / 60000);
+            const secs = Math.floor((msLeft % 60000) / 1000);
+            reklanma.innerHTML = `<div class="reklanma-count" style="color:#fff; font-weight:700;">Claim qilingan — qolgan vaqt: ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}</div>`;
+        };
+        showCountdown();
+        // update har soniya
+        const intervalId = setInterval(() => {
+            if (!document.body.contains(reklanma)) { clearInterval(intervalId); return; }
+            const msLeft = msUntilNextMidnight();
+            if (msLeft <= 0) { clearInterval(intervalId); clearClaimDateForCurrentUser(); renderGame(); return; }
+            const hrs = Math.floor(msLeft / 3600000);
+            const mins = Math.floor((msLeft % 3600000) / 60000);
+            const secs = Math.floor((msLeft % 60000) / 1000);
+            const node = document.querySelector('.reklanma-count');
+            if (node) node.textContent = `Claim qilingan — qolgan vaqt: ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }, 1000);
+        return;
+    }
+})();
 
-    // eski reklanma setup kodini quyidagi bilan almashtiring (yangi claim saqlash mexanizmini qo'shib)
-    // reklanma ustiga bosilganda ishlaydigan yangi handler (toʻgʻrilangan)
-    setTimeout(() => {
-        const reklanma = document.querySelector('.reklanma2');
-        if (!reklanma) return;
+// eski reklanma setup kodini quyidagi bilan almashtiring (yangi claim saqlash mexanizmini qo'shib)
+// reklanma ustiga bosilganda ishlaydigan yangi handler (toʻgʻrilangan)
+setTimeout(() => {
+    const reklanma = document.querySelector('.reklanma2');
+    if (!reklanma) return;
 
-        // replace node to ensure no duplicate listeners
-        reklanma.replaceWith(reklanma.cloneNode(true));
-        const rek = document.querySelector('.reklanma2');
-        rek.addEventListener('click', () => {
-            // if already claimed today block
-            if (isClaimedToday()) { showToast('1 kundan keyin'); return; }
+    // replace node to ensure no duplicate listeners
+    reklanma.replaceWith(reklanma.cloneNode(true));
+    const rek = document.querySelector('.reklanma2');
+    rek.addEventListener('click', () => {
+        // if already claimed today block
+        if (isClaimedToday()) { showToast('1 kundan keyin'); return; }
 
-            const currentUrl = (location.protocol === 'file:' ? 'https://YOUR_PUBLIC_DOMAIN/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
-            const args = {
-                link: currentUrl,
-                text: 'I have successfully withdrawn 0.01 TON from PROGUZ, you can also play!',
-                btnName: 'Play PROGUZ',
-                currentUrl: currentUrl
-            };
+        const currentUrl = (location.protocol === 'file:' ? 'https://YOUR_PUBLIC_DOMAIN/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
+        const args = {
+            link: currentUrl,
+            text: 'I have successfully withdrawn 0.01 TON from PROGUZ, you can also play!',
+            btnName: 'Play PROGUZ',
+            currentUrl: currentUrl
+        };
 
-            p(window.Telegram || window, args, (success) => {
-                if (!success) {
-                    showToast('Share bajarilmadi.');
-                    return;
-                }
-                // share muvaffaqiyatli bo'ldi — CLAIM UI chiqarish
-                rek.innerHTML = `
+        p(window.Telegram || window, args, (success) => {
+            if (!success) {
+                showToast('Share bajarilmadi.');
+                return;
+            }
+            // share muvaffaqiyatli bo'ldi — CLAIM UI chiqarish
+            rek.innerHTML = `
                     <div style="display:flex; align-items:center; gap:8px;">
                       <div style="font-weight:700; color:#fff;">Story jo'natildi!</div>
                       <button id="claimBtn" class="btn" style="margin-left:6px;">CLAIM</button>
                     </div>
                 `;
-                const claimBtn = document.getElementById('claimBtn');
-                if (claimBtn) {
-                    claimBtn.addEventListener('click', () => {
-                        const todayStr = new Date().toISOString().slice(0,10);
-                        setClaimDateForCurrentUser(todayStr);
-                        const st = loadState();
-                        st.prcWei = BigInt(st.prcWei) + BASE_WEI;
-                        saveState(st);
-                        animateAddPRC('+' + fmtPRC(BASE_WEI));
-                        showToast('🎉🎉🎉🎉🎉🎉');
-                        // faqat reklanma elementini countdown ga o'tkazamiz, sahifani qayta render qilmaymiz
-                        showReklanmaCountdown(rek);
-                    });
-                }
-            });
+            const claimBtn = document.getElementById('claimBtn');
+            if (claimBtn) {
+                claimBtn.addEventListener('click', () => {
+                    const todayStr = new Date().toISOString().slice(0, 10);
+                    setClaimDateForCurrentUser(todayStr);
+                    const st = loadState();
+                    st.prcWei = BigInt(st.prcWei) + BASE_WEI;
+                    saveState(st);
+                    animateAddPRC('+' + fmtPRC(BASE_WEI));
+                    showToast('🎉🎉🎉🎉🎉🎉');
+                    // faqat reklanma elementini countdown ga o'tkazamiz, sahifani qayta render qilmaymiz
+                    showReklanmaCountdown(rek);
+                });
+            }
         });
-    }, 300);
+    });
+}, 300);
 
 // Saqlash: lokal snapshot (offline fallback)
 function saveSnapshotToLocal(state) {
@@ -932,144 +938,144 @@ function saveSnapshotToLocal(state) {
 
 // --- NEW: profile modal + Telegram-based wallet assignment + local-only startup ---
 (function clientOnlyStartup() {
-	// prefer Telegram WebApp id when available (store as tg_{id})
-	try {
-		const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-		if (tgUser && tgUser.id) {
-			localStorage.setItem(KEY_WALLET, 'tg_' + String(tgUser.id));
-			// also populate header username if present
-			const nameNode = document.querySelector('.profile .username');
-			if (nameNode) {
-				const display = (tgUser.first_name || '') + (tgUser.last_name ? ' ' + tgUser.last_name : '');
-				nameNode.textContent = display || (tgUser.username ? '@' + tgUser.username : 'Telegram user');
-			}
-		}
-	} catch (err) { /* ignore */ }
+    // prefer Telegram WebApp id when available (store as tg_{id})
+    try {
+        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        if (tgUser && tgUser.id) {
+            localStorage.setItem(KEY_WALLET, 'tg_' + String(tgUser.id));
+            // also populate header username if present
+            const nameNode = document.querySelector('.profile .username');
+            if (nameNode) {
+                const display = (tgUser.first_name || '') + (tgUser.last_name ? ' ' + tgUser.last_name : '');
+                nameNode.textContent = display || (tgUser.username ? '@' + tgUser.username : 'Telegram user');
+            }
+        }
+    } catch (err) { /* ignore */ }
 
-	// simple local-only bootstrap: load state and render
-	try {
-		// render UI after small delay to allow loader visuals
-		setTimeout(() => {
-			renderAndWait();
-		}, 250);
-	} catch (err) {
-		console.warn('clientOnlyStartup error', err);
-	}
+    // simple local-only bootstrap: load state and render
+    try {
+        // render UI after small delay to allow loader visuals
+        setTimeout(() => {
+            renderAndWait();
+        }, 250);
+    } catch (err) {
+        console.warn('clientOnlyStartup error', err);
+    }
 })();
 
 // Profile modal: open when .profile clicked, show info from Telegram WebApp initDataUnsafe.user or localStorage
 (function setupProfileClick() {
-	document.addEventListener('DOMContentLoaded', () => {
-		const profile = document.querySelector('.profile');
-		if (!profile) return;
-		profile.style.cursor = 'pointer';
-		profile.addEventListener('click', (e) => {
-			e.preventDefault();
-			// gather info
-			let info = { id: null, first_name: null, last_name: null, username: null };
-			try {
-				const u = window.Telegram?.WebApp?.initDataUnsafe?.user;
-				if (u) {
-					info.id = u.id;
-					info.first_name = u.first_name || '';
-					info.last_name = u.last_name || '';
-					info.username = u.username || '';
-				}
-			} catch (err) { /* ignore */ }
+    document.addEventListener('DOMContentLoaded', () => {
+        const profile = document.querySelector('.profile');
+        if (!profile) return;
+        profile.style.cursor = 'pointer';
+        profile.addEventListener('click', (e) => {
+            e.preventDefault();
+            // gather info
+            let info = { id: null, first_name: null, last_name: null, username: null };
+            try {
+                const u = window.Telegram?.WebApp?.initDataUnsafe?.user;
+                if (u) {
+                    info.id = u.id;
+                    info.first_name = u.first_name || '';
+                    info.last_name = u.last_name || '';
+                    info.username = u.username || '';
+                }
+            } catch (err) { /* ignore */ }
 
-			// build modal
-			const overlay = document.createElement('div');
-			overlay.style.position = 'fixed';
-			overlay.style.inset = '0';
-			overlay.style.background = 'rgba(0,0,0,0.6)';
-			overlay.style.display = 'flex';
-			overlay.style.alignItems = 'center';
-			overlay.style.justifyContent = 'center';
-			overlay.style.zIndex = '20000';
+            // build modal
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.inset = '0';
+            overlay.style.background = 'rgba(0,0,0,0.6)';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.zIndex = '20000';
 
-			const box = document.createElement('div');
-			box.style.background = '#07121a';
-			box.style.color = '#fff';
-			box.style.borderRadius = '12px';
-			box.style.padding = '18px';
-			box.style.minWidth = '260px';
-			box.style.boxShadow = '0 8px 40px rgba(0,0,0,0.6)';
-			box.style.textAlign = 'center';
+            const box = document.createElement('div');
+            box.style.background = '#07121a';
+            box.style.color = '#fff';
+            box.style.borderRadius = '12px';
+            box.style.padding = '18px';
+            box.style.minWidth = '260px';
+            box.style.boxShadow = '0 8px 40px rgba(0,0,0,0.6)';
+            box.style.textAlign = 'center';
 
-			// avatar: initials or default
-			const avatar = document.createElement('div');
-			avatar.style.width = '80px';
-			avatar.style.height = '80px';
-			avatar.style.margin = '0 auto 12px';
-			avatar.style.borderRadius = '50%';
-			avatar.style.display = 'flex';
-			avatar.style.alignItems = 'center';
-			avatar.style.justifyContent = 'center';
-			avatar.style.fontSize = '28px';
-			avatar.style.fontWeight = '700';
-			avatar.style.background = '#0b2230';
-			const initials = ((info.first_name||'').charAt(0) + (info.last_name||'').charAt(0)).toUpperCase() || (info.username? info.username.slice(0,2).toUpperCase() : 'TG');
-			avatar.textContent = initials;
-			box.appendChild(avatar);
+            // avatar: initials or default
+            const avatar = document.createElement('div');
+            avatar.style.width = '80px';
+            avatar.style.height = '80px';
+            avatar.style.margin = '0 auto 12px';
+            avatar.style.borderRadius = '50%';
+            avatar.style.display = 'flex';
+            avatar.style.alignItems = 'center';
+            avatar.style.justifyContent = 'center';
+            avatar.style.fontSize = '28px';
+            avatar.style.fontWeight = '700';
+            avatar.style.background = '#0b2230';
+            const initials = ((info.first_name || '').charAt(0) + (info.last_name || '').charAt(0)).toUpperCase() || (info.username ? info.username.slice(0, 2).toUpperCase() : 'TG');
+            avatar.textContent = initials;
+            box.appendChild(avatar);
 
-			const title = document.createElement('div');
-			title.style.fontWeight = '800';
-			title.style.marginBottom = '6px';
-			title.textContent = ((info.first_name || '') + (info.last_name ? ' ' + info.last_name : '')).trim() || (info.username ? '@' + info.username : 'Telegram user');
-			box.appendChild(title);
+            const title = document.createElement('div');
+            title.style.fontWeight = '800';
+            title.style.marginBottom = '6px';
+            title.textContent = ((info.first_name || '') + (info.last_name ? ' ' + info.last_name : '')).trim() || (info.username ? '@' + info.username : 'Telegram user');
+            box.appendChild(title);
 
-			const sub = document.createElement('div');
-			sub.style.opacity = '0.85';
-			sub.style.fontSize = '13px';
-			sub.style.marginBottom = '12px';
-			sub.textContent = info.username ? '@' + info.username : `ID: ${info.id || 'unknown'}`;
-			box.appendChild(sub);
+            const sub = document.createElement('div');
+            sub.style.opacity = '0.85';
+            sub.style.fontSize = '13px';
+            sub.style.marginBottom = '12px';
+            sub.textContent = info.username ? '@' + info.username : `ID: ${info.id || 'unknown'}`;
+            box.appendChild(sub);
 
-			const closeBtn = document.createElement('button');
-			closeBtn.textContent = 'Close';
-			closeBtn.className = 'btn';
-			closeBtn.style.marginTop = '8px';
-			closeBtn.addEventListener('click', () => document.body.removeChild(overlay));
-			box.appendChild(closeBtn);
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Close';
+            closeBtn.className = 'btn';
+            closeBtn.style.marginTop = '8px';
+            closeBtn.addEventListener('click', () => document.body.removeChild(overlay));
+            box.appendChild(closeBtn);
 
-			overlay.appendChild(box);
-			document.body.appendChild(overlay);
-		});
-	});
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+        });
+    });
 })();
 
 // add helper to load HTML fragment and execute scripts
 async function loadHtmlIntoContent(url) {
-  try {
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) {
-      content.innerHTML = `<div style="padding:20px;color:#fff;">Xato: ${res.status} ${res.statusText}</div>`;
-      return;
+    try {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) {
+            content.innerHTML = `<div style="padding:20px;color:#fff;">Xato: ${res.status} ${res.statusText}</div>`;
+            return;
+        }
+        const html = await res.text();
+        // set content
+        content.innerHTML = html;
+        // execute <script> tags found in html
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        const scripts = tmp.querySelectorAll('script');
+        scripts.forEach(s => {
+            const ns = document.createElement('script');
+            if (s.src) {
+                // preserve relative src
+                ns.src = s.getAttribute('src');
+                ns.async = false;
+            } else {
+                ns.textContent = s.textContent;
+            }
+            document.body.appendChild(ns);
+            // optional: remove after load (keeps DOM clean)
+            // ns.parentNode && ns.parentNode.removeChild(ns);
+        });
+    } catch (err) {
+        console.error('loadHtmlIntoContent error', err);
+        content.innerHTML = `<div style="padding:20px;color:#fff;">Yuklashda xato: ${String(err)}</div>`;
     }
-    const html = await res.text();
-    // set content
-    content.innerHTML = html;
-    // execute <script> tags found in html
-    const tmp = document.createElement('div');
-    tmp.innerHTML = html;
-    const scripts = tmp.querySelectorAll('script');
-    scripts.forEach(s => {
-      const ns = document.createElement('script');
-      if (s.src) {
-        // preserve relative src
-        ns.src = s.getAttribute('src');
-        ns.async = false;
-      } else {
-        ns.textContent = s.textContent;
-      }
-      document.body.appendChild(ns);
-      // optional: remove after load (keeps DOM clean)
-      // ns.parentNode && ns.parentNode.removeChild(ns);
-    });
-  } catch (err) {
-    console.error('loadHtmlIntoContent error', err);
-    content.innerHTML = `<div style="padding:20px;color:#fff;">Yuklashda xato: ${String(err)}</div>`;
-  }
 }
 
 // Replace previous tab click handler block with enhanced loader
@@ -1094,4 +1100,137 @@ document.querySelectorAll('.nav .tab').forEach(el => {
         }
     });
 });
+
+// --- ADD: daily keys & helpers (place near other KEY_* declarations) ---
+const KEY_DAILY_WEEK_START = "proguzmir_daily_week_start";
+const KEY_DAILY_CLAIMS = "proguzmir_daily_claims"; // JSON array of 7 booleans
+
+function dailyWeekStartKey(wallet) { return makeUserKey(KEY_DAILY_WEEK_START, wallet); }
+function dailyClaimsKey(wallet) { return makeUserKey(KEY_DAILY_CLAIMS, wallet); }
+
+function getDailyData(wallet) {
+    // returns { weekStartISO, claims: [bool...7] }
+    const ws = localStorage.getItem(dailyWeekStartKey(wallet)) || null;
+    const clRaw = localStorage.getItem(dailyClaimsKey(wallet)) || null;
+    let claims = null;
+    try { claims = clRaw ? JSON.parse(clRaw) : null; } catch (e) { claims = null; }
+    if (!claims || !Array.isArray(claims) || claims.length !== 7) {
+        claims = [false, false, false, false, false, false, false];
+    }
+    return { weekStartISO: ws, claims };
+}
+function setDailyData(wallet, weekStartISO, claims) {
+    localStorage.setItem(dailyWeekStartKey(wallet), weekStartISO || "");
+    localStorage.setItem(dailyClaimsKey(wallet), JSON.stringify(claims));
+}
+
+// helper: get index (0..6) for today relative to weekStartISO; if weekStartISO null -> create new week start = today
+function getDailyIndexForToday(weekStartISO) {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    if (!weekStartISO) return 0;
+    const ws = new Date(weekStartISO);
+    ws.setHours(0, 0, 0, 0);
+    const diffDays = Math.floor((today - ws) / 86400000);
+    if (diffDays < 0 || diffDays > 6) return null; // out of current week
+    return diffDays;
+}
+
+// rewards: days 0..5 -> 1 diamond, day6 (7th day) -> bigday 5 diamonds
+const DAILY_REWARDS = [1, 1, 1, 1, 1, 1, 5];
+
+// --- ADD: renderDaily UI and logic (standalone page inside content) ---
+function renderDaily() {
+    const s = loadState();
+    const wallet = s.wallet || localStorage.getItem(KEY_WALLET) || "";
+    let { weekStartISO, claims } = getDailyData(wallet);
+
+    // if no weekStart or week expired, start new week today (weekStart = today)
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    if (!weekStartISO) {
+        weekStartISO = today.toISOString();
+        claims = [false, false, false, false, false, false, false];
+        setDailyData(wallet, weekStartISO, claims);
+    }
+    // compute today's index (0..6) or reset if outside range
+    let todayIndex = getDailyIndexForToday(weekStartISO);
+    if (todayIndex === null) {
+        // start new week
+        weekStartISO = today.toISOString();
+        claims = [false, false, false, false, false, false, false];
+        todayIndex = 0;
+        setDailyData(wallet, weekStartISO, claims);
+    }
+
+    // build calendar markup
+    const items = [];
+    for (let i = 0; i < 7; i++) {
+        const dayNum = i + 1;
+        const claimed = !!claims[i];
+        const reward = DAILY_REWARDS[i];
+        const isToday = (i === todayIndex);
+        const cls = claimed ? 'claimed' : isToday ? 'today' : '';
+        const label = (i === 6) ? 'BIG DAY' : `Day ${dayNum}`;
+        items.push(`
+			<div class="daily-day ${cls}" data-index="${i}" style="display:flex;flex-direction:column;align-items:center;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;">
+				<img src="./image/daily.avif" alt="${label}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;margin-bottom:8px;opacity:${claimed ? 0.5 : 1}">
+				<div style="font-weight:700;margin-bottom:4px;">${label}</div>
+				<div style="font-size:13px;color:#ddd;margin-bottom:6px;">Reward: ${reward} 💎</div>
+				<div>${claimed ? '<span style="color:#8f8">Claimed</span>' : (isToday ? '<button class="claimTodayBtn">Claim</button>' : '<span style="opacity:0.6">Locked</span>')}</div>
+			</div>
+		`);
+    }
+
+    content.innerHTML = `
+		<div style="padding:18px;">
+			<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+				<button id="dailyBack" class="btn">Back</button>
+				<div style="font-weight:800;font-size:18px;">Daily Rewards</div>
+				<div style="width:72px"></div>
+			</div>
+			<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+				${items.join('')}
+			</div>
+			<div style="margin-top:12px;color:#bbb;font-size:13px;">Collect today's reward. 7th day is BIGDAY.</div>
+		</div>
+	`;
+
+    // hide bottom nav and enable Telegram Back to return to game
+    hideNav();
+    showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
+
+    // back handler
+    document.getElementById('dailyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
+
+    // claim handler (only today's button)
+    const btn = content.querySelector('.claimTodayBtn');
+    if (btn) {
+        btn.addEventListener('click', () => {
+            // re-load to avoid race
+            const ddata = getDailyData(wallet);
+            const idx = getDailyIndexForToday(ddata.weekStartISO);
+            if (idx === null) {
+                // week expired, reset
+                const newStart = (new Date()).toISOString();
+                const newClaims = [false, false, false, false, false, false, false];
+                setDailyData(wallet, newStart, newClaims);
+                showToast('Week reset — claim again.');
+                renderDaily();
+                return;
+            }
+            if (ddata.claims[idx]) { showToast('Today already claimed'); return; }
+            // mark claimed
+            ddata.claims[idx] = true;
+            setDailyData(wallet, ddata.weekStartISO, ddata.claims);
+            // reward
+            const reward = DAILY_REWARDS[idx] || 1;
+            const st = loadState();
+            st.diamond = (st.diamond || 0) + reward;
+            saveState(st);
+            animateAddPRC('+' + reward + ' 💎');
+            showToast(`You received ${reward} diamonds!`);
+            // update UI locally
+            renderDaily();
+        });
+    }
+}
 
