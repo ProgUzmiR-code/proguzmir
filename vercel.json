@@ -25,7 +25,8 @@
     { "src": "/friends/(.*)", "dest": "/rank/$1" },
     { "src": "/wallet/(.*)", "dest": "/rank/$1" },
     { "src": "/image/(.*)", "dest": "/image/$1" },
-    { "src": "/", "dest": "/index.html" },
-    { "src": "/api/bot", "dest": "api/bot.py" }
+    { "src": "/api/bot", "dest": "api/bot.py" },
+    { "src": "/", "dest": "/index.html" }
+    
   ]
 }
