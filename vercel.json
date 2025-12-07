@@ -15,7 +15,7 @@
     { "src": "server.js", "use": "@vercel/node" },
     { "src": "index.js", "use": "@vercel/static" },
     { "src": "index.html", "use": "@vercel/static" },
-    { "src": "api/bot.py", "use": "@vercel/python" }
+    { "src": "api/bot.py", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/server", "dest": "/server.js" },
