@@ -14,7 +14,7 @@
     { "src": "image/*", "use": "@vercel/static" },
     { "src": "server.js", "use": "@vercel/node" },
     { "src": "index.js", "use": "@vercel/static" },
-    { "src": "index.html", "use": "@vercel/static" }
+    { "src": "index.html", "use": "@vercel/static" },
     { "src": "api/bot.py", "use": "@vercel/python" }
   ],
   "routes": [
