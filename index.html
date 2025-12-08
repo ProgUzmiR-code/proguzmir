@@ -75,20 +75,22 @@
     window.Telegram.WebApp.setHeaderColor("transparent");
     window.Telegram.WebApp.disableVerticalSwipes();
   </script>
-    <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const tg = window.Telegram.WebApp;
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const tg = window.Telegram.WebApp;
 
-        tg.ready();
-        tg.expand();
+      // Ichki rangni o‘rnatish
+      tg.setBackgroundColor("#ffffff");
 
-        if (tg.disableVerticalSwipes) {
-            tg.disableVerticalSwipes();
-        } else {
-            console.log("disableVerticalSwipes() Telegram platformingizda mavjud emas");
-        }
+      // Mini-appni maksimal holatga kengaytirish
+      tg.expand();
+
+      // Full screen so‘rash (faqat mobil brauzerlar qo‘llaganida)
+      if (tg.requestFullscreen) {
+        tg.requestFullscreen();
+      }
     });
-</script>
+  </script>
   <style>
     :root {
       --corner-d: 32px;
@@ -197,6 +199,7 @@
     .nav .tab.active .i {
       transform: translateY(-40%) scale(1.40);
     }
+
     .material-icons {
       font-size: 30px !important;
     }
@@ -266,13 +269,13 @@
       cursor: pointer;
     }
 
-    
+
 
     /*////////////////////////////////*/
     .svgicon {
       height: 45px;
       width: 45px;
-      transition: 0.3s  ease;
+      transition: 0.3s ease;
       margin-top: -20px;
       animation: gift-a1e8b28b 3s linear infinite;
     }
@@ -539,6 +542,7 @@
         margin-left: 30px;
       }
     }
+
     #r {
       margin-top: 5px;
     }
@@ -584,31 +588,31 @@
     <div class="li">
       <div class="tab " data-tab="game">
         <span class="i material-icons">videogame_asset</span>
-        <span id="r" >GAME</span>
+        <span id="r">GAME</span>
       </div>
     </div>
     <div class="li">
       <div class="tab " data-tab="rank">
         <span class="i material-icons">emoji_events</span>
-        <span id="r" >RANK</span>
+        <span id="r">RANK</span>
       </div>
     </div>
     <div class="li">
       <div class="tab nav-item-active" data-tab="wallet">
         <img class="i svgicon" src="./image/coin.png" alt="">
-        <span id="r" >WALLET</span>
+        <span id="r">WALLET</span>
       </div>
     </div>
     <div class="li">
       <div class="tab" data-tab="market">
         <span class="i material-icons">group_add</span>
-        <span id="r" >INVITE</span>
+        <span id="r">INVITE</span>
       </div>
     </div>
     <div class="li">
       <div class="tab" data-tab="earn">
         <span class="i material-icons">currency_exchange</span>
-        <span id="r" >EARN</span>
+        <span id="r">EARN</span>
       </div>
     </div>
   </div>
