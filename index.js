@@ -233,10 +233,19 @@ function renderGame() {
     content.innerHTML = `
       <div class="tap-area">
         <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10px;">
-          <div id="dailyBtn" class="btn" style="margin-bottom:8px;padding: 2px 10px 25px;border-radius:8px;display: flex;flex-direction: column;cursor: pointer;"">
-          <img style="width: 75px; height:75px;" src="./image/daily.png">
-          <span class="text_daily">Daily</span>
-        </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <div id="dailyBtn" class="btn" style="margin-bottom:8px;padding: 2px 10px 25px;border-radius:8px;display: flex;flex-direction: column;cursor: pointer;">
+              <img style="width: 75px; height:75px;" src="./image/daily.png" alt="Daily">
+              <span class="text_daily">Daily</span>
+            </div>
+
+            <!-- Lucky Code key next to Daily -->
+            <div id="luckyKeyBtn" title="Lucky Code" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+              <img src="./image/key.png" alt="Lucky" style="width:40px;height:40px;object-fit:contain;">
+              <div style="font-size:12px;color:#fff;margin-top:4px;">Lucky</div>
+            </div>
+          </div>
+
           <div id="diamondTop" style="font-size:25px; margin-bottom:8px;">💎 ${s.diamond} </div>
         </div>
         <!-- previews row: diamond above, previews here, then tap below -->
@@ -387,6 +396,25 @@ function renderGame() {
                 console.error('Error opening Daily screen:', err);
                 showToast && showToast('Xatolik: Daily bo\'lim ochilmadi');
             }
+        });
+    }
+
+    // --- NEW: Lucky Code button handler ---
+    const luckyBtn = document.getElementById('luckyKeyBtn');
+    if (luckyBtn) {
+        luckyBtn.style.cursor = 'pointer';
+        luckyBtn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            // prefer single-page load helper if available
+            try {
+                if (typeof loadHtmlIntoContent === 'function') {
+                    loadHtmlIntoContent('./lusck_code/lusck_code.html');
+                    return;
+                }
+            } catch (e) { /* ignore and fallback */ }
+            // fallback: open in new tab
+            try { window.open('./lusck_code/lusck_code.html', '_blank'); } catch (e) { console.error('open lusck_code error', e); }
         });
     }
 
