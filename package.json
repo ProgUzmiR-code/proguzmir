@@ -11,12 +11,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@telegram-apps/init-data-node": "^2.0.10",
     "@telegram-apps/sdk": "^3.11.8",
     "@vercel/blob": "^2.0.0",
-    "axios": "^1.12.2",
+    "axios": "^1.13.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "node-telegram-bot-api": "^0.66.0"
+    "express": "^5.2.1",
+    "node-telegram-bot-api": "^0.66.0",
+    "telegraf": "^4.16.3"
   }
 }
