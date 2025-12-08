@@ -3,6 +3,14 @@ import json
 from decimal import Decimal, getcontext
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, InputFile
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters import Command
+import asyncio
+
+API_TOKEN = "8491176215:AAGWwxPL3Yz9or7MOLGCdD4ka6mPfOf_hMk"
+
+bot = Bot(token=API_TOKEN)
+dp = Dispatcher()
 
 getcontext().prec = 50
 
@@ -51,6 +59,14 @@ def main_menu_keyboard():
         [InlineKeyboardButton("Earn", callback_data="menu_earn")]
     ]
     return InlineKeyboardMarkup(kb)
+
+@dp.message(Command("start"))
+async def cmd_start(message: types.Message):
+    await message.reply("Salom! Bot ishga tushdi ✅")
+
+async def main():
+    await dp.start_polling(bot)
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Start command: handle /start and /start refXXX"""
