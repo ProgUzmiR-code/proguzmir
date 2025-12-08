@@ -70,7 +70,25 @@
 
     window.addEventListener("resize", updateClipPath);
     window.addEventListener("load", updateClipPath);
+
+    window.Telegram.WebApp.expand();
+    window.Telegram.WebApp.setHeaderColor("transparent");
+    window.Telegram.WebApp.disableVerticalSwipes();
   </script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const tg = window.Telegram.WebApp;
+
+        tg.ready();
+        tg.expand();
+
+        if (tg.disableVerticalSwipes) {
+            tg.disableVerticalSwipes();
+        } else {
+            console.log("disableVerticalSwipes() Telegram platformingizda mavjud emas");
+        }
+    });
+</script>
   <style>
     :root {
       --corner-d: 32px;
