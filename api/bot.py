@@ -3,14 +3,6 @@ import json
 from decimal import Decimal, getcontext
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, InputFile
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
-from aiogram import Bot, Dispatcher, types
-from aiogram.filters import Command
-import asyncio
-
-API_TOKEN = "8206191170:AAFZW9iN2CXSxGEJ-llWvWxPk2efRGUvwhU"
-
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher()
 
 getcontext().prec = 50
 
@@ -59,14 +51,6 @@ def main_menu_keyboard():
         [InlineKeyboardButton("Earn", callback_data="menu_earn")]
     ]
     return InlineKeyboardMarkup(kb)
-
-@dp.message(Command("start"))
-async def cmd_start(message: types.Message):
-    await message.reply("Salom! Bot ishga tushdi ✅")
-
-async def main():
-    await dp.start_polling(bot)
-
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Start command: handle /start and /start refXXX"""
@@ -252,10 +236,12 @@ async def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # default: show menu
     await update.message.reply_text("Menu:", reply_markup=main_menu_keyboard())
 
-def main():
+async def main():
+    # Get token from environment variable ONLY
     token = os.getenv("TELEGRAM_TOKEN") or os.getenv("BOT_TOKEN")
     if not token:
-        print("Iltimos TELEGRAM_TOKEN yoki BOT_TOKEN muhit o'zgaruvchisiga token qo'ying.")
+        print("❌ TELEGRAM_TOKEN or BOT_TOKEN environment variable not set")
+        print("   Set it in .env file before running")
         return
     
     app = ApplicationBuilder().token(token).build()
@@ -266,7 +252,8 @@ def main():
     app.add_handler(CallbackQueryHandler(menu_callback))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, text_handler))
     
-    app.run_polling()
+    await app.run_polling()
 
 if __name__ == "__main__":
-    main()
+    import asyncio
+    asyncio.run(main())
