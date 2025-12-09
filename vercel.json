@@ -1,102 +1,36 @@
 {
   "version": 2,
-  "env": {
-    "BOT_TOKEN": "@BOT_TOKEN"
-  },
   "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "game/**/*.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "game/**/*.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "rank/**/*.{html,js}",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "earn/**/*.{html,js}",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "wallet/**/*.{html,js}",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "friends/**/*.{html,js}",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "lusck_code/**/*.{html,js}",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "image/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "index.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/index.js",
-      "use": "@vercel/node"
-    }
+    { "src": "game/**/*.html", "use": "@vercel/static" },
+    { "src": "game/**/*.js", "use": "@vercel/static" },
+    { "src": "rank/**/*.html", "use": "@vercel/static" },
+    { "src": "rank/**/*.js", "use": "@vercel/static" },
+    { "src": "earn/**/*.html", "use": "@vercel/static" },
+    { "src": "earn/**/*.js", "use": "@vercel/static" },
+    { "src": "friends/**/*.html", "use": "@vercel/static" },
+    { "src": "friends/**/*.js", "use": "@vercel/static" },
+    { "src": "wallet/**/*.html", "use": "@vercel/static" },
+    { "src": "wallet/**/*.js", "use": "@vercel/static" },
+    { "src": "lusck_code/**/*.html", "use": "@vercel/static" },
+    { "src": "image/*", "use": "@vercel/static" },
+    { "src": "server.js", "use": "@vercel/node" },
+    { "src": "index.js", "use": "@vercel/static" },
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "api/coin.png", "use": "@vercel/static" },
+    { "src": "api/index.js", "use": "@vercel/node" }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/server",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/game/(.*)",
-      "dest": "/game/$1"
-    },
-    {
-      "src": "/rank/(.*)",
-      "dest": "/rank/$1"
-    },
-    {
-      "src": "/earn/(.*)",
-      "dest": "/earn/$1"
-    },
-    {
-      "src": "/wallet/(.*)",
-      "dest": "/wallet/$1"
-    },
-    {
-      "src": "/friends/(.*)",
-      "dest": "/friends/$1"
-    },
-    {
-      "src": "/lusck_code/(.*)",
-      "dest": "/lusck_code/$1"
-    },
-    {
-      "src": "/image/(.*)",
-      "dest": "/image/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+    { "src": "/server", "dest": "/server.js" },
+    { "src": "/game/(.*)", "dest": "/game/$1" },
+    { "src": "/rank/(.*)", "dest": "/rank/$1" },
+    { "src": "/earn/(.*)", "dest": "/earn/$1" },
+    { "src": "/friends/(.*)", "dest": "/friends/$1" },
+    { "src": "/wallet/(.*)", "dest": "/wallet/$1" },
+    { "src": "/lusck_code/(.*)", "dest": "/lusck_code/$1" },
+    { "src": "/image/(.*)", "dest": "/image/$1" },
+    { "src": "/api/index", "dest": "api/index.js" },
+    { "src": "/api/coin", "dest": "api/coin.png" },
+    { "src": "/", "dest": "/index.html" }
+    
   ]
 }
