@@ -55,5 +55,5 @@ ProgUzmiR is what you want it to be. That's all you need to know.
             reply_markup=keyboard
         )
 
-async def handler(request):
+async def handler():
     return {"statusCode": 200, "body": "ok"}
