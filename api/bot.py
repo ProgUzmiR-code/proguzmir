@@ -1,7 +1,8 @@
 import os
 import json
 from aiogram import Bot, Dispatcher, types
-from aiogram.webhook.aiohttp_server import SimpleRequestHandler, Update, InlineKeyboardMarkup, InlineKeyboardButton, Message, WebAppInfo, FSInputFile
+from aiogram.types import Update, InlineKeyboardMarkup, InlineKeyboardButton, Message, WebAppInfo, FSInputFile
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler
 from aiohttp import web
 from aiogram.filters import Command
 
