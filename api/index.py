@@ -3,7 +3,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import  InlineKeyboardMarkup, InlineKeyboardButton, Message, WebAppInfo, FSInputFile
 from aiogram.filters import Command
 
-TOKEN = os.getenv("TELEGRAM_TOKEN") or os.getenv("BOT_TOKEN")
+TOKEN = "8206191170:AAFZW9iN2CXSxGEJ-llWvWxPk2efRGUvwhU"
 
 if not TOKEN:
     raise Exception("❌ Token topilmadi!")

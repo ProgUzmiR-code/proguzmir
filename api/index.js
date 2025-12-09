@@ -2,7 +2,7 @@ import TelegramBot from "node-telegram-bot-api";
 import fs from "fs";
 import path from "path";
 
-const TOKEN = process.env.BOT_TOKEN;
+const TOKEN = "8206191170:AAFZW9iN2CXSxGEJ-llWvWxPk2efRGUvwhU";
 
 if (!TOKEN) {
   throw new Error("❌ Token topilmadi!");
