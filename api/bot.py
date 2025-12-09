@@ -1,8 +1,6 @@
 import os
 from aiogram import Bot, Dispatcher
 from aiogram.types import  InlineKeyboardMarkup, InlineKeyboardButton, Message, WebAppInfo, FSInputFile
-
-from aiohttp import web
 from aiogram.filters import Command
 
 TOKEN = os.getenv("TELEGRAM_TOKEN") or os.getenv("BOT_TOKEN")
@@ -58,8 +56,4 @@ ProgUzmiR is what you want it to be. That's all you need to know.
         )
 
 async def handler(request):
-    update = await request.json()
-
-    await dp.feed_update(bot, update)
-
-    return web.Response(text="ok")
+    return {"statusCode": 200, "body": "ok"}
