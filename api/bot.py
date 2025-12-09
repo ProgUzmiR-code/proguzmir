@@ -1,8 +1,7 @@
 import os
-import json
-from aiogram import Bot, Dispatcher, types
-from aiogram.types import Update, InlineKeyboardMarkup, InlineKeyboardButton, Message, WebAppInfo, FSInputFile
-from aiogram.webhook.aiohttp_server import SimpleRequestHandler
+from aiogram import Bot, Dispatcher
+from aiogram.types import  InlineKeyboardMarkup, InlineKeyboardButton, Message, WebAppInfo, FSInputFile
+
 from aiohttp import web
 from aiogram.filters import Command
 
@@ -54,7 +53,7 @@ ProgUzmiR is what you want it to be. That's all you need to know.
         )
     else:
         await message.answer(
-            "There was an error.\nWe apologize for the inconvenience!",
+            "There was an error.We apologize for the inconvenience!",
             reply_markup=keyboard
         )
 
