@@ -58,7 +58,6 @@ ProgUzmiR is what you want it to be. That's all you need to know.
   }
 });
 
-
 // Vercel handler
 export default function handler(req, res) {
   bot.processUpdate(req.body);
