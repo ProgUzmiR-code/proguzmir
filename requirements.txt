@@ -1,1 +1,3 @@
 python-telegram-bot==22.5
+aiogram==3.23.0
+aiohttp==3.13.2

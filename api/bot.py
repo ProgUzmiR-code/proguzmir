@@ -1,7 +1,7 @@
 import asyncio
 import os
 from aiogram import Bot, Dispatcher
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo, FSInputFile
+from aiogram.types import Update, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo, FSInputFile
 from aiogram.filters import Command
 from dotenv import load_dotenv
 
