@@ -1,23 +1,19 @@
 import os
-import json
-from aiogram import Bot, Dispatcher, types
-from aiogram.types import Update, InlineKeyboardMarkup, InlineKeyboardButton, Message, WebAppInfo, FSInputFile
-from aiogram.webhook.aiohttp_server import SimpleRequestHandler
-from aiohttp import web
+from aiogram import Bot, Dispatcher
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo, FSInputFile, Message
 from aiogram.filters import Command
+from aiohttp import web
 
-TOKEN = os.getenv("TELEGRAM_TOKEN") or os.getenv("BOT_TOKEN")
+TOKEN = os.getenv("BOT_TOKEN")
 
 if not TOKEN:
-    raise Exception("❌ Token topilmadi!")
+    raise Exception("❌ Token topilmadi! Vercel Environment Variables ni tekshiring.")
 
 bot = Bot(TOKEN)
 dp = Dispatcher()
 
 
 @dp.message(Command("start"))
-
-
 async def start_handler(message: Message):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -30,37 +26,15 @@ async def start_handler(message: Message):
         ]
     )
 
-    photo_path = os.path.join(os.path.dirname(__file__), "coin.png")
+    caption = "Hi! This is ProgUzmiR 👋"
 
-    username = message.from_user.username or message.from_user.first_name
-    mention = f"@{username}"
+    photo = FSInputFile(os.path.join(os.path.dirname(__file__), "coin.png"))
 
-    caption = f"""Hi, {mention}! This is ProgUzmiR 👋
+    await message.answer_photo(photo=photo, caption=caption, reply_markup=keyboard)
 
-Tap on the coin and watch your balance grow.
-
-How much is ProgUzmiR worth? No one knows, probably nothing.
-
-Got any friends? Get them in the game. That way you'll get even more coins together.
-
-ProgUzmiR is what you want it to be. That's all you need to know.
-"""
-
-    if os.path.exists(photo_path):
-        await message.answer_photo(
-            photo=FSInputFile(photo_path),
-            caption=caption,
-            reply_markup=keyboard
-        )
-    else:
-        await message.answer(
-            "There was an error.\nWe apologize for the inconvenience!",
-            reply_markup=keyboard
-        )
 
 async def handler(request):
-    update = await request.json()
-
+    data = await request.json()
+    update = dp.update_factory(data)
     await dp.feed_update(bot, update)
-
     return web.Response(text="ok")
