@@ -1,13 +1,14 @@
 import TelegramBot from "node-telegram-bot-api";
 import fs from "fs";
 import path from "path";
+import dotenv from "dotenv";
 
 dotenv.config();
 
-const TOKEN = "8206191170:AAFZW9iN2CXSxGEJ-llWvWxPk2efRGUvwhU";
+const TOKEN = process.env.BOT_TOKEN || process.env.TELEGRAM_TOKEN;
 
 if (!TOKEN) {
-  throw new Error("❌ BOT_TOKEN yoki TELEGRAM_TOKEN muhit o'zgaruvchisi topilmadi!");
+  throw new Error("❌ BOT_TOKEN yoki TELEGRAM_TOKEN muhit o'zgaruvchisi topilmadi! Vercel Settings > Environment Variables da o'rnatib qo'ying.");
 }
 
 const bot = new TelegramBot(TOKEN, { polling: false });
@@ -45,10 +46,12 @@ Keling, boshlaymiz! 💪
     const photo = path.join(process.cwd(), "api", "coin.png");
 
     if (fs.existsSync(photo) && fs.statSync(photo).size > 0) {
-      await bot.sendPhoto(chatId, photo, {
+      const stream = fs.createReadStream(photo);
+      await bot.sendPhoto(chatId, stream, {
         caption,
         reply_markup: keyboard,
-        parse_mode: "HTML"
+        filename: "coin.png",
+        contentType: "image/png"
       });
     } else {
       await bot.sendMessage(chatId, caption, {
@@ -81,7 +84,8 @@ export default async function handler(req, res) {
       return res.status(200).send("OK");
     }
 
-    return res.status(404).send("Faqat POST ruxsat etiladi");
+    // GET uchun health check
+    return res.status(200).json({ ok: true, message: "Bot API ishlamoqda" });
   } catch (err) {
     console.error("❌ Handler xatosi:", err.message);
     return res.status(500).send("Xatolik xududi qayta ishlashda");
