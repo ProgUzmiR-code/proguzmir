@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const TOKEN = process.env.BOT_TOKEN || process.env.TELEGRAM_TOKEN;
+const TOKEN = "8206191170:AAFZW9iN2CXSxGEJ-llWvWxPk2efRGUvwhU";
 
 if (!TOKEN) {
   throw new Error("❌ BOT_TOKEN yoki TELEGRAM_TOKEN muhit o'zgaruvchisi topilmadi!");
