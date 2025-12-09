@@ -8,7 +8,6 @@ if (!TOKEN) throw new Error("❌ Token topilmadi!");
 // Polling bilan botni ishga tushiramiz
 const bot = new TelegramBot(TOKEN, { polling: true });
 
-
 // /start komandasi
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
