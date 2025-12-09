@@ -1,17 +1,15 @@
-import asyncio
 import os
+import json
 from aiogram import Bot, Dispatcher
-from aiogram.types import Update, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo, FSInputFile
+from aiogram.types import Update, InlineKeyboardMarkup, InlineKeyboardButton, Message, WebAppInfo, FSInputFile
 from aiogram.filters import Command
-from dotenv import load_dotenv
-
-load_dotenv()  # .env faylni yuklash
 
 TOKEN = os.getenv("TELEGRAM_TOKEN") or os.getenv("BOT_TOKEN")
 
 if not TOKEN:
-    raise Exception("❌ Token topilmadi. .env faylni tekshiring!")
+    raise Exception("❌ Token topilmadi!")
 
+bot = Bot(TOKEN)
 dp = Dispatcher()
 
 
@@ -30,23 +28,19 @@ async def start_handler(message: Message):
 
     photo_path = os.path.join(os.path.dirname(__file__), "coin.png")
 
-    # Username dynamic
-    username = message.from_user.username
-    if username:
-        mention = f"@{username}"
-    else:
-        mention = message.from_user.first_name
+    username = message.from_user.username or message.from_user.first_name
+    mention = f"@{username}"
 
     caption = f"""Hi, {mention}! This is ProgUzmiR 👋
 
-    Tap on the coin and watch your balance grow.
+Tap on the coin and watch your balance grow.
 
-    How much is ProgUzmiR worth? No one knows, probably nothing.
+How much is ProgUzmiR worth? No one knows, probably nothing.
 
-    Got any friends? Get them in the game. That way you'll get even more coins together.
+Got any friends? Get them in the game. That way you'll get even more coins together.
 
-    ProgUzmiR is what you want it to be. That's all you need to know.
-    """
+ProgUzmiR is what you want it to be. That's all you need to know.
+"""
 
     if os.path.exists(photo_path):
         await message.answer_photo(
@@ -56,14 +50,19 @@ async def start_handler(message: Message):
         )
     else:
         await message.answer(
-            text="There was an error.\nWe apologize for the inconvenience!",
+            "There was an error.\nWe apologize for the inconvenience!",
             reply_markup=keyboard
         )
 
-async def main():
-    bot = Bot(token=TOKEN)
-    await dp.start_polling(bot)
 
+# ⭐⭐ MUHIM ⭐⭐ — Vercel Serverless Hook
+async def handler(request):
+    body = await request.json()
+    update = Update.model_validate(body)
 
-if __name__ == "__main__":
-    asyncio.run(main())
+    await dp.feed_update(bot, update)
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps({"ok": True})
+    }
