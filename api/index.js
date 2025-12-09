@@ -1,70 +1,90 @@
 import TelegramBot from "node-telegram-bot-api";
 import fs from "fs";
 import path from "path";
+import dotenv from "dotenv";
 
-const TOKEN = "8206191170:AAFZW9iN2CXSxGEJ-llWvWxPk2efRGUvwhU"; // Tokenni shu yerga yozing
+dotenv.config();
+
+const TOKEN = process.env.BOT_TOKEN || process.env.TELEGRAM_TOKEN;
 
 if (!TOKEN) {
-  throw new Error("❌ Token topilmadi!");
+  throw new Error("❌ BOT_TOKEN yoki TELEGRAM_TOKEN muhit o'zgaruvchisi topilmadi!");
 }
 
-const bot = new TelegramBot(TOKEN, { webHook: true , polling: false});
-
-// Vercel serverless URL (o'zingning domening)
-const URL = "https://proguzmir.vercel.app";
-bot.setWebHook(`${URL}/api/bot`);
+const bot = new TelegramBot(TOKEN, { polling: false });
 
 // START komandasi
-bot.onText(/start/, async (msg) => {
-  const chatId = msg.chat.id;
+bot.onText(/\/start/, async (msg) => {
+  try {
+    const chatId = msg.chat.id;
 
-  const keyboard = {
-    inline_keyboard: [
-      [
-        {
-          text: "Open the App",
-          web_app: { url: "https://proguzmir.vercel.app/" }
-        }
+    const keyboard = {
+      inline_keyboard: [
+        [
+          {
+            text: "🎮 O'YINNI OCHING",
+            web_app: { url: "https://proguzmir.vercel.app/" }
+          }
+        ]
       ]
-    ]
-  };
+    };
 
-  const username = msg.from.username || msg.from.first_name;
-  const mention = `@${username}`;
+    const firstName = msg.from.first_name || "O'yinchi";
+    const caption = `Assalomu alaykum, ${firstName}! 👋
 
-  const caption = `Hi, ${mention}! This is ProgUzmiR 👋
+ProgUzmiR o'yiniga xush kelibsiz! 🎯
 
-Tap on the coin and watch your balance grow.
+🪙 Tangani bosing va balansingiz o'sishini kuzatib boring.
 
-How much is ProgUzmiR worth? No one knows, probably nothing.
+👥 Do'stlaringizni taklif qiling va birga ko'proq tangalar yig'ing!
 
-Got any friends? Get them in the game. That way you'll get even more coins together.
+🚀 O'yinni o'zingiz xohlagandek qilishingiz mumkin.
 
-ProgUzmiR is what you want it to be. That's all you need to know.
+Keling, boshlaymiz! 💪
 `;
 
-  const photo = path.join(process.cwd(), "api", "coin.png");
+    const photo = path.join(process.cwd(), "api", "coin.png");
 
-if (fs.existsSync(photo)) {
-    await bot.sendPhoto(chatId, photo, {
-      caption,
-      reply_markup: keyboard,
-    });
-  } else {
-    await bot.sendMessage(chatId, "There was an error. We apologize.", {
-      reply_markup: keyboard,
-    });
+    if (fs.existsSync(photo) && fs.statSync(photo).size > 0) {
+      await bot.sendPhoto(chatId, photo, {
+        caption,
+        reply_markup: keyboard,
+        parse_mode: "HTML"
+      });
+    } else {
+      await bot.sendMessage(chatId, caption, {
+        reply_markup: keyboard,
+        parse_mode: "HTML"
+      });
+    }
+  } catch (err) {
+    console.error("❌ /start xatosi:", err.message);
+    try {
+      await bot.sendMessage(msg.chat.id, "Xatolik yuz berdi. Keyinroq urinib ko'ring.");
+    } catch (e) {
+      console.error("Xabar yuborish muvaffaq bo'lmadi:", e.message);
+    }
   }
 });
 
 // Vercel handler
 export default async function handler(req, res) {
   try {
-    const update = req.body;
-    await bot.processUpdate(update); // Serverless uchun processUpdate chaqiriladi
-    res.status(200).send("ok");
+    if (req.method === "POST") {
+      const update = req.body;
+
+      if (!update || !update.update_id) {
+        console.warn("⚠️ Noto'g'ri update:", update);
+        return res.status(400).send("Noto'g'ri update");
+      }
+
+      await bot.processUpdate(update);
+      return res.status(200).send("OK");
+    }
+
+    return res.status(404).send("Faqat POST ruxsat etiladi");
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Error processing update");
+    console.error("❌ Handler xatosi:", err.message);
+    return res.status(500).send("Xatolik xududi qayta ishlashda");
   }
 }
