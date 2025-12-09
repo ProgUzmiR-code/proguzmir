@@ -1,6 +1,7 @@
 import TelegramBot from "node-telegram-bot-api";
 import fs from "fs";
 import path from "path";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const TOKEN = "8206191170:AAFZW9iN2CXSxGEJ-llWvWxPk2efRGUvwhU"; // Tokenni shu yerga yozing
 
