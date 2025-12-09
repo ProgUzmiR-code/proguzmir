@@ -1,7 +1,8 @@
 import os
 import json
-from aiogram import Bot, Dispatcher
-from aiogram.types import Update, InlineKeyboardMarkup, InlineKeyboardButton, Message, WebAppInfo, FSInputFile
+from aiogram import Bot, Dispatcher, types
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler, Update, InlineKeyboardMarkup, InlineKeyboardButton, Message, WebAppInfo, FSInputFile
+from aiohttp import web
 from aiogram.filters import Command
 
 TOKEN = os.getenv("TELEGRAM_TOKEN") or os.getenv("BOT_TOKEN")
@@ -14,6 +15,8 @@ dp = Dispatcher()
 
 
 @dp.message(Command("start"))
+
+
 async def start_handler(message: Message):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -54,15 +57,9 @@ ProgUzmiR is what you want it to be. That's all you need to know.
             reply_markup=keyboard
         )
 
-
-# ⭐⭐ MUHIM ⭐⭐ — Vercel Serverless Hook
 async def handler(request):
-    body = await request.json()
-    update = Update.model_validate(body)
+    update = await request.json()
 
     await dp.feed_update(bot, update)
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps({"ok": True})
-    }
+    return web.Response(text="ok")
