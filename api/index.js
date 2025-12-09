@@ -1,22 +1,17 @@
 import TelegramBot from "node-telegram-bot-api";
 
-const TOKEN = process.env.TOKEN; // ⬅️ dotenv emas, Vercel env ishlatiladi
+const bot = new TelegramBot(process.env.TOKEN, { webHook: true });
 
-if (!TOKEN) throw new Error("❌ TOKEN environment variable not set!");
+bot.setWebHook(`${process.env.WEBHOOK_URL}/api/webhook`);
 
-// Polling bilan botni ishga tushirish
-const bot = new TelegramBot(TOKEN, { polling: true });
-
-// /start komandasi
 bot.onText(/\/start/, (msg) => {
-  const chatId = msg.chat.id;
-  const username = msg.from.username || msg.from.first_name;
-
-  const text = `Hi @${username}! 👋\n\nWelcome to ProgUzmiR.`;
-
-  bot.sendMessage(chatId, text);
+  bot.sendMessage(msg.chat.id, "Webhook ishlayapti!");
 });
 
-export default (req, res) => {
+export default function handler(req, res) {
+  if (req.method === "POST") {
+    bot.processUpdate(req.body);
+    return res.status(200).send("ok");
+  }
   res.status(200).send("Bot is running");
-};
+}
