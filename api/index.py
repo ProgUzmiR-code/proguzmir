@@ -1,15 +1,16 @@
 import os
 from aiogram import Bot, Dispatcher
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, WebAppInfo, FSInputFile
+from aiogram.types import  InlineKeyboardMarkup, InlineKeyboardButton, Message, WebAppInfo, FSInputFile
 from aiogram.filters import Command
 
-TOKEN = os.getenv("BOT_TOKEN")  # Vercel environment variable bo'lishi kerak
+TOKEN = os.getenv("TELEGRAM_TOKEN") or os.getenv("BOT_TOKEN")
 
 if not TOKEN:
     raise Exception("❌ Token topilmadi!")
 
 bot = Bot(TOKEN)
 dp = Dispatcher()
+
 
 @dp.message(Command("start"))
 async def start_handler(message: Message):
@@ -25,8 +26,20 @@ async def start_handler(message: Message):
     )
 
     photo_path = os.path.join(os.path.dirname(__file__), "coin.png")
+
     username = message.from_user.username or message.from_user.first_name
-    caption = f"Hi, @{username}! This is ProgUzmiR 👋"
+    mention = f"@{username}"
+
+    caption = f"""Hi, {mention}! This is ProgUzmiR 👋
+
+Tap on the coin and watch your balance grow.
+
+How much is ProgUzmiR worth? No one knows, probably nothing.
+
+Got any friends? Get them in the game. That way you'll get even more coins together.
+
+ProgUzmiR is what you want it to be. That's all you need to know.
+"""
 
     if os.path.exists(photo_path):
         await message.answer_photo(
@@ -36,15 +49,9 @@ async def start_handler(message: Message):
         )
     else:
         await message.answer(
-            "There was an error. We apologize for the inconvenience!",
+            "There was an error.We apologize for the inconvenience!",
             reply_markup=keyboard
         )
 
-# 🔥 VERCEL UCHUN WEBHOOK HANDLER
-async def handler(request):
-    data = await request.json()
-    await dp.feed_update(bot, data)
-    return {
-        "statusCode": 200,
-        "body": "ok"
-    }
+async def handler():
+    return {"statusCode": 200, "body": "ok"}
