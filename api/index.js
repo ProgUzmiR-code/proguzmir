@@ -1,11 +1,10 @@
 import TelegramBot from "node-telegram-bot-api";
 
-// Bot tokenni shu yerga yozamiz
-const TOKEN = "8206191170:AAFZW9iN2CXSxGEJ-llWvWxPk2efRGUvwhU"; // BotFather'dan olgan token
+const TOKEN = process.env.TOKEN; // ⬅️ dotenv emas, Vercel env ishlatiladi
 
-if (!TOKEN) throw new Error("❌ Token topilmadi!");
+if (!TOKEN) throw new Error("❌ TOKEN environment variable not set!");
 
-// Polling bilan botni ishga tushiramiz
+// Polling bilan botni ishga tushirish
 const bot = new TelegramBot(TOKEN, { polling: true });
 
 // /start komandasi
@@ -17,3 +16,7 @@ bot.onText(/\/start/, (msg) => {
 
   bot.sendMessage(chatId, text);
 });
+
+export default (req, res) => {
+  res.status(200).send("Bot is running");
+};
