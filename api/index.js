@@ -29,7 +29,20 @@ bot.onText(/\/start/, async (msg) => {
   const photo = path.join(process.cwd(), "api", "coin.png");
 
   if (fs.existsSync(photo)) {
-    await bot.sendPhoto(chatId, photo, { caption, reply_markup: keyboard, contentType: 'image/png' });
+    // Use a ReadStream and explicit filename + contentType to avoid deprecation warning
+    const stream = fs.createReadStream(photo);
+    try {
+      await bot.sendPhoto(chatId, stream, {
+        caption,
+        reply_markup: keyboard,
+        filename: path.basename(photo),
+        contentType: "image/png"
+      });
+    } catch (err) {
+      console.error("sendPhoto error (stream):", err);
+      // fallback to sending as message if photo send fails
+      await bot.sendMessage(chatId, caption, { reply_markup: keyboard });
+    }
   } else {
     await bot.sendMessage(chatId, caption, { reply_markup: keyboard });
   }
