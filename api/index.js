@@ -29,7 +29,7 @@ bot.onText(/\/start/, async (msg) => {
   const photo = path.join(process.cwd(), "api", "coin.png");
 
   if (fs.existsSync(photo)) {
-    await bot.sendPhoto(chatId, photo, { caption, reply_markup: keyboard });
+    await bot.sendPhoto(chatId, photo, { caption, reply_markup: keyboard, contentType: 'image/png' });
   } else {
     await bot.sendMessage(chatId, caption, { reply_markup: keyboard });
   }
