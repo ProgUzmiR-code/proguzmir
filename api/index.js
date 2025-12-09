@@ -24,18 +24,7 @@ bot.onText(/\/start/, async (msg) => {
   };
 
   const username = msg.from.username || msg.from.first_name;
-  const mention = `@${username}`;
-
-  const caption = `Hi, ${mention}! This is ProgUzmiR 👋
-
-Tap on the coin and watch your balance grow.
-
-How much is ProgUzmiR worth? No one knows, probably nothing.
-
-Got any friends? Get them in the game. That way you'll get even more coins together.
-
-ProgUzmiR is what you want it to be. That's all you need to know.
-`;
+  const caption = `Hi @${username}! 👋 Tap on the coin and watch your balance grow.`;
 
   const photo = path.join(process.cwd(), "api", "coin.png");
 
