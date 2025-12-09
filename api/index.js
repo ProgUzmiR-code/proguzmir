@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config(); // ✅ Call the config method to load .env
 
 const TOKEN = process.env.BOT_TOKEN || process.env.TELEGRAM_TOKEN;
 
