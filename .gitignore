@@ -1,14 +1,23 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+venv/
+Pipfile
+Pipfile.lock
+
+# Env
 .env
 .env.local
-.env*.local
-node_modules/
-__pycache__/
-*.pyc
+
+# PyCharm / IDE
+.github
+.idea/
+.vscode/
+.venv
+.vercel
+
+# OS
 .DS_Store
-*.log
+Thumbs.db
 
-
-.github/instructions/kluster-code-verify.instructions.md
-.kluster
-
-.env*.local
