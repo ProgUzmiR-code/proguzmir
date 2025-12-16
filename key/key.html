@@ -502,13 +502,31 @@
     </div>
     <script src="task.js"></script>
     <script>
-        // show Telegram BackButton and set it to return to main renderGame
-        showTelegramBack(() => { showNav(); renderGame(); });
-        // hide bottom nav and enable Telegram Back to return to game
-        hideNav();
+        document.addEventListener('DOMContentLoaded', () => {
 
-        // back handler
-        document.getElementById('keyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
+            showTelegramBack(() => {
+                showNav();
+                renderGame();
+            });
+
+            hideNav();
+
+            showTelegramBack(() => {
+                hideTelegramBack();
+                showNav();
+                renderGame();
+            });
+
+            const keyBack = document.getElementById('keyBack');
+            if (keyBack) {
+                keyBack.addEventListener('click', () => {
+                    hideTelegramBack();
+                    showNav();
+                    renderGame();
+                });
+            }
+
+        });
     </script>
     <script>
         const popModal = document.getElementById('pop');
