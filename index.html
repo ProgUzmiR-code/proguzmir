@@ -21,7 +21,6 @@
               const nameNode = document.querySelector('.profile .username');
               if (nameNode) {
                 const display = ((u.first_name || '') + (u.last_name ? ' ' + u.last_name : '')).trim();
-                nameNode.textContent = display || (u.username ? '@' + u.username : 'Telegram user');
               }
             });
           }
@@ -326,7 +325,11 @@
       top: 0;
       left: 0;
     }
-
+    .username {
+      display: flex;
+      align-items: center
+    }
+    
     .header,
     .loading-img {
       position: fixed;
@@ -559,7 +562,7 @@
     <div class="circle2">
       <div class="profile">
         <img src="./image/loading.svg" alt="">
-        <div class="username"></div>
+        <div class="username">ProgUzmiR</div>
       </div>
       <div class="balance" id="headerBalance"><img src="./image/coin.png" alt="logo"
           style="width:25px; margin-right: 10px; vertical-align:middle;">
