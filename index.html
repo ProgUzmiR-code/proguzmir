@@ -18,9 +18,10 @@
           const u = window.Telegram.WebApp.initDataUnsafe?.user;
           if (u) {
             document.addEventListener('DOMContentLoaded', function () {
-              const nameNode = document.querySelector('.profile .username');
+              const nameNode = document.querySelector('.profile');
               if (nameNode) {
                 const display = ((u.first_name || '') + (u.last_name ? ' ' + u.last_name : '')).trim();
+                nameNode.textContent = display || (u.username ? '@' + u.username : 'Telegram user');
               }
             });
           }
@@ -164,7 +165,10 @@
       margin-bottom: 10px;
     }
 
-
+    .username {
+      display: flex;
+      align-items: center
+    }
 
     .nav .nav-indicator {
       /* width: 90px;
@@ -325,11 +329,7 @@
       top: 0;
       left: 0;
     }
-    .username {
-      display: flex;
-      align-items: center
-    }
-    
+
     .header,
     .loading-img {
       position: fixed;
