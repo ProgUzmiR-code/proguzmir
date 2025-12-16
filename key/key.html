@@ -506,7 +506,6 @@
         showTelegramBack(() => { showNav(); renderGame(); });
         // hide bottom nav and enable Telegram Back to return to game
         hideNav();
-        showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
 
         // back handler
         document.getElementById('keyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
