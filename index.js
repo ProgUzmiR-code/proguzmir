@@ -1,3 +1,4 @@
+// BigInt constants and helpers for PRC and game state management
 const DECIMALS = 18n;
 const UNIT = 10n ** DECIMALS;
 
@@ -302,7 +303,7 @@ function renderGame() {
         rek.addEventListener('click', () => {
             if (isClaimedToday()) { showToast('1 kun kuting'); return; }
 
-            const currentUrl = (location.protocol === 'file:' ? 'https://YOUR_PUBLIC_DOMAIN/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
+            const currentUrl = (location.protocol === 'file:' ? 'https://proguzmir.vercel.app/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
             const args = {
                 link: currentUrl,
                 text: 'I have successfully withdrawn 0.01 TON from PROGUZ, you can also play!',
@@ -1057,7 +1058,7 @@ setTimeout(() => {
         // if already claimed today block
         if (isClaimedToday()) { showToast('1 kundan keyin'); return; }
 
-        const currentUrl = (location.protocol === 'file:' ? 'https://YOUR_PUBLIC_DOMAIN/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
+        const currentUrl = (location.protocol === 'file:' ? 'https://proguzmir.vercel.app/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
         const args = {
             link: currentUrl,
             text: 'I have successfully withdrawn 0.01 TON from PROGUZ, you can also play!',

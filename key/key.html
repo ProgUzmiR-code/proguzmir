@@ -430,7 +430,6 @@
 </head>
 
 <body>
-    <button id="keyBack" class="btn">Back</button>
     <img src="/image/bg-lucky-code.jpg" alt="" style=" margin-top: 50px;">
     <div>
         <div>
@@ -503,31 +502,14 @@
     </div>
     <script src="task.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        // show Telegram BackButton and set it to return to main renderGame
+        showTelegramBack(() => { showNav(); renderGame(); });
+        // hide bottom nav and enable Telegram Back to return to game
+        hideNav();
+        showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
 
-            showTelegramBack(() => {
-                showNav();
-                renderGame();
-            });
-
-            hideNav();
-
-            showTelegramBack(() => {
-                hideTelegramBack();
-                showNav();
-                renderGame();
-            });
-
-            const keyBack = document.getElementById('keyBack');
-            if (keyBack) {
-                keyBack.addEventListener('click', () => {
-                    hideTelegramBack();
-                    showNav();
-                    renderGame();
-                });
-            }
-
-        });
+        // back handler
+        document.getElementById('dailyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
     </script>
     <script>
         const popModal = document.getElementById('pop');
