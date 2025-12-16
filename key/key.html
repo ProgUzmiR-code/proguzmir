@@ -510,6 +510,29 @@
 
         // back handler
         document.getElementById('dailyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
+        
+        // --- Telegram BackButton boshqaruv funksiyalari ---
+        function showTelegramBack(handler) {
+            if (window.Telegram?.WebApp?.BackButton) {
+                try {
+                    window.Telegram.WebApp.BackButton.show();
+                    window.Telegram.WebApp.BackButton.onClick(handler);
+                } catch (e) { /* ignore */ }
+            }
+        }
+
+        function hideTelegramBack() {
+            if (window.Telegram?.WebApp?.BackButton) {
+                try {
+                    window.Telegram.WebApp.BackButton.hide();
+                    // handlerni bekor qilamiz
+                    window.Telegram.WebApp.BackButton.onClick(() => { });
+                } catch (e) { /* ignore */ }
+            }
+        }
+        // helpers to hide/show bottom nav
+        function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
+        function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
     </script>
     <script>
         const popModal = document.getElementById('pop');
