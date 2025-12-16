@@ -5,6 +5,7 @@ yarn-error.log*
 venv/
 Pipfile
 Pipfile.lock
+lusck_code
 
 # Env
 .env
@@ -20,4 +21,8 @@ Pipfile.lock
 # OS
 .DS_Store
 Thumbs.db
+
+
+.vercel
+db
 

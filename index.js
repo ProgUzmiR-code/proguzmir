@@ -409,12 +409,12 @@ function renderGame() {
             // prefer single-page load helper if available
             try {
                 if (typeof loadHtmlIntoContent === 'function') {
-                    loadHtmlIntoContent('./lusck_code/lusck_code.html');
+                    loadHtmlIntoContent('./key/key.html');
                     return;
                 }
             } catch (e) { /* ignore and fallback */ }
             // fallback: open in new tab
-            try { window.open('./lusck_code/lusck_code.html', '_blank'); } catch (e) { console.error('open lusck_code error', e); }
+            try { window.open('./key/key.html', '_blank'); } catch (e) { console.error('open lusck_code error', e); }
         });
     }
 
