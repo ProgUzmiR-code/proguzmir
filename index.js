@@ -399,10 +399,14 @@ function renderGame() {
             }
         });
     }
-
+    
     // --- NEW: Lucky Code button handler ---
     const luckyBtn = document.getElementById('luckyKeyBtn');
     if (luckyBtn) {
+        hideNav();
+        const s = loadState();
+        // show Telegram BackButton and set it to return to main renderGame
+        showTelegramBack(() => { showNav(); renderGame(); });
         luckyBtn.style.cursor = 'pointer';
         luckyBtn.addEventListener('click', (ev) => {
             ev.preventDefault();
