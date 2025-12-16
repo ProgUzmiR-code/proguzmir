@@ -3,6 +3,7 @@
   "builds": [
     { "src": "game/**/*.html", "use": "@vercel/static" },
     { "src": "game/**/*.js", "use": "@vercel/static" },
+    { "src": "key/**/*.html", "use": "@vercel/static" },
     { "src": "rank/**/*.html", "use": "@vercel/static" },
     { "src": "rank/**/*.js", "use": "@vercel/static" },
     { "src": "earn/**/*.html", "use": "@vercel/static" },
@@ -22,6 +23,7 @@
   "routes": [
     { "src": "/server", "dest": "/server.js" },
     { "src": "/game/(.*)", "dest": "/game/$1" },
+    { "src": "/key/(.*)", "dest": "/key/$1" },
     { "src": "/rank/(.*)", "dest": "/rank/$1" },
     { "src": "/earn/(.*)", "dest": "/earn/$1" },
     { "src": "/friends/(.*)", "dest": "/friends/$1" },
