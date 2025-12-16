@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
+        .radius,
+        .verification-input,
+        .btn-submit,
+        .btn {
+            border-radius: 9px;
+        }
+
         .youtubepaf {
             margin: 10px;
         }
@@ -24,7 +31,7 @@
             align-items: center;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 10px;
-            margin: 20px;
+            margin: 10px 0 0 0;
             color: white;
         }
 
@@ -44,7 +51,7 @@
             display: flex;
             justify-content: center;
         }
-        
+
 
         .pop-main {
             padding: 18px 18px 3px;
@@ -275,15 +282,12 @@
         .pop-main .btn {
             cursor: pointer;
             background: #2464f6;
-            height: 20px;
-            line-height: 20px;
+            line-height: 50px;
             width: 100%;
-            margin: 10px;
-            border-radius: 18px;
+            margin: 10px 0 10px 0;
             font-size: 18px;
             font-weight: 700;
             color: #fff;
-            padding: 10px 12px
         }
 
         .pop-main .btns .btn.dis {
@@ -314,13 +318,13 @@
 
         .pop-main .number-box .number__items .verification-input {
             width: 100%;
-            height: 20px;
+            height: 30px;
             text-align: center;
             font-size: 18px;
             font-weight: 700;
             border: 6px solid #ebebeb;
             background: #fff;
-            border-radius: 20px;
+            border-radius: 5px;
             margin-bottom: 10px;
         }
 
@@ -338,27 +342,13 @@
 
         .pop-main .btn-submit {
             background: #2464f6;
-            height: 35px;
-            line-height: 61px;
+            line-height: 50px;
             width: 100%;
             margin: auto;
-            border-radius: 18px;
             font-size: 18px;
             font-weight: 700;
             color: #fff;
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-pack: center;
-            -webkit-justify-content: center;
-            -ms-flex-pack: center;
-            justify-content: center;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            -ms-flex-align: center;
-            align-items: center;
-            margin-bottom: 3px
+            margin-bottom: 20px;
         }
 
         a {
@@ -384,9 +374,7 @@
         #pop .shadow {
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            /* shaffof orqa fon */
-            pointer-events: none;
+            background: rgba(0, 0, 0, 0.801);
         }
 
         #pop .dialog-main {
@@ -417,23 +405,27 @@
         }
 
         #pop .btn-close svg {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             fill: white;
         }
 
-        
+
 
         .pop-main .upsubmit .youtubetext p {
             font-size: 14px;
-            margin: 0 0 5px 0;
+            text-align: left;
         }
 
         .pop-main .upsubmit .dflex span {
             font-size: 14px;
         }
-    </style>
 
+        .material-icons-outlined {
+            color: #888888;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <title>Document</title>
 </head>
 
@@ -458,6 +450,7 @@
                         <img class="key" src="/image/key.png" alt=""> 1
                     </div>
                 </div>
+                <span class="material-icons-outlined">arrow_forward_ios</span>
             </div>
         </div>
         <div id="key2">
@@ -473,6 +466,7 @@
                         <img class="key" src="/image/key.png" alt=""> 1
                     </div>
                 </div>
+                <span class="material-icons-outlined">arrow_forward_ios</span>
             </div>
         </div>
     </div>
@@ -483,9 +477,7 @@
             <div class="shadow"></div>
             <div class="dialog-main center" style="width: 95%; height: auto;">
                 <div class="btn-close">
-                    <svg aria-hidden="true" class="scoped-svg-icon ">
-                        <use xlink:href="#icon-icon-close"></use>
-                    </svg>
+                    <span class="material-icons-outlined">close</span>
                 </div>
                 <div class="pop-main">
                     <div class="energy__title"> Watch the video to get rewards
@@ -514,6 +506,7 @@
         const popModal = document.getElementById('pop');
         const btnClose = document.querySelector('#pop .btn-close');
         const upsubmitDiv = document.querySelector('.upsubmit');
+        const watchBtn = document.querySelector('.pop-main .btns .btn');
 
         // Get all key divs (key1, key2, etc.)
         const keyDivs = document.querySelectorAll('[id^="key"]');
@@ -534,8 +527,33 @@
 
                     // Show modal
                     popModal.classList.add('show');
+
+                    // Add click handler to the video link in the modal
+                    const videoLink = upsubmitDiv.querySelector('a');
+                    if (videoLink && videoLink.href) {
+                        watchBtn.setAttribute('data-video-url', videoLink.href);
+                    }
+
+                    // Add click handler for cloned .shaffof element
+                    const clonedShaffof = upsubmitDiv.querySelector('.shaffof');
+                    if (clonedShaffof) {
+                        clonedShaffof.addEventListener('click', function () {
+                            const clonedVideoLink = this.querySelector('a');
+                            if (clonedVideoLink && clonedVideoLink.href) {
+                                window.open(clonedVideoLink.href, '_blank');
+                            }
+                        });
+                    }
                 }
             });
+        });
+
+        // Watch button click handler
+        watchBtn.addEventListener('click', function () {
+            const videoUrl = this.getAttribute('data-video-url');
+            if (videoUrl) {
+                window.open(videoUrl, '_blank');
+            }
         });
 
         // Close modal when close button is clicked
