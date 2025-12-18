@@ -233,16 +233,16 @@ function renderGame() {
     content.innerHTML = `
       <div class="tap-area">
         <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10px;">
-          <div style="display:flex;gap:8px;align-items:center;">
-            <div id="dailyBtn" class="btn" style="margin-bottom:8px;padding: 2px 10px 25px;border-radius:8px;display: flex;flex-direction: column;cursor: pointer;">
-              <img style="width: 75px; height:75px;" src="./image/daily.png" alt="Daily">
+          <div style="display:flex;gap:30px;align-items:center;">
+            <div id="dailyBtn" class="btn" style="border-radius:8px;display: flex;flex-direction: column;cursor: pointer;">
+              <img style="width: 50px; height:60px; object-fit: contain;" src="./image/daily.png" alt="Daily">
               <span class="text_daily">Daily</span>
             </div>
 
             <!-- Lucky Code key next to Daily -->
             <div id="luckyKeyBtn" title="Lucky Code" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
-              <img src="./image/key.png" alt="Lucky" style="width:40px;height:40px;object-fit:contain;">
-              <div style="font-size:12px;color:#fff;margin-top:4px;">Lucky</div>
+              <img src="./image/lukcy.png" alt="Lucky" style="width:55px;height:60px;object-fit:contain;">
+              <span style="">Lucky</span>
             </div>
           </div>
 
