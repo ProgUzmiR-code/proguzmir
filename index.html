@@ -92,6 +92,9 @@
     });
   </script>
   <style>
+   
+
+
     :root {
       --corner-d: 32px;
       --bar-radius: 6px;
@@ -154,9 +157,7 @@
       background-color: #06121a;
       /* rasm yuklanmasa fallback rang */
       color: white;
-      text-align: center;
       
-      font-family: "Don't Try So Hard", cursive;
       min-height: 100vh;
       margin: 0;
       display: flex;
@@ -556,18 +557,19 @@
     #r {
       margin-top: 5px;
     }
-
+  
     .PRS {
       font-size: 22px;
       font-weight: 700;
       color: #ffe600;
+      text-shadow: 0.1em 0.1em 0 #696969, 0.03em 0.08em 0 #5b5858 ;
       z-index: 10;
       letter-spacing: 5px;
     }
   </style>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.main.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Don't+Try+So+Hard&display=swap" rel="stylesheet">
+ 
 
   <title>ProgUzmiR</title>
 </head>
@@ -575,7 +577,7 @@
 <body>
   <!-- o'zgardi: endi header container (logo chapda, balans oʻngda) -->
   <div class="header" aria-label="header">
-    <div class="PRS">ProgUzmiR</div>
+    <div class="PRS font-effect-shadow-multiple">ProgUzmiR</div>
     <div class="circle2">
       <div class="profile">
         <img style="margin-bottom: 10px; margin-left: 10px;" src="./image/loading.svg" alt="">
