@@ -233,7 +233,7 @@ function renderGame() {
     content.innerHTML = `
       <div class="tap-area">
         <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10px;">
-          <div style="display:flex;gap:30px;align-items:center;">
+          <div style="display:flex;gap:30px;align-items:center;margin-top: 10px;">
             <div id="dailyBtn" class="btn" style="border-radius:8px;display: flex;flex-direction: column;cursor: pointer;">
               <img style="width: 50px; height:60px; object-fit: contain;" src="./image/daily.png" alt="Daily">
               <span class="text_daily">Daily</span>
@@ -246,7 +246,7 @@ function renderGame() {
             </div>
           </div>
 
-          <div id="diamondTop" style="font-size:25px; margin-bottom:8px;">💎 ${s.diamond} </div>
+          <div id="diamondTop" style="font-size:25px; margin-bottom:8px;margin-top: 30px;">💎 ${s.diamond} </div>
         </div>
         <!-- previews row: diamond above, previews here, then tap below -->
         <div id="previewsRow" style="display:flex; justify-content: space-between; align-items: center;">
