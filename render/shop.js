@@ -1,83 +1,83 @@
-const SHOP_ITEMS = [
-    { id: 'energyPack', name: 'Energy +1000', img: './image/boost.png', type: 'energy', amount: INCREASE_BLOCK, costWei: BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI }
-];
+window.SHOP_ITEMS = [
+        { id: 'energyPack', name: 'Energy +1000', img: './image/boost.png', type: 'energy', amount: INCREASE_BLOCK, costWei: BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI }
+    ];
 
 export function renderShop() {
-    hideNav();
-    const s = loadState();
-    const content = document.getElementById('content');
-    
-    showTelegramBack(() => { showNav(); window.openGame(); });
+        hideNav();
+        window.s = loadState();
+        // show Telegram BackButton and set it to return to main renderGame
+        showTelegramBack(() => { showNav(); renderGame(); });
 
-    content.innerHTML = `
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-        <div class="btn-group" style="margin:auto;">
-          <div id="tabShop" class="btn">Shop</div>
-          <div id="tabSkins" class="btn">Skins</div>
-        </div>
-      </div>
-      <div style="display:flex; gap:12px; margin-top:6px;">
-        <div id="shopCol" style="flex:1; display:flex; flex-direction:column; gap:12px;">
-          ${SHOP_ITEMS.map(it => `
-            <div class="shop-item" data-id="${it.id}" style="margin-bottom: 20px; display: flex; background:rgba(0,0,0,0.5); border-radius:12px; padding:12px;">
-              <img src="${it.img}" alt="${it.name}" style="width:100px; object-fit:cover; border-radius:8px;">
-              <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
-                <div><b>${it.name}</b><div style="color:#ccc; font-size:13px;">Cost: ${fmtPRC(it.costWei)}</div></div>
-                <button class="btn buyShopBtn" data-id="${it.id}">Buy</button>
-              </div>
+        // header with internal tabs (Back handled by Telegram WebApp "X")
+        content.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+            <div class="btn-group" style="margin:auto;">
+              <div id="tabShop" class="btn">Shop</div>
+              <div id="tabSkins" class="btn">Skins</div>
             </div>
-          `).join('')}
-        </div>
-        <div id="skinCol" style="flex:1; display:flex; flex-direction:column; gap:12px; display:none;">
-          ${SKINS.map(sk => `
-            <div class="skin-item" data-skin="${sk.id}" style="margin-bottom: 20px; background:rgba(0,0,0,0.5); border-radius:12px; padding:12px;">
-              <img src="./image/${sk.id}" alt="${sk.name}" style="width:200px; object-fit:cover; border-radius:8px;">
-              <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
-                <div><b>${sk.name}</b><div style="color:#ccc; font-size:13px;">Skin for your tap</div></div>
-                <button class="btn buySkinBtn" data-skin="${sk.id}">Buy</button>
-              </div>
+          </div>
+          <div style="display:flex; gap:12px; margin-top:6px;">
+            <div id="shopCol" style="flex:1; display:flex; flex-direction:column; gap:12px;">
+              ${SHOP_ITEMS.map(it => `
+                <div class="shop-item" data-id="${it.id}" style=" margin-bottom: 20px; display: flex; background:rgba(0,0,0,0.5); border-radius:12px; padding:12px;">
+                  <img src="${it.img}" alt="${it.name}" style="width:100px; object-fit:cover; border-radius:8px;">
+                  <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div><b>${it.name}</b><div style="color:#ccc; font-size:13px;">Cost: ${fmtPRC(it.costWei)}</div></div>
+                    <button class="btn buyShopBtn" data-id="${it.id}">Buy</button>
+                  </div>
+                </div>
+              `).join('')}
             </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-
-    const tabShop = document.getElementById('tabShop');
-    const tabSkins = document.getElementById('tabSkins');
-    const shopCol = document.getElementById('shopCol');
-    const skinCol = document.getElementById('skinCol');
-    
-    function activateShop() { shopCol.style.display = ''; skinCol.style.display = 'none'; tabShop.disabled = true; tabSkins.disabled = false; }
-    function activateSkins() { shopCol.style.display = 'none'; skinCol.style.display = ''; tabShop.disabled = false; tabSkins.disabled = true; }
-    
-    tabShop.addEventListener('click', activateShop);
-    tabSkins.addEventListener('click', activateSkins);
-    activateShop();
-
-    document.querySelectorAll('.buyShopBtn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const id = btn.dataset.id;
-            const item = SHOP_ITEMS.find(x => x.id === id);
-            if (!item) return;
-            const state = loadState();
-            if (!chargeCost(state, item.costWei)) { alert('Yetarli PRC yo'q.'); return; }
-            if (item.type === 'energy') state.maxEnergy = (state.maxEnergy || DEFAULT_MAX_ENERGY) + item.amount;
-            else if (item.type === 'taps') state.tapCap = (state.tapCap || DEFAULT_TAP_CAP) + item.amount;
-            saveState(state);
-            alert(`${item.name} sotib olindi.`);
-            renderShop();
+            <div id="skinCol" style="flex:1; display:flex; flex-direction:column; gap:12px; display:none;">
+              ${SKINS.map(sk => `
+                <div class="skin-item" data-skin="${sk.id}" style="    margin-bottom: 20px; background:rgba(0,0,0,0.5); border-radius:12px; padding:12px;">
+                  <img src="./image/${sk.id}" alt="${sk.name}" style="width:200px;  object-fit:cover; border-radius:8px;">
+                  <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div><b>${sk.name}</b><div style="color:#ccc; font-size:13px;">Skin for your tap</div></div>
+                    <button class="btn buySkinBtn" data-skin="${sk.id}">Buy</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+        // tab handlers
+        window.tabShop = document.getElementById('tabShop');
+        window.tabSkins = document.getElementById('tabSkins');
+        window.shopCol = document.getElementById('shopCol');
+        window.skinCol = document.getElementById('skinCol');
+        function activateShop() { shopCol.style.display = ''; skinCol.style.display = 'none'; tabShop.disabled = true; tabSkins.disabled = false; }
+        function activateSkins() { shopCol.style.display = 'none'; skinCol.style.display = ''; tabShop.disabled = false; tabSkins.disabled = true; }
+        tabShop.addEventListener('click', activateShop);
+        tabSkins.addEventListener('click', activateSkins);
+        // default active
+        activateShop();
+        // shop buys
+        document.querySelectorAll('.buyShopBtn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                window.id = btn.dataset.id;
+                window.item = SHOP_ITEMS.find(x => x.id === id);
+                if (!item) return;
+                window.state = loadState();
+                if (!chargeCost(state, item.costWei)) { alert('Yetarli PRC yo‘q.'); return; }
+                if (item.type === 'energy') state.maxEnergy = (state.maxEnergy || DEFAULT_MAX_ENERGY) + item.amount;
+                else if (item.type === 'taps') state.tapCap = (state.tapCap || DEFAULT_TAP_CAP) + item.amount;
+                saveState(state);
+                alert(`${item.name} sotib olindi.`);
+                renderShop();
+            });
         });
-    });
-
-    document.querySelectorAll('.buySkinBtn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const skinId = btn.dataset.skin;
-            const state = loadState();
-            if (!chargeCost(state, SKIN_COST_WEI)) { alert('Yetarli PRC yo'q skin sotib olish uchun.'); return; }
-            state.selectedSkin = skinId;
-            saveState(state);
-            alert('Skin sotib olindi: ' + SKINS.find(s => s.id === skinId).name);
-            renderShop();
+        // skin buys (inside shop)
+        document.querySelectorAll('.buySkinBtn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                window.skinId = btn.dataset.skin;
+                window.state = loadState();
+                if (!chargeCost(state, SKIN_COST_WEI)) { alert('Yetarli PRC yo‘q skin sotib olish uchun.'); return; }
+                state.selectedSkin = skinId;
+                saveState(state);
+                alert('Skin sotib olindi: ' + SKINS.find(s => s.id === skinId).name);
+                renderShop();
+            });
         });
-    });
-}
+  }
+
