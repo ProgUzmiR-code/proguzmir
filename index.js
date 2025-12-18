@@ -538,7 +538,11 @@ function renderGame() {
         const s = loadState();
         // show Telegram BackButton and set it to return to main renderGame
         showTelegramBack(() => { showNav(); renderGame(); });
-
+         // show Telegram BackButton and set it to return to main renderGame
+        showTelegramBack(() => { showheader(); renderGame(); });
+        // hide bottom nav and enable Telegram Back to return to game
+        hideheader();
+        showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
         content.innerHTML = `
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
             <div style="flex:1; text-align:center; font-weight:800;">🎮 Games</div>
@@ -587,6 +591,8 @@ function renderGame() {
             });
         });
     }
+     function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
+        function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
     // --- ADD: daily keys & helpers (place near other KEY_* declarations) ---
     const KEY_DAILY_WEEK_START = "proguzmir_daily_week_start";
     const KEY_DAILY_CLAIMS = "proguzmir_daily_claims"; // JSON array of 7 booleans
