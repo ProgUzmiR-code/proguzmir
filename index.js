@@ -1256,25 +1256,47 @@ async function loadHtmlIntoContent(url) {
     }
 }
 
+// --- NEW: header visibility control per page ---
+function handleHeaderByPage(pageName) {
+    const header = document.querySelector('.header');
+    if (!header) return;
+
+    // pages that should HIDE header
+    const hideHeaderPages = ['rank', 'wallet', 'market', 'earn'];
+
+    if (hideHeaderPages.includes(pageName)) {
+        header.style.display = 'none';
+    } else {
+        header.style.display = '';
+    }
+}
+
 // Replace previous tab click handler block with enhanced loader
 document.querySelectorAll('.nav .tab').forEach(el => {
     el.addEventListener('click', async () => {
         document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
         const tab = el.dataset.tab;
-        if (tab === 'game') renderGame();
+        if (tab === 'game') {
+            renderGame();
+            handleHeaderByPage('game');
+        }
         else if (tab === 'rank') {
             // load rank page smoothly without refresh (no history.pushState)
             await loadHtmlIntoContent('./rank/rank.html');
+            handleHeaderByPage('rank');
         }
         else if (tab === 'wallet') {
             await loadHtmlIntoContent('./wallet/wallet.html');
+            handleHeaderByPage('wallet');
         }
         else if (tab === 'market') {
             await loadHtmlIntoContent('./friends/friends.html');
+            handleHeaderByPage('market');
         }
         else if (tab === 'earn') {
             await loadHtmlIntoContent('./earn/earn.html');
+            handleHeaderByPage('earn');
         }
     });
 });

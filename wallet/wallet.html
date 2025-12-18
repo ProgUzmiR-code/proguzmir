@@ -10,13 +10,6 @@
     <link rel="stylesheet" href="https://game.foxcoin.vip/css/app.d7938c4b.css">
     <link rel="stylesheet" href="https://game.foxcoin.vip/css/chunk-qa.357ae46a.css">
     <link rel="stylesheet" href="https://game.foxcoin.vip/css/common.7973d0ff.css">
-    <script src="1.b1ac9c28.js"></script>
-    <script src="10.cc7dfdde.js"></script>
-    <script src="13.4d99ca02.js"></script>
-    <script src="app.24cbe284.js"></script>
-    <script src="chunk-gs.070a7121.js"></script>
-    <script src="chunk-qa.c8fcb0fc.js"></script>
-    <script src="common.c509c864.js"></script>
 
     <title>Document</title>
 </head>
@@ -178,7 +171,7 @@
                     </div>
                 </div><!----><!---->
             </div><!---->
-           
+
             <div data-v-5b5182e2="" data-v-31dd2778="" role="img" class="coinFly q-img overflow-hidden"
                 style="width: 20px; height: 20px; display: none;">
                 <div style="padding-bottom: 101.901%;"></div>
@@ -211,7 +204,8 @@
                         <span data-v-36f97448="" aria-hidden="true" role="presentation" class="q-icon text-green"
                             style="font-size: 1.5rem;"><svg viewBox="0 0 24 24" focusable="false">
                                 <use xlink:href="icons.svg#icon-ghost-mode"></use>
-                            </svg></span></div>
+                            </svg></span>
+                    </div>
                     <div data-v-36f97448=""
                         class="q-item__section column bg-grey700 q-pa-md q-item__section--main justify-center">
                         <div data-v-36f97448="" class="text-white" style="line-height: 1.5; padding-right: 20px;"></div>
@@ -224,6 +218,18 @@
             </div>
         </main>
     </div>
+    <script src="">
+        // show Telegram BackButton and set it to return to main renderGame
+        showTelegramBack(() => { showheader(); renderGame(); });
+        // hide bottom nav and enable Telegram Back to return to game
+        hideheader();
+        showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
+        // back handler
+        document.getElementById('keyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
+        // helpers to hide/show bottom header
+        function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
+        function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
+    </script>
 </body>
 
 </html>

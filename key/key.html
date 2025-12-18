@@ -435,11 +435,11 @@
 <body>
     <img src="/image/bg-lucky-code.jpg" alt="" style=" margin-top: 50px;">
     <div>
-        <div class="lukcys">
+        <center class="lukcys">
             <img src="/image/lukcy.png" alt="">
             <h3>Lucky Code</h3>
             <p>Find the lucky code in the video to get rewards</p>
-        </div>
+        </center>
         <div id="key1">
             <div class="shaffof">
                 <a href="https://youtu.be/HmaQwuKUYTc?si=blIzy-4IF_kIP7dO"></a>
@@ -504,35 +504,17 @@
     </div>
     </div>
     <script>
+        
         // show Telegram BackButton and set it to return to main renderGame
         showTelegramBack(() => { showNav(); renderGame(); });
         // hide bottom nav and enable Telegram Back to return to game
         hideNav();
         showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
 
-        // back handler
-        document.getElementById('dailyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
-
-        // --- Telegram BackButton boshqaruv funksiyalari ---
-        function showTelegramBack(handler) {
-            if (window.Telegram?.WebApp?.BackButton) {
-                try {
-                    window.Telegram.WebApp.BackButton.show();
-                    window.Telegram.WebApp.BackButton.onClick(handler);
-                } catch (e) { /* ignore */ }
-            }
-        }
-
-        function hideTelegramBack() {
-            if (window.Telegram?.WebApp?.BackButton) {
-                try {
-                    window.Telegram.WebApp.BackButton.hide();
-                    // handlerni bekor qilamiz
-                    window.Telegram.WebApp.BackButton.onClick(() => { });
-                } catch (e) { /* ignore */ }
-            }
-        }
-        // helpers to hide/show bottom nav
+        hideheader();
+        // helpers to hide/show bottom header
+        function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
+        function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
         function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
         function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
     </script>

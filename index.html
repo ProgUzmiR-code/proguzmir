@@ -358,15 +358,14 @@
       max-width: 420px;
       width: 90%;
       text-align: left;
-      padding-top: calc(var(--header-height) + 30px);
-      padding-bottom: calc(100px + env(safe-area-inset-bottom));
+    
       box-sizing: border-box;
     }
 
     /* tap-area va rasm responsivligi */
     .tap-area {
       text-align: center;
-      margin-top: 60px;
+      margin-top: 140px;
     }
 
     #tapBtn {
@@ -560,7 +559,7 @@
 
 <body>
   <!-- o'zgardi: endi header container (logo chapda, balans oʻngda) -->
-  <div class="header" aria-hidden="false">
+  <div class="header"  aria-label="header">
     <div class="circle2">
       <div class="profile">
         <img style="margin-bottom: 10px;" src="./image/loading.svg" alt="">
@@ -651,6 +650,7 @@
       };
     });
   </script>
+  
   <script src="index.js"></script>
 </body>
 
