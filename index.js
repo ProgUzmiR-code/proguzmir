@@ -218,12 +218,12 @@ const content = document.getElementById('content');
 function renderGame() {
     hideTelegramBack();
     const s = loadState();
-console.log({
-  prcWei: s.prcWei.toString(),
-  diamond: s.diamond,
-  totalWei: getTotalPRCWei(s).toString(),
-  ui: fmtPRC(getTotalPRCWei(s))
-});
+    console.log({
+        prcWei: s.prcWei.toString(),
+        diamond: s.diamond,
+        totalWei: getTotalPRCWei(s).toString(),
+        ui: fmtPRC(getTotalPRCWei(s))
+    });
     const todayIndex = s.todayIndex ?? 0;
     // update header balance immediately on render
     document.getElementById('headerBalance') && (document.getElementById('headerBalance').innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(getTotalPRCWei(s)));
@@ -568,6 +568,7 @@ console.log({
                 renderShop();
             });
         });
+
         // skin buys (inside shop)
         document.querySelectorAll('.buySkinBtn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -745,12 +746,13 @@ console.log({
             const isToday = (i === todayIndex);
             const cls = claimed ? 'claimed' : isToday ? 'today' : '';
             const label = (i === 6) ? 'BIG DAY' : `Day ${dayNum}`;
+            const labelD = (i === 6) ? '<img src="./image/coin.png" alt="" style="width:15px;margin-left: 4px;">' : `💎`;
             const labelfont = (i === 6) ? 'font-size:13px;' : ``;
             items.push(`
 			<div class="daily-day ${cls}" data-index="${i}" style="display:flex;flex-direction:column;align-items:center;padding:12px;background:rgba(0, 0, 0, 0.43);border-radius:10px;">
 				<img src="./image/daily.png" alt="${label}" style="width:62px;height:62px;object-fit:cover;border-radius:8px;margin-bottom:8px;opacity:${claimed ? 0.5 : 1}">
 				<div style="${labelfont} font-weight:700;margin-bottom:4px;position:absolute;padding: 33px 0 0 0;color: black;">${label}</div>
-				<div style="font-size:13px;color:#ddd;margin-bottom:6px;"> ${reward}💎</div>
+				<div style="font-size:13px;color:#ddd;margin-bottom:6px;display: flex;"> ${reward}  ${labelD}</div>
 				<div>${claimed ? '<span style="color:#8f8">Claimed</span>' : (isToday ? '<button class="claimTodayBtn">Claim</button>' : '<span style="opacity:0.6">Locked</span>')}</div>
 			</div>
 		`);

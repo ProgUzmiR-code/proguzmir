@@ -92,9 +92,6 @@
     });
   </script>
   <style>
-   
-
-
     :root {
       --corner-d: 32px;
       --bar-radius: 6px;
@@ -157,7 +154,7 @@
       background-color: #06121a;
       /* rasm yuklanmasa fallback rang */
       color: white;
-      
+
       min-height: 100vh;
       margin: 0;
       display: flex;
@@ -356,10 +353,12 @@
       align-items: center;
       z-index: 10;
     }
-     .balance {
-        font-size: 15px;
-        margin-right: 10px;
+
+    .balance {
+      font-size: 15px;
+      margin-right: 10px;
     }
+
     /* panel: yuqoridagi header uchun joy qoldirish va pastdagi nav uchun safe-area */
     .panel {
       max-width: 420px;
@@ -557,19 +556,18 @@
     #r {
       margin-top: 5px;
     }
-  
+
     .PRS {
       font-size: 22px;
       font-weight: 700;
       color: #ffe600;
-      text-shadow: 0.1em 0.1em 0 #696969, 0.03em 0.08em 0 #5b5858 ;
+      text-shadow: 0.1em 0.1em 0 #696969, 0.03em 0.08em 0 #5b5858;
       z-index: 10;
       letter-spacing: 5px;
     }
   </style>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.main.css" rel="stylesheet">
- 
+
 
   <title>ProgUzmiR</title>
 </head>
@@ -583,11 +581,10 @@
         <img style="margin-bottom: 10px; margin-left: 10px;" src="./image/loading.svg" alt="">
         <div class="username" style="font-size: 15px;">ProgUzmiR</div>
       </div>
-      <div class="balance" id="headerBalance"><img src="./image/coin.png" alt="logo"
-          style="width:25px; margin-right: 10px; vertical-align:middle;">
+      <div class="balance" id="headerBalance"><img src="./image/coin.png" alt=""style="width:25px;">
         0.000000000000000000 PRC</div>
     </div>
-
+    
   </div>
 
   <!-- Keep a single Loading overlay, single panel and single nav -->
@@ -600,6 +597,7 @@
 
   <!-- panel: content rendered by JS -->
   <div class="panel" id="content">
+    
     <!-- bo'limlar JavaScript orqali yuklanadi -->
   </div>
 
@@ -609,13 +607,13 @@
     <span class="nav-indicator"></span>
     <div class="li">
       <div class="tab " data-tab="game">
-        <span class="i material-icons">videogame_asset</span>
+        <img class="i material-icons" src="./image/nav1.svg" alt="">
         <span id="r">GAME</span>
       </div>
     </div>
     <div class="li">
       <div class="tab " data-tab="rank">
-        <span class="i material-icons">emoji_events</span>
+        <img class="i material-icons" src="./image/nav2.svg" alt="">
         <span id="r">RANK</span>
       </div>
     </div>
@@ -627,28 +625,17 @@
     </div>
     <div class="li">
       <div class="tab" data-tab="market">
-        <span class="i material-icons">group_add</span>
+        <img class="i material-icons" src="./image/nav3.svg" alt="">
         <span id="r">INVITE</span>
       </div>
     </div>
     <div class="li">
       <div class="tab" data-tab="earn">
-        <span class="i material-icons">currency_exchange</span>
+        <img class="i material-icons" src="./image/nav4.svg" alt="">
         <span id="r">EARN</span>
       </div>
     </div>
   </div>
-
-  <!-- filters
-  <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
-    <defs>
-      <filter id="goo">
-        <feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="10" />
-        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
-        <feBlend in2="goo" in="SourceGraphic" result="mix" />
-      </filter>
-    </defs>
-  </svg> -->
   <script>
     let nav = document.querySelector('.nav');
     let tabs = nav.querySelectorAll('.tab');
