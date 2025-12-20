@@ -5,195 +5,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        #app {
-            font-family: pFont, Inter, -apple-system, BlinkMacSystemFont, PingFang SC, Hiragino Sans GB, noto sans, Microsoft YaHei, Helvetica Neue, Helvetica, Arial, sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            width: 100vw;
-            max-width: 450PX;
-            min-height: 100vh;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            margin: 0 auto;
-            background: #111;
-            position: relative
-        }
-
-        #app.wap {
-            max-width: inherit
-        }
-
-        #app .main {
-            width: 100%;
-            min-height: 100%;
-            z-index: 1
-        }
-
-        #app .loading {
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: -ms-flexbox;
-            display: flex;
-            width: 100%;
-            height: 100vh;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            -ms-flex-align: center;
-            align-items: center;
-            -webkit-box-pack: center;
-            -webkit-justify-content: center;
-            -ms-flex-pack: center;
-            justify-content: center;
-            -webkit-transform: translateY();
-            -ms-transform: translateY();
-            transform: translateY()
-        }
-
-        #app #okx-ton-connect,
-        #app #ton-connect {
-            visibility: hidden;
-            display: none
-        }
-
-        #app.wap {
-            width: 100%;
-            min-height: 100%;
-            font-size: 0;
-            -webkit-transform: none;
-            -ms-transform: none;
-            transform: none
-        }
-
-        #app.wap:after {
-            background: #111
-        }
-
-        #app.tapcoin {
-            background: #000
-        }
-
-        #app.tapcoin .loading img {
-            width: 200px
-        }
-
-        #app.goldcoin {
-            background: #000
-        }
-
-        #app.goldcoin .loading img {
-            width: 66px
-        }
-
-
-        okxc-root .s-enter-active[data-v-df5a9ee0] {
-            z-index: 100000 !important
-        }
-
-        .scoped-svg-icon[data-v-df5a9ee0] {
-            width: 1em;
-            height: 1em;
-            vertical-align: -.15em;
-            fill: currentColor;
-            overflow: hidden
-        }
-
-        .scoped-svg-icon.scoped-svg-animation[data-v-df5a9ee0] {
-            -webkit-animation: rotate-df5a9ee0 2s linear infinite;
-            animation: rotate-df5a9ee0 2s linear infinite
-        }
-
-
-        .page-body {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            background: #24368a
-        }
-
-        .page-body:before {
-            content: "";
-            position: absolute;
-            top: 1px;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
-            background: -webkit-linear-gradient(right, #596ccf, hsla(0, 0%, 100%, .765), #596ccf);
-            background: linear-gradient(270deg, #596ccf, hsla(0, 0%, 100%, .765), #596ccf);
-            width: 100%;
-            height: 100%;
-            border-radius: 15px 15px 0 0
-        }
-
-        .pages {
-            min-height: 100vh;
-            width: 100%
-        }
-
-        .pages .mMenu {
-            position: fixed;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            z-index: 2
-        }
-
-        .pages.tapcoin .mMenu .menu-bg {
-            background-color: #172442
-        }
-
-        .pages.tapcoin .earn {
-            padding-bottom: 60px
-        }
-
-        .pages.goldcoin .earn {
-            background: #091d4f;
-            background-repeat: no-repeat;
-            padding-bottom: 67px
-        }
-
-        .pages.reflection .earn {
-            background: #100a2c;
-            background-repeat: no-repeat;
-            padding-bottom: 67px
-        }
-
-        .pages.memetown .earn {
-            background: #2952a2;
-            background-repeat: no-repeat;
-            padding-bottom: 62px
-        }
-
         .earn .earn-main {
-            width: 100%
+            width: 100%;
         }
 
         .earn .earn-main .head {
             width: 90%;
-            margin: 15px auto
+            margin: 15px auto;
         }
 
         .earn .earn-main .head .head-img {
-            margin: auto;
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: -ms-flexbox;
             display: flex;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            -ms-flex-align: center;
             align-items: center;
-            -webkit-box-pack: center;
-            -webkit-justify-content: center;
-            -ms-flex-pack: center;
             justify-content: center;
-            font-size: 25px
+            font-size: 25px;
         }
 
         .earn .earn-main .head .head-img img {
-            width: 40px
+            width: 40px;
         }
 
         .earn .earn-main .head .head__title {
@@ -201,53 +30,7 @@
             color: #fff;
             font-size: 14px;
             font-weight: 700;
-            text-align: center
-        }
-
-        .earn .earn-main .tab_main {
-            margin: 10px 15px;
-            position: -webkit-sticky;
-            position: sticky;
-            top: 5px;
-            z-index: 1
-        }
-
-        .earn .earn-main .tab_main li,
-        .earn .earn-main .tab_main ul {
-            list-style: none
-        }
-
-        .earn .earn-main .tab_main ul {
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-pack: center;
-            -webkit-justify-content: center;
-            -ms-flex-pack: center;
-            justify-content: center;
-            background-color: rgba(41, 87, 157, .7);
-            border-radius: 7px;
-            padding: 3px
-        }
-
-        .earn .earn-main .tab_main li {
-            color: hsla(0, 0%, 100%, .5);
-            font-size: 11px;
-            border-radius: 7px;
-            padding: 5px 11px;
             text-align: center;
-            font-weight: 100;
-            -webkit-box-flex: 1;
-            -webkit-flex: 1;
-            -ms-flex: 1;
-            flex: 1
-        }
-
-        .earn .earn-main .tab_main li.checked {
-            background: #4178ff;
-            font-weight: 700;
-            color: #fff
         }
 
         .earn .earn-main .invite {
@@ -257,118 +40,21 @@
             cursor: pointer;
         }
 
-        .earn .earn-main .invite .invite__title {
-            font-size: 13px;
-            font-weight: 700;
-            text-align: left;
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            -ms-flex-align: center;
-            align-items: center;
-        }
-
-        .earn .earn-main .invite .invite__title em {
-            background: red;
-            color: #fff;
-            border-radius: 100%;
-            height: 15px;
-            min-width: 15px;
-            display: inline-block;
-            text-align: center;
-            font-size: 1px;
-            margin-left: 2px;
-            line-height: 15px;
-        }
-
-        .earn .earn-main .invite .invite__tabs {
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: -ms-flexbox;
-            display: flex;
-            gap: 20px;
-            height: 25px
-        }
-
-        .earn .earn-main .invite .invite__tabs .invite__tab {
-            font-size: 13px;
-            font-weight: 700;
-            text-align: left;
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            -ms-flex-align: center;
-            align-items: center;
-            border-bottom: 2px solid transparent
-        }
-
-        .earn .earn-main .invite .invite__tabs .invite__tab em {
-            background: red;
-            color: #fff;
-            border-radius: 100%;
-            height: 15px;
-            min-width: 15px;
-            display: inline-block;
-            text-align: center;
-            font-size: 10px;
-            margin-left: 2px;
-            line-height: 15px
-        }
-
-        .earn .earn-main .invite .invite__tabs .invite__tab.active {
-            border-bottom-color: #fff
-        }
-
         .earn .earn-main .invite .invite-list {
-            width: 100%;
-            -webkit-box-flex: 1;
-            -webkit-flex: 1;
-            -ms-flex: 1;
-            flex: 1;
-            height: calc(100% - 265px);
             margin-top: 7px;
-            overflow-y: auto;
             overflow-x: hidden;
-            -webkit-overflow-scroling: touch
-        }
-
-        .earn .earn-main .invite .invite-list ::-webkit-scrollbar {
-            width: 0;
-            height: 0;
-            background: transparent
-        }
-
-        .earn .earn-main .invite .invite-list ::-webkit-scrollbar-thumb {
-            border-radius: 0
-        }
-
-        .earn .earn-main .invite .invite-list ::-webkit-scrollbar-track {
-            background: rgba(46, 43, 99, .01)
+            -webkit-overflow-scroling: touch;
         }
 
         .earn .earn-main .invite .invite-list .invite-item {
             border-radius: 12px;
-            padding: 7px 9px;
+            padding: 12px 7px;
             margin-bottom: 7px;
             background: hsla(0, 0%, 100%, .15);
-            display: -webkit-box;
-            display: -webkit-flex;
             display: -ms-flexbox;
             display: flex;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
             -ms-flex-align: center;
-            align-items: center
-        }
-
-        .earn .earn-main .invite .invite-list .invite-item.active .invite-arrow {
-            color: #fff
+            align-items: center;
         }
 
         .earn .earn-main .invite .invite-list .invite-item .invite-icon {
@@ -376,90 +62,33 @@
             height: 35px;
             border-radius: 9px;
             background: hsla(0, 0%, 100%, .15);
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: -ms-flexbox;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            -ms-flex-align: center;
-            font-size: 17px;
-            color: #fff;
             display: flex;
             align-items: center;
-            -webkit-box-pack: center;
-            -webkit-justify-content: center;
-            -ms-flex-pack: center;
             justify-content: center;
-            overflow: hidden
-        }
-
-        .earn .earn-main .invite .invite-list .invite-item .invite-icon img {
-            margin: auto;
-            width: 100%;
-            height: 100%
-        }
-
-        .earn .earn-main .invite .invite-list .invite-item .invite-info {
-            -webkit-box-flex: 1;
-            -webkit-flex: 1;
-            -ms-flex: 1;
-            flex: 1;
-            margin-left: 10px;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden
+            overflow: hidden;
         }
 
         .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__title {
             font-size: 15px;
             font-weight: 300;
             color: hsla(0, 0%, 100%, .6);
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: -ms-flexbox;
             display: flex;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            -ms-flex-align: center;
             align-items: center;
-            -webkit-box-pack: left;
-            -webkit-justify-content: left;
-            -ms-flex-pack: left;
-            justify-content: left
+            justify-content: left;
         }
 
-        .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__title img {
-            width: 45px;
-            margin-left: 5px
+        .earn .earn-main .invite .invite-list .invite-item .invite-info {
+            flex: 1;
+            margin-left: 10px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
-        .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__intro {
-            font-size: 12px;
-            line-height: 12;
-            margin-top: 4px;
-            position: relative;
-            z-index: 1;
-            padding-right: 15px;
-            text-align: left;
-            font-weight: 700;
-            color: #fff
-        }
-
-        .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__intro span {
-            color: hsla(0, 0%, 100%, .5);
-            font-weight: 300;
-            font-size: 12px
-        }
-
-        .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__intro img {
-            position: absolute;
-            left: 0;
-            top: 45%;
-            -webkit-transform: translateY(-50%);
-            -ms-transform: translateY(-50%);
-            transform: translateY(-50%);
-            width: 13px;
-            height: 13px
+        .earn .earn-main .invite .invite-list .invite-item .invite-icon img {
+            margin: auto;
+            width: 100%;
+            height: 100%;
         }
 
         .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num {
@@ -467,80 +96,268 @@
             margin-top: 4px;
             position: relative;
             z-index: 1;
-            font-weight: 300;
             text-align: left;
             font-weight: 700;
-            color: #fff;
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: -ms-flexbox;
             display: flex;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            -ms-flex-align: center;
             align-items: center;
-            -webkit-box-pack: left;
-            -webkit-justify-content: left;
-            -ms-flex-pack: left;
-            justify-content: left
-        }
-
-        .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num span {
-            color: hsla(0, 0%, 100%, .5);
-            font-weight: 300;
-            font-size: 12px
+            justify-content: left;
         }
 
         .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num>img {
             width: 2px;
-            height: 2px
+            height: 2px;
         }
 
-        .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num>img.tap_logo {
-            width: 14px;
-            height: 14px;
-            margin-top: 1px;
-            margin-right: 25px;
-            margin-left: 25px
+        .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num {
+            font-size: 13px;
+            margin-top: 4px;
+            position: relative;
+            z-index: 1;
+            text-align: left;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: left;
+        }
+
+        .scoped-svg-icon[data-v-df5a9ee0] {
+            width: 1em;
+            height: 1em;
+            vertical-align: 1.85em;
+            fill: currentColor;
+            overflow: hidden;
+        }
+
+        .earn .earn-main .tab_main {
+            margin: 10px 15px;
+            position: -webkit-sticky;
+            position: sticky;
+            top: 90px;
+            z-index: 1;
+        }
+
+        .earn .earn-main .tab_main ul {
+            display: -ms-flexbox;
+            display: flex;
+            justify-content: center;
+            background-color: rgba(41, 87, 157, .7);
+            border-radius: 7px;
+            padding: 3px;
+        }
+
+        .earn .earn-main .tab_main li,
+        .earn .earn-main .tab_main ul {
+            list-style: none;
+        }
+
+        .earn .earn-main .tab_main li.checked {
+            background: #4178ff;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .earn .earn-main .tab_main li {
+            color: hsla(0, 0%, 100%, .5);
+            font-size: 11px;
+            border-radius: 7px;
+            padding: 5px 11px;
+            text-align: center;
+            font-weight: 100;
+            -ms-flex: 1;
+            flex: 1;
         }
 
         .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num .invite__keys {
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: -ms-flexbox;
             display: flex;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            -ms-flex-align: center;
             align-items: center;
             height: 2px;
-            line-height: 2px
+            line-height: 2px;
         }
 
         .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num .invite__keys img {
             width: 14px;
             height: 14px;
             margin-left: 1px !important;
-            margin-right: 25px
+            margin-right: 25px;
         }
 
-        .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num .invite__ton-add img {
-            margin: 2px 2px auto 1px;
-            height: 12px
-        }
+        /* Media queries: telefonlar va planshetlar */
+        @media (max-width: 350px) {
+            .earn .earn-main {
+                width: 100%;
+            }
 
-        .earn .earn-main .invite .invite-list .invite-item .invite-time {
-            margin-left: 5px
-        }
+            .earn .earn-main .head {
+                width: 90%;
+                margin: 15px auto;
+            }
 
-        .earn .earn-main .invite .invite-list .invite-item .invite-arrow {
-            font-size: 14px;
-            color: hsla(0, 0%, 100%, .25)
-        }
+            .earn .earn-main .head .head-img {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 25px;
+            }
 
-        .earn .earn-main .invite .invite-list .invite-item .invite-arrow.refresh .scoped-svg-icon {
-            -webkit-animation: ref-f039693c 1s linear infinite;
-            animation: ref-f039693c 1s linear infinite
+            .earn .earn-main .head .head-img img {
+                width: 40px;
+            }
+
+            .earn .earn-main .head .head__title {
+                margin-top: 10px;
+                color: #fff;
+                font-size: 14px;
+                font-weight: 700;
+                text-align: center;
+            }
+
+            .earn .earn-main .invite {
+                width: 90%;
+                margin: 0 auto;
+                margin-top: 20px;
+                cursor: pointer;
+            }
+
+            .earn .earn-main .invite .invite-list {
+                margin-top: 7px;
+                overflow-x: hidden;
+                -webkit-overflow-scroling: touch;
+            }
+
+            .earn .earn-main .invite .invite-list .invite-item {
+                border-radius: 12px;
+                padding: 12px 7px;
+                margin-bottom: 7px;
+                background: hsla(0, 0%, 100%, .15);
+                display: -ms-flexbox;
+                display: flex;
+                -ms-flex-align: center;
+                align-items: center;
+            }
+
+            .earn .earn-main .invite .invite-list .invite-item .invite-icon {
+                width: 35px;
+                height: 35px;
+                border-radius: 9px;
+                background: hsla(0, 0%, 100%, .15);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+            }
+
+            .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__title {
+                font-size: 15px;
+                font-weight: 300;
+                color: hsla(0, 0%, 100%, .6);
+                display: flex;
+                align-items: center;
+                justify-content: left;
+            }
+
+            .earn .earn-main .invite .invite-list .invite-item .invite-info {
+                flex: 1;
+                margin-left: 10px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+
+            .earn .earn-main .invite .invite-list .invite-item .invite-icon img {
+                margin: auto;
+                width: 100%;
+                height: 100%;
+            }
+
+            .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num {
+                font-size: 13px;
+                margin-top: 4px;
+                position: relative;
+                z-index: 1;
+                text-align: left;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                justify-content: left;
+            }
+
+            .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num>img {
+                width: 2px;
+                height: 2px;
+            }
+
+            .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num {
+                font-size: 13px;
+                margin-top: 4px;
+                position: relative;
+                z-index: 1;
+                text-align: left;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                justify-content: left;
+            }
+
+            .scoped-svg-icon[data-v-df5a9ee0] {
+                width: 1em;
+                height: 1em;
+                vertical-align: 0.85em;
+                fill: currentColor;
+                overflow: hidden;
+            }
+
+            .earn .earn-main .tab_main {
+                margin: 10px 15px;
+                position: -webkit-sticky;
+                position: sticky;
+                top: 90px;
+                z-index: 1;
+            }
+
+            .earn .earn-main .tab_main ul {
+                display: -ms-flexbox;
+                display: flex;
+                justify-content: center;
+                background-color: rgba(41, 87, 157, .7);
+                border-radius: 7px;
+                padding: 3px;
+            }
+
+            .earn .earn-main .tab_main li,
+            .earn .earn-main .tab_main ul {
+                list-style: none;
+            }
+
+            .earn .earn-main .tab_main li.checked {
+                background: #4178ff;
+                font-weight: 700;
+                color: #fff;
+            }
+
+            .earn .earn-main .tab_main li {
+                color: hsla(0, 0%, 100%, .5);
+                font-size: 11px;
+                border-radius: 7px;
+                padding: 5px 11px;
+                text-align: center;
+                font-weight: 100;
+                -ms-flex: 1;
+                flex: 1;
+            }
+
+            .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num .invite__keys {
+                display: flex;
+                align-items: center;
+                height: 2px;
+                line-height: 2px;
+            }
+
+            .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num .invite__keys img {
+                width: 14px;
+                height: 14px;
+                margin-left: 1px !important;
+                margin-right: 25px;
+            }
         }
     </style>
     <script>
