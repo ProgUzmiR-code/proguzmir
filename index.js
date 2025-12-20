@@ -244,31 +244,31 @@ function renderGame() {
         <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10px;">
           <div style="display:flex;gap:30px;align-items:center;margin-top: 10px;">
             <div id="dailyBtn" class="btn" style="border-radius:8px;display: flex;flex-direction: column;cursor: pointer;">
-              <img style="width: 50px; height:60px; object-fit: contain;" src="./image/daily.png" alt="Daily">
+              <img class="dailyImg" src="./image/daily.png" alt="Daily">
               <span>${label}</span>
               <span class="text_daily">Daily</span>
             </div>
 
             <!-- Lucky Code key next to Daily -->
             <div id="luckyKeyBtn" title="Lucky Code" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
-              <img src="./image/lukcy.png" alt="Lucky" style="width:55px;height:60px;object-fit:contain;">
+              <img src="./image/lukcy.png" alt="Lucky" class="luckyImg">
               <span style="">Lucky</span>
             </div>
           </div>
 
-          <div id="diamondTop" style="font-size:25px; margin-bottom:8px;margin-top: 30px;">💎 ${s.diamond} </div>
+          <div id="diamondTop" class="diamond">💎 ${s.diamond} </div>
         </div>
         <!-- previews row: diamond above, previews here, then tap below -->
         <div id="previewsRow" style="display:flex; justify-content: space-between; align-items: center;">
           
           <div id="shopCardPreview" style="display: flex;  flex-direction: column; cursor:pointer; align-items: center;">
-            <img src="./image/shop.png" alt="shop" style="width:52px; height:52px; object-fit:cover; margin-bottom: 10px; border-radius:8px;">
+            <img src="./image/shop.png" alt="shop" class="shopImg">
             <div style="flex:1; text-align:left;">
               <div style="font-weight:700;">Shop</div>
             </div>
           </div>
           <div id="gameCardPreview" style="display: flex;  flex-direction: column; cursor:pointer; align-items: center;">
-            <img src="./image/game.png" alt="game" style="width:64px; height:64px; object-fit:cover; border-radius:8px;">
+            <img src="./image/game.png" alt="game" class="gameImg">
             <div style="flex:1; text-align:left;">
               <div style="font-weight:800; font-size:14px;">Play Games</div>
             </div>
