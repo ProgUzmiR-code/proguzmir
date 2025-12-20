@@ -424,6 +424,7 @@
         .material-icons-outlined {
             color: #888888;
         }
+
         .lukcys {
             align-items: center;
         }
@@ -453,7 +454,7 @@
                         <img class="key" src="/image/key.png" alt=""> 1
                     </div>
                 </div>
-                <span class="material-icons-outlined">arrow_forward_ios</span>
+                <img src="./image/arrow.svg" alt="">
             </div>
         </div>
         <div id="key2">
@@ -469,7 +470,7 @@
                         <img class="key" src="/image/key.png" alt=""> 1
                     </div>
                 </div>
-                <span class="material-icons-outlined">arrow_forward_ios</span>
+                <img src="./image/arrow.svg" alt="">
             </div>
         </div>
     </div>
@@ -509,7 +510,7 @@
         // hide bottom nav and enable Telegram Back to return to game
         hideheader();
         showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
-        
+
         // show Telegram BackButton and set it to return to main renderGame
         showTelegramBack(() => { showNav(); renderGame(); });
         // hide bottom nav and enable Telegram Back to return to game
@@ -546,98 +547,98 @@
     </script>
     <script>
         (() => {
-            
-        
-        const popModal = document.getElementById('pop');
-        console.log('popModal:', popModal);
-        const upsubmitDiv = popModal.querySelector('.upsubmit');
-        console.log('upsubmitDiv:', upsubmitDiv);
-        const watchBtn = popModal.querySelector('.pop-main .btns .btn');
-        console.log('btnClose:', watchBtn);
-        
-        const btnClose = popModal.querySelector('.btn-close');
-        console.log('btnClose:', btnClose);
-        const shadow = popModal.querySelector('.shadow');
-        console.log('shadow:', shadow);
-        
-        /* ===============================
-           FUNKSIYA: Modal oynasidagi .shaffof uchun event listener bind qilish
-        ================================ */
-        function bindShaffofClickListener() {
-            // eski listenerlarni olib tashlash uchun - event delegation orqali modal kontentida
-            // Modal ichidagi shaffofga click bo'lsa linkni ochish
-            const modal = document.getElementById('pop');
-            
-            console.log('bindShaffofClickListener - modal:', modal);
-            // eski listener mavjud bo'lsa olib tashla
-            modal.removeEventListener('click', handleShaffofClick);
-            
-            // yangi listener qo'sh
-            modal.addEventListener('click', handleShaffofClick);
-        }
-        
-        function handleShaffofClick(e) {
-            const shaffof = e.target.closest('.upsubmit .shaffof');
-            console.log('handleShaffofClick - shaffof:', shaffof);
-            if (!shaffof) return;
 
-            const link = shaffof.querySelector('a');
+
+            const popModal = document.getElementById('pop');
+            console.log('popModal:', popModal);
+            const upsubmitDiv = popModal.querySelector('.upsubmit');
+            console.log('upsubmitDiv:', upsubmitDiv);
+            const watchBtn = popModal.querySelector('.pop-main .btns .btn');
+            console.log('btnClose:', watchBtn);
+
+            const btnClose = popModal.querySelector('.btn-close');
+            console.log('btnClose:', btnClose);
+            const shadow = popModal.querySelector('.shadow');
+            console.log('shadow:', shadow);
+
+            /* ===============================
+               FUNKSIYA: Modal oynasidagi .shaffof uchun event listener bind qilish
+            ================================ */
+            function bindShaffofClickListener() {
+                // eski listenerlarni olib tashlash uchun - event delegation orqali modal kontentida
+                // Modal ichidagi shaffofga click bo'lsa linkni ochish
+                const modal = document.getElementById('pop');
+
+                console.log('bindShaffofClickListener - modal:', modal);
+                // eski listener mavjud bo'lsa olib tashla
+                modal.removeEventListener('click', handleShaffofClick);
+
+                // yangi listener qo'sh
+                modal.addEventListener('click', handleShaffofClick);
+            }
+
+            function handleShaffofClick(e) {
+                const shaffof = e.target.closest('.upsubmit .shaffof');
+                console.log('handleShaffofClick - shaffof:', shaffof);
+                if (!shaffof) return;
+
+                const link = shaffof.querySelector('a');
                 console.log('link:', link);
-            if (link?.href) {
-                window.open(link.href, '_blank');
-            }
-        }
-
-        /* ===============================
-           1️⃣ KEY BOSILISHI (DELEGATION)
-        ================================ */
-        document.addEventListener('click', function (e) {
-            const keyDiv = e.target.closest('[id^="key"]');
-            console.log('keyDiv:', keyDiv);
-            
-            if (!keyDiv) return;
-
-            const shaffofContent = keyDiv.querySelector('.shaffof');
-            console.log('shaffofContent:', shaffofContent);
-            
-            if (!shaffofContent) return;
-
-            const cloned = shaffofContent.cloneNode(true);
-            console.log('cloned:', cloned);
-            
-            upsubmitDiv.innerHTML = '';
-            upsubmitDiv.appendChild(cloned);
-
-            const videoLink = cloned.querySelector('a');
-            if (videoLink?.href) {
-                watchBtn.dataset.videoUrl = videoLink.href;
+                if (link?.href) {
+                    window.open(link.href, '_blank');
+                }
             }
 
-            popModal.classList.add('show');
-            
-            // Modal ochilganidan keyin .shaffof listener bind qilish
-            bindShaffofClickListener();
-        });
+            /* ===============================
+               1️⃣ KEY BOSILISHI (DELEGATION)
+            ================================ */
+            document.addEventListener('click', function (e) {
+                const keyDiv = e.target.closest('[id^="key"]');
+                console.log('keyDiv:', keyDiv);
 
-        /* ===============================
-           3️⃣ WATCH TUGMASI
-        ================================ */
-        watchBtn.onclick = function () {
-            const url = this.dataset.videoUrl;
-            if (url) window.open(url, '_blank');
-        };
+                if (!keyDiv) return;
 
-        /* ===============================
-           4️⃣ MODAL YOPISH
-        ================================ */
-        btnClose.onclick = () => popModal.classList.remove('show');
-        shadow.onclick = () => popModal.classList.remove('show');
+                const shaffofContent = keyDiv.querySelector('.shaffof');
+                console.log('shaffofContent:', shaffofContent);
 
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                popModal.classList.remove('show');
-            }
-        });
+                if (!shaffofContent) return;
+
+                const cloned = shaffofContent.cloneNode(true);
+                console.log('cloned:', cloned);
+
+                upsubmitDiv.innerHTML = '';
+                upsubmitDiv.appendChild(cloned);
+
+                const videoLink = cloned.querySelector('a');
+                if (videoLink?.href) {
+                    watchBtn.dataset.videoUrl = videoLink.href;
+                }
+
+                popModal.classList.add('show');
+
+                // Modal ochilganidan keyin .shaffof listener bind qilish
+                bindShaffofClickListener();
+            });
+
+            /* ===============================
+               3️⃣ WATCH TUGMASI
+            ================================ */
+            watchBtn.onclick = function () {
+                const url = this.dataset.videoUrl;
+                if (url) window.open(url, '_blank');
+            };
+
+            /* ===============================
+               4️⃣ MODAL YOPISH
+            ================================ */
+            btnClose.onclick = () => popModal.classList.remove('show');
+            shadow.onclick = () => popModal.classList.remove('show');
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    popModal.classList.remove('show');
+                }
+            });
         })();
     </script>
 </body>
