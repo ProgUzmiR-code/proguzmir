@@ -34,7 +34,6 @@
         }
 
         .earn .earn-main .invite {
-            width: 90%;
             margin: 0 auto;
             margin-top: 20px;
             cursor: pointer;
@@ -48,7 +47,7 @@
 
         .earn .earn-main .invite .invite-list .invite-item {
             border-radius: 12px;
-            padding: 12px 7px;
+            padding: 15px;
             margin-bottom: 7px;
             background: hsla(0, 0%, 100%, .15);
             display: -ms-flexbox;
@@ -58,8 +57,8 @@
         }
 
         .earn .earn-main .invite .invite-list .invite-item .invite-icon {
-            width: 35px;
-            height: 35px;
+            width: 50px;
+            height: 50px;
             border-radius: 9px;
             background: hsla(0, 0%, 100%, .15);
             display: flex;
@@ -120,12 +119,14 @@
             justify-content: left;
         }
 
-        .scoped-svg-icon[data-v-df5a9ee0] {
-            width: 1em;
-            height: 1em;
-            vertical-align: 1.85em;
-            fill: currentColor;
-            overflow: hidden;
+        .earn .earn-main .invite .invite-list .invite-item .invite-arrow {
+            display: flex;
+            align-items: center;
+        }
+
+        .scoped-svg-icon {
+            display: flex;
+            align-items: center;
         }
 
         .earn .earn-main .tab_main {
@@ -142,7 +143,7 @@
             justify-content: center;
             background-color: rgba(41, 87, 157, .7);
             border-radius: 7px;
-            padding: 3px;
+            padding: 4px;
         }
 
         .earn .earn-main .tab_main li,
@@ -158,7 +159,7 @@
 
         .earn .earn-main .tab_main li {
             color: hsla(0, 0%, 100%, .5);
-            font-size: 11px;
+            font-size: 15px;
             border-radius: 7px;
             padding: 5px 11px;
             text-align: center;
@@ -183,14 +184,11 @@
 
         /* Media queries: telefonlar va planshetlar */
         @media (max-width: 350px) {
-            .scoped-svg-icon[data-v-df5a9ee0] {
-                width: 1em;
-                height: 1em;
-                vertical-align: 0.85em;
-                fill: currentColor;
-                overflow: hidden;
+            .scoped-svg-icon {
+                display: flex;
+                align-items: center;
             }
-            
+
         }
     </style>
     <script>
@@ -240,16 +238,16 @@
                             </div>
                         </div>
                         <div class="invite-arrow">
-                            <svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg>
+                            <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="tab_main">
                 <ul>
-                    <li class="tab_item checked">Actiive</li>
+                    <li class="tab_item checked">Active</li>
                     <li class="tab_item">Inactive</li>
                 </ul>
             </div>
@@ -272,9 +270,9 @@
                             </div>
                         </div>
                         <div class="invite-arrow">
-                            <svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg>
+                            <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span>
                         </div>
                     </div>
                     <div class="invite-item">
@@ -293,9 +291,9 @@
                             </div>
                         </div>
                         <div class="invite-arrow">
-                            <svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg>
+                            <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span>
                         </div>
                     </div>
                     <!---->
@@ -309,9 +307,9 @@
                                 <!---->
                             </div>
                         </div>
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!---->
                     <div class="invite-item">
@@ -329,9 +327,9 @@
                         </div>
                         <!---->
                         <div class="invite-arrow">
-                            <svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg>
+                            <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span>
                         </div>
                     </div>
                     <div class="invite-item">
@@ -347,9 +345,9 @@
                         </div>
                         <!---->
                         <div class="invite-arrow">
-                            <svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg>
+                            <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span>
                         </div>
                     </div>
                     <div class="invite-item">
@@ -365,9 +363,9 @@
                         </div>
                         <!---->
                         <div class="invite-arrow">
-                            <svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg>
+                            <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span>
                         </div>
                     </div>
                     <div class="invite-item">
@@ -380,9 +378,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div>
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!---->
                 </div>
@@ -403,9 +401,9 @@
                                 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -420,9 +418,9 @@
                                 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -435,9 +433,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 15 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -450,9 +448,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 15 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -464,9 +462,9 @@
                                 <img src="/img/tap.03f1d86d.png" alt="" class="tap_logo"> 20 <!----><!----><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -479,9 +477,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -494,9 +492,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -508,9 +506,9 @@
                                     class="invite__keys"><img src="/image/key.png" alt="" style="margin-left: 0px;"> 10
                                 </div><!----></div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -523,9 +521,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -538,9 +536,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -553,9 +551,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -568,9 +566,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -585,9 +583,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -602,9 +600,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -617,9 +615,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -632,9 +630,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 3 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -648,9 +646,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -663,9 +661,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -678,9 +676,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -693,9 +691,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -708,9 +706,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -723,9 +721,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -738,9 +736,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -755,9 +753,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -770,9 +768,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -786,9 +784,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -802,9 +800,9 @@
                                 <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                     <div class="invite-item">
                         <div class="invite-icon"><img
@@ -817,9 +815,9 @@
                                 <div class="invite__ton-add"><img src="" alt=""></div>
                             </div>
                         </div><!---->
-                        <div class="invite-arrow"><svg data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <use data-v-df5a9ee0="" xlink:href="#icon-icon-arrow"></use>
-                            </svg></div>
+                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                                <img src="/image/arrow.svg" alt="">
+                            </span></div>
                     </div>
                 </div>
             </div>
