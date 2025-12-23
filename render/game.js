@@ -55,15 +55,12 @@ function renderGames() {
     });
     hideNav();
     
-    // show Telegram BackButton and set it to return to main renderGame
-    showTelegramBack(() => { showNav(); renderGame(); });
-    // show Telegram BackButton and set it to return to main renderGame
-    showTelegramBack(() => { showheader(); renderGame(); });
+    // hide bottom nav and enable Telegram Back to return to game
+    hideNav();
+    showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
     // hide bottom nav and enable Telegram Back to return to game
     hideheader();
     showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
-
-    showTelegramBack(() => { renderGames(); showNav(); hideTelegramBack(); });
     // back handler
     document.getElementById('dailyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); showheader(); renderGame(); });
 
