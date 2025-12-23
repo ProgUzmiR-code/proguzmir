@@ -2,6 +2,7 @@
   "version": 2,
   "builds": [
     { "src": "game/**/*.html", "use": "@vercel/static" },
+    { "src": "/**/*.html", "use": "@vercel/static" },
     { "src": "game/**/*.js", "use": "@vercel/static" },
     { "src": "render/**/*.js", "use": "@vercel/static" },
     { "src": "key/**/*.html", "use": "@vercel/static" },
@@ -22,7 +23,8 @@
   ],
   "routes": [
     { "src": "/server", "dest": "/server.js" },
-    { "src": "/game/(.*)", "dest": "/game/$1" },
+    { "src": "/(.*)", "dest": "/game/$1" },
+    { "src": "/game/(.*)", "dest": "/$1" },
     { "src": "/render/(.*)", "dest": "/render/$1" },
     { "src": "/key/(.*)", "dest": "/key/$1" },
     { "src": "/rank/(.*)", "dest": "/rank/$1" },
