@@ -101,7 +101,7 @@ function renderDaily() {
 
     for (let i = 0; i < 7; i++) {
         const dayNum = i + 1;
-        
+
         const claimed = !!claims[i];
         const reward = DAILY_REWARDS[i];
         const isToday = (i === todayIndex);
@@ -142,25 +142,25 @@ function renderDaily() {
     // back handler
     document.getElementById('dailyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); showheader(); renderGame(); });
 
-// --- Telegram BackButton boshqaruv funksiyalari ---
-function showTelegramBack(handler) {
-    if (window.Telegram?.WebApp?.BackButton) {
-        try {
-            window.Telegram.WebApp.BackButton.show();
-            window.Telegram.WebApp.BackButton.onClick(handler);
-        } catch (e) { /* ignore */ }
+    // --- Telegram BackButton boshqaruv funksiyalari ---
+    function showTelegramBack(handler) {
+        if (window.Telegram?.WebApp?.BackButton) {
+            try {
+                window.Telegram.WebApp.BackButton.show();
+                window.Telegram.WebApp.BackButton.onClick(handler);
+            } catch (e) { /* ignore */ }
+        }
     }
-}
 
-function hideTelegramBack() {
-    if (window.Telegram?.WebApp?.BackButton) {
-        try {
-            window.Telegram.WebApp.BackButton.hide();
-            // handlerni bekor qilamiz
-            window.Telegram.WebApp.BackButton.onClick(() => { });
-        } catch (e) { /* ignore */ }
+    function hideTelegramBack() {
+        if (window.Telegram?.WebApp?.BackButton) {
+            try {
+                window.Telegram.WebApp.BackButton.hide();
+                // handlerni bekor qilamiz
+                window.Telegram.WebApp.BackButton.onClick(() => { });
+            } catch (e) { /* ignore */ }
+        }
     }
-}
     // claim handler (only today's button)
     const btn = content.querySelector('.claimTodayBtn');
     if (btn) {

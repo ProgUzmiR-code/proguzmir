@@ -1,10 +1,11 @@
 // --- NEW: renderShop (card layout) ---
-    const SHOP = [
-        { id: 'energyPack', name: 'Energy +1000', img: './image/boost.png', type: 'energy', amount: INCREASE_BLOCK, costWei: BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI }
-    ];
+const SHOP = [
+  { id: 'energyPack', name: 'Energy +1000', img: './image/boost.png', type: 'energy', amount: INCREASE_BLOCK, costWei: BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI }
+];
 
-    function renderShop() {
-        content.innerHTML = `
+function renderShop() {
+  const s = loadState();
+  content.innerHTML = `
             <div style=" margin-top: 90px;">
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
                     <div class="btn-group" style="margin:auto;">
@@ -38,47 +39,57 @@
                 </div>
             </div>
         `;
-        // tab handlers
-        const tabShop = document.getElementById('tabShop');
-        const tabSkins = document.getElementById('tabSkins');
-        const shopCol = document.getElementById('shopCol');
-        const skinCol = document.getElementById('skinCol');
-        function activateShop() { shopCol.style.display = ''; skinCol.style.display = 'none'; tabShop.disabled = true; tabSkins.disabled = false; }
-        function activateSkins() { shopCol.style.display = 'none'; skinCol.style.display = ''; tabShop.disabled = false; tabSkins.disabled = true; }
-        tabShop.addEventListener('click', activateShop);
-        tabSkins.addEventListener('click', activateSkins);
-        // default active
-        activateShop();
-        // shop buys
-        document.querySelectorAll('.buyShopBtn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.dataset.id;
-                const item = SHOP_ITEMS.find(x => x.id === id);
-                if (!item) return;
-                const state = loadState();
-                if (!chargeCost(state, item.costWei)) { alert('Yetarli PRC yo‘q.'); return; }
-                if (item.type === 'energy') {
-                    // Increase both maxEnergy and energy by the purchased amount, then refill energy to max
-                    state.maxEnergy = (state.maxEnergy || DEFAULT_MAX_ENERGY) + item.amount;
-                    state.energy = state.maxEnergy;
-                }
-                else if (item.type === 'taps') state.tapCap = (state.tapCap || DEFAULT_TAP_CAP) + item.amount;
-                saveState(state);
-                alert(`${item.name} sotib olindi.`);
-                renderShop();
-            });
-        });
+  // tab handlers
+  const tabShop = document.getElementById('tabShop');
+  const tabSkins = document.getElementById('tabSkins');
+  const shopCol = document.getElementById('shopCol');
+  const skinCol = document.getElementById('skinCol');
+  function activateShop() { shopCol.style.display = ''; skinCol.style.display = 'none'; tabShop.disabled = true; tabSkins.disabled = false; }
+  function activateSkins() { shopCol.style.display = 'none'; skinCol.style.display = ''; tabShop.disabled = false; tabSkins.disabled = true; }
+  tabShop.addEventListener('click', activateShop);
+  tabSkins.addEventListener('click', activateSkins);
+  // default active
+  activateShop();
+  // shop buys
+  document.querySelectorAll('.buyShopBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const item = SHOP_ITEMS.find(x => x.id === id);
+      if (!item) return;
+      const state = loadState();
+      if (!chargeCost(state, item.costWei)) { alert('Yetarli PRC yo‘q.'); return; }
+      if (item.type === 'energy') {
+        // Increase both maxEnergy and energy by the purchased amount, then refill energy to max
+        state.maxEnergy = (state.maxEnergy || DEFAULT_MAX_ENERGY) + item.amount;
+        state.energy = state.maxEnergy;
+      }
+      else if (item.type === 'taps') state.tapCap = (state.tapCap || DEFAULT_TAP_CAP) + item.amount;
+      saveState(state);
+      alert(`${item.name} sotib olindi.`);
+      renderShop();
+    });
+  });
 
-        // skin buys (inside shop)
-        document.querySelectorAll('.buySkinBtn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const skinId = btn.dataset.skin;
-                const state = loadState();
-                if (!chargeCost(state, SKIN_COST_WEI)) { alert('Yetarli PRC yo‘q skin sotib olish uchun.'); return; }
-                state.selectedSkin = skinId;
-                saveState(state);
-                alert('Skin sotib olindi: ' + SKINS.find(s => s.id === skinId).name);
-                renderShop();
-            });
-        });
-    }
+  // skin buys (inside shop)
+  document.querySelectorAll('.buySkinBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const skinId = btn.dataset.skin;
+      const state = loadState();
+      if (!chargeCost(state, SKIN_COST_WEI)) { alert('Yetarli PRC yo‘q skin sotib olish uchun.'); return; }
+      state.selectedSkin = skinId;
+      saveState(state);
+      alert('Skin sotib olindi: ' + SKINS.find(s => s.id === skinId).name);
+      renderShop();
+    });
+  });
+  hideNav();
+  showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
+  // hide bottom nav and enable Telegram Back to return to game
+
+  // back handler
+  document.getElementById('dailyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
+}
+
+function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
+// helpers to hide/show bottom nav
+function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }

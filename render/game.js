@@ -2,7 +2,14 @@
 const GAMES = [
     { id: 'game', name: 'Game One', img: './game/game.png' }
 ];
+// helpers to hide/show bottom header
+function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
+function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
+function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
+// helpers to hide/show bottom nav
+function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
 function renderGames() {
+    const s = loadState();
     content.innerHTML = `
             <div style=" margin-top: 90px;">
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
@@ -47,24 +54,17 @@ function renderGames() {
         });
     });
     hideNav();
-            const s = loadState();
-            // show Telegram BackButton and set it to return to main renderGame
-            showTelegramBack(() => { showNav(); renderGame(); });
-            // show Telegram BackButton and set it to return to main renderGame
-            showTelegramBack(() => { showheader(); renderGame(); });
-            // hide bottom nav and enable Telegram Back to return to game
-            hideheader();
-            showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
+    
+    // show Telegram BackButton and set it to return to main renderGame
+    showTelegramBack(() => { showNav(); renderGame(); });
+    // show Telegram BackButton and set it to return to main renderGame
+    showTelegramBack(() => { showheader(); renderGame(); });
+    // hide bottom nav and enable Telegram Back to return to game
+    hideheader();
+    showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
 
-            showTelegramBack(() => { renderGames(); showNav(); hideTelegramBack(); });
-            // onscreen back button handler
-            const backBtn = document.getElementById('backFromGame');
-            if (backBtn) {
-                backBtn.addEventListener('click', () => { renderGames(); showNav(); hideTelegramBack(); });
-            }
-    // helpers to hide/show bottom header
-    function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
-    function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
-    // helpers to hide/show bottom nav
-    function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
+    showTelegramBack(() => { renderGames(); showNav(); hideTelegramBack(); });
+    // back handler
+    document.getElementById('dailyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); showheader(); renderGame(); });
+
 }
