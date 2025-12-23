@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        body {
+            background-image: url(/image/background1.jpg);
+        }
+
         .earn .earn-main {
             width: 100%;
         }
@@ -36,13 +40,20 @@
         .earn .earn-main .invite {
             margin: 0 auto;
             margin-top: 20px;
-            cursor: pointer;
         }
 
         .earn .earn-main .invite .invite-list {
             margin-top: 7px;
             overflow-x: hidden;
             -webkit-overflow-scroling: touch;
+            display: block;
+        }
+
+        .earn .earn-main .invite .invite-list2 {
+            margin-top: 7px;
+            overflow-x: hidden;
+            -webkit-overflow-scroling: touch;
+            display: none;
         }
 
         .earn .earn-main .invite .invite-list .invite-item {
@@ -178,40 +189,31 @@
         .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num .invite__keys img {
             width: 14px;
             height: 14px;
-            margin-left: 1px !important;
-            margin-right: 25px;
+            margin-left: 30px !important;
         }
 
         /* Media queries: telefonlar va planshetlar */
         @media (max-width: 350px) {
-            .scoped-svg-icon {
-                display: flex;
-                align-items: center;
+            .earn .earn-main .invite .invite-list .invite-item {
+                padding: 10px;
+            }
+
+            .earn .earn-main .invite .invite-list .invite-item .invite-icon {
+                width: 40px;
+                height: 40px;
             }
 
         }
-    </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const el = document.getElementById('dailyBtn');
-            if (!el) return;
-            el.style.cursor = 'pointer';
-            el.addEventListener('click', () => {
-                // try Vue router if available on a global root instance
-                if (window.__VUE_ROOT__ && window.__VUE_ROOT__.$router) {
-                    window.__VUE_ROOT__.$router.push('/daily');
-                    return;
-                }
-                // fallback to normal navigation
-                window.location.href = '/daily';
-            });
-        });
-        const imgs = document.querySelectorAll('.itemImg');
 
-        imgs.forEach(img => {
-            img.src = chestImg;   // hammasiga bir xil rasm qo‘yiladi
-        });
-    </script>
+        .tab_item {
+            cursor: pointer;
+        }
+
+        #dailyBtn {
+            cursor: pointer;
+        }
+    </style>
+
     <title>Document</title>
 </head>
 
@@ -229,12 +231,12 @@
                 <div class="invite-list">
                     <div class="invite-item">
                         <div class="invite-icon">
-                            <img src="/image/daily.png" alt="">
+                            <img class="dailyBtn" src="/image/daily.png" alt="">
                         </div>
                         <div class="invite-info">
                             <div class="invite__title">Daily Login</div>
                             <div class="invite__num">
-                                <img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 146,000
+                                <img src="" alt=""> 146,000
                             </div>
                         </div>
                         <div class="invite-arrow">
@@ -244,15 +246,16 @@
                         </div>
                     </div>
                 </div>
+                <div class=""></div>
             </div>
             <div class="tab_main">
                 <ul>
-                    <li class="tab_item checked">Active</li>
-                    <li class="tab_item">Inactive</li>
+                    <li class="tab_item checked" data-target="active-content">Active</li>
+                    <li class="tab_item" data-target="inactive-content">Inactive</li>
                 </ul>
             </div>
             <div class="invite">
-                <div class="invite__title">Official </div>
+                <div class="invite__title" style="display: block;">Official </div>
                 <div class="invite-list"><!---->
                     <div class="invite-item">
                         <div class="invite-icon">
@@ -263,7 +266,7 @@
                         <div class="invite-info">
                             <div class="invite__title">Join channel</div>
                             <div class="invite__num">
-                                <img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 20,000
+                                <img src="" alt=""> 20,000
                                 <div class="invite__keys">
                                     <img src="/image/key.png" alt=""> 2
                                 </div>
@@ -284,7 +287,7 @@
                         <div class="invite-info">
                             <div class="invite__title">Follow us on X</div>
                             <div class="invite__num">
-                                <img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 20,000
+                                <img src="" alt=""> 20,000
                                 <div class="invite__keys">
                                     <img src="/image/key.png" alt=""> 2
                                 </div>
@@ -297,92 +300,9 @@
                         </div>
                     </div>
                     <!---->
-                    <div class="invite-item">
-                        <div class="invite-icon">
-                            <img src="" alt="">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title">Connect wallet</div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 30,000
-                                <!---->
-                            </div>
-                        </div>
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!---->
-                    <div class="invite-item">
-                        <div class="invite-icon">
-                            <img src="https://static.tapcoins.app/202507/21/9fab30cf-5fa1-4d90-bfab-271b5d49e5c7.png">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title">Click on the Ad after viewing</div>
-                            <div class="invite__num">
-                                <img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 30,000
-                                <div class="invite__keys">
-                                    <img src="/image/key.png" alt=""> 1
-                                </div>
-                            </div>
-                        </div>
-                        <!---->
-                        <div class="invite-arrow">
-                            <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span>
-                        </div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon">
-                            <img src="https://static.tapcoins.app/202508/08/1556c9c4-2df1-4f24-9b87-6b5d5eb6495c.png">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title">Click the link in the AD</div>
-                            <div class="invite__num">
-                                <img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 30,000
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div>
-                            </div>
-                        </div>
-                        <!---->
-                        <div class="invite-arrow">
-                            <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span>
-                        </div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon">
-                            <img src="https://static.tapcoins.app/202502/19/6f5c264c-9f98-4ce0-a148-1b51b44dd4ff.png">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title">Watch &amp; click the AD</div>
-                            <div class="invite__num">
-                                <img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 30,000
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div>
-                            </div>
-                        </div>
-                        <!---->
-                        <div class="invite-arrow">
-                            <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span>
-                        </div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202509/03/fc9771c8-9e4d-48b4-85be-047c2aab85b9.jpg">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title">Watch and click on ads</div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 30,000
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div>
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!---->
+
+                    <!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!---->
+                    <div class="invite-list2"></div>
                 </div>
             </div>
             <div class="invite">
@@ -395,7 +315,7 @@
                         <div class="invite-info">
                             <div class="invite__title"> Make TON transaction <img src="">
                             </div>
-                            <div class="invite__num"><!----><img src="/img/tap.03f1d86d.png" alt="" class="tap_logo">
+                            <div class="invite__num"><!----><img src="" alt="" class="tap_logo">
                                 3,000 <!---->
                                 <div class="invite__keys"><img src="/image/key.png" alt="" style="margin-left: 0px;"> 20
                                 </div><!---->
@@ -412,7 +332,7 @@
                         <div class="invite-info">
                             <div class="invite__title"> Donate Stars <img src="">
                             </div>
-                            <div class="invite__num"><!----><img src="/img/tap.03f1d86d.png" alt="" class="tap_logo">
+                            <div class="invite__num"><!----><img src="" alt="" class="tap_logo">
                                 3,000 <!---->
                                 <div class="invite__keys"><img src="/image/key.png" alt="" style="margin-left: 0px;"> 20
                                 </div><!---->
@@ -422,407 +342,12 @@
                                 <img src="/image/arrow.svg" alt="">
                             </span></div>
                     </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202502/17/c6f58e7a-5c23-4ae6-bdc4-c1f7ed94f3cb.png">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Donate Stars <img src="/img/premium.6d7d103e.png"></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 320,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 15 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.xyz/202412/25/444b62a8-c895-4207-bfb9-4940004707f6.jpg">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Make TON transaction <img src="/img/premium.6d7d103e.png"></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 320,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 15 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202507/17/5368cf0e-dbf3-464d-af74-1fba4462bfb1.PNG">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Watch and click on ads <!----></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 10,000
-                                <img src="/img/tap.03f1d86d.png" alt="" class="tap_logo"> 20 <!----><!----><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202511/10/d8d82313-4170-43d5-af7d-5cc09f82fa55.png">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Claim your Boinkers gift! <!----></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 10,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202510/29/1878ede0-c4be-4804-954d-0ee6ded56236.png">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Follow MPay <!----></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 20,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202510/18/97e89b09-dad8-432b-96bc-8eadbad61bf2.png">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Mpay 1,000,000 USDT RUSH <!----></div>
-                            <div class="invite__num"><!----><!----><img src="" alt="" class="tap_logo"> 2 <div
-                                    class="invite__keys"><img src="/image/key.png" alt="" style="margin-left: 0px;"> 10
-                                </div><!----></div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202510/15/6434f564-7613-4391-8f70-bbcd6319b3df.png">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Join MPay <!----></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 20,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202504/27/0896cbe0-e237-4ec6-a13a-3108cd43877f.png">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Vote to Earn <!----></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 30,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202504/27/f3d45e01-3d70-403e-a211-0f8588de6730.png">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Join SeesFun <!----></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 20,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202511/20/5add89f0-8ef9-4995-93bc-ff7a582be791.jpg">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Join Pokergram <!----></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 10,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202511/12/5ebbc333-bc06-469f-b301-1a8f2bb73c49.jpg">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> The Premier x402 Launch Platform on Base.
-                                <!---->
-                            </div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 30,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202511/12/b26cfa91-9855-405c-a71e-88bc0fcb4ae2.jpg">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> The next generation of AI trading system
-                                <!---->
-                            </div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 30,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202504/14/bdaa3b7a-fb53-4f77-a01f-8c5a768ec6eb.jpg">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Subscribe to YouTube <!----></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 10,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202502/10/3947f49a-cbfd-4738-9efc-2a74cc73f98b.png">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Mining on AIhash <!----></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 300,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 3 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202510/14/868e63f7-769d-4fac-8723-b14a4a6392b7.jpg">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Airdrop Fam｜DeFi &amp; NFT Rewards <!---->
-                            </div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 20,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202504/10/34306f42-acc2-440d-8adf-34187957624c.jpg">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Play HumanPass Get Airdrop <!----></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 20,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202503/13/61d3ee47-1b48-4c10-96c6-dd9f22278fca.PNG">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> FreeMit AIHash <!----></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 20,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202501/26/cece5949-55d6-4502-87e6-65acc06a07fb.jpg">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Follow AiHash ，Get Rewards <!----></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 10,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202412/20/54543f57-2787-4a06-b0dc-d19bc8b9df37.jpg">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Join HumanPass <!----></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 10,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/20240918/6a18419b-891f-467c-b883-774251f3f049.png">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Play MemeCat <!----></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 10,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202507/16/c4ecdae0-e118-4cce-b121-7943f697a60f.jpg">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> TON MiniApps | Web3 Beacon <!----></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 20,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202507/16/bc6cb476-f4bf-44de-bcbf-4bb6c7895510.jpg">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> TonTask | Crypto Missions &amp; Rewards
-                                <!---->
-                            </div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 20,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202507/16/a85801ab-5356-4dbe-896a-8e379c9fc0f3.jpg">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Follow TonAppNet <!----></div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 20,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202507/16/b83be335-a33c-48c0-86c2-bf9e52f0defc.jpg">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Crypto Radar | On-Chain Newsflash <!---->
-                            </div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 20,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202506/23/faa0580b-b6e6-4a1b-aab2-8fe2d3f309aa.PNG">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Crypto Insider | Web3 Intelligence <!---->
-                            </div>
-                            <div class="invite__num"><img src="/img/index-icon-small-coin.1bd006c6.png" alt=""> 20,000
-                                <!----><!---->
-                                <div class="invite__keys"><img src="/image/key.png" alt=""> 1 </div><!---->
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
-                    <div class="invite-item">
-                        <div class="invite-icon"><img
-                                src="https://static.tapcoins.app/202411/20/57ec43cb-d198-4eff-a096-a40745606d81.png">
-                        </div>
-                        <div class="invite-info">
-                            <div class="invite__title"> Anti-bot verification <!----></div>
-                            <div class="invite__num"><!----><img src="/img/tap.03f1d86d.png" alt="" class="tap_logo">
-                                1,000 <!----><!---->
-                                <div class="invite__ton-add"><img src="" alt=""></div>
-                            </div>
-                        </div><!---->
-                        <div class="invite-arrow"><span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                                <img src="/image/arrow.svg" alt="">
-                            </span></div>
-                    </div>
                 </div>
+                <div class="invite-list2"></div>
             </div>
         </div><!----><!----><!----><!---->
     </div>
+    
 </body>
 
 </html>

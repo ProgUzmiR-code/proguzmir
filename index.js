@@ -424,22 +424,30 @@ function renderGame() {
         }, 1000);
     }
 
-    // --- ADD: daily button handler (fix for "dailyBtn" not responding) ---
-    const dailyBtn = document.getElementById('dailyBtn');
-    if (dailyBtn) {
-        dailyBtn.style.cursor = 'pointer';
-        dailyBtn.addEventListener('click', (ev) => {
+    // Har qanday joydagi Daily tugmasini tutib olish uchun global listener
+    document.addEventListener('click', (ev) => {
+        // Tugmani ID yoki Klass orqali qidiramiz
+        const target = ev.target.closest('#dailyBtn');
+
+        if (target) {
             ev.preventDefault();
             ev.stopPropagation();
-            // open daily screen; renderDaily is defined later in file
+
+            console.log('Daily tugmasi bosildi (Global listener)');
+
             try {
-                renderDaily();
+                // renderDaily funksiyasi global doirada bo'lishi kerak
+                if (typeof renderDaily === 'function') {
+                    renderDaily();
+                } else {
+                    console.error('renderDaily funksiyasi topilmadi!');
+                }
             } catch (err) {
                 console.error('Error opening Daily screen:', err);
-                showToast && showToast('Xatolik: Daily bo\'lim ochilmadi');
+                if (typeof showToast === 'function') showToast('Xatolik: Daily bo\'lim ochilmadi');
             }
-        });
-    }
+        }
+    });
 
     // --- NEW: key.html button handler ---
     const luckyBtn = document.getElementById('luckyKeyBtn');
@@ -496,6 +504,7 @@ function renderGame() {
         { id: 'energyPack', name: 'Energy +1000', img: './image/boost.png', type: 'energy', amount: INCREASE_BLOCK, costWei: BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI }
     ];
     function renderShop() {
+        
         hideNav();
         const s = loadState();
         // show Telegram BackButton and set it to return to main renderGame
@@ -645,8 +654,7 @@ function renderGame() {
             });
         });
     }
-    function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
-    function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
+    
     // --- ADD: daily keys & helpers (place near other KEY_* declarations) ---
     const KEY_DAILY_WEEK_START = "proguzmir_daily_week_start";
     const KEY_DAILY_CLAIMS = "proguzmir_daily_claims"; // JSON array of 7 booleans
@@ -687,6 +695,7 @@ function renderGame() {
     // --- ADD: renderDaily UI and logic (standalone page inside content) ---
     function renderDaily() {
         const s = loadState();
+        
         const wallet = s.wallet || localStorage.getItem(KEY_WALLET) || "";
         let { weekStartISO, claims } = getDailyData(wallet);
 
@@ -775,9 +784,11 @@ function renderGame() {
         // hide bottom nav and enable Telegram Back to return to game
         hideNav();
         showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
-
+        // hide bottom nav and enable Telegram Back to return to game
+        hideheader();
+        showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
         // back handler
-        document.getElementById('dailyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
+        document.getElementById('dailyBack').addEventListener('click', () => { hideTelegramBack(); showNav();  showheader(); renderGame(); });
 
         // claim handler (only today's button)
         const btn = content.querySelector('.claimTodayBtn');
@@ -957,10 +968,10 @@ document.querySelectorAll('.nav .tab').forEach(el => {
         el.classList.add('active');
         const tab = el.dataset.tab;
         if (tab === 'game') renderGame();
-        if (tab === 'rank') renderRank();
-        if (tab === 'wallet') renderWallet();
-        if (tab === 'market') renderMarket();
-        if (tab === 'earn') renderEarn();
+        if (tab === 'rank');
+        if (tab === 'wallet');
+        if (tab === 'invite');
+        if (tab === 'earn');
     });
 });
 
@@ -970,13 +981,12 @@ window.startLoader && window.startLoader();
 setTimeout(renderAndWait, 250); // small delay so loader visuals start
 
 document.querySelectorAll('img').forEach(img => {
-    img.addEventListener('contextmenu', e => e.preventDefault()); // O‘ng bosish menyusini o‘chiradi
+    img.addEventListener('contextmenu', e => e.preventDefault()); // O'ng bosish menyusini o'chiradi
 });
 document.addEventListener('contextmenu', event => event.preventDefault());
 document.addEventListener('selectstart', event => event.preventDefault());
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('dragstart', e => e.preventDefault());
-document.addEventListener('touchstart', e => e.preventDefault());
 
 
 // helper functions to control Telegram BackButton
@@ -1303,7 +1313,7 @@ function handleHeaderByPage(pageName) {
     if (!header) return;
 
     // pages that should HIDE header
-    const hideHeaderPages = ['rank', 'wallet', 'market', 'earn'];
+    const hideHeaderPages = ['rank', 'wallet', 'invite', 'earn'];
 
     if (hideHeaderPages.includes(pageName)) {
         header.style.display = 'none';
@@ -1331,9 +1341,9 @@ document.querySelectorAll('.nav .tab').forEach(el => {
             await loadHtmlIntoContent('./wallet/wallet.html');
             handleHeaderByPage('wallet');
         }
-        else if (tab === 'market') {
+        else if (tab === 'invite') {
             await loadHtmlIntoContent('./friends/friends.html');
-            handleHeaderByPage('market');
+            handleHeaderByPage('invite');
         }
         else if (tab === 'earn') {
             await loadHtmlIntoContent('./earn/earn.html');
@@ -1342,6 +1352,45 @@ document.querySelectorAll('.nav .tab').forEach(el => {
     });
 });
 
+
+// FAQAT bitta listener kifoya, u butun document ni kuzatadi
+document.addEventListener('click', function (e) {
+    // 1. Bosilgan element .tab_item yoki .tab_item1 ekanligini tekshiramiz
+    const tab = e.target.closest('.tab_item, .tab_item1');
+
+    // Agar bosilgan narsa tab bo'lmasa, funksiyani to'xtatamiz
+    if (!tab) return;
+
+    console.log("Tab bosildi!");
+
+    // 2. Barcha tablarni topamiz (tab_main ichidagilarini)
+    const tabs = document.querySelectorAll('.tab_main li');
+
+    // 3. 'checked' klassini almashtiramiz
+    tabs.forEach(item => item.classList.remove('checked'));
+    tab.classList.add('checked');
+
+    // 4. Statusni aniqlaymiz (data-target orqali qilish ishonchliroq, lekin matn orqali ham bo'ladi)
+    const status = tab.textContent.trim().toLowerCase();
+    console.log('Status: ' + status);
+
+    // 5. Ro'yxatlarni almashtiramiz
+    const inviteBlocks = document.querySelectorAll('.invite');
+    inviteBlocks.forEach(inviteBlock => {
+        const list1 = inviteBlock.querySelector('.invite-list');
+        const list2 = inviteBlock.querySelector('.invite-list2');
+
+        if (list1 && list2) {
+            if (status === 'inactive') {
+                list1.style.display = 'none';
+                list2.style.display = 'block';
+            } else if (status === 'active') {
+                list1.style.display = 'block';
+                list2.style.display = 'none';
+            }
+        }
+    });
+});
 
 
 
