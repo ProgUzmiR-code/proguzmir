@@ -263,10 +263,10 @@ function renderGame() {
               <span style="">Lucky Code</span>
             </div>
 
-            <!-- daily bounty -->
-            <div id="dailyBountyBtn" title="Daily Bounty" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+            <!-- daily income -->
+            <div id="incomeCardPreview" title="Daily Income" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
               <img src="./image/lukcy.png" alt="Lucky" class="luckyImg">
-              <span style="">Daily Bounty</span>
+              <span style="">Daily Income</span>
             </div>
 
           </div>
@@ -408,6 +408,8 @@ function renderGame() {
     if (shopPreview) shopPreview.addEventListener('click', (ev) => { ev.stopPropagation(); renderShop(); });
     const gamePreview = document.getElementById('gameCardPreview');
     if (gamePreview) gamePreview.addEventListener('click', (ev) => { ev.stopPropagation(); renderGames(); });
+    const incomePreview = document.getElementById('incomeCardPreview');
+    if (incomePreview) incomePreview.addEventListener('click', (ev) => { ev.stopPropagation(); window.location.href = './income/income.html'; });
 
     // --- Helper: show countdown on reklanma element ---
     function showReklanmaCountdown(rek) {
