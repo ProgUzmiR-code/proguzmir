@@ -269,12 +269,6 @@ function renderGame() {
               <span style="">Daily Bounty</span>
             </div>
 
-            <!--  -->
-            <div id="textBtn" title="text" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
-              <img src="./image/lukcy.png" alt="Lucky" class="luckyImg">
-              <span style="">text</span>
-            </div>
-
           </div>
 
           <div id="diamondTop" class="diamond">💎 ${s.diamond} </div>
