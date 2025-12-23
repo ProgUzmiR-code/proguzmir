@@ -16,6 +16,7 @@ const KEY_TAP_CAP = "proguzmir_tap_cap";
 const KEY_SELECTED_SKIN = "proguzmir_selected_skin";
 const KEY_ENERGY = "proguzmir_energy";
 const KEY_MAX_ENERGY = "proguzmir_max_energy";
+const KEY_TODAY_INDEX = "proguzmir_today_index"; // YANGI: kunlik index uchun
 const DEFAULT_MAX_ENERGY = 1000;
 
 // Default tap cap va blok o'lchami
@@ -58,6 +59,7 @@ function loadState() {
     const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
     const keyEnergy = makeUserKey(KEY_ENERGY, wallet);
     const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
+    const keyTodayIndex = makeUserKey(KEY_TODAY_INDEX, wallet); // YANGI
 
     const prc = localStorage.getItem(keyPRC) || "0";
     const diamond = parseInt(localStorage.getItem(keyDiamond) || "0", 10);
@@ -65,12 +67,13 @@ function loadState() {
     const tapCap = parseInt(localStorage.getItem(keyCap) || String(DEFAULT_TAP_CAP), 10);
     const selectedSkin = localStorage.getItem(keySkin) || "";
     const maxEnergy = parseInt(localStorage.getItem(keyMaxEnergy) || String(DEFAULT_MAX_ENERGY), 10);
+    const todayIndex = parseInt(localStorage.getItem(keyTodayIndex) || "0", 10); // YANGI
     let energy = parseInt(localStorage.getItem(keyEnergy) || String(maxEnergy), 10);
     // clamp energy to maxEnergy to avoid >max on corrupted storage
     if (Number.isNaN(energy)) energy = maxEnergy;
     if (energy > maxEnergy) energy = maxEnergy;
 
-    return { prcWei: BigInt(prc), diamond, wallet, tapsUsed, tapCap, selectedSkin, energy, maxEnergy };
+    return { prcWei: BigInt(prc), diamond, wallet, tapsUsed, tapCap, selectedSkin, energy, maxEnergy, todayIndex }; // YANGI: todayIndex qo'shdi
 }
 // yangi helper: jami PRC (sotib olingan prcWei + diamond*conversion)
 function getTotalPRCWei(state) {
@@ -113,6 +116,7 @@ function saveState(state) {
     const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
     const keyEnergy = makeUserKey(KEY_ENERGY, wallet);
     const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
+    const keyTodayIndex = makeUserKey(KEY_TODAY_INDEX, wallet); // YANGI
 
     // ensure state.wallet stored so subsequent loads use same identifier
     if (!state.wallet && wallet) state.wallet = wallet;
@@ -126,6 +130,8 @@ function saveState(state) {
     const en = (typeof state.energy === 'number' && !Number.isNaN(state.energy)) ? Math.min(state.energy, maxE) : maxE;
     localStorage.setItem(keyEnergy, String(en));
     localStorage.setItem(keyMaxEnergy, String(maxE));
+    if (typeof state.todayIndex === 'number') localStorage.setItem(keyTodayIndex, String(state.todayIndex)); // YANGI
+    
     if (state.selectedSkin)
         localStorage.setItem(keySkin, state.selectedSkin);
     else localStorage.removeItem(keySkin);
@@ -224,36 +230,51 @@ function renderGame() {
         totalWei: getTotalPRCWei(s).toString(),
         ui: fmtPRC(getTotalPRCWei(s))
     });
-    const todayIndex = s.todayIndex ?? 0;
+    
+    // YANGI: todayIndex dan label yaratish
+    const todayIndex = (typeof s.todayIndex === 'number' && s.todayIndex >= 0) ? s.todayIndex : 0;
+    const dayNum = todayIndex + 1;
+    const label = (todayIndex === 6) ? 'BIG DAY' : `Day ${dayNum}`;
+    
     // update header balance immediately on render
     document.getElementById('headerBalance') && (document.getElementById('headerBalance').innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(getTotalPRCWei(s)));
     if (typeof s.maxEnergy !== 'number') s.maxEnergy = DEFAULT_MAX_ENERGY;
     if (typeof s.energy !== 'number') s.energy = s.maxEnergy;
 
-    const dayNum = todayIndex + 1;
-    const label = (todayIndex === 6) ? 'BIG DAY' : `Day ${dayNum}`;
     const rank = getRankFromWei(s.prcWei);
     const defaultTapImg = rankImage(rank);
     const selectedSkin = s.selectedSkin;
     const skinObj = SKINS.find(x => x.id === selectedSkin);
     const displayImg = skinObj ? skinObj.file : defaultTapImg;
-
     // top quick access: Skin (left), Shop (center), Game (right) — diamond THEN previews THEN tap
     content.innerHTML = `
       <div class="tap-area">
         <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10px;">
           <div style="display:flex;gap:30px;align-items:center;margin-top: 10px;">
-            <div id="dailyBtn" class="btn" style="border-radius:8px;display: flex;flex-direction: column;cursor: pointer;">
+            <div id="dailyBtn" class="btn" style="border-radius:8px;display: flex;flex-direction: column;align-items: center;cursor: pointer;">
               <img class="dailyImg" src="./image/daily.png" alt="Daily">
-              <span>${label}</span>
-              <span class="text_daily">Daily</span>
+              <span  style="font-size:15px; font-weight:700;margin-bottom:4px;position:absolute;padding: 33px 0 0 0;color: black;">${label}</span>
+              <span class="text_daily">Daily Login</span>
             </div>
 
             <!-- Lucky Code key next to Daily -->
             <div id="luckyKeyBtn" title="Lucky Code" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
               <img src="./image/lukcy.png" alt="Lucky" class="luckyImg">
-              <span style="">Lucky</span>
+              <span style="">Lucky Code</span>
             </div>
+
+            <!-- daily bounty -->
+            <div id="dailyBountyBtn" title="Daily Bounty" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+              <img src="./image/lukcy.png" alt="Lucky" class="luckyImg">
+              <span style="">Daily Bounty</span>
+            </div>
+
+            <!--  -->
+            <div id="textBtn" title="text" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+              <img src="./image/lukcy.png" alt="Lucky" class="luckyImg">
+              <span style="">text</span>
+            </div>
+
           </div>
 
           <div id="diamondTop" class="diamond">💎 ${s.diamond} </div>
@@ -499,363 +520,13 @@ function renderGame() {
     // --- NEW: renderBoosts shows dedicated Boosts page (like navigating to a tab) ---
 
 
-    // --- NEW: renderShop (card layout) ---
-    const SHOP_ITEMS = [
-        { id: 'energyPack', name: 'Energy +1000', img: './image/boost.png', type: 'energy', amount: INCREASE_BLOCK, costWei: BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI }
-    ];
-    function renderShop() {
-        
-        hideNav();
-        const s = loadState();
-        // show Telegram BackButton and set it to return to main renderGame
-        showTelegramBack(() => { showNav(); renderGame(); });
-        // show Telegram BackButton and set it to return to main renderGame
-
-        // hide bottom header and enable Telegram Back to return to game
-        hideheader();
-        showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
-        // header with internal tabs (Back handled by Telegram WebApp "X")
-        content.innerHTML = `
-          <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-            <div class="btn-group" style="margin:auto;">
-              <div id="tabShop" class="btn">Shop</div>
-              <div id="tabSkins" class="btn">Skins</div>
-            </div>
-          </div>
-          <div style="display:flex; gap:12px; margin-top:6px;">
-            <div id="shopCol" style="flex:1; display:flex; flex-direction:column; gap:12px;">
-              ${SHOP_ITEMS.map(it => `
-                <div class="shop-item" data-id="${it.id}" style=" margin-bottom: 20px; display: flex; background:rgba(0,0,0,0.5); border-radius:12px; padding:12px;">
-                  <img src="${it.img}" alt="${it.name}" style="width:100px; object-fit:cover; border-radius:8px;">
-                  <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><b>${it.name}</b><div style="color:#ccc; font-size:13px;">Cost: ${fmtPRC(it.costWei)}</div></div>
-                    <button class="btn buyShopBtn" data-id="${it.id}">Buy</button>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-            <div id="skinCol" style="flex:1; display:flex; flex-direction:column; gap:12px; display:none;">
-              ${SKINS.map(sk => `
-                <div class="skin-item" data-skin="${sk.id}" style="    margin-bottom: 20px; background:rgba(0,0,0,0.5); border-radius:12px; padding:12px;">
-                  <img src="./image/${sk.id}" alt="${sk.name}" style="width:200px;  object-fit:cover; border-radius:8px;">
-                  <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><b>${sk.name}</b><div style="color:#ccc; font-size:13px;">Skin for your tap</div></div>
-                    <button class="btn buySkinBtn" data-skin="${sk.id}">Buy</button>
-                  </div>
-                </div>
-              `).join('')}}
-            </div>
-          </div>
-        `;
-        // tab handlers
-        const tabShop = document.getElementById('tabShop');
-        const tabSkins = document.getElementById('tabSkins');
-        const shopCol = document.getElementById('shopCol');
-        const skinCol = document.getElementById('skinCol');
-        function activateShop() { shopCol.style.display = ''; skinCol.style.display = 'none'; tabShop.disabled = true; tabSkins.disabled = false; }
-        function activateSkins() { shopCol.style.display = 'none'; skinCol.style.display = ''; tabShop.disabled = false; tabSkins.disabled = true; }
-        tabShop.addEventListener('click', activateShop);
-        tabSkins.addEventListener('click', activateSkins);
-        // default active
-        activateShop();
-        // shop buys
-        document.querySelectorAll('.buyShopBtn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.dataset.id;
-                const item = SHOP_ITEMS.find(x => x.id === id);
-                if (!item) return;
-                const state = loadState();
-                if (!chargeCost(state, item.costWei)) { alert('Yetarli PRC yo‘q.'); return; }
-                if (item.type === 'energy') {
-                    // Increase both maxEnergy and energy by the purchased amount, then refill energy to max
-                    state.maxEnergy = (state.maxEnergy || DEFAULT_MAX_ENERGY) + item.amount;
-                    state.energy = state.maxEnergy;
-                }
-                else if (item.type === 'taps') state.tapCap = (state.tapCap || DEFAULT_TAP_CAP) + item.amount;
-                saveState(state);
-                alert(`${item.name} sotib olindi.`);
-                renderShop();
-            });
-        });
-
-        // skin buys (inside shop)
-        document.querySelectorAll('.buySkinBtn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const skinId = btn.dataset.skin;
-                const state = loadState();
-                if (!chargeCost(state, SKIN_COST_WEI)) { alert('Yetarli PRC yo‘q skin sotib olish uchun.'); return; }
-                state.selectedSkin = skinId;
-                saveState(state);
-                alert('Skin sotib olindi: ' + SKINS.find(s => s.id === skinId).name);
-                renderShop();
-            });
-        });
-    }
-
-    // --- NEW: renderGames (list of game cards) ---
-    const GAMES = [
-        { id: 'game', name: 'Game One', img: './game/game.png' }
-    ];
-    function renderGames() {
-        hideNav();
-        const s = loadState();
-        // show Telegram BackButton and set it to return to main renderGame
-        showTelegramBack(() => { showNav(); renderGame(); });
-        // show Telegram BackButton and set it to return to main renderGame
-        showTelegramBack(() => { showheader(); renderGame(); });
-        // hide bottom nav and enable Telegram Back to return to game
-        hideheader();
-        showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
-        content.innerHTML = `
-          <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-            <div style="flex:1; text-align:center; font-weight:800;">🎮 Games</div>
-          </div>
-          <div style="display:flex; justify-content:space-between; gap:12px; margin-top:6px;">
-            <div style="flex:1; display:flex; flex-direction:column; gap:12px;">
-              ${GAMES.map(g => `
-                <div style="background:rgba(255,255,255,0.03); border-radius:12px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; height:160px;">
-                  <img src="${g.img}" alt="${g.name}" style="width:100%; height:90px; object-fit:cover; border-radius:8px;">
-                  <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><b>${g.name}</b><div style="color:#ccc; font-size:13px;">Tap to play</div></div>
-                    <button class="btn playGameBtn" data-id="${g.id}">Play</button>
-                  </div>
-                </div>
-              `).join('')}}
-            </div>
-            <div style="flex:1;"></div>
-          </div>
-        `;
-
-
-        document.querySelectorAll('.playGameBtn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.dataset.id;
-                const gameObj = GAMES.find(x => x.id === id) || { name: id };
-                // inject iframe (no full reload)
-                content.innerHTML = `
-                  <div style="display:flex; flex-direction:column; height:100%;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; padding:8px;">
-                      <button id="backFromGame" class="btn">Back</button>
-                      <div style="font-weight:800;">🎮 ${gameObj.name}</div>
-                      <div style="width:64px"></div>
-                    </div>
-                    <iframe id="gameIframe" src="./game/${id}.html" style="border:0; width:100%; height:calc(100vh - 120px); flex:1;" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
-                  </div>
-                `;
-                // hide bottom nav while inside game iframe
-                hideNav();
-                // ensure Telegram BackButton returns to games list
-                showTelegramBack(() => { renderGames(); showNav(); hideTelegramBack(); });
-                // onscreen back button handler
-                const backBtn = document.getElementById('backFromGame');
-                if (backBtn) {
-                    backBtn.addEventListener('click', () => { renderGames(); showNav(); hideTelegramBack(); });
-                }
-            });
-        });
-    }
     
-    // --- ADD: daily keys & helpers (place near other KEY_* declarations) ---
-    const KEY_DAILY_WEEK_START = "proguzmir_daily_week_start";
-    const KEY_DAILY_CLAIMS = "proguzmir_daily_claims"; // JSON array of 7 booleans
 
-    function dailyWeekStartKey(wallet) { return makeUserKey(KEY_DAILY_WEEK_START, wallet); }
-    function dailyClaimsKey(wallet) { return makeUserKey(KEY_DAILY_CLAIMS, wallet); }
+    
 
-    function getDailyData(wallet) {
-        // returns { weekStartISO, claims: [bool...7] }
-        const ws = localStorage.getItem(dailyWeekStartKey(wallet)) || null;
-        const clRaw = localStorage.getItem(dailyClaimsKey(wallet)) || null;
-        let claims = null;
-        try { claims = clRaw ? JSON.parse(clRaw) : null; } catch (e) { claims = null; }
-        if (!claims || !Array.isArray(claims) || claims.length !== 7) {
-            claims = [false, false, false, false, false, false, false];
-        }
-        return { weekStartISO: ws, claims };
-    }
-    function setDailyData(wallet, weekStartISO, claims) {
-        localStorage.setItem(dailyWeekStartKey(wallet), weekStartISO || "");
-        localStorage.setItem(dailyClaimsKey(wallet), JSON.stringify(claims));
-    }
+    
 
-    // helper: get index (0..6) for today relative to weekStartISO; if weekStartISO null -> create new week start = today
-    function getDailyIndexForToday(weekStartISO) {
-        const today = new Date(); today.setHours(0, 0, 0, 0);
-        if (!weekStartISO) return 0;
-        const ws = new Date(weekStartISO);
-        ws.setHours(0, 0, 0, 0);
-        const diffDays = Math.floor((today - ws) / 86400000);
-        if (diffDays < 0 || diffDays > 6) return null; // out of current week
-        return diffDays;
-    }
-
-    // rewards: days 0..5 -> 1 diamond, day6 (7th day) -> bigday 5 diamonds
-    const DAILY_REWARDS = [100, 2000, 4000, 8000, 16000, 32000, 10];
-
-    // --- ADD: renderDaily UI and logic (standalone page inside content) ---
-    function renderDaily() {
-        const s = loadState();
-        
-        const wallet = s.wallet || localStorage.getItem(KEY_WALLET) || "";
-        let { weekStartISO, claims } = getDailyData(wallet);
-
-        // if no weekStart or week expired, start new week today (weekStart = today)
-        const today = new Date(); today.setHours(0, 0, 0, 0);
-        if (!weekStartISO) {
-            weekStartISO = today.toISOString();
-            claims = [false, false, false, false, false, false, false];
-            setDailyData(wallet, weekStartISO, claims);
-        }
-        // compute today's index (0..6) or reset if outside range
-        let todayIndex = getDailyIndexForToday(weekStartISO);
-
-        // 🔥 NEW: Check if user missed a day (has unclaimed days before today that are now locked)
-        if (todayIndex !== null && todayIndex > 0) {
-            // Check if there's any unclaimed day before today
-            let missedDay = false;
-            for (let i = 0; i < todayIndex; i++) {
-                if (!claims[i]) {
-                    // Found an unclaimed day before today — user missed it
-                    missedDay = true;
-                    break;
-                }
-            }
-            if (missedDay) {
-                // Reset week: start fresh from today as Day 1
-                weekStartISO = today.toISOString();
-                claims = [false, false, false, false, false, false, false];
-                todayIndex = 0;
-                setDailyData(wallet, weekStartISO, claims);
-            }
-        }
-
-        // 🔥 todayIndex ni global state ga yozamiz
-        const st = loadState();
-        st.todayIndex = todayIndex;
-        saveState(st);
-
-        if (todayIndex === null) {
-            // start new week
-            weekStartISO = today.toISOString();
-            claims = [false, false, false, false, false, false, false];
-            todayIndex = 0;
-            setDailyData(wallet, weekStartISO, claims);
-        }
-
-        // show Telegram BackButton and set it to return to main renderGame
-        showTelegramBack(() => { showNav(); renderGame(); });
-
-        // build calendar markup
-        const items = [];
-
-        for (let i = 0; i < 7; i++) {
-            const dayNum = i + 1;
-            const claimed = !!claims[i];
-            const reward = DAILY_REWARDS[i];
-            const isToday = (i === todayIndex);
-            const cls = claimed ? 'claimed' : isToday ? 'today' : '';
-            const label = (i === 6) ? 'BIG DAY' : `Day ${dayNum}`;
-            const labelD = (i === 6) ? '<img src="./image/coin.png" alt="" style="width:15px;margin-left: 4px;">' : `💎`;
-            const labelfont = (i === 6) ? 'font-size:13px;' : ``;
-            items.push(`
-			<div class="daily-day ${cls}" data-index="${i}" style="display:flex;flex-direction:column;align-items:center;padding:12px;background:rgba(0, 0, 0, 0.43);border-radius:10px;">
-				<img src="./image/daily.png" alt="${label}" style="width:62px;height:62px;object-fit:cover;border-radius:8px;margin-bottom:8px;opacity:${claimed ? 0.5 : 1}">
-				<div style="${labelfont} font-weight:700;margin-bottom:4px;position:absolute;padding: 33px 0 0 0;color: black;">${label}</div>
-				<div style="font-size:13px;color:#ddd;margin-bottom:6px;display: flex;"> ${reward}  ${labelD}</div>
-				<div>${claimed ? '<span style="color:#8f8">Claimed</span>' : (isToday ? '<button class="claimTodayBtn">Claim</button>' : '<span style="opacity:0.6">Locked</span>')}</div>
-			</div>
-		`);
-        }
-
-        content.innerHTML = `
-		<div style="padding: 66px 2px 18px;"">
-			<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;margin-top: 90px;">
-				<button id="dailyBack" class="btn">Back</button>
-				<div style="font-weight:800;font-size:18px;">Daily Rewards</div>
-				<div style="width:72px"></div>
-			</div>
-			<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(90px, 1fr));gap:10px;">
-				${items.join('')}
-			</div>
-			<div style="margin-top:12px;color:#bbb;font-size:13px;">Collect today's reward. 7th day is BIGDAY. Miss a day = reset to Day 1.</div>
-		</div>
-	    `;
-
-        // hide bottom nav and enable Telegram Back to return to game
-        hideNav();
-        showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
-        // hide bottom nav and enable Telegram Back to return to game
-        hideheader();
-        showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
-        // back handler
-        document.getElementById('dailyBack').addEventListener('click', () => { hideTelegramBack(); showNav();  showheader(); renderGame(); });
-
-        // claim handler (only today's button)
-        const btn = content.querySelector('.claimTodayBtn');
-        if (btn) {
-            btn.addEventListener('click', () => {
-                // re-load to avoid race
-                const ddata = getDailyData(wallet);
-                let idx = getDailyIndexForToday(ddata.weekStartISO);
-
-                // 🔥 NEW: Re-check for missed days before allowing claim
-                if (idx !== null && idx > 0) {
-                    let missedDay = false;
-                    for (let i = 0; i < idx; i++) {
-                        if (!ddata.claims[i]) {
-                            missedDay = true;
-                            break;
-                        }
-                    }
-                    if (missedDay) {
-                        // Reset to Day 1
-                        const newStart = today.toISOString();
-                        const newClaims = [false, false, false, false, false, false, false];
-                        setDailyData(wallet, newStart, newClaims);
-                        showToast('Kunni o\'tkazdingiz — Day 1 dan boshladik');
-                        renderDaily();
-                        return;
-                    }
-                }
-
-                if (idx === null) {
-                    // week expired, reset
-                    const newStart = (new Date()).toISOString();
-                    const newClaims = [false, false, false, false, false, false, false];
-                    setDailyData(wallet, newStart, newClaims);
-                    showToast('Week reset — claim again.');
-                    renderDaily();
-                    return;
-                }
-                if (ddata.claims[idx]) { showToast('Today already claimed'); return; }
-
-                // mark claimed
-                ddata.claims[idx] = true;
-                setDailyData(wallet, ddata.weekStartISO, ddata.claims);
-
-                // reward: BIG DAY (idx==6) bo‘lsa 10 PRC, boshqa kunlarda diamond
-                const st = loadState();
-                if (idx === 6) {
-                    // 10 PRC beramiz
-                    const bigDayRewardWei = 10n * UNIT;
-                    st.prcWei = (st.prcWei || 0n) + bigDayRewardWei;
-                    saveState(st);
-                    animateAddPRC('+' + fmtPRC(bigDayRewardWei));
-                    showToast('BIG DAY! 10 PRC oldingiz!');
-                } else {
-                    // oddiy kun: diamond beramiz
-                    const reward = DAILY_REWARDS[idx] || 1;
-                    st.diamond = (st.diamond || 0) + reward;
-                    saveState(st);
-                    animateAddPRC('+' + reward + ' 💎');
-                    showToast(`Siz ${reward} diamond oldingiz!`);
-                }
-
-                // update UI locally
-                renderDaily();
-            });
-        }
-    }
+    
 } // end of function renderGame()
 
 // Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
