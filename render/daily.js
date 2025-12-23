@@ -36,6 +36,7 @@ function getDailyIndexForToday(weekStartISO) {
 // helpers to hide/show bottom header
 function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
 function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
+function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
 // helpers to hide/show bottom nav
 function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
 // rewards: days 0..5 -> 1 diamond, day6 (7th day) -> bigday 5 diamonds
