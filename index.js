@@ -331,9 +331,9 @@ function renderGame() {
 
         // oddiy click handler: share -> show claim button (do NOT re-render whole page)
         rek.addEventListener('click', () => {
-            if (isClaimedToday()) { showToast('1 kun kuting'); return; }
+            if (isClaimedToday()) { showToast('Vaqt tugashini kuting'); return; }
 
-            const currentUrl = (location.protocol === 'file:' ? 'https://YOUR_PUBLIC_DOMAIN/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
+            const currentUrl = (location.protocol === 'file:' ? 'https://proguzmir.vercel.app/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
             const args = {
                 link: currentUrl,
                 text: 'I have successfully withdrawn 0.01 TON from PROGUZ, you can also play!',
