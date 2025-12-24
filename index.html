@@ -5,93 +5,47 @@
   <meta charset="UTF-8">
   <meta name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <link rel="shortcut icon" href="./loading.svg" type="image/x-icon,jpg,png">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script>
-    (function () {
-      try {
-        // If Telegram WebApp is available, mark ready and expand UI.
-        if (window.Telegram && window.Telegram.WebApp) {
-          try { window.Telegram.WebApp.ready && window.Telegram.WebApp.ready(); } catch (e) { }
-          try { window.Telegram.WebApp.expand && window.Telegram.WebApp.expand(); } catch (e) { }
-          // Populate header username when initDataUnsafe is present
-          const u = window.Telegram.WebApp.initDataUnsafe?.user;
-          if (u) {
-            document.addEventListener('DOMContentLoaded', function () {
-              const nameNode = document.querySelector('.profile .username');
-              if (nameNode) {
-                const display = ((u.first_name || '')).trim();
-                nameNode.textContent = display || (u.username ? '@' + u.username : 'Telegram user');
-              }
-            });
-          }
-        }
-      } catch (err) {
-        // fail silently in non-Telegram contexts
-        console.warn('Telegram init skipped:', err && err.message ? err.message : err);
-      }
-    })();
-  </script>
-  <script>
-    function updateClipPath() {
-      const el = document.querySelector('.circle1');
-      const w = el.offsetWidth;
-      const h = el.offsetHeight;
-
-      const rightX = w - 15;
-
-      // Pastki bukilish chuqurligi (ichiga kirish chuqurligi)
-      const bottomIn = -1;
-
-      const path = ` M 10 0 L 0 0 L 2 7 A 10 10 0 0 0 14 15 L 10 15 L ${rightX} 15 C ${w} 15 ${w - 3} 6 ${w - 9} 0 L ${w * .61} 0 L ${w * 0.60} 0 L ${w * 0.61} 15 A 1 10 0 0 0 0 15 L 0 ${h - bottomIn} C 0 ${h - 10} 10 ${h - 10} 14 ${h - 10} L ${w - 14} ${h - 10} C ${w - 1} ${h - 10} ${w} ${h} ${w} ${h - bottomIn}  L ${w} 0`;
-
-      el.style.clipPath = `path("${path}")`;
+  <style>
+    /* Loading overlay: shows only the image that sharpens over time */
+    .loading-img {
+      position: fixed;
+      z-index: 10;
     }
 
-    window.addEventListener("resize", updateClipPath);
-    window.addEventListener("load", updateClipPath);
-  </script>
-
-  <script>
-    function updateClipPath() {
-      const el = document.querySelector('.circle2');
-      const w = el.offsetWidth;
-      const h = el.offsetHeight;
-
-      const rightX = w - 15;
-
-      // Pastki bukilish chuqurligi (ichiga kirish chuqurligi)
-      const bottomIn = -1;
-
-      const path = ` M 10 0 L 0 0 L 2 7 A 10 10 0 0 0 14 15 L 10 15 L ${rightX} 15 C ${w} 15 ${w - 3} 6 ${w - 9} 0 L ${w * .61} 0 L ${w * 0.60} 0 L ${w * 0.61} 15 A 1 10 0 0 0 0 15 L 0 ${h - bottomIn} C 0 ${h - 10} 10 ${h - 10} 14 ${h - 10} L ${w - 14} ${h - 10} C ${w - 1} ${h - 10} ${w} ${h} ${w} ${h - bottomIn}  L ${w} 0`;
-
-      el.style.clipPath = `path("${path}")`;
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgb(0, 0, 0);
+      z-index: 10000;
+      transition: opacity 300ms ease;
     }
 
-    window.addEventListener("resize", updateClipPath);
-    window.addEventListener("load", updateClipPath);
+    .loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
 
-    window.Telegram.WebApp.expand();
-    window.Telegram.WebApp.setHeaderColor("transparent");
-    window.Telegram.WebApp.disableVerticalSwipes();
-  </script>
-  <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      const tg = window.Telegram.WebApp;
+    .loading-img {
+      width: 100px;
+      max-width: 70%;
+      /* filter: blur(12px); */
+      opacity: 0.65;
+      transition: filter 700ms ease, opacity 400ms ease, transform 700ms ease;
+      transform: scale(1.02);
+      /* border-radius: 10px; */
+      /* box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6); */
+    }
 
-      // Ichki rangni o‘rnatish
-      tg.setBackgroundColor("#ffffff");
-
-      // Mini-appni maksimal holatga kengaytirish
-      tg.expand();
-
-      // Full screen so‘rash (faqat mobil brauzerlar qo‘llaganida)
-      if (tg.requestFullscreen) {
-        tg.requestFullscreen();
-      }
-    });
-  </script>
+    .loading-img.sharp {
+      filter: blur(0);
+      opacity: 1;
+      transform: scale(1);
+    }
+  </style>
   <script>
     // Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
     (function () {
@@ -196,6 +150,94 @@
       });
     }
   </script>
+  <link rel="shortcut icon" href="./loading.svg" type="image/x-icon,jpg,png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    (function () {
+      try {
+        // If Telegram WebApp is available, mark ready and expand UI.
+        if (window.Telegram && window.Telegram.WebApp) {
+          try { window.Telegram.WebApp.ready && window.Telegram.WebApp.ready(); } catch (e) { }
+          try { window.Telegram.WebApp.expand && window.Telegram.WebApp.expand(); } catch (e) { }
+          // Populate header username when initDataUnsafe is present
+          const u = window.Telegram.WebApp.initDataUnsafe?.user;
+          if (u) {
+            document.addEventListener('DOMContentLoaded', function () {
+              const nameNode = document.querySelector('.profile .username');
+              if (nameNode) {
+                const display = ((u.first_name || '')).trim();
+                nameNode.textContent = display || (u.username ? '@' + u.username : 'Telegram user');
+              }
+            });
+          }
+        }
+      } catch (err) {
+        // fail silently in non-Telegram contexts
+        console.warn('Telegram init skipped:', err && err.message ? err.message : err);
+      }
+    })();
+  </script>
+  <script>
+    function updateClipPath() {
+      const el = document.querySelector('.circle1');
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+
+      const rightX = w - 15;
+
+      // Pastki bukilish chuqurligi (ichiga kirish chuqurligi)
+      const bottomIn = -1;
+
+      const path = ` M 10 0 L 0 0 L 2 7 A 10 10 0 0 0 14 15 L 10 15 L ${rightX} 15 C ${w} 15 ${w - 3} 6 ${w - 9} 0 L ${w * .61} 0 L ${w * 0.60} 0 L ${w * 0.61} 15 A 1 10 0 0 0 0 15 L 0 ${h - bottomIn} C 0 ${h - 10} 10 ${h - 10} 14 ${h - 10} L ${w - 14} ${h - 10} C ${w - 1} ${h - 10} ${w} ${h} ${w} ${h - bottomIn}  L ${w} 0`;
+
+      el.style.clipPath = `path("${path}")`;
+    }
+
+    window.addEventListener("resize", updateClipPath);
+    window.addEventListener("load", updateClipPath);
+  </script>
+
+  <script>
+    function updateClipPath() {
+      const el = document.querySelector('.circle2');
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+
+      const rightX = w - 15;
+
+      // Pastki bukilish chuqurligi (ichiga kirish chuqurligi)
+      const bottomIn = -1;
+
+      const path = ` M 10 0 L 0 0 L 2 7 A 10 10 0 0 0 14 15 L 10 15 L ${rightX} 15 C ${w} 15 ${w - 3} 6 ${w - 9} 0 L ${w * .61} 0 L ${w * 0.60} 0 L ${w * 0.61} 15 A 1 10 0 0 0 0 15 L 0 ${h - bottomIn} C 0 ${h - 10} 10 ${h - 10} 14 ${h - 10} L ${w - 14} ${h - 10} C ${w - 1} ${h - 10} ${w} ${h} ${w} ${h - bottomIn}  L ${w} 0`;
+
+      el.style.clipPath = `path("${path}")`;
+    }
+
+    window.addEventListener("resize", updateClipPath);
+    window.addEventListener("load", updateClipPath);
+
+    window.Telegram.WebApp.expand();
+    window.Telegram.WebApp.setHeaderColor("transparent");
+    window.Telegram.WebApp.disableVerticalSwipes();
+  </script>
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const tg = window.Telegram.WebApp;
+
+      // Ichki rangni o‘rnatish
+      tg.setBackgroundColor("#ffffff");
+
+      // Mini-appni maksimal holatga kengaytirish
+      tg.expand();
+
+      // Full screen so‘rash (faqat mobil brauzerlar qo‘llaganida)
+      if (tg.requestFullscreen) {
+        tg.requestFullscreen();
+      }
+    });
+  </script>
+
   <style>
     :root {
       --corner-d: 32px;
@@ -443,8 +485,7 @@
       left: 0;
     }
 
-    .header,
-    .loading-img {
+    .header {
       position: fixed;
       z-index: 10;
     }
@@ -535,41 +576,6 @@
 
     .reklanma2 {
       cursor: pointer;
-    }
-
-    /* Loading overlay: shows only the image that sharpens over time */
-    .loading-overlay {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgb(0, 0, 0);
-      z-index: 10000;
-      transition: opacity 300ms ease;
-    }
-
-    .loading-overlay.hidden {
-      opacity: 0;
-      pointer-events: none;
-      visibility: hidden;
-    }
-
-    .loading-img {
-      width: 100px;
-      max-width: 70%;
-      /* filter: blur(12px); */
-      opacity: 0.65;
-      transition: filter 700ms ease, opacity 400ms ease, transform 700ms ease;
-      transform: scale(1.02);
-      /* border-radius: 10px; */
-      /* box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6); */
-    }
-
-    .loading-img.sharp {
-      filter: blur(0);
-      opacity: 1;
-      transform: scale(1);
     }
 
     .reklanma1 {
