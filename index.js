@@ -267,7 +267,7 @@ function renderGame() {
             </div>
 
             <!-- daily income -->
-            <div id="incomeCardPreview" title="Daily Income" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+            <div id="incomeBtn" title="Daily Income" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
               <img src="./image/lukcy.png" alt="Lucky" class="luckyImg">
               <span style="">Daily Income</span>
             </div>
@@ -487,6 +487,24 @@ function renderGame() {
             try { window.open('./key/key.html', '_blank'); } catch (e) { console.error('open lusck_code error', e); }
         });
     }
+    // --- NEW: key.html button handler ---
+    const incomeBtn = document.getElementById('incomeBtn');
+    if (incomeBtn) {
+        incomeBtn.style.cursor = 'pointer';
+        incomeBtn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            // prefer single-page load helper if available
+            try {
+                if (typeof loadHtmlIntoContent === 'function') {
+                    loadHtmlIntoContent('./income/income.html');
+                    return;
+                }
+            } catch (e) { /* ignore and fallback */ }
+            // fallback: open in new tab
+            try { window.open('./income/income.html', '_blank'); } catch (e) { console.error('open income error', e); }
+        });
+    }
 
     // energy auto-recharge (existing)
     if (window._energyInterval) { clearInterval(window._energyInterval); window._energyInterval = null; }
@@ -515,15 +533,6 @@ function renderGame() {
     // helpers to hide/show bottom nav
     function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
     function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
-
-    // --- NEW: renderBoosts shows dedicated Boosts page (like navigating to a tab) ---
-
-
-
-
-
-
-
 
 
 } // end of function renderGame()
@@ -708,7 +717,6 @@ function animateAddPRC(text) {
     setTimeout(() => { if (el.parentElement) el.parentElement.removeChild(el); }, 1100);
 }
 
-// yangi kod: renderGame ichida reklanma uchun dastlabki sozlamalar
 
 
 
