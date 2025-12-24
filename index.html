@@ -150,7 +150,7 @@
       });
     }
   </script>
-  <link rel="shortcut icon" href="./loading.svg" type="image/x-icon,jpg,png">
+  <link rel="preload" href="./loading.svg" as="image">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
@@ -805,11 +805,12 @@
 <body>
   <!-- Keep a single Loading overlay, single panel and single nav -->
   <!-- Loading overlay (shows on app start) -->
-  <div id="loadingOverlay" class="loading-overlay hidden" aria-hidden="true" role="status" aria-live="polite">
-    <img id="loadingImg" class="loading-img" src="./image/loading.svg" alt="">
-    <div id="loadingText" class="loading-text" style="display:none; color:#fff; font-weight:700; font-size:18px;">
-      loading...</div>
+  <div id="loadingOverlay" class="loading-overlay" aria-hidden="false">
+  <img id="loadingImg" class="loading-img" src="./image/loading.svg" alt="">
+  <div id="loadingText" style="display:none;color:#fff;font-weight:700;">
+    loading...
   </div>
+</div>
 
   <!-- o'zgardi: endi header container (logo chapda, balans oʻngda) -->
   <div class="header" aria-label="header">
