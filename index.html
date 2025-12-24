@@ -92,6 +92,110 @@
       }
     });
   </script>
+  <script>
+    // Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
+    (function () {
+      let animInterval = null;
+      let overlay = null;
+      let img = null;
+      let text = null;
+
+      function startLoader() {
+        overlay = overlay || document.getElementById('loadingOverlay');
+        img = img || document.getElementById('loadingImg');
+        text = text || document.getElementById('loadingText');
+        if (!overlay) return;
+        overlay.classList.remove('hidden');
+        overlay.setAttribute('aria-hidden', 'false');
+        // default: show image; if it errors we'll switch to text
+        if (img) {
+          img.style.display = '';
+          text.style.display = 'none';
+          img.classList.remove('sharp');
+          // try to apply sharp/blurry loop
+          let on = false;
+          if (animInterval) clearInterval(animInterval);
+          animInterval = setInterval(() => {
+            if (!img) return;
+            if (on) img.classList.add('sharp');
+            else img.classList.remove('sharp');
+            on = !on;
+          }, 700);
+        } else {
+          // fallback: show text only
+          if (text) { text.style.display = ''; }
+        }
+        // listen for image load/error: if error -> show text instead
+        if (img) {
+          img.addEventListener('error', onImgError);
+          img.addEventListener('load', onImgLoad);
+          // if image already loaded but failed to render (naturalWidth==0), treat as error
+          if (img.complete && img.naturalWidth === 0) onImgError();
+        }
+      }
+      function onImgError() {
+        if (!img || !overlay) return;
+        // hide image, show text
+        img.style.display = 'none';
+        const txt = document.getElementById('loadingText');
+        if (txt) txt.style.display = '';
+        // stop image animation if any
+        if (animInterval) { clearInterval(animInterval); animInterval = null; }
+      }
+      function onImgLoad() {
+        // ensure animation uses sharp state shortly after load
+        if (img) {
+          img.classList.add('sharp');
+        }
+      }
+      function stopLoader() {
+        overlay = overlay || document.getElementById('loadingOverlay');
+        img = img || document.getElementById('loadingImg');
+        text = text || document.getElementById('loadingText');
+        if (!overlay) return;
+        if (animInterval) { clearInterval(animInterval); animInterval = null; }
+        // graceful fade: add hidden class after short delay so CSS transition applies
+        overlay.classList.add('hidden');
+        overlay.setAttribute('aria-hidden', 'true');
+        // cleanup listeners
+        if (img) {
+          img.removeEventListener('error', onImgError);
+          img.removeEventListener('load', onImgLoad);
+        }
+      }
+
+      // expose to global for lifecycle usage
+      window.startLoader = startLoader;
+      window.stopLoader = stopLoader;
+    })();
+
+    // Helper: render UI then wait for content images to load (or timeout) before hiding loader
+    function renderAndWait() {
+      // render synchronously
+      renderGame();
+      // collect images inside content and wait for them
+      const imgs = Array.from(document.getElementById('content').querySelectorAll('img'));
+      const promises = imgs.map(im => {
+        return new Promise(res => {
+          if (im.complete) {
+            // if it failed to load, naturalWidth==0 => consider as loaded to avoid stalling
+            return res();
+          }
+          const ondone = () => { im.removeEventListener('load', ondone); im.removeEventListener('error', ondone); res(); };
+          im.addEventListener('load', ondone);
+          im.addEventListener('error', ondone);
+        });
+      });
+      // wait all or timeout (2s)
+      Promise.race([
+        Promise.all(promises),
+        new Promise(r => setTimeout(r, 2000))
+      ]).then(() => {
+        // give a small delay for final visual
+        setTimeout(() => { window.stopLoader && window.stopLoader(); }, 120);
+      });
+    }
+  </script>
   <style>
     :root {
       --corner-d: 32px;
@@ -278,8 +382,8 @@
     }
 
     .diamond {
-      font-size:25px;
-      margin-bottom:8px;
+      font-size: 25px;
+      margin-bottom: 8px;
       margin-top: 30px;
     }
 
@@ -477,30 +581,33 @@
       border-radius: 8px;
       font-weight: 600;
     }
-    .shopImg {
-      width:52px; 
-      height:52px; 
-      object-fit:cover; 
-      margin-bottom: 10px; 
-      border-radius:8px;
-    }
-    .gameImg {
-        width:64px; 
-        height:64px; 
-        object-fit:cover; 
-        border-radius:8px;
-      }
 
-      .dailyImg{
-        width: 50px; 
-        height:60px; 
-        object-fit: contain;
-      }
-      .luckyImg {
-        width:55px;
-        height:60px;
-        object-fit:contain;
-      }
+    .shopImg {
+      width: 52px;
+      height: 52px;
+      object-fit: cover;
+      margin-bottom: 10px;
+      border-radius: 8px;
+    }
+
+    .gameImg {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .dailyImg {
+      width: 50px;
+      height: 60px;
+      object-fit: contain;
+    }
+
+    .luckyImg {
+      width: 55px;
+      height: 60px;
+      object-fit: contain;
+    }
 
     /* Media queries: planshetlar */
     @media (min-width:481px) and (max-width:1024px) {
@@ -593,11 +700,13 @@
         text-align: center;
         margin-top: 118px;
       }
+
       .diamond {
-      font-size:25px;
-      margin-bottom:8px;
-      margin-top: 10px;
-    }
+        font-size: 25px;
+        margin-bottom: 8px;
+        margin-top: 10px;
+      }
+
       .nav {
         gap: 1px;
       }
@@ -631,29 +740,30 @@
       }
 
       .shopImg {
-      width:42px; 
-      height:42px; 
-      object-fit:cover; 
-      margin-bottom: 10px; 
-      border-radius:8px;
+        width: 42px;
+        height: 42px;
+        object-fit: cover;
+        margin-bottom: 10px;
+        border-radius: 8px;
       }
 
       .gameImg {
-        width:54px; 
-        height:54px; 
-        object-fit:cover; 
-        border-radius:8px;
+        width: 54px;
+        height: 54px;
+        object-fit: cover;
+        border-radius: 8px;
       }
-      .dailyImg{
-        width: 40px; 
-        height:50px; 
+
+      .dailyImg {
+        width: 40px;
+        height: 50px;
         object-fit: contain;
       }
 
       .luckyImg {
-        width:45px;
-        height:50px;
-        object-fit:contain;
+        width: 45px;
+        height: 50px;
+        object-fit: contain;
       }
 
       button.btn,
@@ -681,7 +791,7 @@
     }
   </style>
   <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.main.css" rel="stylesheet">
-  
+
 
   <title>ProgUzmiR</title>
 </head>
@@ -758,7 +868,7 @@
 
     tabs.forEach((tab, i) => {
       tab.onclick = () => {
-        
+
         // eski active ni o‘chir
         nav.querySelector('.tab.active')?.classList.remove('active');
 
@@ -770,7 +880,7 @@
       };
     });
   </script>
-  
+
   <script src="/render/game.js"></script>
   <script src="/render/shop.js"></script>
   <script src="/render/daily.js"></script>
