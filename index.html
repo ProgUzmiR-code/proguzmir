@@ -687,6 +687,14 @@
 </head>
 
 <body>
+  <!-- Keep a single Loading overlay, single panel and single nav -->
+  <!-- Loading overlay (shows on app start) -->
+  <div id="loadingOverlay" class="loading-overlay hidden" aria-hidden="true" role="status" aria-live="polite">
+    <img id="loadingImg" class="loading-img" src="./image/loading.svg" alt="">
+    <div id="loadingText" class="loading-text" style="display:none; color:#fff; font-weight:700; font-size:18px;">
+      loading...</div>
+  </div>
+
   <!-- o'zgardi: endi header container (logo chapda, balans oʻngda) -->
   <div class="header" aria-label="header">
     <div class="PRS font-effect-shadow-multiple">ProgUzmiR</div>
@@ -699,14 +707,6 @@
         0.000000000000000000 PRC</div>
     </div>
 
-  </div>
-
-  <!-- Keep a single Loading overlay, single panel and single nav -->
-  <!-- Loading overlay (shows on app start) -->
-  <div id="loadingOverlay" class="loading-overlay hidden" aria-hidden="true" role="status" aria-live="polite">
-    <img id="loadingImg" class="loading-img" src="./image/loading.svg" alt="">
-    <div id="loadingText" class="loading-text" style="display:none; color:#fff; font-weight:700; font-size:18px;">
-      loading...</div>
   </div>
 
   <!-- panel: content rendered by JS -->

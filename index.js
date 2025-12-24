@@ -34,6 +34,110 @@ const SKINS = [
     { id: "master.png", name: "Master", file: "./image/master.png" }
 ];
 
+
+// Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
+(function () {
+    let animInterval = null;
+    let overlay = null;
+    let img = null;
+    let text = null;
+
+    function startLoader() {
+        overlay = overlay || document.getElementById('loadingOverlay');
+        img = img || document.getElementById('loadingImg');
+        text = text || document.getElementById('loadingText');
+        if (!overlay) return;
+        overlay.classList.remove('hidden');
+        overlay.setAttribute('aria-hidden', 'false');
+        // default: show image; if it errors we'll switch to text
+        if (img) {
+            img.style.display = '';
+            text.style.display = 'none';
+            img.classList.remove('sharp');
+            // try to apply sharp/blurry loop
+            let on = false;
+            if (animInterval) clearInterval(animInterval);
+            animInterval = setInterval(() => {
+                if (!img) return;
+                if (on) img.classList.add('sharp');
+                else img.classList.remove('sharp');
+                on = !on;
+            }, 700);
+        } else {
+            // fallback: show text only
+            if (text) { text.style.display = ''; }
+        }
+        // listen for image load/error: if error -> show text instead
+        if (img) {
+            img.addEventListener('error', onImgError);
+            img.addEventListener('load', onImgLoad);
+            // if image already loaded but failed to render (naturalWidth==0), treat as error
+            if (img.complete && img.naturalWidth === 0) onImgError();
+        }
+    }
+    function onImgError() {
+        if (!img || !overlay) return;
+        // hide image, show text
+        img.style.display = 'none';
+        const txt = document.getElementById('loadingText');
+        if (txt) txt.style.display = '';
+        // stop image animation if any
+        if (animInterval) { clearInterval(animInterval); animInterval = null; }
+    }
+    function onImgLoad() {
+        // ensure animation uses sharp state shortly after load
+        if (img) {
+            img.classList.add('sharp');
+        }
+    }
+    function stopLoader() {
+        overlay = overlay || document.getElementById('loadingOverlay');
+        img = img || document.getElementById('loadingImg');
+        text = text || document.getElementById('loadingText');
+        if (!overlay) return;
+        if (animInterval) { clearInterval(animInterval); animInterval = null; }
+        // graceful fade: add hidden class after short delay so CSS transition applies
+        overlay.classList.add('hidden');
+        overlay.setAttribute('aria-hidden', 'true');
+        // cleanup listeners
+        if (img) {
+            img.removeEventListener('error', onImgError);
+            img.removeEventListener('load', onImgLoad);
+        }
+    }
+
+    // expose to global for lifecycle usage
+    window.startLoader = startLoader;
+    window.stopLoader = stopLoader;
+})();
+
+// Helper: render UI then wait for content images to load (or timeout) before hiding loader
+function renderAndWait() {
+    // render synchronously
+    renderGame();
+    // collect images inside content and wait for them
+    const imgs = Array.from(document.getElementById('content').querySelectorAll('img'));
+    const promises = imgs.map(im => {
+        return new Promise(res => {
+            if (im.complete) {
+                // if it failed to load, naturalWidth==0 => consider as loaded to avoid stalling
+                return res();
+            }
+            const ondone = () => { im.removeEventListener('load', ondone); im.removeEventListener('error', ondone); res(); };
+            im.addEventListener('load', ondone);
+            im.addEventListener('error', ondone);
+        });
+    });
+    // wait all or timeout (2s)
+    Promise.race([
+        Promise.all(promises),
+        new Promise(r => setTimeout(r, 2000))
+    ]).then(() => {
+        // give a small delay for final visual
+        setTimeout(() => { window.stopLoader && window.stopLoader(); }, 120);
+    });
+}
+
 // Init state (default PRC = 0.0000000000000037 PRC -> 3700 wei)
 // --- YANGI: foydalanuvchiga xos key yaratish funksiyasi ---
 function makeUserKey(baseKey, wallet) {
@@ -131,7 +235,7 @@ function saveState(state) {
     localStorage.setItem(keyEnergy, String(en));
     localStorage.setItem(keyMaxEnergy, String(maxE));
     if (typeof state.todayIndex === 'number') localStorage.setItem(keyTodayIndex, String(state.todayIndex)); // YANGI
-    
+
     if (state.selectedSkin)
         localStorage.setItem(keySkin, state.selectedSkin);
     else localStorage.removeItem(keySkin);
@@ -230,12 +334,12 @@ function renderGame() {
         totalWei: getTotalPRCWei(s).toString(),
         ui: fmtPRC(getTotalPRCWei(s))
     });
-    
+
     // YANGI: todayIndex dan label yaratish
     const todayIndex = (typeof s.todayIndex === 'number' && s.todayIndex >= 0) ? s.todayIndex : 0;
     const dayNum = todayIndex + 1;
     const label = (todayIndex === 6) ? 'BIG DAY' : `Day ${dayNum}`;
-    
+
     // update header balance immediately on render
     document.getElementById('headerBalance') && (document.getElementById('headerBalance').innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(getTotalPRCWei(s)));
     if (typeof s.maxEnergy !== 'number') s.maxEnergy = DEFAULT_MAX_ENERGY;
@@ -516,117 +620,14 @@ function renderGame() {
     // --- NEW: renderBoosts shows dedicated Boosts page (like navigating to a tab) ---
 
 
-    
 
-    
 
-    
 
-    
+
+
+
+
 } // end of function renderGame()
-
-// Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
-(function () {
-    let animInterval = null;
-    let overlay = null;
-    let img = null;
-    let text = null;
-
-    function startLoader() {
-        overlay = overlay || document.getElementById('loadingOverlay');
-        img = img || document.getElementById('loadingImg');
-        text = text || document.getElementById('loadingText');
-        if (!overlay) return;
-        overlay.classList.remove('hidden');
-        overlay.setAttribute('aria-hidden', 'false');
-        // default: show image; if it errors we'll switch to text
-        if (img) {
-            img.style.display = '';
-            text.style.display = 'none';
-            img.classList.remove('sharp');
-            // try to apply sharp/blurry loop
-            let on = false;
-            if (animInterval) clearInterval(animInterval);
-            animInterval = setInterval(() => {
-                if (!img) return;
-                if (on) img.classList.add('sharp');
-                else img.classList.remove('sharp');
-                on = !on;
-            }, 700);
-        } else {
-            // fallback: show text only
-            if (text) { text.style.display = ''; }
-        }
-        // listen for image load/error: if error -> show text instead
-        if (img) {
-            img.addEventListener('error', onImgError);
-            img.addEventListener('load', onImgLoad);
-            // if image already loaded but failed to render (naturalWidth==0), treat as error
-            if (img.complete && img.naturalWidth === 0) onImgError();
-        }
-    }
-    function onImgError() {
-        if (!img || !overlay) return;
-        // hide image, show text
-        img.style.display = 'none';
-        const txt = document.getElementById('loadingText');
-        if (txt) txt.style.display = '';
-        // stop image animation if any
-        if (animInterval) { clearInterval(animInterval); animInterval = null; }
-    }
-    function onImgLoad() {
-        // ensure animation uses sharp state shortly after load
-        if (img) {
-            img.classList.add('sharp');
-        }
-    }
-    function stopLoader() {
-        overlay = overlay || document.getElementById('loadingOverlay');
-        img = img || document.getElementById('loadingImg');
-        text = text || document.getElementById('loadingText');
-        if (!overlay) return;
-        if (animInterval) { clearInterval(animInterval); animInterval = null; }
-        // graceful fade: add hidden class after short delay so CSS transition applies
-        overlay.classList.add('hidden');
-        overlay.setAttribute('aria-hidden', 'true');
-        // cleanup listeners
-        if (img) {
-            img.removeEventListener('error', onImgError);
-            img.removeEventListener('load', onImgLoad);
-        }
-    }
-
-    // expose to global for lifecycle usage
-    window.startLoader = startLoader;
-    window.stopLoader = stopLoader;
-})();
-
-// Helper: render UI then wait for content images to load (or timeout) before hiding loader
-function renderAndWait() {
-    // render synchronously
-    renderGame();
-    // collect images inside content and wait for them
-    const imgs = Array.from(document.getElementById('content').querySelectorAll('img'));
-    const promises = imgs.map(im => {
-        return new Promise(res => {
-            if (im.complete) {
-                // if it failed to load, naturalWidth==0 => consider as loaded to avoid stalling
-                return res();
-            }
-            const ondone = () => { im.removeEventListener('load', ondone); im.removeEventListener('error', ondone); res(); };
-            im.addEventListener('load', ondone);
-            im.addEventListener('error', ondone);
-        });
-    });
-    // wait all or timeout (2s)
-    Promise.race([
-        Promise.all(promises),
-        new Promise(r => setTimeout(r, 2000))
-    ]).then(() => {
-        // give a small delay for final visual
-        setTimeout(() => { window.stopLoader && window.stopLoader(); }, 120);
-    });
-}
 
 // Tab switching (nav fixed at bottom visually)
 document.querySelectorAll('.nav .tab').forEach(el => {
