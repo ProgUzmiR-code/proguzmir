@@ -32,12 +32,10 @@
     .loading-img {
       width: 70px;
       max-width: 70%;
-      /* filter: blur(12px); */
+      margin-top: 20px;
       opacity: 0.65;
       transition: filter 700ms ease, opacity 400ms ease, transform 700ms ease;
       transform: scale(1.02);
-      /* border-radius: 10px; */
-      /* box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6); */
     }
 
     .loading-img.sharp {
@@ -806,11 +804,11 @@
   <!-- Keep a single Loading overlay, single panel and single nav -->
   <!-- Loading overlay (shows on app start) -->
   <div id="loadingOverlay" class="loading-overlay" aria-hidden="false">
-  <img id="loadingImg" class="loading-img" src="./image/loading.svg" alt="">
-  <div id="loadingText" style="display:none;color:#fff;font-weight:700;">
-    loading...
+    <img id="loadingImg" class="loading-img" src="./image/loading.svg" alt="">
+    <div id="loadingText" style="display:none;color:#fff;font-weight:700;">
+      loading...
+    </div>
   </div>
-</div>
 
   <!-- o'zgardi: endi header container (logo chapda, balans oʻngda) -->
   <div class="header" aria-label="header">
