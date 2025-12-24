@@ -1,11 +1,268 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('/image/background1.jpg');
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+        }
+
+        .diamond {
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            right: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 20px;
+            margin-top: 90px;
+        }
+    </style>
+    <style>
+        .tab_main {
+            margin-top: 10px;
+        }
+
+        .tab_main ul {
+            display: flex;
+            justify-content: center;
+            background-color: rgba(41, 87, 157, .7);
+            border-radius: 20px;
+            padding: 8px;
+        }
+        li {
+            list-style: none;
+        }
+        .tab_item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: hsla(0, 0%, 100%, .5);
+            font-size: 15px;
+            border-radius: 7px;
+            padding: 5px 11px;
+            text-align: center;
+            font-weight: 100;
+            -ms-flex: 1;
+            flex: 1;
+        }
+
+        .checked {
+            background-color: rgb(49, 189, 207);
+            font-weight: 700;
+            height: 24px;
+            color: rgb(218, 221, 54);
+            border-radius: 20px;
+        }
+
+        .boo-item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px;
+        }
+
+        .boo-icon img {
+            width: 80px;
+            height: 80px;
+        }
+
+        .boo-item {
+            width: 48%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 0px 0px 10px 0px;
+        }
+
+        .boo-icon {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            text-align: center;
+            vertical-align: middle;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            margin: 15px auto;
+        }
+
+        .boo-title {
+            color: rgb(255, 255, 255);
+            font-weight: bolder;
+            text-overflow: ellipsis;
+            overflow-wrap: break-word;
+            line-height: 30px;
+            height: 30px;
+            overflow: hidden;
+        }
+
+        .boo__cost {
+            font-size: 15px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0px 0px 20px;
+        }
+
+        .boo__num {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            color: rgb(255, 255, 255);
+            font-weight: 300;
+            font-size: 15px;
+            vertical-align: middle;
+            padding-top: 15px;
+            height: 40px;
+            margin: 0px 10px;
+            border-top: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .boo__num__lvl {
+            text-align: center;
+            display: flex;
+            -webkit-box-align: center;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .boo__num__coin {
+            text-align: center;
+            vertical-align: middle;
+            display: flex;
+            -webkit-box-align: center;
+            align-items: center;
+        }
+
+        .boo__num_coin_text {
+            width: 60px;
+            border-right: 2px solid rgba(255, 255, 255, 0.15);
+            padding: 5px 7px 6px 0px;
+        }
+
+        .boo__num .boo__num__coin img {
+            vertical-align: top;
+            width: 30px;
+            height: 30px;
+            margin-left: 20px;
+            margin-right: 5px;
+        }
+
+        .boo__cost img{
+            width: 25px;
+            height: 25px;
+            padding-left: 10px;
+            padding-right: 5px;
+        }
+
+        #pop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+    </style>
     <title>Document</title>
 </head>
+
 <body>
-    <h1>Income</h1>
+    <div>
+        <div id="diamondTop" class="diamond">💎 </div>
+        <div class="tab_main">
+            <ul>
+                <li class="tab_item checked">blockchain</li>
+                <li class="tab_item ">Apps</li>
+                <li class="tab_item ">Apps</li>
+                <li class="tab_item ">Apps</li>
+                <li class="tab_item ">Apps</li>
+            </ul>
+        </div>
+
+        <div id="pop">
+            <div class="dialog-main bottom" style="width: 95%; height: auto;">
+                <div class="btn-close">
+                    <svg aria-hidden="true" class="scoped-svg-icon ">
+                        <use xlink:href="#icon-icon-close"></use>
+                    </svg>
+                </div>
+                <div class="pop-main">
+                    <div class="energy__img">
+                        <img src="" alt=""><!---->
+                    </div>
+                    <div class="energy__title">Tron (TRX) Blockchain</div>
+                    <div class="energy__subtitle">
+                        A blockchain-based decentralized platform aiming to build a free, global digital content
+                        entertainment system.
+                    </div>
+                    <div class="energy__lv">
+                        <div class="box">
+                            <div class="n">lv 2</div>
+                            <div class="i">
+                                <img src="" alt="">
+                            </div>
+                            <div class="t">lv 3</div>
+                        </div>
+                    </div>
+                    <div class="energy__threetitle">
+                        <div> Profit per hour <img src="/img/index-icon-small-coin.1bd006c6.png" alt=""><i>+10</i></div>
+                    </div>
+                    <div class="btns">
+                        <div class="btn active">
+                            <div class="btn-num"><img src="/img/tapcoins.1e2141e9.png" alt="">
+                                <div>134</div>
+                            </div>
+                        </div><!----><!---->
+                    </div>
+                    <div class="update-box">
+                        <div class="update-btn"> Upgrade<!----></div><!---->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="boo-item"><!----><!---->
+                <div class="boo-icon">
+                    <img src="https://static.tapcoins.app/20240629/b29dd0e3-31aa-495d-b622-26e836419bf4.png" alt="">
+                </div>
+                <div class="boo-title"> BTC Blockchain </div>
+                <div class="boo-info">
+                    <div class="boo__cost"> Profit per hour
+                        <img src="/image/coin.png" alt="">
+                        <span> 418 </span>
+                    </div>
+                    <div class="boo__num">
+                        <div class="boo__num__lvl">
+                            <div class="boo__num_coin_text"> lvl 4 </div>
+                        </div>
+                        <div class="boo__num__coin">
+                            <img src="/image/coin.png" alt="">1.59K
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </body>
+
 </html>
