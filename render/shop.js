@@ -21,7 +21,7 @@ function renderShop() {
                           <img src="${it.img}" alt="${it.name}" style="width:100px; object-fit:cover; border-radius:8px;">
                           <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
                             <div><b>${it.name}</b><div style="color:#ccc; font-size:13px;">Cost: ${fmtPRC(it.costWei)}</div></div>
-                            <button class="btn buyShopBtn" data-id="${it.id}">Buy</button>
+                            <button class="playGameBtn buyShopBtn" data-id="${it.id}">Buy</button>
                           </div>
                         </div>
                       `).join('')}
@@ -32,7 +32,7 @@ function renderShop() {
                       <img src="./image/${sk.id}" alt="${sk.name}" style="width:200px;  object-fit:cover; border-radius:8px;">
                       <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
                         <div><b>${sk.name}</b><div style="color:#ccc; font-size:13px;">Skin for your tap</div></div>
-                        <button class="btn buySkinBtn" data-skin="${sk.id}">Buy</button>
+                        <button class="playGameBtn buySkinBtn" data-skin="${sk.id}">Buy</button>
                       </div>
                     </div>
                   `).join('')}}
