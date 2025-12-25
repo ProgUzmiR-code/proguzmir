@@ -48,17 +48,7 @@ function renderGames() {
     showTelegramBack(() => { showheader(); renderGame(); });
     // hide bottom nav and enable Telegram Back to return to game
     hideheader();
-    showTelegramBack(() => {
-        // Remove is-gaming classes
-        const panel = document.querySelector('.panel');
-        document.body.classList.remove('is-gaming');
-        if (panel) {
-            panel.classList.remove('is-gaming');
-        }
-        hideTelegramBack();
-        showheader();
-        renderGame();
-    });
+    showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
 
     // show Telegram BackButton and set it to return to main renderGame
     showTelegramBack(() => { showNav(); renderGame(); });
@@ -81,7 +71,7 @@ function renderGames() {
         renderGame();
     });
 
-
+    
 
     // helpers to hide/show bottom header
     function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
