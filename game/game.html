@@ -91,7 +91,14 @@
     showTelegramBack(() => { showNav(); renderGame(); });
     // hide bottom nav and enable Telegram Back to return to game
     hideNav();
-    showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
+    showTelegramBack(() => {
+      // Klasslarni olib tashlaymiz, shunda panel 90% holatiga qaytadi
+        const panel = document.querySelector('.panel');
+        document.body.classList.remove('is-gaming');
+        if (panel) {
+            panel.classList.remove('is-gaming');
+        }
+      hideTelegramBack(); showNav(); renderGame(); });
 
     // back handler
     document.getElementById('backFromGame').addEventListener('click', () => {
