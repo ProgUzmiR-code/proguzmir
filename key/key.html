@@ -26,7 +26,11 @@
         .fa-brands {
             font-size: 40px;
             color: red;
-            
+
+        }
+
+        .lukcys h3 {
+            position: absolute;
         }
 
         .shaffof {
@@ -430,6 +434,8 @@
 
         .lukcys {
             align-items: center;
+            display: flex;
+            justify-content: center;
         }
     </style>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
@@ -439,9 +445,11 @@
 <body>
     <img src="/image/bg-lucky-code.jpg" alt="" style=" margin-top: 50px;">
     <div>
-        <center class="lukcys">
-            <img src="/image/lukcy.png" alt="">
-            <h3>Lucky Code</h3>
+        <center><img src="/image/lukcy.png" alt="">
+            <div class="lukcys">
+                <h3>Lucky Code</h3>
+                <button id="keyBack" class="btn">Back</button>
+            </div>
             <p>Find the lucky code in the video to get rewards</p>
         </center>
         <div id="key1">
@@ -521,7 +529,7 @@
         showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
 
         // back handler
-        document.getElementById('keyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
+        document.getElementById('keyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); showheader(); renderGame(); });
 
         // --- Telegram BackButton boshqaruv funksiyalari ---
         function showTelegramBack(handler) {

@@ -6,13 +6,14 @@ const SHOP = [
 function renderShop() {
   const s = loadState();
   content.innerHTML = `
-            <div style=" margin-top: 90px;">
+            <div style=" margin-top: 150px;">
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
                     <div class="btn-group" style="margin:auto;">
                         <div id="tabShop" class="btn">Shop</div>
                         <div id="tabSkins" class="btn">Skins</div>
                     </div>
                 </div>
+                <button id="incomeBack" class="btn">Back</button>
                 <div style="display:flex; gap:12px; margin-top:6px;">
                     <div id="shopCol" style="flex:1; display:flex; flex-direction:column; gap:12px;">
                       ${SHOP.map(it => `
@@ -82,14 +83,37 @@ function renderShop() {
       renderShop();
     });
   });
+  // show Telegram BackButton and set it to return to main renderGame
+  showTelegramBack(() => { showNav(); renderGame(); });
+  // hide bottom nav and enable Telegram Back to return to game
   hideNav();
   showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
-  // hide bottom nav and enable Telegram Back to return to game
 
   // back handler
-  document.getElementById('dailyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
+  document.getElementById('incomeBack').addEventListener('click', () => { hideTelegramBack(); showNav(); showheader(); renderGame(); });
+
+  // --- Telegram BackButton boshqaruv funksiyalari ---
+  function showTelegramBack(handler) {
+    if (window.Telegram?.WebApp?.BackButton) {
+      try {
+        window.Telegram.WebApp.BackButton.show();
+        window.Telegram.WebApp.BackButton.onClick(handler);
+      } catch (e) { /* ignore */ }
+    }
+  }
+
+  function hideTelegramBack() {
+    if (window.Telegram?.WebApp?.BackButton) {
+      try {
+        window.Telegram.WebApp.BackButton.hide();
+        // handlerni bekor qilamiz
+        window.Telegram.WebApp.BackButton.onClick(() => { });
+      } catch (e) { /* ignore */ }
+    }
+  }
+  // helpers to hide/show bottom header
+
+  function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
+  function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
 }
 
-function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
-// helpers to hide/show bottom nav
-function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }

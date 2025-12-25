@@ -410,7 +410,26 @@ function renderGame() {
     const shopPreview = document.getElementById('shopCardPreview');
     if (shopPreview) shopPreview.addEventListener('click', (ev) => { ev.stopPropagation(); renderShop(); });
     const gamePreview = document.getElementById('gameCardPreview');
-    if (gamePreview) gamePreview.addEventListener('click', (ev) => { ev.stopPropagation(); renderGames(); });
+
+    if (gamePreview) {
+        gamePreview.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+
+            // 1. Panel elementini klass orqali topamiz
+            const panel = document.querySelector('.panel');
+
+            // 2. Body va Panelga "is-gaming" klassini qo'shamiz
+            document.body.classList.add('is-gaming');
+            if (panel) {
+                panel.classList.add('is-gaming');
+            }
+
+            // 3. O'yinni yuklaymiz
+            renderGames();
+        });
+    }
+
+
     const incomePreview = document.getElementById('incomeCardPreview');
     if (incomePreview) incomePreview.addEventListener('click', (ev) => { ev.stopPropagation(); window.location.href = './income/income.html'; });
 

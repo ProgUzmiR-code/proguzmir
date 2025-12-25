@@ -1,23 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Samalyot Game</title>
   <style>
+    body{align-items: stretch !important;}
+    .panel {
+    max-width: 100% !important;
+    width: 100% !important;
+    text-align: left;
+    box-sizing: border-box;
+}
     /* simple reset */
-    html,body{height:100%;margin:0;background:#071020;color:#fff;overflow:hidden;font-family:Arial,Helvetica,sans-serif}
-    #gameWrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
-    canvas{background:linear-gradient(#082233,#021018);width:100%;height:100%;display:block}
-    #playBtn{
-      position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-      padding:18px 28px;border-radius:12px;border:0;background:#ff6f61;color:#fff;font-weight:700;font-size:18px;
-      box-shadow:0 6px 18px rgba(0,0,0,0.45);cursor:pointer;
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      background: #071020;
+      color: #fff;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif
     }
-    #hud{position:absolute;left:12px;top:12px;font-weight:700}
-    .hidden{display:none}
+
+    #gameWrap {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    canvas {
+      background: linear-gradient(#082233, #021018);
+      width: 100%;
+      height: 100%;
+      display: block
+    }
+
+    #playBtn {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      padding: 18px 28px;
+      border-radius: 12px;
+      border: 0;
+      background: #ff6f61;
+      color: #fff;
+      font-weight: 700;
+      font-size: 18px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+    }
+
+    #hud {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      font-weight: 700
+    }
+
+    .hidden {
+      display: none
+    }
   </style>
 </head>
+
 <body>
   <div id="gameWrap">
     <canvas id="gameCanvas" width="900" height="1600"></canvas>
@@ -25,46 +75,47 @@
     <button id="playBtn">Play</button>
   </div>
   <script>
-        // show Telegram BackButton and set it to return to main renderGame
-        showTelegramBack(() => { showheader(); renderGame(); });
-        // hide bottom nav and enable Telegram Back to return to game
-        hideheader();
-        showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
-        
-        // show Telegram BackButton and set it to return to main renderGame
-        showTelegramBack(() => { showNav(); renderGame(); });
-        // hide bottom nav and enable Telegram Back to return to game
-        hideNav();
-        showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
+    // show Telegram BackButton and set it to return to main renderGame
+    showTelegramBack(() => { showheader(); renderGame(); });
+    // hide bottom nav and enable Telegram Back to return to game
+    hideheader();
+    showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
 
-        // back handler
-        document.getElementById('keyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
+    // show Telegram BackButton and set it to return to main renderGame
+    showTelegramBack(() => { showNav(); renderGame(); });
+    // hide bottom nav and enable Telegram Back to return to game
+    hideNav();
+    showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
 
-        // --- Telegram BackButton boshqaruv funksiyalari ---
-        function showTelegramBack(handler) {
-            if (window.Telegram?.WebApp?.BackButton) {
-                try {
-                    window.Telegram.WebApp.BackButton.show();
-                    window.Telegram.WebApp.BackButton.onClick(handler);
-                } catch (e) { /* ignore */ }
-            }
-        }
+    // back handler
+    document.getElementById('keyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
 
-        function hideTelegramBack() {
-            if (window.Telegram?.WebApp?.BackButton) {
-                try {
-                    window.Telegram.WebApp.BackButton.hide();
-                    // handlerni bekor qilamiz
-                    window.Telegram.WebApp.BackButton.onClick(() => { });
-                } catch (e) { /* ignore */ }
-            }
-        }
-        // helpers to hide/show bottom header
-        function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
-        function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
-        function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
-        function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
-    </script>
+    // --- Telegram BackButton boshqaruv funksiyalari ---
+    function showTelegramBack(handler) {
+      if (window.Telegram?.WebApp?.BackButton) {
+        try {
+          window.Telegram.WebApp.BackButton.show();
+          window.Telegram.WebApp.BackButton.onClick(handler);
+        } catch (e) { /* ignore */ }
+      }
+    }
+
+    function hideTelegramBack() {
+      if (window.Telegram?.WebApp?.BackButton) {
+        try {
+          window.Telegram.WebApp.BackButton.hide();
+          // handlerni bekor qilamiz
+          window.Telegram.WebApp.BackButton.onClick(() => { });
+        } catch (e) { /* ignore */ }
+      }
+    }
+    // helpers to hide/show bottom header
+    function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
+    function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
+    function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
+    function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
+  </script>
   <script src="./game.js"></script>
 </body>
+
 </html>

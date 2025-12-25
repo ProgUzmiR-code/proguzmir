@@ -7,7 +7,7 @@
   const GAME_W = 900, GAME_H = 1600;
   function fitCanvas(){
     const ratio = Math.min(window.innerWidth / GAME_W, window.innerHeight / GAME_H);
-    canvas.style.transform = `scale(${ratio})`;
+    
     canvas.style.transformOrigin = 'left top';
     canvas.width = GAME_W; canvas.height = GAME_H;
   }

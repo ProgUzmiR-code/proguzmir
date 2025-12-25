@@ -122,9 +122,9 @@ function renderDaily() {
 
     content.innerHTML = `
 		<div style="padding: 66px 2px 18px;"">
-			<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;margin-top: 90px;">
+			<div style="display:flex;align-items:center;justify-content:center;margin-bottom:12px;margin-top: 90px;">
+				<div style="font-weight:800;font-size:18px;position: absolute;">Daily Rewards</div>
 				<button id="dailyBack" class="btn">Back</button>
-				<div style="font-weight:800;font-size:18px;">Daily Rewards</div>
 				<div style="width:72px"></div>
 			</div>
 			<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(90px, 1fr));gap:10px;">

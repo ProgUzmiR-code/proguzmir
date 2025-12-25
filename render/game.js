@@ -2,18 +2,13 @@
 const GAMES = [
     { id: 'game', name: 'Game One', img: './game/game.png' }
 ];
-// helpers to hide/show bottom header
-function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
-function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
-function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
-// helpers to hide/show bottom nav
-function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
 function renderGames() {
     const s = loadState();
     content.innerHTML = `
             <div style=" margin-top: 90px;">
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
                   <div style="flex:1; text-align:center; font-weight:800;">🎮 Games</div>
+                  <button id="backFromGame" class="btn">Back</button>
                 </div>
                 <div style="display:flex; justify-content:space-between; gap:12px; margin-top:6px;">
                     <div style="flex:1; display:flex; flex-direction:column; gap:12px;">
@@ -28,7 +23,7 @@ function renderGames() {
                                 <button class="btn playGameBtn" data-id="${g.id}">Play</button>
                             </div>
                         </div>
-                        `).join('')}}
+                        `).join('')}
                     </div>
                     <div style="flex:1;"></div>
                 </div>
@@ -39,29 +34,52 @@ function renderGames() {
     document.querySelectorAll('.playGameBtn').forEach(btn => {
         btn.addEventListener('click', () => {
             const id = btn.dataset.id;
-            const gameObj = GAMES.find(x => x.id === id) || { name: id };
             // inject iframe (no full reload)
             content.innerHTML = `
                   <div style="display:flex; flex-direction:column; height:100%;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; padding:8px;">
-                      <button id="backFromGame" class="btn">Back</button>
-                      <div style="font-weight:800;">🎮 ${gameObj.name}</div>
-                      <div style="width:64px"></div>
-                    </div>
-                    <iframe id="gameIframe" src="./game/${id}.html" style="border:0; width:100%; height:calc(100vh - 120px); flex:1;" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+                    <iframe id="gameIframe" src="./game/${id}.html" style="border:0; width:100%; height:calc(100vh);" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
                   </div>
                 `;
         });
     });
-    hideNav();
-    
-    // hide bottom nav and enable Telegram Back to return to game
-    hideNav();
-    showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
+    // show Telegram BackButton and set it to return to main renderGame
+    showTelegramBack(() => { showheader(); renderGame(); });
     // hide bottom nav and enable Telegram Back to return to game
     hideheader();
     showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
+
+    // show Telegram BackButton and set it to return to main renderGame
+    showTelegramBack(() => { showNav(); renderGame(); });
+    // hide bottom nav and enable Telegram Back to return to game
+    hideNav();
+    showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
+
     // back handler
-    document.getElementById('dailyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); showheader(); renderGame(); });
+    document.getElementById('backFromGame').addEventListener('click', () => { hideTelegramBack(); showNav(); showheader(); renderGame(); });
+
+    // --- Telegram BackButton boshqaruv funksiyalari ---
+    function showTelegramBack(handler) {
+        if (window.Telegram?.WebApp?.BackButton) {
+            try {
+                window.Telegram.WebApp.BackButton.show();
+                window.Telegram.WebApp.BackButton.onClick(handler);
+            } catch (e) { /* ignore */ }
+        }
+    }
+
+    function hideTelegramBack() {
+        if (window.Telegram?.WebApp?.BackButton) {
+            try {
+                window.Telegram.WebApp.BackButton.hide();
+                // handlerni bekor qilamiz
+                window.Telegram.WebApp.BackButton.onClick(() => { });
+            } catch (e) { /* ignore */ }
+        }
+    }
+    // helpers to hide/show bottom header
+    function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
+    function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
+    function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
+    function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
 
 }
