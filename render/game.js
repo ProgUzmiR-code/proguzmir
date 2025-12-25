@@ -48,7 +48,17 @@ function renderGames() {
     showTelegramBack(() => { showheader(); renderGame(); });
     // hide bottom nav and enable Telegram Back to return to game
     hideheader();
-    showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
+    showTelegramBack(() => {
+        // Remove is-gaming classes
+        const panel = document.querySelector('.panel');
+        document.body.classList.remove('is-gaming');
+        if (panel) {
+            panel.classList.remove('is-gaming');
+        }
+        hideTelegramBack();
+        showheader();
+        renderGame(); 
+    });
 
     // show Telegram BackButton and set it to return to main renderGame
     showTelegramBack(() => { showNav(); renderGame(); });
@@ -71,25 +81,7 @@ function renderGames() {
         renderGame();
     });
 
-    // --- Telegram BackButton boshqaruv funksiyalari ---
-    function showTelegramBack(handler) {
-        if (window.Telegram?.WebApp?.BackButton) {
-            try {
-                window.Telegram.WebApp.BackButton.show();
-                window.Telegram.WebApp.BackButton.onClick(handler);
-            } catch (e) { /* ignore */ }
-        }
-    }
-
-    function hideTelegramBack() {
-        if (window.Telegram?.WebApp?.BackButton) {
-            try {
-                window.Telegram.WebApp.BackButton.hide();
-                // handlerni bekor qilamiz
-                window.Telegram.WebApp.BackButton.onClick(() => { });
-            } catch (e) { /* ignore */ }
-        }
-    }
+    
 
     // helpers to hide/show bottom header
     function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
