@@ -6,13 +6,19 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Samalyot Game</title>
   <style>
-    body{align-items: stretch !important;}
-    .panel {
-    max-width: 100% !important;
-    width: 100% !important;
-    text-align: left;
-    box-sizing: border-box;
-}
+    /* O'yin rejimida body markazlashuvini bekor qilish */
+    body.is-gaming {
+      display: block !important;
+      /* yoki align-items: flex-start */
+    }
+
+    /* O'yin rejimida panelni to'liq ekranga yoyish */
+    .panel.is-gaming {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
     /* simple reset */
     html,
     body {

@@ -2,13 +2,14 @@
 const GAMES = [
     { id: 'game', name: 'Game One', img: './game/game.png' }
 ];
+
 function renderGames() {
     const s = loadState();
     content.innerHTML = `
             <div style=" margin-top: 90px;">
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
                   <div style="flex:1; text-align:center; font-weight:800;">🎮 Games</div>
-                  <button id="backFromGame" class="btn">Back</button>
+                  <button style="margin-left: 0px;" id="backFromGame" class="btn">Back</button>
                 </div>
                 <div style="display:flex; justify-content:space-between; gap:12px; margin-top:6px;">
                     <div style="flex:1; display:flex; flex-direction:column; gap:12px;">
@@ -20,7 +21,7 @@ function renderGames() {
                                     <b>${g.name}</b>
                                     <div style="color:#ccc; font-size:13px;">Tap to play</div>
                                 </div>
-                                <button class="btn playGameBtn" data-id="${g.id}">Play</button>
+                                <button class="playGameBtn" data-id="${g.id}">Play</button>
                             </div>
                         </div>
                         `).join('')}
@@ -42,6 +43,7 @@ function renderGames() {
                 `;
         });
     });
+
     // show Telegram BackButton and set it to return to main renderGame
     showTelegramBack(() => { showheader(); renderGame(); });
     // hide bottom nav and enable Telegram Back to return to game
@@ -55,7 +57,19 @@ function renderGames() {
     showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
 
     // back handler
-    document.getElementById('backFromGame').addEventListener('click', () => { hideTelegramBack(); showNav(); showheader(); renderGame(); });
+    document.getElementById('backFromGame').addEventListener('click', () => {
+        // Klasslarni olib tashlaymiz, shunda panel 90% holatiga qaytadi
+        const panel = document.querySelector('.panel');
+        document.body.classList.remove('is-gaming');
+        if (panel) {
+            panel.classList.remove('is-gaming');
+        }
+
+        hideTelegramBack();
+        showNav();
+        showheader();
+        renderGame();
+    });
 
     // --- Telegram BackButton boshqaruv funksiyalari ---
     function showTelegramBack(handler) {
@@ -76,6 +90,7 @@ function renderGames() {
             } catch (e) { /* ignore */ }
         }
     }
+
     // helpers to hide/show bottom header
     function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
     function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }

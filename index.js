@@ -222,6 +222,7 @@ function rankImage(rank) {
     return map[rank] || "./image/logo.png";
 }
 
+
 // UI rendering per tab (Game updated with taps logic)
 const content = document.getElementById('content');
 function renderGame() {
@@ -409,6 +410,8 @@ function renderGame() {
 
     const shopPreview = document.getElementById('shopCardPreview');
     if (shopPreview) shopPreview.addEventListener('click', (ev) => { ev.stopPropagation(); renderShop(); });
+
+
     const gamePreview = document.getElementById('gameCardPreview');
 
     if (gamePreview) {
@@ -428,7 +431,6 @@ function renderGame() {
             renderGames();
         });
     }
-
 
     const incomePreview = document.getElementById('incomeCardPreview');
     if (incomePreview) incomePreview.addEventListener('click', (ev) => { ev.stopPropagation(); window.location.href = './income/income.html'; });
