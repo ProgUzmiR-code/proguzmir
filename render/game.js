@@ -57,7 +57,7 @@ function renderGames() {
         }
         hideTelegramBack();
         showheader();
-        renderGame(); 
+        renderGame();
     });
 
     // show Telegram BackButton and set it to return to main renderGame
@@ -81,7 +81,7 @@ function renderGames() {
         renderGame();
     });
 
-    
+
 
     // helpers to hide/show bottom header
     function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
