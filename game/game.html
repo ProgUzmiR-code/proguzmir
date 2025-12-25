@@ -94,7 +94,19 @@
     showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
 
     // back handler
-    document.getElementById('keyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
+    document.getElementById('backFromGame').addEventListener('click', () => {
+        // Klasslarni olib tashlaymiz, shunda panel 90% holatiga qaytadi
+        const panel = document.querySelector('.panel');
+        document.body.classList.remove('is-gaming');
+        if (panel) {
+            panel.classList.remove('is-gaming');
+        }
+
+        hideTelegramBack();
+        showNav();
+        showheader();
+        renderGame();
+    });
     // helpers to hide/show bottom header
     function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
     function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
