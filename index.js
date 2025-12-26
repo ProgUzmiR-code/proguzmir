@@ -737,11 +737,6 @@ function animateAddPRC(text) {
     });
     setTimeout(() => { if (el.parentElement) el.parentElement.removeChild(el); }, 1100);
 }
-
-
-
-
-
 // Saqlash: lokal snapshot (offline fallback)
 function saveSnapshotToLocal(state) {
     try {

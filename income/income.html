@@ -167,20 +167,8 @@
             padding-left: 10px;
             padding-right: 5px;
         }
-
-        #pop {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1001;
-        }
     </style>
+
     <style>
         .invite-list {
             overflow-x: hidden;
@@ -203,12 +191,143 @@
             margin-top: 10px;
         }
     </style>
+    <style>
+        #pop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 1000;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .dialog-main {
+            background: #1c1f2e;
+            /* To'q ko'k-qora fon */
+            border-radius: 10px 10px 0px 0px;
+            padding: 24px;
+            position: relative;
+            color: white;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            cursor: pointer;
+            opacity: 0.6;
+        }
+
+        .energy__img img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 15px;
+        }
+
+        .energy__title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .energy__subtitle {
+            font-size: 14px;
+            color: #a1a1a1;
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+
+        .energy__lv .box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 25px;
+            gap: 10px;
+        }
+
+        .energy__lv .n,
+        .energy__lv .t {
+            font-weight: bold;
+        }
+
+        .energy__threetitle {
+            margin: 20px 0;
+            font-size: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            color: #a1a1a1;
+        }
+
+        .energy__threetitle i {
+            color: white;
+            font-style: normal;
+            font-weight: bold;
+        }
+
+        .btns {
+            gap: 5px;
+            display: flex;
+        }
+
+        .btns .btn {
+            background-image: url(/image/ort.jpg);
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            min-width: 100px;
+            margin-bottom: 20px;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: 0 0;
+            padding: 17px 0 2px 0;
+        }
+
+        .btn-num {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .update-btn {
+            background: #3b82f6;
+            /* Moviy tugma */
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+
+        .update-btn:active {
+            transform: scale(0.98);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+
     <title>Document</title>
 </head>
 
 <body>
     <div>
-        <div id="diamondTop" class="diamond">💎 </div>
+        <div id="diamondDisplay" class="diamond">
+            💎 <span id="diamondCount">0</span></div>
         <div class="tab_main">
             <ul>
                 <li class="tab_item checked" data-target="active">Blockchain</li>
@@ -218,12 +337,12 @@
 
         </div>
 
-        <div id="pop">
+        <div id="pop" style="display: none;">
             <div class="dialog-main bottom " style="width: 95%; height: auto;">
                 <div class="btn-close">
-                    <svg aria-hidden="true" class="scoped-svg-icon ">
-                        <use xlink:href="#icon-icon-close"></use>
-                    </svg>
+                    <div class="btn-close">
+                        <span class="material-icons-outlined">close</span>
+                    </div>
                 </div>
                 <div class="pop-main invite-list">
                     <div class="energy__img">
@@ -236,11 +355,11 @@
                     </div>
                     <div class="energy__lv">
                         <div class="box">
-                            <div class="n">lv 2</div>
+                            <div class="n">lv 0</div>
                             <div class="i">
-                                <img src="" alt="">
+                                <img width="20" src="/image/uplvl.png" alt="">
                             </div>
-                            <div class="t">lv 3</div>
+                            <div class="t">lv 1</div>
                         </div>
                     </div>
                     <div class="energy__threetitle">
@@ -248,43 +367,25 @@
                     </div>
                     <div class="btns">
                         <div class="btn active">
-                            <div class="btn-num"><img src="/img/tapcoins.1e2141e9.png" alt="">
+                            <div class="btn-num">
+                                <img width="50px" src="/image/coin.png" alt="">
                                 <div>134</div>
                             </div>
                         </div><!----><!---->
-                    </div>
-                    <div class="update-box">
-                        <div class="update-btn"> Upgrade<!----></div><!---->
-                    </div>
-                </div>
-                <div class="pop-main invite-list2">
-                    <div class="energy__img">
-                        <img src="" alt=""><!---->
-                    </div>
-                    <div class="energy__title">Tron (TRX) Blockchain</div>
-                    <div class="energy__subtitle">
-                        A blockchain-based decentralized platform aiming to build a free, global digital content
-                        entertainment system.
-                    </div>
-                    <div class="energy__lv">
-                        <div class="box">
-                            <div class="n">lv 2</div>
-                            <div class="i">
-                                <img src="" alt="">
+                        <div class="btn">
+                            <div class="btn-num">
+                                <img width="50px" src="/image/ton.png" alt="">
+                                <div>0.0665</div>
                             </div>
-                            <div class="t">lv 3</div>
+                        </div>
+                        <div class="btn">
+                            <div class="btn-num">
+                                <img width="50px" src="/image/ton-stars.png" alt="">
+                                <div>17</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="energy__threetitle">
-                        <div> Profit per hour <img src="/img/index-icon-small-coin.1bd006c6.png" alt=""><i>+10</i></div>
-                    </div>
-                    <div class="btns">
-                        <div class="btn active">
-                            <div class="btn-num"><img src="/img/tapcoins.1e2141e9.png" alt="">
-                                <div>134</div>
-                            </div>
-                        </div><!----><!---->
-                    </div>
+
                     <div class="update-box">
                         <div class="update-btn"> Upgrade<!----></div><!---->
                     </div>
@@ -295,75 +396,53 @@
         <div class="invite">
             <div class="invite-list">
                 <div class="flexc">
-                    <div class="boo-item"><!----><!---->
+                    <div data-target="Bitcoin" class="boo-item"><!----><!---->
                         <div class="boo-icon">
-                            <img src="https://static.tapcoins.app/20240629/b29dd0e3-31aa-495d-b622-26e836419bf4.png"
-                                alt="">
+                            <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="">
                         </div>
                         <div class="boo-title"> BTC Blockchain </div>
                         <div class="boo-info">
                             <div class="boo__cost"> PRC
                                 <img src="/image/coin.png" alt="">
-                                <span> 10 </span>
+                                <span> 100 </span>
                             </div>
                             <div class="boo__num">
                                 <div class="boo__num__lvl">
-                                    <div class="boo__num_coin_text"> lvl 1 </div>
+                                    <div class="boo__num_coin_text"> lvl 0 </div>
                                 </div>
                                 <div class="boo__num__coin">
-                                    💎450
+                                    💎100
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="boo-item"><!----><!---->
+                    <div data-target="Binanse" class="boo-item"><!----><!---->
                         <div class="boo-icon">
-                            <img src="https://static.tapcoins.app/20240629/b29dd0e3-31aa-495d-b622-26e836419bf4.png"
-                                alt="">
+                            <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png" alt="">
                         </div>
                         <div class="boo-title"> BSC Blockchain </div>
                         <div class="boo-info">
                             <div class="boo__cost"> PRC
                                 <img src="/image/coin.png" alt="">
-                                <span> 10 </span>
+                                <span> 150 </span>
                             </div>
                             <div class="boo__num">
                                 <div class="boo__num__lvl">
-                                    <div class="boo__num_coin_text"> lvl 1 </div>
+                                    <div class="boo__num_coin_text"> lvl 0 </div>
                                 </div>
                                 <div class="boo__num__coin">
-                                    💎450
+                                    💎150
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="boo-item"><!----><!---->
-                        <div class="boo-icon">
-                            <img src="https://static.tapcoins.app/20240629/b29dd0e3-31aa-495d-b622-26e836419bf4.png"
-                                alt="">
-                        </div>
-                        <div class="boo-title"> BSC Blockchain </div>
-                        <div class="boo-info">
-                            <div class="boo__cost"> PRC
-                                <img src="/image/coin.png" alt="">
-                                <span> 10 </span>
-                            </div>
-                            <div class="boo__num">
-                                <div class="boo__num__lvl">
-                                    <div class="boo__num_coin_text"> lvl 1 </div>
-                                </div>
-                                <div class="boo__num__coin">
-                                    💎450
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
 
             <div class="invite-list2">
                 <div class="flexc">
-                    <div class="boo-item"><!----><!---->
+                    <div data-target="" class="boo-item"><!----><!---->
                         <div class="boo-icon">
                             <img src="/image/logotiv.png" alt="">
                         </div>
@@ -371,14 +450,14 @@
                         <div class="boo-info">
                             <div class="boo__cost"> PRC
                                 <img src="/image/coin.png" alt="">
-                                <span> 10 </span>
+                                <span> 100 </span>
                             </div>
                             <div class="boo__num">
                                 <div class="boo__num__lvl">
-                                    <div class="boo__num_coin_text"> lvl 1 </div>
+                                    <div class="boo__num_coin_text"> lvl 0 </div>
                                 </div>
                                 <div class="boo__num__coin">
-                                    💎10
+                                    💎100
                                 </div>
                             </div>
                         </div>
@@ -389,6 +468,94 @@
     </div>
     </div>
     <script>
+        // Koinlar haqida internetdan (CoinGecko API) ma'lumot olish funksiyasi
+        async function getCoinDescription(coinId) {
+            const subtitleElement = document.querySelector('.energy__subtitle');
+            subtitleElement.textContent = "Yuklanmoqda..."; // Yuklash jarayonida matn
+
+            try {
+                // CoinGecko ochiq API - koin haqida ma'lumot olish
+                // Eslatma: coinId kichik harflarda bo'lishi kerak (bitcoin, binancecoin)
+                const response = await fetch(`https://api.coingecko.com/api/v3/coins/${coinId.toLowerCase()}`);
+                const data = await response.json();
+
+                // Agar tavsif topilsa, uni o'rnatamiz, bo'lmasa standart matn
+                const description = data.description?.en
+                    ? data.description.en.split('.')[0] + '.' // Faqat birinchi gapni olish
+                    : "Blockchain network for digital assets and smart contracts.";
+
+                subtitleElement.textContent = description;
+            } catch (error) {
+                console.error("Xato:", error);
+                subtitleElement.textContent = "Ma'lumotni yuklashda xato yuz berdi.";
+            }
+        }
+
+        // Barcha koin elementlariga click hodisasini qo'shish
+        document.querySelectorAll('.boo-item').forEach(item => {
+            item.addEventListener('click', function () {
+                // 1. Element ichidan ma'lumotlarni yig'ish
+                const coinTarget = this.getAttribute('data-target'); // Bitcoin, Binanse
+                const coinTitle = this.querySelector('.boo-title').textContent;
+                const coinImg = this.querySelector('.boo-icon img').src;
+                const coinLvl = this.querySelector('.boo__num_coin_text').textContent;
+                const coinCost = this.querySelector('.boo__cost span').textContent;
+
+                // API uchun nomni to'g'rilash (masalan Binanse -> binancecoin)
+                let apiId = coinTarget.toLowerCase();
+                if (apiId === 'binanse') apiId = 'binancecoin';
+                if (apiId === 'bitcoin') apiId = 'bitcoin';
+
+                // 2. Popup (Modal) oynasidagi elementlarni yangilash
+                document.querySelector('.energy__title').textContent = coinTitle;
+                document.querySelector('.energy__img img').src = coinImg;
+                document.querySelector('.energy__lv .n').textContent = coinLvl;
+                document.querySelector('.btn-num div').textContent = coinCost;
+
+                // 3. Internetdan tavsifni olib kelish
+                getCoinDescription(apiId);
+
+                // 4. Popupni ko'rsatish
+                document.getElementById('pop').style.display = 'flex';
+            });
+        });
+
+        // Popupni yopish (X tugmasi bosilganda)
+        document.querySelector('.btn-close').addEventListener('click', () => {
+            document.getElementById('pop').style.display = 'none';
+        });
+
+    </script>
+    <script>
+        // Update diamond display
+        function updateDiamondDisplay() {
+            const diamondCount = document.getElementById('diamondCount');
+            if (diamondCount) {
+                try {
+                    // Load state from localStorage (same as index.js)
+                    const KEY_DIAMOND = "proguzmir_diamond";
+                    const KEY_WALLET = "proguzmir_wallet";
+
+                    function makeUserKey(baseKey, wallet) {
+                        return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest";
+                    }
+
+                    const wallet = localStorage.getItem(KEY_WALLET) || "";
+                    const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
+                    const diamond = parseInt(localStorage.getItem(keyDiamond) || "0", 10);
+
+                    diamondCount.textContent = diamond;
+                } catch (e) {
+                    console.log("Diamond load error:", e);
+                }
+            }
+        }
+
+        // Update on page load
+        updateDiamondDisplay();
+
+        // Update every second to catch changes
+        setInterval(updateDiamondDisplay, 1000);
 
         // show Telegram BackButton and set it to return to main renderGame
         showTelegramBack(() => { showNav(); renderGame(); });
