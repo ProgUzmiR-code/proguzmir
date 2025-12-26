@@ -323,6 +323,16 @@
         .update-btn:active {
             transform: scale(0.98);
         }
+
+        /* new: disabled / countdown look for upgrade button */
+        .update-btn.disabled {
+            background: #9ca3af;
+            /* grey */
+            color: #f3f4f6;
+            cursor: default;
+            opacity: 0.8;
+            pointer-events: none;
+        }
     </style>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 
@@ -374,7 +384,7 @@
                         <div class="btn active">
                             <div class="btn-num">
                                 <img width="50px" src="/image/diamond.png" alt="">
-                                <div>134</div>
+                                <div>100</div>
                             </div>
                         </div><!----><!---->
                         <div class="btn">
@@ -592,6 +602,122 @@
 
         function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
         function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
+
+        (function () {
+            const BASE_WEI = 1000n; // 0.000000000000001000 PRC
+            const KEY_DIAMOND = "proguzmir_diamond";
+            const KEY_PRC = "proguzmir_prc_wei";
+            const KEY_WALLET = "proguzmir_wallet";
+
+            function makeUserKey(baseKey, wallet) {
+                return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest";
+            }
+            function getWallet() { return localStorage.getItem(KEY_WALLET) || ""; }
+            function getDiamond() {
+                const key = makeUserKey(KEY_DIAMOND, getWallet());
+                return parseInt(localStorage.getItem(key) || "0", 10);
+            }
+            function setDiamond(v) {
+                const key = makeUserKey(KEY_DIAMOND, getWallet());
+                localStorage.setItem(key, String(v));
+            }
+            function getPRCWei() {
+                const key = makeUserKey(KEY_PRC, getWallet());
+                try { return BigInt(localStorage.getItem(key) || "0"); } catch (e) { return 0n; }
+            }
+            function setPRCWei(v) {
+                const key = makeUserKey(KEY_PRC, getWallet());
+                localStorage.setItem(key, v.toString());
+            }
+
+            // Helper to show fallback toast if global showToast not present
+            function localToast(msg) {
+                if (typeof showToast === 'function') { showToast(msg); return; }
+                // minimal fallback
+                const t = document.createElement('div');
+                t.textContent = msg;
+                t.style.position = 'fixed';
+                t.style.zIndex = 99999;
+                t.style.bottom = '16px';
+                t.style.left = '50%';
+                t.style.transform = 'translateX(-50%)';
+                t.style.background = 'rgba(0,0,0,0.8)';
+                t.style.color = '#fff';
+                t.style.padding = '8px 12px';
+                t.style.borderRadius = '8px';
+                document.body.appendChild(t);
+                setTimeout(() => t.remove(), 2500);
+            }
+
+            const upgradeBtn = document.querySelector('.update-btn');
+            if (upgradeBtn) {
+                upgradeBtn.style.cursor = 'pointer';
+
+                function startCooldown(btn, seconds) {
+                    if (!btn) return;
+                    const origHTML = btn.innerHTML;
+                    btn.classList.add('disabled');
+                    let rem = seconds;
+                    btn.textContent = `Upgrade (${rem}s)`;
+                    const iv = setInterval(() => {
+                        rem -= 1;
+                        if (rem <= 0) {
+                            clearInterval(iv);
+                            btn.classList.remove('disabled');
+                            btn.innerHTML = origHTML;
+                        } else {
+                            btn.textContent = `Upgrade (${rem}s)`;
+                        }
+                    }, 1000);
+                }
+
+                upgradeBtn.addEventListener('click', async function () {
+                    // Do not proceed if cooldown/disabled is active
+                    if (upgradeBtn.classList.contains('disabled')) return;
+
+                    // Prevent re-entry briefly
+                    if (upgradeBtn.dataset.busy === '1') return;
+                    upgradeBtn.dataset.busy = '1';
+                    try {
+                        const activeBtn = document.querySelector('.btns .btn.active');
+                        if (!activeBtn) { localToast('Iltimos, diamond tugmasini tanlang'); return; }
+
+                        const img = activeBtn.querySelector('.btn-num img');
+                        // ensure we convert diamonds only
+                        if (!img || !/diamond/i.test(img.src)) { localToast('Iltimos diamondni tanlang'); return; }
+
+                        // Extract diamond cost from modal (e.g., "💎100" -> 100)
+                        const diamondCostText = document.querySelector('.boo__num__coin')?.textContent?.replace(/[^\d]/g, '') || '0';
+                        const diamondCost = parseInt(diamondCostText, 10);
+                        if (diamondCost <= 0) { localToast('Diamond cost topilmadi'); return; }
+
+                        let diamonds = getDiamond();
+                        if (diamonds < diamondCost) { localToast(`${diamondCost} diamond kerak`); return; }
+
+                        // consume N diamonds and credit N * BASE_WEI PRC
+                        diamonds -= diamondCost;
+                        setDiamond(diamonds);
+                        const pricesWei = BASE_WEI * BigInt(diamondCost);
+                        const newPRC = getPRCWei() + pricesWei;
+                        setPRCWei(newPRC);
+
+                        // Update only the user's diamond display
+                        const diamondCount = document.getElementById('diamondCount');
+                        if (diamondCount) diamondCount.textContent = String(diamonds);
+
+                        // Feedback: animate + toast
+                        const prcText = '+' + (diamondCost * 0.000000000000001).toFixed(18) + ' PRC';
+                        if (typeof animateAddPRC === 'function') animateAddPRC(prcText);
+                        localToast(`🎉 ${diamondCost} 💎 → PRC`);
+
+                        // Start 2-second cooldown with visual gray and countdown
+                        startCooldown(upgradeBtn, 2);
+                    } finally {
+                        delete upgradeBtn.dataset.busy;
+                    }
+                });
+            }
+        })();
     </script>
 </body>
 
