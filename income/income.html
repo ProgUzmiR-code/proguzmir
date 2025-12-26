@@ -370,11 +370,11 @@
                     </div>
                     <div class="energy__lv">
                         <div class="box">
-                            <div class="n">lv 0</div>
+                            <div class="n">lvl 0</div>
                             <div class="i">
                                 <img width="20" src="/image/uplvl.png" alt="">
                             </div>
-                            <div class="t">lv 1</div>
+                            <div class="t">lvl 1</div>
                         </div>
                     </div>
                     <div class="energy__threetitle">
@@ -506,29 +506,43 @@
             }
         }
 
-        // Barcha koin elementlariga click hodisasini qo'shish
         document.querySelectorAll('.boo-item').forEach(item => {
             item.addEventListener('click', function () {
-                // 1. Element ichidan ma'lumotlarni yig'ish
-                const coinTarget = this.getAttribute('data-target'); // Bitcoin, Binanse
+                // 1. Levelni tekshirish
+                const coinLvlText = this.querySelector('.boo__num_coin_text').textContent.trim();
+
+                // AGAR MAX BO'LSA OYNA OCHILMAYDI VA FUNKSIYA TO'XTAYDI
+                if (coinLvlText === "MAX") {
+                    console.log("Maksimal darajaga yetilgan!");
+                    return;
+                }
+
+                const coinTarget = this.getAttribute('data-target');
                 const coinTitle = this.querySelector('.boo-title').textContent;
                 const coinImg = this.querySelector('.boo-icon img').src;
-                const coinLvl = this.querySelector('.boo__num_coin_text').textContent;
                 const coinCost = this.querySelector('.boo__cost span').textContent;
 
-                // API uchun nomni to'g'rilash (masalan Binanse -> binancecoin)
                 let apiId = coinTarget.toLowerCase();
                 if (apiId === 'binanse') apiId = 'binancecoin';
-                if (apiId === 'bitcoin') apiId = 'bitcoin';
 
-                // 2. Popup (Modal) oynasidagi elementlarni yangilash
+                // 2. Popupni yangilash
                 document.querySelector('.energy__title').textContent = coinTitle;
                 document.querySelector('.energy__img img').src = coinImg;
-                document.querySelector('.energy__lv .n').textContent = coinLvl;
+                document.querySelector('.energy__lv .n').textContent = coinLvlText;
+
+                // Keyingi levelni hisoblash (MAX ehtimolini hisobga olgan holda)
+                const currentLvlNum = parseInt((coinLvlText.match(/\d+/) || [0])[0], 10);
+                const nextLvlNum = currentLvlNum + 1;
+
+                // MAX_LVL ni 50 deb hisoblasak
+                const MAX_LVL = 50;
+                document.querySelector('.energy__lv .t').textContent = nextLvlNum >= MAX_LVL ? 'MAX' : 'lvl ' + nextLvlNum;
+
+                // Narxni yozish
                 document.querySelector('.btn-num div').textContent = coinCost;
 
-                // 3. Internetdan tavsifni olib kelish
-                getCoinDescription(apiId);
+                // 3. Internetdan tavsif olish
+                if (typeof getCoinDescription === 'function') getCoinDescription(apiId);
 
                 // 4. Popupni ko'rsatish
                 document.getElementById('pop').style.display = 'flex';
@@ -542,18 +556,11 @@
 
 
         document.addEventListener('click', function (e) {
-            // 1. Bosilgan element .tab_item yoki .tab_item1 ekanligini tekshiramiz
             const tab = e.target.closest('.btn');
-
-            // Agar bosilgan narsa tab bo'lmasa, funksiyani to'xtatamiz
             if (!tab) return;
 
             console.log("Tab bosildi!");
-
-            // 2. Barcha tablarni topamiz (tab_main ichidagilarini)
             const tabs = document.querySelectorAll('.btns .btn');
-
-            // 3. 'checked' klassini almashtiramiz
             tabs.forEach(item => item.classList.remove('active'));
             tab.classList.add('active');
         });
@@ -595,6 +602,7 @@
         hideNav();
         showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
 
+
         // back handler
         document.getElementById('incomeBack').addEventListener('click', () => { hideTelegramBack(); showNav(); showheader(); renderGame(); });
 
@@ -603,121 +611,174 @@
         function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
         function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
 
+
+    </script>
+    <script>
         (function () {
-            const BASE_WEI = 1000n; // 0.000000000000001000 PRC
+            const BASE_WEI = 1000n;
+            const MAX_LVL = 50; // Eng yuqori daraja
             const KEY_DIAMOND = "proguzmir_diamond";
             const KEY_PRC = "proguzmir_prc_wei";
             const KEY_WALLET = "proguzmir_wallet";
+            const KEY_CARD_DATA = "proguzmir_cards_lvl";
 
-            function makeUserKey(baseKey, wallet) {
-                return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest";
-            }
+            function makeUserKey(baseKey, wallet) { return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest"; }
             function getWallet() { return localStorage.getItem(KEY_WALLET) || ""; }
-            function getDiamond() {
-                const key = makeUserKey(KEY_DIAMOND, getWallet());
-                return parseInt(localStorage.getItem(key) || "0", 10);
-            }
-            function setDiamond(v) {
-                const key = makeUserKey(KEY_DIAMOND, getWallet());
-                localStorage.setItem(key, String(v));
-            }
-            function getPRCWei() {
-                const key = makeUserKey(KEY_PRC, getWallet());
-                try { return BigInt(localStorage.getItem(key) || "0"); } catch (e) { return 0n; }
-            }
-            function setPRCWei(v) {
-                const key = makeUserKey(KEY_PRC, getWallet());
-                localStorage.setItem(key, v.toString());
-            }
-
-            // Helper to show fallback toast if global showToast not present
-            function localToast(msg) {
-                if (typeof showToast === 'function') { showToast(msg); return; }
-                // minimal fallback
-                const t = document.createElement('div');
-                t.textContent = msg;
-                t.style.position = 'fixed';
-                t.style.zIndex = 99999;
-                t.style.bottom = '16px';
-                t.style.left = '50%';
-                t.style.transform = 'translateX(-50%)';
-                t.style.background = 'rgba(0,0,0,0.8)';
-                t.style.color = '#fff';
-                t.style.padding = '8px 12px';
-                t.style.borderRadius = '8px';
-                document.body.appendChild(t);
-                setTimeout(() => t.remove(), 2500);
-            }
+            function getDiamond() { return parseInt(localStorage.getItem(makeUserKey(KEY_DIAMOND, getWallet())) || "0", 10); }
+            function setDiamond(v) { localStorage.setItem(makeUserKey(KEY_DIAMOND, getWallet()), String(v)); }
+            function getPRCWei() { try { return BigInt(localStorage.getItem(makeUserKey(KEY_PRC, getWallet())) || "0"); } catch (e) { return 0n; } }
+            function setPRCWei(v) { localStorage.setItem(makeUserKey(KEY_PRC, getWallet()), v.toString()); }
 
             const upgradeBtn = document.querySelector('.update-btn');
-            if (upgradeBtn) {
-                upgradeBtn.style.cursor = 'pointer';
+            const pop = document.getElementById('pop');
+            let lastClickedBooItem = null;
 
-                function startCooldown(btn, seconds) {
-                    if (!btn) return;
-                    const origHTML = btn.innerHTML;
-                    btn.classList.add('disabled');
-                    let rem = seconds;
-                    btn.textContent = `Upgrade (${rem}s)`;
-                    const iv = setInterval(() => {
-                        rem -= 1;
-                        if (rem <= 0) {
-                            clearInterval(iv);
-                            btn.classList.remove('disabled');
-                            btn.innerHTML = origHTML;
-                        } else {
-                            btn.textContent = `Upgrade (${rem}s)`;
-                        }
-                    }, 1000);
-                }
+            function saveCardState(id, lvl, cost) {
+                const wallet = getWallet();
+                const data = JSON.parse(localStorage.getItem(makeUserKey(KEY_CARD_DATA, wallet)) || "{}");
+                data[id] = { lvl, cost };
+                localStorage.setItem(makeUserKey(KEY_CARD_DATA, wallet), JSON.stringify(data));
+            }
 
-                upgradeBtn.addEventListener('click', async function () {
-                    // Do not proceed if cooldown/disabled is active
-                    if (upgradeBtn.classList.contains('disabled')) return;
+            function loadCardsState() {
+                const wallet = getWallet();
+                const data = JSON.parse(localStorage.getItem(makeUserKey(KEY_CARD_DATA, wallet)) || "{}");
 
-                    // Prevent re-entry briefly
-                    if (upgradeBtn.dataset.busy === '1') return;
-                    upgradeBtn.dataset.busy = '1';
-                    try {
-                        const activeBtn = document.querySelector('.btns .btn.active');
-                        if (!activeBtn) { localToast('Iltimos, diamond tugmasini tanlang'); return; }
+                document.querySelectorAll('.boo-item').forEach(item => {
+                    const id = item.getAttribute('data-target');
+                    if (data[id]) {
+                        const isMax = data[id].lvl >= MAX_LVL;
+                        item.querySelector('.boo__num_coin_text').textContent = isMax ? "MAX" : `lvl ${data[id].lvl}`;
+                        item.querySelector('.boo__num__coin').textContent = isMax ? "MAX" : `💎${data[id].cost}`;
+                        const spanCost = item.querySelector('.boo__cost span');
+                        if (spanCost) spanCost.textContent = isMax ? "MAX" : data[id].cost;
 
-                        const img = activeBtn.querySelector('.btn-num img');
-                        // ensure we convert diamonds only
-                        if (!img || !/diamond/i.test(img.src)) { localToast('Iltimos diamondni tanlang'); return; }
-
-                        // Extract diamond cost from modal (e.g., "💎100" -> 100)
-                        const diamondCostText = document.querySelector('.boo__num__coin')?.textContent?.replace(/[^\d]/g, '') || '0';
-                        const diamondCost = parseInt(diamondCostText, 10);
-                        if (diamondCost <= 0) { localToast('Diamond cost topilmadi'); return; }
-
-                        let diamonds = getDiamond();
-                        if (diamonds < diamondCost) { localToast(`${diamondCost} diamond kerak`); return; }
-
-                        // consume N diamonds and credit N * BASE_WEI PRC
-                        diamonds -= diamondCost;
-                        setDiamond(diamonds);
-                        const pricesWei = BASE_WEI * BigInt(diamondCost);
-                        const newPRC = getPRCWei() + pricesWei;
-                        setPRCWei(newPRC);
-
-                        // Update only the user's diamond display
-                        const diamondCount = document.getElementById('diamondCount');
-                        if (diamondCount) diamondCount.textContent = String(diamonds);
-
-                        // Feedback: animate + toast
-                        const prcText = '+' + (diamondCost * 0.000000000000001).toFixed(18) + ' PRC';
-                        if (typeof animateAddPRC === 'function') animateAddPRC(prcText);
-                        localToast(`🎉 ${diamondCost} 💎 → PRC`);
-
-                        // Start 2-second cooldown with visual gray and countdown
-                        startCooldown(upgradeBtn, 2);
-                    } finally {
-                        delete upgradeBtn.dataset.busy;
+                        if (isMax) item.classList.add('max-reached');
                     }
                 });
             }
+
+            loadCardsState();
+
+            // 1. BOO-ITEM BOSILGANDA
+            document.querySelectorAll('.boo-item').forEach(item => {
+                item.addEventListener('click', function () {
+                    const lvlText = this.querySelector('.boo__num_coin_text').textContent;
+
+                    // AGAR MAX BO'LSA OYNA OCHILMAYDI
+                    if (lvlText === "MAX") return;
+
+                    lastClickedBooItem = this;
+                    const title = this.querySelector('.boo-title').textContent;
+                    const img = this.querySelector('.boo-icon img').src;
+                    const diamondCost = this.querySelector('.boo__num__coin').textContent.replace('💎', '').trim();
+
+                    pop.querySelector('.energy__title').textContent = title;
+                    pop.querySelector('.energy__img img').src = img;
+                    pop.querySelector('.energy__lv .n').textContent = lvlText;
+
+                    let currentLvlNum = parseInt(lvlText.replace('lvl', '').trim()) || 0;
+                    let nextLvlNum = currentLvlNum + 1;
+
+                    pop.querySelector('.energy__lv .t').textContent = nextLvlNum >= MAX_LVL ? "MAX" : `lvl ${nextLvlNum}`;
+                    pop.querySelector('.btns .btn.active .btn-num div').textContent = diamondCost;
+
+                    pop.style.display = 'flex';
+                });
+            });
+
+            // 2. UPGRADE TUGMASI BOSILGANDA
+            if (upgradeBtn) {
+                upgradeBtn.addEventListener('click', function () {
+                    if (upgradeBtn.classList.contains('disabled') || upgradeBtn.dataset.busy === '1') return;
+
+                    // Upgrade tugmasi mantiqi ichida:
+                    const diamondNumDiv = document.querySelector('.btns .btn.active .btn-num div');
+                    const costRaw = diamondNumDiv.textContent.trim();
+
+                    // AGAR NARX "MAX" BO'LSA, ISHNI TO'XTATISH (NaN OLDINI OLISH)
+                    if (costRaw === "MAX") {
+                        alert("Bu karta maksimal darajada!");
+                        return;
+                    }
+
+                    const diamondCost = parseInt(costRaw, 10);
+
+                    // Endi NaN chiqmaydi, chunki cost raqam ekanligi aniqlandi
+                    if (isNaN(diamondCost)) {
+                        console.error("Xato: Diamond narxi raqam emas!");
+                        return;
+                    }
+                    let currentDiamonds = getDiamond();
+
+                    if (currentDiamonds < diamondCost) {
+                        alert(`${diamondCost} diamond kerak!`);
+                        return;
+                    }
+
+                    upgradeBtn.dataset.busy = '1';
+
+                    if (lastClickedBooItem) {
+                        const id = lastClickedBooItem.getAttribute('data-target');
+                        const cardLvlDiv = lastClickedBooItem.querySelector('.boo__num_coin_text');
+                        const cardDiamondDiv = lastClickedBooItem.querySelector('.boo__num__coin');
+
+                        let currentLvl = parseInt(cardLvlDiv.textContent.replace('lvl', '').trim()) || 0;
+                        let newLvl = currentLvl + 1;
+                        let newCost = diamondCost + 100;
+
+                        // BALANSNI YANGILASH (Faqat daraja oshsa pul yechiladi)
+                        currentDiamonds -= diamondCost;
+                        setDiamond(currentDiamonds);
+                        setPRCWei(getPRCWei() + (BASE_WEI * BigInt(diamondCost)));
+                        document.getElementById('diamondCount').textContent = currentDiamonds;
+
+                        if (newLvl >= MAX_LVL) {
+                            cardLvlDiv.textContent = "MAX";
+                            cardDiamondDiv.textContent = "MAX";
+                            const spanCost = lastClickedBooItem.querySelector('.boo__cost span');
+                            if (spanCost) spanCost.textContent = "MAX";
+
+                            saveCardState(id, MAX_LVL, newCost);
+                            pop.style.display = 'none'; // Max bo'lganda oyna yopiladi
+                        } else {
+                            cardLvlDiv.textContent = `lvl ${newLvl}`;
+                            cardDiamondDiv.textContent = `💎${newCost}`;
+                            const spanCost = lastClickedBooItem.querySelector('.boo__cost span');
+                            if (spanCost) spanCost.textContent = newCost;
+
+                            pop.querySelector('.energy__lv .n').textContent = `lvl ${newLvl}`;
+                            pop.querySelector('.energy__lv .t').textContent = (newLvl + 1 >= MAX_LVL) ? "MAX" : `lvl ${newLvl + 1}`;
+                            diamondNumDiv.textContent = newCost;
+
+                            saveCardState(id, newLvl, newCost);
+                        }
+                    }
+
+
+                    startCooldown(upgradeBtn, 1);
+                    delete upgradeBtn.dataset.busy;
+                });
+            }
+
+            function startCooldown(btn, seconds) {
+                const origHTML = btn.innerHTML;
+                btn.classList.add('disabled');
+                let rem = seconds;
+                const iv = setInterval(() => {
+                    btn.textContent = `Wait (${rem}s)`;
+                    rem--;
+                    if (rem < 0) {
+                        clearInterval(iv);
+                        btn.classList.remove('disabled');
+                        btn.innerHTML = origHTML;
+                    }
+                }, 10);
+            }
         })();
+
+
+
     </script>
 </body>
 

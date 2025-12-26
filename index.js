@@ -252,6 +252,7 @@ function renderGame() {
     const displayImg = skinObj ? skinObj.file : defaultTapImg;
     // top quick access: Skin (left), Shop (center), Game (right) — diamond THEN previews THEN tap
     content.innerHTML = `
+        
       <div class="tap-area">
         <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10px;">
           <div style="display:flex;gap:30px;align-items:center;margin-top: 10px;">
@@ -557,6 +558,32 @@ function renderGame() {
 
 
 } // end of function renderGame()
+
+// --- YANGI: Header PRC ni real vaqitda yangilash (global) ---
+function updateHeaderPRC() {
+    const headerBalance = document.getElementById('headerBalance');
+    if (headerBalance) {
+        const KEY_PRC = "proguzmir_prc_wei";
+        const KEY_WALLET = "proguzmir_wallet";
+
+        function makeUserKey(baseKey, wallet) {
+            return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest";
+        }
+
+        const wallet = localStorage.getItem(KEY_WALLET) || "";
+        const keyPRC = makeUserKey(KEY_PRC, wallet);
+        try {
+            const prcWei = BigInt(localStorage.getItem(keyPRC) || "0");
+            headerBalance.innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(prcWei);
+        } catch (e) {
+            console.log("Header PRC update error:", e);
+        }
+    }
+}
+
+// Update on load and every second
+updateHeaderPRC();
+setInterval(updateHeaderPRC, 1000);
 
 // Tab switching (nav fixed at bottom visually)
 document.querySelectorAll('.nav .tab').forEach(el => {
