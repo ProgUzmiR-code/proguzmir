@@ -6,12 +6,14 @@ const GAMES = [
 function renderGames() {
     const s = loadState();
     content.innerHTML = `
-            <div style=" margin-top: 90px;">
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-                  <div style="flex:1; text-align:center; font-weight:800;">🎮 Games</div>
-                  <button style="margin-left: 0px;" id="backFromGame" class="btn">Back</button>
+            <div style=" margin-top: 53px;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:42px;">
+                  <div style="flex:1; color:#ffe600; text-align:center; font-weight:800;">🎮 GAMES</div>
                 </div>
-                <div style="display:flex; justify-content:space-between; gap:12px; margin-top:6px;">
+                <div>
+                    <button style="" id="backFromGame" class="btn">Back</button>
+                </div>
+                <div style="display:flex; justify-content:space-between; gap:12px; margin-top:6px;margin-left:6px;">
                     <div style="flex:1; display:flex; flex-direction:column; gap:12px;">
                         ${GAMES.map(g => `
                         <div style="background:rgba(255,255,255,0.03); border-radius:12px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; height:160px;">

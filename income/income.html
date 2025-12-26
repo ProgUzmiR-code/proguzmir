@@ -39,9 +39,11 @@
             border-radius: 20px;
             padding: 8px;
         }
+
         li {
             list-style: none;
         }
+
         .tab_item {
             display: flex;
             justify-content: center;
@@ -67,7 +69,6 @@
         }
 
         .boo-item {
-            border: 1px solid #ccc;
             padding: 10px;
             margin: 10px;
         }
@@ -75,6 +76,7 @@
         .boo-icon img {
             width: 80px;
             height: 80px;
+            border-radius: 50%;
         }
 
         .boo-item {
@@ -108,6 +110,7 @@
             line-height: 30px;
             height: 30px;
             overflow: hidden;
+            text-align: center;
         }
 
         .boo__cost {
@@ -130,8 +133,9 @@
             vertical-align: middle;
             padding-top: 15px;
             height: 40px;
-            margin: 0px 10px;
-            border-top: 2px solid rgba(255, 255, 255, 0.15);
+            margin-left: 10px;
+            width: 140px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .boo__num__lvl {
@@ -148,25 +152,19 @@
             display: flex;
             -webkit-box-align: center;
             align-items: center;
+            padding-left: 10px;
         }
 
         .boo__num_coin_text {
-            width: 60px;
-            border-right: 2px solid rgba(255, 255, 255, 0.15);
-            padding: 5px 0px 5px 0px;
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 5px 10px 5px 0px;
         }
 
-        .boo__num .boo__num__coin img {
-            vertical-align: top;
-            width: 30px;
-            height: 30px;
-            margin-left: 10px;
-            margin-right: 5px;
-        }
 
-        .boo__cost img{
-            width: 25px;
-            height: 25px;
+
+        .boo__cost img {
+            width: 17px;
+            height: 17px;
             padding-left: 10px;
             padding-right: 5px;
         }
@@ -184,6 +182,26 @@
             z-index: 1001;
         }
     </style>
+    <style>
+        .invite-list {
+            overflow-x: hidden;
+            -webkit-overflow-scroling: touch;
+            display: block;
+            flex-wrap: wrap;
+        }
+
+        .invite-list2 {
+            overflow-x: hidden;
+            -webkit-overflow-scroling: touch;
+            display: none;
+        }
+
+        .flexc {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+    </style>
     <title>Document</title>
 </head>
 
@@ -192,21 +210,53 @@
         <div id="diamondTop" class="diamond">💎 </div>
         <div class="tab_main">
             <ul>
-                <li class="tab_item checked">Blockchain</li>
-                <li class="tab_item ">Apps</li>
+                <li class="tab_item checked" data-target="active">Blockchain</li>
+                <li class="tab_item" data-target="inactive">ERC-20</li>
             </ul>
-				<button id="incomeBack" class="btn">Back</button>
+            <button id="incomeBack" class="btn">Back</button>
 
         </div>
 
         <div id="pop">
-            <div class="dialog-main bottom" style="width: 95%; height: auto;">
+            <div class="dialog-main bottom " style="width: 95%; height: auto;">
                 <div class="btn-close">
                     <svg aria-hidden="true" class="scoped-svg-icon ">
                         <use xlink:href="#icon-icon-close"></use>
                     </svg>
                 </div>
-                <div class="pop-main">
+                <div class="pop-main invite-list">
+                    <div class="energy__img">
+                        <img src="" alt=""><!---->
+                    </div>
+                    <div class="energy__title">Tron (TRX) Blockchain</div>
+                    <div class="energy__subtitle">
+                        A blockchain-based decentralized platform aiming to build a free, global digital content
+                        entertainment system.
+                    </div>
+                    <div class="energy__lv">
+                        <div class="box">
+                            <div class="n">lv 2</div>
+                            <div class="i">
+                                <img src="" alt="">
+                            </div>
+                            <div class="t">lv 3</div>
+                        </div>
+                    </div>
+                    <div class="energy__threetitle">
+                        <div> Profit per hour <img src="/img/index-icon-small-coin.1bd006c6.png" alt=""><i>+10</i></div>
+                    </div>
+                    <div class="btns">
+                        <div class="btn active">
+                            <div class="btn-num"><img src="/img/tapcoins.1e2141e9.png" alt="">
+                                <div>134</div>
+                            </div>
+                        </div><!----><!---->
+                    </div>
+                    <div class="update-box">
+                        <div class="update-btn"> Upgrade<!----></div><!---->
+                    </div>
+                </div>
+                <div class="pop-main invite-list2">
                     <div class="energy__img">
                         <img src="" alt=""><!---->
                     </div>
@@ -241,31 +291,82 @@
             </div>
         </div>
 
-        <div>
-            <div class="boo-item"><!----><!---->
-                <div class="boo-icon">
-                    <img src="https://static.tapcoins.app/20240629/b29dd0e3-31aa-495d-b622-26e836419bf4.png" alt="">
-                </div>
-                <div class="boo-title"> BTC Blockchain </div>
-                <div class="boo-info">
-                    <div class="boo__cost"> Profit per hour
-                        <img src="/image/coin.png" alt="">
-                        <span> 418 </span>
-                    </div>
-                    <div class="boo__num">
-                        <div class="boo__num__lvl">
-                            <div class="boo__num_coin_text"> lvl 4 </div>
+        <div class="invite">
+            <div class="invite-list">
+                <div class="flexc">
+                    <div class="boo-item"><!----><!---->
+                        <div class="boo-icon">
+                            <img src="https://static.tapcoins.app/20240629/b29dd0e3-31aa-495d-b622-26e836419bf4.png"
+                                alt="">
                         </div>
-                        <div class="boo__num__coin">
-                            <img src="/image/coin.png" alt="">1.59K
+                        <div class="boo-title"> BTC Blockchain </div>
+                        <div class="boo-info">
+                            <div class="boo__cost"> PRC
+                                <img src="/image/coin.png" alt="">
+                                <span> 10 </span>
+                            </div>
+                            <div class="boo__num">
+                                <div class="boo__num__lvl">
+                                    <div class="boo__num_coin_text"> lvl 1 </div>
+                                </div>
+                                <div class="boo__num__coin">
+                                    💎450
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="boo-item"><!----><!---->
+                        <div class="boo-icon">
+                            <img src="https://static.tapcoins.app/20240629/b29dd0e3-31aa-495d-b622-26e836419bf4.png"
+                                alt="">
+                        </div>
+                        <div class="boo-title"> BSC Blockchain </div>
+                        <div class="boo-info">
+                            <div class="boo__cost"> PRC
+                                <img src="/image/coin.png" alt="">
+                                <span> 10 </span>
+                            </div>
+                            <div class="boo__num">
+                                <div class="boo__num__lvl">
+                                    <div class="boo__num_coin_text"> lvl 1 </div>
+                                </div>
+                                <div class="boo__num__coin">
+                                    💎450
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <div class="invite-list2">
+                <div class="flexc">
+                    <div class="boo-item"><!----><!---->
+                        <div class="boo-icon">
+                            <img src="/image/logotiv.png" alt="">
+                        </div>
+                        <div class="boo-title"> PRC ProgUzmiR </div>
+                        <div class="boo-info">
+                            <div class="boo__cost"> PRC
+                                <img src="/image/coin.png" alt="">
+                                <span> 10 </span>
+                            </div>
+                            <div class="boo__num">
+                                <div class="boo__num__lvl">
+                                    <div class="boo__num_coin_text"> lvl 1 </div>
+                                </div>
+                                <div class="boo__num__coin">
+                                    💎10
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-      <script>
+    </div>
+    <script>
 
         // show Telegram BackButton and set it to return to main renderGame
         showTelegramBack(() => { showNav(); renderGame(); });
@@ -277,7 +378,7 @@
         document.getElementById('incomeBack').addEventListener('click', () => { hideTelegramBack(); showNav(); showheader(); renderGame(); });
 
         // helpers to hide/show bottom header
-        
+
         function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
         function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
     </script>
