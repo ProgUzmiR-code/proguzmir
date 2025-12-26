@@ -280,7 +280,8 @@
         }
 
         .btns .btn {
-            background-image: url(/image/ort.jpg);
+            background-image: url(/image/ort.png);
+            background-color: #2d56899e;
             border: 2px solid #3b82f6;
             border-radius: 12px;
             padding: 15px;
@@ -313,6 +314,10 @@
             cursor: pointer;
             font-size: 18px;
             transition: 0.3s;
+        }
+
+        .btns .btn.active {
+            border: 2px solid #c6c92e;
         }
 
         .update-btn:active {
@@ -368,7 +373,7 @@
                     <div class="btns">
                         <div class="btn active">
                             <div class="btn-num">
-                                <img width="50px" src="/image/coin.png" alt="">
+                                <img width="50px" src="/image/diamond.png" alt="">
                                 <div>134</div>
                             </div>
                         </div><!----><!---->
@@ -525,6 +530,23 @@
             document.getElementById('pop').style.display = 'none';
         });
 
+
+        document.addEventListener('click', function (e) {
+            // 1. Bosilgan element .tab_item yoki .tab_item1 ekanligini tekshiramiz
+            const tab = e.target.closest('.btn');
+
+            // Agar bosilgan narsa tab bo'lmasa, funksiyani to'xtatamiz
+            if (!tab) return;
+
+            console.log("Tab bosildi!");
+
+            // 2. Barcha tablarni topamiz (tab_main ichidagilarini)
+            const tabs = document.querySelectorAll('.btns .btn');
+
+            // 3. 'checked' klassini almashtiramiz
+            tabs.forEach(item => item.classList.remove('active'));
+            tab.classList.add('active');
+        });
     </script>
     <script>
         // Update diamond display
