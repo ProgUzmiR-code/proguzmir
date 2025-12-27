@@ -19,6 +19,7 @@
       margin: 0 !important;
       padding: 0 !important;
     }
+
     /* simple reset */
     html,
     body {
@@ -75,6 +76,11 @@
 </head>
 
 <body>
+  <!-- Suggested image asset files (place in /image/):
+       - plane_lvl1.png, plane_lvl2.png, plane_lvl3.png
+       - bullet_player.png, bullet_enemy.png
+       - rock.png
+     (These are the paths referenced in game.js). PRC -->
   <div id="gameWrap">
     <canvas id="gameCanvas" width="900" height="1600"></canvas>
     <div id="hud"><span id="score">Score: 0</span></div>
@@ -93,26 +99,27 @@
     hideNav();
     showTelegramBack(() => {
       // Klasslarni olib tashlaymiz, shunda panel 90% holatiga qaytadi
-        const panel = document.querySelector('.panel');
-        document.body.classList.remove('is-gaming');
-        if (panel) {
-            panel.classList.remove('is-gaming');
-        }
-      hideTelegramBack(); showNav(); renderGame(); });
+      const panel = document.querySelector('.panel');
+      document.body.classList.remove('is-gaming');
+      if (panel) {
+        panel.classList.remove('is-gaming');
+      }
+      hideTelegramBack(); showNav(); renderGame();
+    });
 
     // back handler
     document.getElementById('backFromGame').addEventListener('click', () => {
-        // Klasslarni olib tashlaymiz, shunda panel 90% holatiga qaytadi
-        const panel = document.querySelector('.panel');
-        document.body.classList.remove('is-gaming');
-        if (panel) {
-            panel.classList.remove('is-gaming');
-        }
+      // Klasslarni olib tashlaymiz, shunda panel 90% holatiga qaytadi
+      const panel = document.querySelector('.panel');
+      document.body.classList.remove('is-gaming');
+      if (panel) {
+        panel.classList.remove('is-gaming');
+      }
 
-        hideTelegramBack();
-        showNav();
-        showheader();
-        renderGame();
+      hideTelegramBack();
+      showNav();
+      showheader();
+      renderGame();
     });
     // helpers to hide/show bottom header
     function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
