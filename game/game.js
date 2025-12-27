@@ -37,12 +37,22 @@
   const enemyBulletImg = new Image(); enemyBulletImg.src = '/image/preview.png';
   const rockImg = new Image(); rockImg.src = '/image/metyor.gif';
 
+  // Big boss image (added)
+  const bigBossImg = new Image(); bigBossImg.src = '/image/bigBossImg.gif';
+
   // Explosion sprite-sheet (horizontal frames). PRC: /image/air.png — sprite sheet (e.g., 8 frames)
   const explosionImg = new Image(); explosionImg.src = '/image/air.png'; // PRC
   const EXPLOSION_FRAMES = 7;              // o'zgartiring agar air.png da boshqa frame soni bo'lsa  // PRC
   const EXPLOSION_FRAME_DURATION = 0.09;   // har bir ramka qancha sekund davom etadi
 
+  // Big boss constants
+  const BIG_BOSS_HP = 50;        // boss can take 50 hits
+  const BIG_BOSS_R = 100;        // visual radius
+  const BIG_BOSS_FIRE_RATE = 0.5; // seconds between volleys
+  const BIG_BOSS_SPEED = 210;    // horizontal patrol speed
+
   let playing = false, gameOver = false;
+  let lastBossSpawnScore = -1; // Prevent multiple spawns for the same milestone
   let lastTime = 0, fireTimer = 0, spawnTimer = 0;
   let bullets = [], enemies = [], enemyBullets = [], score = 0; // Added enemyBullets array
   let killsForBullet = 0; // Tracks kills for bullet power-ups
@@ -295,7 +305,34 @@
       speed: bulletSpeed // Store bullet speed for homing updates
     });
   }
+  // Boss spawn + bullet volley (4 bullets spread)
+  function spawnBigBoss() {
+    // Start centered at top and patrol horizontally
+    enemies.push({
+      x: GAME_W / 2, y: 60,
+      vx: BIG_BOSS_SPEED, vy: 0,
+      r: BIG_BOSS_R, hp: BIG_BOSS_HP, type: 'boss',
+      fireTimer: rand(0, BIG_BOSS_FIRE_RATE), fireRate: BIG_BOSS_FIRE_RATE,
+      direction: Math.random() < 0.5 ? -1 : 1, // left/right patrolling
+      exploding: false
+    });
+  }
 
+  function spawnBossBullets(boss) {
+    // Create 4 bullets in downward spread
+    const baseSpeed = 820;
+    const spreadAngles = [-0.26, -0.1, 0.1, 0.26]; // relative to downward direction (PI/2)
+    const baseAngle = Math.PI / 2;
+    for (const offset of spreadAngles) {
+      const a = baseAngle + offset;
+      enemyBullets.push({
+        x: boss.x + Math.cos(a) * (boss.r + 10),
+        y: boss.y + Math.sin(a) * (boss.r + 10),
+        vx: Math.cos(a) * baseSpeed, vy: Math.sin(a) * baseSpeed,
+        r: 12, isHoming: false, speed: baseSpeed
+      });
+    }
+  }
   function collide(a, b) { return dist(a, b) < (a.r + b.r); }
 
   function endGame() {
@@ -308,6 +345,16 @@
     if (!playing) return;
     const dt = Math.min(0.04, (t - lastTime) / 1000 || 0.016);
     lastTime = t;
+
+    // Big boss spawn: every 100 score milestone (100, 200, 300 ...)
+    if (score >= 50 && score % 50 === 0 && lastBossSpawnScore !== score) {
+      // ensure there's no live boss already
+      const bossExists = enemies.some(e => e.type === 'boss');
+      if (!bossExists) {
+        spawnBigBoss();
+        lastBossSpawnScore = score;
+      }
+    }
 
     // Store plane's X position for velocity calculation in the next frame
     const currentPlaneX = plane.x;
@@ -422,8 +469,22 @@
     for (let i = enemies.length - 1; i >= 0; i--) {
       const en = enemies[i];
 
-      // Strong enemy specific logic
-      if (en.type === 'strong') {
+      // Boss specific logic
+      if (en.type === 'boss') {
+        // Keep at top Y (fixed), horizontal patrol
+        en.y = Math.max(240, Math.min(120, en.y)); // keep near top
+        en.x += en.vx * en.direction * dt;
+        // reverse on bounds
+        if (en.x - en.r <= 0 && en.direction < 0) en.direction = 1;
+        if (en.x + en.r >= GAME_W && en.direction > 0) en.direction = -1;
+
+        // Firing volley
+        en.fireTimer -= dt;
+        if (en.fireTimer <= 0) {
+          spawnBossBullets(en);
+          en.fireTimer = en.fireRate;
+        }
+      } else if (en.type === 'strong') {
         // 1. Hovering logic: stop descending when reaching targetHoverY
         if (!en.hovered) {
           if (en.y >= en.targetHoverY) {
@@ -544,9 +605,20 @@
         en.explosionTimer += dt;
         en.explosionFrame = Math.floor(en.explosionTimer / EXPLOSION_FRAME_DURATION);
         if (en.explosionFrame >= EXPLOSION_FRAMES) {
-          // Explosion finished: remove enemy and award score/powerups (strong only)
+          // Explosion finished: remove enemy and award score/powerups
           enemies.splice(i, 1);
-          score++; scoreEl.textContent = 'Score: ' + score;
+          if (en.type === 'boss') {
+            score += 10; // Boss gives extra points
+          } else {
+            score++;
+          }
+          scoreEl.textContent = 'Score: ' + score;
+
+          // Treat boss kills similar to strong for powerups (larger increments)
+          if (en.type === 'strong' || en.type === 'boss') {
+            killsForBullet += (en.type === 'boss' ? 3 : 1);
+            killsForShield += (en.type === 'boss' ? 3 : 1);
+          }
 
           if (en.type === 'strong') {
             killsForBullet++;
@@ -636,8 +708,10 @@
           ctx.fill();
         }
       } else {
-        // Dushmanni chizish qismi (o'zgarmasdan qolishi mumkin)
-        if (en.type === 'strong' && strongEnemyImg.complete) {
+        // Draw boss first if present
+        if (en.type === 'boss' && bigBossImg.complete && bigBossImg.naturalWidth) {
+          ctx.drawImage(bigBossImg, -en.r, -en.r, en.r * 2, en.r * 2);
+        } else if (en.type === 'strong' && strongEnemyImg.complete) {
           ctx.drawImage(strongEnemyImg, -en.r, -en.r, en.r * 2, en.r * 2);
         } else {
           const img = (rockImg.complete && rockImg.naturalWidth) ? rockImg : null;
