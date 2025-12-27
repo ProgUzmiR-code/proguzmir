@@ -378,7 +378,7 @@
                         </div>
                     </div>
                     <div class="energy__threetitle">
-                        <i>PRC</i> <img width="20" src="/image/coin.png" alt=""><i>+10</i>
+                        <i>PRC</i> <img width="20" src="/image/coin.png" alt=""><span id="prcIncreaseValue">+10</span>
                     </div>
                     <div class="btns">
                         <div class="btn active">
@@ -523,7 +523,9 @@
                 const coinTarget = this.getAttribute('data-target');
                 const coinTitle = this.querySelector('.boo-title').textContent;
                 const coinImg = this.querySelector('.boo-icon img').src;
-                const coinCost = this.querySelector('.boo__cost span').textContent;
+                const currentPrcIncome = this.querySelector('.boo__cost span').textContent; // Get current PRC income
+                const diamondUpgradeCost = this.querySelector('.boo__num__coin').textContent.replace('💎', '').trim(); // Get diamond cost for upgrade
+
 
                 let apiId = coinTarget.toLowerCase();
                 if (apiId === 'binanse') apiId = 'binancecoin';
@@ -541,8 +543,14 @@
                 const MAX_LVL = 50;
                 document.querySelector('.energy__lv .t').textContent = nextLvlNum >= MAX_LVL ? 'MAX' : 'lvl ' + nextLvlNum;
 
-                // Narxni yozish
-                document.querySelector('.btn-num div').textContent = coinCost;
+                // Update the PRC increase value in energy__threetitle
+                const prcIncreaseElement = document.getElementById('prcIncreaseValue');
+                if (prcIncreaseElement) {
+                    prcIncreaseElement.textContent = `+${currentPrcIncome}`;
+                }
+
+                // Narxni yozish (Diamond upgrade cost)
+                document.querySelector('.btns .btn.active .btn-num div').textContent = diamondUpgradeCost;
 
                 // 3. Internetdan tavsif olish
                 if (typeof getCoinDescription === 'function') getCoinDescription(apiId);
@@ -725,36 +733,45 @@
                         const id = lastClickedBooItem.getAttribute('data-target');
                         const cardLvlDiv = lastClickedBooItem.querySelector('.boo__num_coin_text');
                         const cardDiamondDiv = lastClickedBooItem.querySelector('.boo__num__coin');
+                        const cardPrcSpan = lastClickedBooItem.querySelector('.boo__cost span'); // Get the PRC income span
 
                         let currentLvl = parseInt(cardLvlDiv.textContent.replace('lvl', '').trim()) || 0;
                         let newLvl = currentLvl + 1;
-                        let newCost = diamondCost + 100;
+                        let newTotalCostValue = diamondCost + 100; // This value is used for both new diamond cost and new PRC income
 
                         // BALANSNI YANGILASH (Faqat daraja oshsa pul yechiladi)
                         currentDiamonds -= diamondCost;
                         setDiamond(currentDiamonds);
+                        // Assuming getPRCWei() + (BASE_WEI * BigInt(newTotalCostValue)) makes sense for PRC accumulation
+                        // The original code was `BASE_WEI * BigInt(diamondCost)`. Let's stick with that for consistency if the user didn't request a change in calculation logic.
+                        // If `diamondCost` here refers to the actual PRC value being added for the *current* level before upgrade, it might be correct.
+                        // Given the prompt, let's keep the existing `setPRCWei` line as is and focus on display.
                         setPRCWei(getPRCWei() + (BASE_WEI * BigInt(diamondCost)));
                         document.getElementById('diamondCount').textContent = currentDiamonds;
 
                         if (newLvl >= MAX_LVL) {
                             cardLvlDiv.textContent = "MAX";
                             cardDiamondDiv.textContent = "MAX";
-                            const spanCost = lastClickedBooItem.querySelector('.boo__cost span');
-                            if (spanCost) spanCost.textContent = "MAX";
+                            if (cardPrcSpan) cardPrcSpan.textContent = "MAX"; // Update PRC income span in boo-item
 
-                            saveCardState(id, MAX_LVL, newCost);
+                            saveCardState(id, MAX_LVL, newTotalCostValue);
                             pop.style.display = 'none'; // Max bo'lganda oyna yopiladi
                         } else {
                             cardLvlDiv.textContent = `lvl ${newLvl}`;
-                            cardDiamondDiv.textContent = `💎${newCost}`;
-                            const spanCost = lastClickedBooItem.querySelector('.boo__cost span');
-                            if (spanCost) spanCost.textContent = newCost;
+                            cardDiamondDiv.textContent = `💎${newTotalCostValue}`;
+                            if (cardPrcSpan) cardPrcSpan.textContent = newTotalCostValue; // Update PRC income span in boo-item
 
                             pop.querySelector('.energy__lv .n').textContent = `lvl ${newLvl}`;
                             pop.querySelector('.energy__lv .t').textContent = (newLvl + 1 >= MAX_LVL) ? "MAX" : `lvl ${newLvl + 1}`;
-                            diamondNumDiv.textContent = newCost;
+                            diamondNumDiv.textContent = newTotalCostValue; // Update diamond cost in popup upgrade button
 
-                            saveCardState(id, newLvl, newCost);
+                            // Also update the PRC increase value in the popup after upgrade
+                            const prcIncreaseElement = document.getElementById('prcIncreaseValue');
+                            if (prcIncreaseElement) {
+                                prcIncreaseElement.textContent = `+${newTotalCostValue}`;
+                            }
+
+                            saveCardState(id, newLvl, newTotalCostValue);
                         }
                     }
 
