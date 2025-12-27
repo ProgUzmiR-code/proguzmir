@@ -18,7 +18,7 @@
   planeImg.src = '/image/prcsamalyud.png';
 
   const strongEnemyImg = new Image(); // New image for the stronger enemy
-  strongEnemyImg.src = '/image/tetherplyus.png';
+  strongEnemyImg.src = '/image/atack.gif';
 
   // Suggested asset paths (place images at these paths or update paths below) - PRC
   // Player sprites (different for each power level): /image/plane_lvl1.png, /image/plane_lvl2.png, /image/plane_lvl3.png  // PRC
@@ -28,13 +28,19 @@
 
   // New image objects for visuals
   const planeImgs = [
-    (() => { const i = new Image(); i.src = '/image/plane_lvl1.png'; return i; })(),
-    (() => { const i = new Image(); i.src = '/image/plane_lvl2.png'; return i; })(),
-    (() => { const i = new Image(); i.src = '/image/plane_lvl3.png'; return i; })()
+
+    (() => { const i = new Image(); i.src = '/image/airattack.gif'; return i; })(),
+    (() => { const i = new Image(); i.src = '/image/airattack2.gif'; return i; })(),
+    (() => { const i = new Image(); i.src = '/image/airattack3.gif'; return i; })()
   ];
-  const playerBulletImg = new Image(); playerBulletImg.src = '/image/bullet_player.png';
-  const enemyBulletImg = new Image(); enemyBulletImg.src = '/image/bullet_enemy.png';
-  const rockImg = new Image(); rockImg.src = '/image/rock.png';
+  const playerBulletImg = new Image(); playerBulletImg.src = '/image/preview1.png';
+  const enemyBulletImg = new Image(); enemyBulletImg.src = '/image/preview.png';
+  const rockImg = new Image(); rockImg.src = '/image/metyor.gif';
+
+  // Explosion sprite-sheet (horizontal frames). PRC: /image/air.png — sprite sheet (e.g., 8 frames)
+  const explosionImg = new Image(); explosionImg.src = '/image/air.png'; // PRC
+  const EXPLOSION_FRAMES = 7;              // o'zgartiring agar air.png da boshqa frame soni bo'lsa  // PRC
+  const EXPLOSION_FRAME_DURATION = 0.09;   // har bir ramka qancha sekund davom etadi
 
   let playing = false, gameOver = false;
   let lastTime = 0, fireTimer = 0, spawnTimer = 0;
@@ -49,11 +55,11 @@
 
   // New variables for strong enemy dynamic behavior and spawning
   let strongEnemyCurrentSpawnTimer = 0; // Tracks time for strong enemy spawns
-  const STRONG_ENEMY_BASE_HORIZONTAL_SPEED = 100; // Base horizontal patrol speed for strong enemies
+  const STRONG_ENEMY_BASE_HORIZONTAL_SPEED = 90; // Base horizontal patrol speed for strong enemies
   const STRONG_ENEMY_BASE_EVASION_FORCE = 300; // Base evasion speed, scales with score
   const BULLET_EVASION_DETECTION_DISTANCE_Y = 200; // Vertical distance to detect an incoming bullet
-  const STRONG_ENEMY_HOVER_Y_MIN = GAME_H * 0.15; // Minimum hover height for strong enemies
-  const STRONG_ENEMY_HOVER_Y_MAX = GAME_H * 0.30; // Maximum hover height for strong enemies
+  const STRONG_ENEMY_HOVER_Y_MIN = GAME_H * 0.5; // Minimum hover height for strong enemies
+  const STRONG_ENEMY_HOVER_Y_MAX = GAME_H * 0.10; // Maximum hover height for strong enemies
 
   // New constants for enemy speed scaling
   const ENEMY_SPEED_SCALE_START_SCORE = 30; // Score at which enemy speed starts to increase
@@ -533,50 +539,56 @@
         en.y += en.vy * dt; // Apply vertical movement for weak enemies
       }
 
+      // Explosion animation update (happens for both weak/strong if exploding)
+      if (en.exploding) {
+        en.explosionTimer += dt;
+        en.explosionFrame = Math.floor(en.explosionTimer / EXPLOSION_FRAME_DURATION);
+        if (en.explosionFrame >= EXPLOSION_FRAMES) {
+          // Explosion finished: remove enemy and award score/powerups (strong only)
+          enemies.splice(i, 1);
+          score++; scoreEl.textContent = 'Score: ' + score;
+
+          if (en.type === 'strong') {
+            killsForBullet++;
+            killsForShield++;
+
+            // Apply bullet power-up logic based on score tiers (same as before)
+            if (killsForBullet >= KILLS_NEEDED_FOR_BULLET_POWERUP) {
+              if (score >= 60) plane.bulletCount = MAX_PLAYER_BULLET_COUNT;
+              else if (score >= 20) plane.bulletCount = 2;
+              else plane.bulletCount = 1;
+              killsForBullet = 0;
+            }
+
+            // Apply shield power-up logic based on score tiers
+            if (killsForShield >= KILLS_NEEDED_FOR_SHIELD_POWERUP) {
+              if (score >= 60) plane.shieldHits = MAX_PLAYER_SHIELD_HITS;
+              else if (score >= 40) plane.shieldHits = 3;
+              else if (score >= 20) plane.shieldHits = 1;
+              else plane.shieldHits = 0;
+              killsForShield = 0;
+            }
+          }
+        }
+        continue; // skip rest of per-enemy logic after updating explosion state
+      }
+
       // plane collision (enemy vs player)
       const planeBody = { x: plane.x, y: plane.y, r: Math.max(plane.w, plane.h) * 0.38 };
       if (collide(en, planeBody)) { endGame(); return; }
 
       // player bullets collision with enemies
       for (let j = bullets.length - 1; j >= 0; j--) {
+        if (en.exploding) continue; // agar portlash boshlangan bo'lsa collisionlarni e'tiborsiz qiling
         if (collide(en, bullets[j])) {
           bullets.splice(j, 1); // Remove player bullet
           en.hp--; // Decrease enemy HP
-          if (en.hp <= 0) {
-            enemies.splice(i, 1); // Remove enemy if HP is 0
-            score++; scoreEl.textContent = 'Score: ' + score;
-
-            // Only increment consecutive kill counters and apply power-ups if a strong enemy is defeated
-            if (en.type === 'strong') {
-              killsForBullet++;
-              killsForShield++;
-
-              // Apply bullet power-up logic based on score tiers
-              if (killsForBullet >= KILLS_NEEDED_FOR_BULLET_POWERUP) {
-                if (score >= 60) {
-                  plane.bulletCount = MAX_PLAYER_BULLET_COUNT; // Set to 3
-                } else if (score >= 20) {
-                  plane.bulletCount = 2; // Set to 2
-                } else {
-                  plane.bulletCount = 1; // Default or if score < 20 (though strong enemies appear later)
-                }
-                killsForBullet = 0; // Reset counter for bullet upgrade
-              }
-
-              // Apply shield power-up logic based on score tiers
-              if (killsForShield >= KILLS_NEEDED_FOR_SHIELD_POWERUP) {
-                if (score >= 60) {
-                  plane.shieldHits = MAX_PLAYER_SHIELD_HITS; // Set to 4
-                } else if (score >= 40) {
-                  plane.shieldHits = 3; // Set to 3
-                } else if (score >= 20) {
-                  plane.shieldHits = 1; // Set to 1
-                } else {
-                  plane.shieldHits = 0; // Default or if score < 20
-                }
-                killsForShield = 0; // Reset counter for shield upgrade
-              }
-            }
+          if (en.hp <= 0 && !en.exploding) {
+            // Boshlang'ich explosion holati
+            en.exploding = true;
+            en.explosionTimer = 0;
+            en.explosionFrame = 0;
+            en.vx = 0; en.vy = 0; // to'xtatish
           }
           break; // Only one bullet can hit an enemy at a time
         }
@@ -591,28 +603,71 @@
 
     // enemies
     for (const en of enemies) {
-      ctx.save(); ctx.translate(en.x, en.y);
-      if (en.type === 'strong' && strongEnemyImg.complete && strongEnemyImg.naturalWidth) {
-        ctx.drawImage(strongEnemyImg, -en.r, -en.r, en.r * 2, en.r * 2); // Draw strong enemy image
-      } else {
-        // Weak enemy: use rock image if available, otherwise ellipse fallback
-        if (rockImg.complete && rockImg.naturalWidth) {
-          const size = en.r * 2;
-          ctx.drawImage(rockImg, -size / 2, -size / 2, size, size);
+      ctx.save();
+      ctx.translate(en.x, en.y); // Portlash dushman turgan koordinatadan boshlanadi
+
+      if (en.exploding) {
+        if (explosionImg.complete && explosionImg.naturalWidth) {
+          // 1. Kadrlarni hisoblash
+          const fw = explosionImg.naturalWidth / EXPLOSION_FRAMES; // Bitta kadr kengligi
+          const fh = explosionImg.naturalHeight;                  // Kadr balandligi
+          const f = Math.min(en.explosionFrame, EXPLOSION_FRAMES - 1);
+
+          // 2. Portlash hajmini sozlash 
+          // Agar portlash juda kichik bo'lsa, 'en.r * 4' qilib ko'ring
+          const displaySize = en.r * 2;
+
+          // 3. Chizish (Markazlashtirilgan holda)
+          // drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh)
+          ctx.drawImage(
+            explosionImg,
+            fw * f, 0, fw, fh,       // Sprite sheet-dan kadrni kesib olish
+            -displaySize / 2,        // Markazga surish (chapga)
+            -displaySize / 2,        // Markazga surish (tepaga)
+            displaySize,             // Canvas-dagi kengligi
+            displaySize              // Canvas-dagi balandligi
+          );
         } else {
-          ctx.fillStyle = '#ff6b6b';
-          ctx.beginPath(); ctx.ellipse(0, 0, en.r, en.r * 0.6, 0, 0, Math.PI * 2); ctx.fill();
+          // Fallback (Agar rasm yuklanmasa)
+          const scale = 1 + (en.explosionFrame / EXPLOSION_FRAMES);
+          ctx.fillStyle = 'rgba(255, 165, 0, 0.7)';
+          ctx.beginPath();
+          ctx.arc(0, 0, en.r * scale * 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else {
+        // Dushmanni chizish qismi (o'zgarmasdan qolishi mumkin)
+        if (en.type === 'strong' && strongEnemyImg.complete) {
+          ctx.drawImage(strongEnemyImg, -en.r, -en.r, en.r * 2, en.r * 2);
+        } else {
+          const img = (rockImg.complete && rockImg.naturalWidth) ? rockImg : null;
+          if (img) {
+            ctx.drawImage(img, -en.r, -en.r, en.r * 2, en.r * 2);
+          } else {
+            ctx.fillStyle = '#ff6b6b';
+            ctx.beginPath(); ctx.ellipse(0, 0, en.r, en.r * 0.6, 0, 0, Math.PI * 2); ctx.fill();
+          }
         }
       }
       ctx.restore();
     }
 
+
     // bullets (player's)
-    // player bullets: image if available, otherwise white circle
+    /// player bullets
     for (const b of bullets) {
       if (playerBulletImg.complete && playerBulletImg.naturalWidth) {
-        const s = b.r * 2.4;
-        ctx.drawImage(playerBulletImg, b.x - s / 2, b.y - s / 2, s, s);
+        const diameter = b.r * 2.4; // vizual kattalik (avvalgi s)
+        const scale = Math.max(diameter / playerBulletImg.naturalWidth, diameter / playerBulletImg.naturalHeight);
+        const iw = playerBulletImg.naturalWidth * scale;
+        const ih = playerBulletImg.naturalHeight * scale;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, diameter / 0.8, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(playerBulletImg, b.x - iw / 2, b.y - ih / 2, iw, ih);
+        ctx.restore();
       } else {
         ctx.fillStyle = '#fff';
         ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill();
@@ -621,10 +676,20 @@
 
     // enemy bullets
     ctx.fillStyle = '#ff0000'; // Red color for enemy bullets
+    // enemy bullets
     for (const eb of enemyBullets) {
       if (enemyBulletImg.complete && enemyBulletImg.naturalWidth) {
-        const s = eb.r * 2.6;
-        ctx.drawImage(enemyBulletImg, eb.x - s / 2, eb.y - s / 2, s, s);
+        const diameter = eb.r * 1.7;
+        const scale = Math.max(diameter / enemyBulletImg.naturalWidth, diameter / enemyBulletImg.naturalHeight);
+        const iw = enemyBulletImg.naturalWidth * scale;
+        const ih = enemyBulletImg.naturalHeight * scale;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(eb.x, eb.y, diameter / 1, 0, Math.PI * 4);
+        ctx.clip();
+        ctx.drawImage(enemyBulletImg, eb.x - iw / 2, eb.y - ih / 2, iw, ih);
+        ctx.restore();
       } else {
         ctx.beginPath(); ctx.arc(eb.x, eb.y, eb.r, 0, Math.PI * 2); ctx.fill();
       }
