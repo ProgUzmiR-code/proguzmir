@@ -1,18 +1,26 @@
+
 const KEY_WALLET = "proguzmir_wallet";
 const KEY_PRC = "proguzmir_prc_wei";
 const KEY_DIAMOND = "proguzmir_diamond";
-
 function makeUserKey(baseKey, wallet) {
     return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest";
 }
 
 function getCurrentUserData() {
     const wallet = localStorage.getItem(KEY_WALLET) || "";
+    console.log("Wallet:", wallet);
+    
     const keyPRC = makeUserKey(KEY_PRC, wallet);
+    console.log("keyPRC:", keyPRC);
+    
     const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
+    console.log("keyDiamond:", keyDiamond);
 
     const prcWei = BigInt(localStorage.getItem(keyPRC) || "0");
+    console.log("prcWei:", prcWei.toString());
+    
     const diamond = parseInt(localStorage.getItem(keyDiamond) || "0", 10);
+    console.log("diamond:", diamond);
 
     // Get user info from Telegram if available
     let userName = "Player";
@@ -114,63 +122,79 @@ function updateScrollButtons() {
     scrollRight.disabled = !canScrollRight;
 }
 
-// Initialize carousel
-document.addEventListener('DOMContentLoaded', () => {
-    const tabMain = document.querySelector('.tab_main');
-    const tabItems = document.querySelectorAll('.tab_item');
-    const scrollLeft = document.getElementById('scrollLeft');
-    const scrollRight = document.getElementById('scrollRight');
+// New: expose an init function that can be called both on initial load and
+// when the HTML fragment is injected dynamically.
+function initRankPage() {
+    try {
+        const rankListEl = document.getElementById('rankList');
+        if (!rankListEl) { console.warn('rank.js: #rankList not found, aborting initialization'); return; }
 
-    // Render initial rank
-    renderRankList('smart gold');
+        const tabMain = document.querySelector('.tab_main');
+        const tabItems = document.querySelectorAll('.tab_item');
+        const scrollLeft = document.getElementById('scrollLeft');
+        const scrollRight = document.getElementById('scrollRight');
 
-    // Carousel button handlers
-    if (scrollLeft && scrollRight) {
-        scrollLeft.addEventListener('click', () => {
-            tabMain.scrollBy({ left: -120, behavior: 'smooth' });
-            setTimeout(updateScrollButtons, 300);
-        });
+        // Har doim boshlang'ich ro'yxatni chizamiz (fresh)
+        renderRankList('smart gold');
 
-        scrollRight.addEventListener('click', () => {
-            tabMain.scrollBy({ left: 120, behavior: 'smooth' });
-            setTimeout(updateScrollButtons, 300);
-        });
+        // Tab click handler (event delegation) — faqat bir marta elementga biriktirish
+        if (tabMain) {
+            if (tabMain.dataset._rankInit !== '1') {
+                tabMain.addEventListener('click', (ev) => {
+                    const tab = ev.target.closest('.tab_item');
+                    if (!tab) return;
+                    tabItems.forEach(t => t.classList.remove('checked'));
+                    tab.classList.add('checked');
 
-        // Update buttons on scroll
-        tabMain.addEventListener('scroll', updateScrollButtons);
-        window.addEventListener('resize', updateScrollButtons);
+                    const rank = tab.getAttribute('data-rank') || 'smart gold';
+                    renderRankList(rank);
 
-        // Initial button state
-        setTimeout(updateScrollButtons, 100);
+                    // center the clicked tab
+                    const tabRect = tab.getBoundingClientRect();
+                    const containerRect = tabMain.getBoundingClientRect();
+                    const scrollLeftVal = tabMain.scrollLeft;
+                    const targetScroll = scrollLeftVal + (tabRect.left - containerRect.left) - (containerRect.width / 2) + (tabRect.width / 2);
+                    tabMain.scrollTo({ left: targetScroll, behavior: 'smooth' });
+
+                    setTimeout(updateScrollButtons, 300);
+                });
+                tabMain.dataset._rankInit = '1';
+            }
+        }
+
+        // Scroll buttons handlers (if present) — mark buttons to avoid duplicate listeners
+        if (scrollLeft && scrollRight && tabMain) {
+            if (scrollLeft.dataset._init !== '1') {
+                scrollLeft.addEventListener('click', () => {
+                    tabMain.scrollBy({ left: -120, behavior: 'smooth' });
+                    setTimeout(updateScrollButtons, 300);
+                });
+                scrollLeft.dataset._init = '1';
+            }
+            if (scrollRight.dataset._init !== '1') {
+                scrollRight.addEventListener('click', () => {
+                    tabMain.scrollBy({ left: 120, behavior: 'smooth' });
+                    setTimeout(updateScrollButtons, 300);
+                });
+                scrollRight.dataset._init = '1';
+            }
+            if (tabMain.dataset._scrollInit !== '1') {
+                tabMain.addEventListener('scroll', updateScrollButtons);
+                tabMain.dataset._scrollInit = '1';
+            }
+            if (!window._rankUpdateResizeAttached) {
+                window.addEventListener('resize', updateScrollButtons);
+                window._rankUpdateResizeAttached = true;
+            }
+            setTimeout(updateScrollButtons, 100);
+        }
+    } catch (err) {
+        console.error('rank.js init error', err);
     }
+}
 
-    // Tab click handlers
-    tabItems.forEach(tab => {
-        tab.addEventListener('click', () => {
-            // Remove checked class from all tabs
-            tabItems.forEach(t => t.classList.remove('checked'));
+// Call init on initial page load if the element exists
+document.addEventListener('DOMContentLoaded', () => { initRankPage(); });
 
-            // Add checked class to clicked tab
-            tab.classList.add('checked');
-
-            // Get rank from data attribute
-            const rank = tab.getAttribute('data-rank');
-
-            // Render new leaderboard
-            renderRankList(rank);
-
-            // Smooth scroll active tab into center
-            const tabRect = tab.getBoundingClientRect();
-            const containerRect = tabMain.getBoundingClientRect();
-            const scrollLeft = tabMain.scrollLeft;
-            const targetScroll = scrollLeft + (tabRect.left - containerRect.left) - (containerRect.width / 2) + (tabRect.width / 2);
-
-            tabMain.scrollTo({
-                left: targetScroll,
-                behavior: 'smooth'
-            });
-
-            setTimeout(updateScrollButtons, 300);
-        });
-    });
-});
+// Expose globally so index.js can call after dynamic load
+window.initRankPage = initRankPage;

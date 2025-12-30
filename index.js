@@ -953,6 +953,8 @@ document.querySelectorAll('.nav .tab').forEach(el => {
         else if (tab === 'rank') {
             // load rank page smoothly without refresh (no history.pushState)
             await loadHtmlIntoContent('./rank/rank.html');
+            // Ensure the rank page JS initializes (initRankPage exposed by rank.js)
+            try { if (typeof initRankPage === 'function') initRankPage(); } catch (e) { console.warn('initRankPage call error', e); }
             handleHeaderByPage('rank');
         }
         else if (tab === 'wallet') {
@@ -982,14 +984,14 @@ document.addEventListener('click', function (e) {
     console.log("Tab bosildi!");
 
     // 2. Barcha tablarni topamiz (tab_main ichidagilarini)
-    const tabs = document.querySelectorAll('.tab_main ul li');
+    const tabs = document.querySelectorAll('.tab_main .tab_item, .tab_main .tab_item1');
 
     // 3. 'checked' klassini almashtiramiz
     tabs.forEach(item => item.classList.remove('checked'));
     tab.classList.add('checked');
 
     // 4. Statusni aniqlaymiz (data-target orqali qilish ishonchliroq, lekin matn orqali ham bo'ladi)
-    const status = tab.dataset.target.trim().toLowerCase();
+    const status = (tab.dataset.target || '').trim().toLowerCase();
     console.log('Status: ' + status);
 
     // 5. Ro'yxatlarni almashtiramiz
