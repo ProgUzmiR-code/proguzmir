@@ -1,7 +1,4 @@
-
-const KEY_WALLET = "proguzmir_wallet";
-const KEY_PRC = "proguzmir_prc_wei";
-const KEY_DIAMOND = "proguzmir_diamond";
+// rank/rank.js
 function makeUserKey(baseKey, wallet) {
     return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest";
 }
