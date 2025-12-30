@@ -2,6 +2,9 @@
 
 const KEY_DAILY_WEEK_START = "proguzmir_daily_week_start";
 const KEY_DAILY_CLAIMS = "proguzmir_daily_claims"; // JSON array of 7 booleans
+const DAILY_REWARDS = [1000, 2000, 3000, 8000, 6000, 8000, 30000]; // diamonds for days 1..6, 10 PRC for day 7
+
+// helpers to get/set daily data in localStorage
 
 function dailyWeekStartKey(wallet) { return makeUserKey(KEY_DAILY_WEEK_START, wallet); }
 function dailyClaimsKey(wallet) { return makeUserKey(KEY_DAILY_CLAIMS, wallet); }
@@ -40,7 +43,13 @@ function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.st
 // helpers to hide/show bottom nav
 function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
 // rewards: days 0..5 -> 1 diamond, day6 (7th day) -> bigday 5 diamonds
-const DAILY_REWARDS = [100, 2000, 4000, 8000, 16000, 32000, 10];
+
+function formatReward(num) {
+    if (num >= 1000) {
+        return (num / 1000) + 'k';
+    }
+    return num;
+}
 
 // --- ADD: renderDaily UI and logic (standalone page inside content) ---
 function renderDaily() {
@@ -108,13 +117,14 @@ function renderDaily() {
         console.log(dayNum + " kun: " + "isToday: " + isToday);
         const cls = claimed ? 'claimed' : isToday ? 'today' : '';
         const label = (i === 6) ? 'BIG DAY' : `Day ${dayNum}`;
-        const labelD = (i === 6) ? '<img src="./image/coin.png" alt="" style="width:15px;margin-left: 4px;">' : `💎`;
+        const labelD = (i === 6) ? `💎` : `💎`;
         const labelfont = (i === 6) ? 'font-size:13px;' : ``;
+        const formattedReward = formatReward(reward); // format reward for display
         items.push(`
 			<div class="daily-day ${cls}" data-index="${i}" style="display:flex;flex-direction:column;align-items:center;padding:12px;background:rgba(0, 0, 0, 0.43);border-radius:10px;">
 				<img src="./image/daily.png" alt="${label}" style="width:62px;height:62px;object-fit:cover;border-radius:8px;margin-bottom:8px;opacity:${claimed ? 0.5 : 1}">
 				<div style="${labelfont} font-weight:700;margin-bottom:4px;position:absolute;padding: 33px 0 0 0;color: black;">${label}</div>
-				<div style="font-size:13px;color:#ddd;margin-bottom:6px;display: flex;"> ${reward}  ${labelD}</div>
+				<div style="font-weight:700;font-size:13px;color:#ddd;margin-bottom:6px;display: flex;"> ${formattedReward}  ${labelD}</div>
 				<div>${claimed ? '<span style="color:#8f8">Claimed</span>' : (isToday ? '<button class="claimTodayBtn">Claim</button>' : '<span style="opacity:0.6">Locked</span>')}</div>
 			</div>
 		`);
@@ -184,23 +194,13 @@ function renderDaily() {
             ddata.claims[idx] = true;
             setDailyData(wallet, ddata.weekStartISO, ddata.claims);
 
-            // reward: BIG DAY (idx==6) bo‘lsa 10 PRC, boshqa kunlarda diamond
+            // reward: always give diamonds for every day (including BIG DAY)
             const st = loadState();
-            if (idx === 6) {
-                // 10 PRC beramiz
-                const bigDayRewardWei = 10n * UNIT;
-                st.prcWei = (st.prcWei || 0n) + bigDayRewardWei;
-                saveState(st);
-                animateAddPRC('+' + fmtPRC(bigDayRewardWei));
-                showToast('BIG DAY! 10 PRC oldingiz!');
-            } else {
-                // oddiy kun: diamond beramiz
-                const reward = DAILY_REWARDS[idx] || 1;
-                st.diamond = (st.diamond || 0) + reward;
-                saveState(st);
-                animateAddPRC('+' + reward + ' 💎');
-                showToast(`Siz ${reward} diamond oldingiz!`);
-            }
+            const reward = DAILY_REWARDS[idx] || 1;
+            st.diamond = (st.diamond || 0) + reward;
+            saveState(st);
+            animateAddPRC('+' + reward + ' 💎');
+            showToast(`Siz ${reward} diamond oldingiz!`);
 
             // update UI locally
             renderDaily();
