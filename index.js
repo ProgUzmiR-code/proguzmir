@@ -201,12 +201,19 @@ function fmtPRC(wei) {
 
 
 function getRankFromWei(wei) {
-    if (wei < BASE_WEI) return "bronze";
-    for (let i = 1; i < RANKS.length; i++) {
-        const thr = BASE_WEI * (3n ** BigInt(i - 1));
-        if (wei < thr * 3n) return RANKS[i];
-    }
-    return "master";
+    // Exact thresholds in Wei (18 decimals)
+    const SILVER_THRESHOLD = BigInt('10000000');              // 0.00000000001 PRC (10^7 wei)
+    const GOLD_THRESHOLD = BigInt('1000000000');             // 0.000000001 PRC (10^9 wei)
+    const SMART_GOLD_THRESHOLD = BigInt('1000000000000');    // 0.000001 PRC (10^12 wei)
+    const PLATINUM_THRESHOLD = BigInt('1000000000000000');   // 0.001 PRC (10^15 wei)
+    const MASTER_THRESHOLD = BigInt('100000000000000000');   // 0.1 PRC (10^17 wei)
+
+    if (wei >= MASTER_THRESHOLD) return 'master';
+    if (wei >= PLATINUM_THRESHOLD) return 'platinum';
+    if (wei >= SMART_GOLD_THRESHOLD) return 'smart_gold';
+    if (wei >= GOLD_THRESHOLD) return 'gold';
+    if (wei >= SILVER_THRESHOLD) return 'silver';
+    return 'bronze';
 }
 
 // rank -> image helper
