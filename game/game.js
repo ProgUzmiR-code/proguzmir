@@ -3,6 +3,18 @@
   const ctx = canvas.getContext('2d');
   const playBtn = document.getElementById('playBtn');
   const scoreEl = document.getElementById('score');
+  const bestScoreEl = document.getElementById('bestScore');
+
+  // Best score persistence
+  const BEST_SCORE_KEY = 'samalyot_best_score';
+  let bestScore = 0;
+  (function loadBestScore() {
+    try {
+      const v = parseInt(localStorage.getItem(BEST_SCORE_KEY), 10);
+      if (!isNaN(v) && v >= 0) bestScore = v;
+    } catch (e) { /* ignore storage errors */ }
+    if (bestScoreEl) bestScoreEl.textContent = bestScore;
+  })();
 
   const GAME_W = 900, GAME_H = 1600;
   function fitCanvas() {
@@ -130,6 +142,10 @@
 
   function resetGame() {
     bullets = []; enemies = []; enemyBullets = []; score = 0; scoreEl.textContent = 'Score: 0';
+    // Show best score in HUD
+    if (bestScoreEl) bestScoreEl.textContent = bestScore;
+    // Update combined display
+    if (scoreEl) scoreEl.textContent = 'Score: ' + score + '/' + bestScore;
     plane.x = GAME_W / 2; plane.y = GAME_H - 300; plane.angle = -Math.PI / 2;
     plane.prevX = plane.x; // Initialize prevX on reset
     playing = true; gameOver = false; lastTime = performance.now(); fireTimer = 0; spawnTimer = 0;
@@ -612,7 +628,14 @@
           } else {
             score++;
           }
-          scoreEl.textContent = 'Score: ' + score;
+          // Update best score if needed and persist
+          if (score > bestScore) {
+            bestScore = score;
+            try { localStorage.setItem(BEST_SCORE_KEY, String(bestScore)); } catch (e) { /* ignore */ }
+            if (bestScoreEl) bestScoreEl.textContent = bestScore;
+          }
+          // Update combined display
+          if (scoreEl) scoreEl.textContent = 'Score: ' + score + '/' + bestScore;
 
           // Treat boss kills similar to strong for powerups (larger increments)
           if (en.type === 'strong' || en.type === 'boss') {
