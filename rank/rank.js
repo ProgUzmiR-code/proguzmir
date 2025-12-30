@@ -38,11 +38,11 @@
 
             // 1. Ma'lumotlar ro'yxati (Buni keyinroq API'dan olasiz)
             const allUsers = [
-                { name: "Sardor", wallet: "tg_1", score: "5000000000000000000" }, // Master
-                { name: "Doston", wallet: "tg_2", score: "120000000000000" },    // Smart Gold yaqinida
-                { name: "Ali", wallet: "tg_3", score: "5000000" },               // Bronze
-                { name: "Vali", wallet: "tg_4", score: "15000000" },             // Silver
-                { name: tgFirstName, wallet: state.wallet, score: String(state.prcWei || 0n) }
+                { name: "Sardor", score: "5000000000000000000" }, // Master
+                { name: "Doston", score: "120000000000000" },    // Smart Gold yaqinida
+                { name: "Ali", score: "5000000" },               // Bronze
+                { name: "Vali", score: "15000000" },             // Silver
+                { name: tgFirstName, score: String(state.prcWei || 0n) }
             ];
 
             // 2. FILTRLASH: Faqat tanlangan ligaga (rankName) mos keladiganlarni olamiz
@@ -79,7 +79,6 @@
                     </div>
                     <div class="rank-score">
                         ${safeFmtPRC(user.score)}
-                        <span class="rank-score-label">PRC</span>
                     </div>
                 `;
                 rankListContainer.appendChild(wrapper);
