@@ -65,7 +65,6 @@
             </div>
             <div class="rank-score">
                 ${safeFmtPRC(user.score)}
-                <span class="rank-score-label">PRC</span>
             </div>
         `;
                 rankListContainer.appendChild(wrapper);
