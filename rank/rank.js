@@ -56,7 +56,10 @@
                     <div class="rank-left">
                         <div class="rank-position ${rankClass}">${pos}</div>
                         <div class="rank-info">
-                            <div class="rank-name">${user.name} ${isMe ? '<small>(Siz)</small>' : ''}</div>
+                            <div class="rank-name">
+                                ${isMe ? tgUserName : user.name} 
+                                ${isMe ? '<small style="color: var(--brand-color);">(Siz)</small>' : ''}
+                            </div>
                             <div class="rank-id">${(user.wallet || '').slice(0, 12)}</div>
                         </div>
                     </div>
