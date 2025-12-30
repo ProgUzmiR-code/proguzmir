@@ -416,8 +416,15 @@ function renderGame() {
     const skinPreview = document.getElementById('skinCardPreview');
     if (skinPreview) skinPreview.addEventListener('click', (ev) => { ev.stopPropagation(); renderShop(); });
 
+    // --- Shop Preview handler ---
     const shopPreview = document.getElementById('shopCardPreview');
-    if (shopPreview) shopPreview.addEventListener('click', (ev) => { ev.stopPropagation(); renderShop(); });
+    if (shopPreview) {
+        shopPreview.addEventListener('click', (ev) => { 
+            ev.stopPropagation(); 
+            document.body.style.background = "#06121a"; // Shopga o'tganda ham fonni tozalaymiz
+            renderShop(); 
+        });
+    }
 
 
     const gamePreview = document.getElementById('gameCardPreview');
