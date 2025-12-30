@@ -30,23 +30,37 @@
         const currentRank = normalizeRank(currentRankRaw);
 
         // Reyting ro'yxatini chiqarish
-        function displayLeaderboard(rankName) {
+            function displayLeaderboard(rankName) {
             rankListContainer.innerHTML = '';
 
-            // Telegram ismini aniqlaymiz
             const tgFirstName = window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || "Siz";
+            const state = safeLoadState();
 
-            // Mock ma'lumotlar (haqiqiy ma'lumotlar serverdan olinishi kerak)
-
-            const mockUsers = [
-                { name: "Sardor", score: "5000000000000000000" },
-                { name: "Doston", score: "120000000000000000" },
-                { name: tgFirstName, score: String(state.prcWei || 0n) } // Ismingiz bu yerga tushadi
+            // 1. Ma'lumotlar ro'yxati (Buni keyinroq API'dan olasiz)
+            const allUsers = [
+                { name: "Sardor", wallet: "tg_1", score: "5000000000000000000" }, // Master
+                { name: "Doston", wallet: "tg_2", score: "120000000000000" },    // Smart Gold yaqinida
+                { name: "Ali", wallet: "tg_3", score: "5000000" },               // Bronze
+                { name: "Vali", wallet: "tg_4", score: "15000000" },             // Silver
+                { name: tgFirstName, wallet: state.wallet, score: String(state.prcWei || 0n) }
             ];
 
-            mockUsers.sort((a, b) => (BigInt(b.score) > BigInt(a.score) ? 1 : -1));
+            // 2. FILTRLASH: Faqat tanlangan ligaga (rankName) mos keladiganlarni olamiz
+            const filteredUsers = allUsers.filter(user => {
+                const userRank = getRankFromWei(BigInt(user.score));
+                return normalizeRank(userRank) === normalizeRank(rankName);
+            });
 
-            mockUsers.forEach((user, index) => {
+            // 3. SARALASH: Ballar bo'yicha
+            filteredUsers.sort((a, b) => (BigInt(b.score) > BigInt(a.score) ? 1 : -1));
+
+            // 4. EKRANGA CHIQARISH
+            if (filteredUsers.length === 0) {
+                rankListContainer.innerHTML = `<div class="empty-state">${rankName} ligasida hozircha hech kim yo'q</div>`;
+                return;
+            }
+
+            filteredUsers.forEach((user, index) => {
                 const pos = index + 1;
                 const isMe = String(user.wallet) === String(state.wallet);
                 const rankClass = pos <= 3 ? `top${pos}` : '';
@@ -56,20 +70,22 @@
                 if (isMe) wrapper.style.border = '1.5px solid var(--brand-color)';
 
                 wrapper.innerHTML = `
-            <div class="rank-left">
-                <div class="rank-position ${rankClass}">${pos}</div>
-                <div class="rank-info">
-                    <div class="rank-name">${user.name} ${isMe ? '<small>(Siz)</small>' : ''}</div>
-                    <div class="rank-id">${(user.wallet || '').slice(0, 12)}</div>
-                </div>
-            </div>
-            <div class="rank-score">
-                ${safeFmtPRC(user.score)}
-            </div>
-        `;
+                    <div class="rank-left">
+                        <div class="rank-position ${rankClass}">${pos}</div>
+                        <div class="rank-info">
+                            <div class="rank-name">${user.name} ${isMe ? '<small>(Siz)</small>' : ''}</div>
+                            <div class="rank-id">${(user.wallet || '').slice(0, 12)}</div>
+                        </div>
+                    </div>
+                    <div class="rank-score">
+                        ${safeFmtPRC(user.score)}
+                        <span class="rank-score-label">PRC</span>
+                    </div>
+                `;
                 rankListContainer.appendChild(wrapper);
             });
         }
+
 
 
         // Tablarni yangilash
