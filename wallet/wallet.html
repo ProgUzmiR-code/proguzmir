@@ -4,221 +4,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://game.foxcoin.vip/css/1.714fa309.css">
-    <link rel="stylesheet" href="https://game.foxcoin.vip/css/10.8a5d716a.css">
-    <link rel="stylesheet" href="https://game.foxcoin.vip/css/13.6b473afe.css">
-    <link rel="stylesheet" href="https://game.foxcoin.vip/css/app.d7938c4b.css">
-    <link rel="stylesheet" href="https://game.foxcoin.vip/css/chunk-qa.357ae46a.css">
-    <link rel="stylesheet" href="https://game.foxcoin.vip/css/common.7973d0ff.css">
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            background: #06121a;
+            color: white;
+            font-family: sans-serif;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .wallet {
+            margin-top: 48px;
+
+            h1 {
+                font-size: 24px;
+                text-align: center;
+                color: #ffd700;
+            }
+        }
+
+        header .flex {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .coins-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        ul {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 10px;
+            padding: 0;
+        }
+
+        ul li {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            align-items: center;
+            padding: 10px 20px 10px 20px;
+            list-style: none;
+        }
+
+        .invite-listm2,
+        .invite-listm,
+        .invitem {
+            overflow-x: hidden;
+        }
+
+        .checked {
+            color: #ffd700;
+            border-bottom: 2px solid #ffffff;
+        }
+
+        .invite-listm3 {
+            margin: 50%;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .invite-listm2 .ds {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .invite-listm2 .ds button {
+            background-color: #ffd700;
+            border: none;
+            border-radius: 10px;
+            height: 30px;
+            width: 120px;
+            margin: 30%;
+        }
+    </style>
 
     <title>Document</title>
 </head>
 
 <body>
-    <div data-v-31dd2778="" class="q-page-container bg-black" style="padding-top: 60px;">
-        <main data-v-31dd2778="" class="q-page bg-black" style="min-height: 580px;">
-            <header data-v-592ce076="" data-v-31dd2778=""
-                class="q-header q-layout__section--marginal row justify-center bg-grey600 text-white title-grey-8 shadow-1 sc-design fixed-top"
-                style="z-index: 99;">
-                <div data-v-592ce076="" role="toolbar" class="q-toolbar row no-wrap items-center full-height">
-                    <div data-v-592ce076="" class="settingsBox pointer"><i data-v-592ce076="" aria-hidden="true"
-                            role="presentation" class="q-icon notranslate material-icons" width="2.5rem">settings</i>
-                    </div>
-                    <div data-v-592ce076="" class="q-space"></div>
-                    <div data-v-592ce076="" class="row q-mb-md" style="flex-wrap: nowrap;">
-                        <div data-v-592ce076="" id="diamond" class="balanceBox">
-                            <div data-v-592ce076="" class="row items-center"><img data-v-592ce076=""
-                                    src="https://sp99.imgix.net/tg/ss/stake/icon/fox_diamond.png?&amp;dpr=1.25&amp;format=auto&amp;auto=format&amp;q=50"
-                                    width="28px" height="28px"><span data-v-592ce076="" class="font-bold q-px-sm">
-                                    354.79</span><i data-v-592ce076="" aria-hidden="true" role="presentation"
-                                    class="rIcon q-icon notranslate material-icons">add</i></div>
-                            <div data-v-592ce076="" class="hl text-green500">
-                                = 0.3547
-                                <div data-v-592ce076="" role="img" class="q-ml-xs q-img overflow-hidden"
-                                    style="width: 18px; height: 18px;">
-                                    <div style="padding-bottom: 100%;"></div>
-                                    <div class="q-img__image absolute-full"
-                                        style="background-size: cover; background-position: 50% 50%; background-image: url(&quot;https://sp99.imgix.net/tg/ss/stake/icon/usdt5.png?&amp;dpr=1.25&amp;format=auto&amp;auto=format&amp;q=50&quot;);">
-                                    </div>
-                                    <div class="q-img__content absolute-full"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div data-v-592ce076="" id="balance" class="balanceBox q-ml-sm">
-                            <div data-v-592ce076="" class="row items-center"><img data-v-592ce076=""
-                                    src="https://sp99.imgix.net/tg/ss/stake/icon/fox_balance.png?&amp;dpr=1.25&amp;format=auto&amp;auto=format&amp;q=50"
-                                    width="28px" height="28px"><span data-v-592ce076="" class="font-bold q-px-sm">
-                                    2549.98</span><i data-v-592ce076="" aria-hidden="true" role="presentation"
-                                    class="rIcon q-icon notranslate material-icons">flight_land</i></div>
-                            <div data-v-592ce076="" class="hl text-green500">
-                                ≈ 0.2549
-                                <div data-v-592ce076="" role="img" class="q-ml-xs q-img overflow-hidden"
-                                    style="width: 18px; height: 18px;">
-                                    <div style="padding-bottom: 100%;"></div>
-                                    <div class="q-img__image absolute-full"
-                                        style="background-size: cover; background-position: 50% 50%; background-image: url(&quot;https://sp99.imgix.net/tg/ss/stake/icon/usdt5.png?&amp;dpr=1.25&amp;format=auto&amp;auto=format&amp;q=50&quot;);">
-                                    </div>
-                                    <div class="q-img__content absolute-full"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div><!---->
-                </div><!---->
-            </header>
-            <div data-v-1b6b1c31="" data-v-31dd2778="" class="">
-                <div data-v-1b6b1c31="" class="onlineService shadow-10"><i data-v-1b6b1c31="" aria-hidden="true"
-                        role="presentation" class="q-icon notranslate material-icons"
-                        style="font-size: 30px;">support_agent</i></div>
-                <div data-v-1b6b1c31="" role="tablist"
-                    class="text-white q-tabs row no-wrap items-center q-tabs--not-scrollable q-tabs--horizontal q-tabs__arrows--inside">
-                    <!---->
-                    <div
-                        class="q-tabs__content row no-wrap items-center self-stretch hide-scrollbar relative-position q-tabs__content--align-justify">
-                        <div data-v-1b6b1c31="" tabindex="-1" role="tab" aria-selected="false"
-                            class="q-tab relative-position self-stretch flex flex-center text-center q-tab--inactive q-tab--no-caps q-focusable q-hoverable cursor-pointer">
-                            <div tabindex="-1" class="q-focus-helper"></div>
-                            <div
-                                class="q-tab__content self-stretch flex-center relative-position q-anchor--skip non-selectable column">
-                                <div class="q-tab__label">Recharge</div>
-                            </div>
-                            <div class="q-tab__indicator absolute-bottom" style="transition: none; transform: none;">
-                            </div>
-                        </div>
-                        <div data-v-1b6b1c31="" tabindex="-1" role="tab" aria-selected="false"
-                            class="q-tab relative-position self-stretch flex flex-center text-center q-tab--inactive q-tab--no-caps q-focusable q-hoverable cursor-pointer">
-                            <div tabindex="-1" class="q-focus-helper"></div>
-                            <div
-                                class="q-tab__content self-stretch flex-center relative-position q-anchor--skip non-selectable column">
-                                <div class="q-tab__label">Withdraw</div>
-                            </div>
-                            <div class="q-tab__indicator absolute-bottom" style="transition: none; transform: none;">
-                            </div>
-                        </div>
-                        <div data-v-1b6b1c31="" tabindex="0" role="tab" aria-selected="true"
-                            class="q-tab relative-position self-stretch flex flex-center text-center q-tab--active q-tab--no-caps q-focusable q-hoverable cursor-pointer">
-                            <div tabindex="-1" class="q-focus-helper"></div>
-                            <div
-                                class="q-tab__content self-stretch flex-center relative-position q-anchor--skip non-selectable column">
-                                <div class="q-tab__label">Records</div>
-                            </div>
-                            <div class="q-tab__indicator absolute-bottom"
-                                style="transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); transform: none;">
-                            </div>
-                        </div>
-                    </div><i aria-hidden="true" role="presentation"
-                        class="q-icon notranslate material-icons q-tabs__arrow q-tabs__arrow--start absolute q-tab__icon">chevron_left</i><i
-                        aria-hidden="true" role="presentation"
-                        class="q-icon notranslate material-icons q-tabs__arrow q-tabs__arrow--end absolute q-tab__icon q-tabs__arrow--faded">chevron_right</i>
-                </div>
-                <hr data-v-1b6b1c31="" aria-orientation="horizontal"
-                    class="q-separator q-separator q-separator--horizontal">
-                <div data-v-1b6b1c31="" class="q-tab-panels q-panel-parent">
-                    <div role="tabpanel" class="q-panel scroll">
-                        <div data-v-1b6b1c31="" role="tabpanel" class="q-tab-panel">
-                            <div data-v-06dddd1c="" data-v-1b6b1c31="" class="css-9wu7lw text-white"
-                                style="padding-bottom: 0px;">
-                                <div data-v-06dddd1c="" class="chakra-tabs css-1pn630c" style="padding-top: 0px;">
-                                    <div data-v-06dddd1c="" class="css-1927iy5 q-mb-md" style="padding-top: 0px;">
-                                        <div data-v-06dddd1c="" class="css-6sod28 row justify-between items-center">
-                                            Your TON address
-                                            <button data-v-06dddd1c="" tabindex="0" type="button"
-                                                class="q-btn q-btn-item non-selectable no-outline q-pr-sm text-black q-btn--standard q-btn--rectangle bg-green500 text-white q-btn--actionable q-focusable q-hoverable q-btn--wrap q-btn--dense"
-                                                style="font-size: 14px;"><span class="q-focus-helper"></span><span
-                                                    class="q-btn__wrapper col row q-anchor--skip"><span
-                                                        class="q-btn__content text-center col items-center q-anchor--skip justify-center row"><i
-                                                            data-v-06dddd1c="" aria-hidden="true" role="presentation"
-                                                            class="q-pr-xs q-icon notranslate material-icons">account_balance_wallet</i>
-                                                        Connect Wallet
-                                                    </span></span></button>
-                                        </div><!---->
-                                    </div>
-                                    <div data-v-06dddd1c="" class="css-1927iy5">
-                                        <div data-v-06dddd1c="" class="css-6sod28 row justify-between items-center">
-                                            <div data-v-06dddd1c="">Recharge Record</div>
-                                            <div data-v-06dddd1c="" class="text-center q-pb-sm">
-                                                <div data-v-06dddd1c=""
-                                                    class="q-btn-group row no-wrap inline q-btn-toggle q-btn-group--unelevated q-btn-group--rounded">
-                                                    <button tabindex="0" type="button"
-                                                        class="q-btn q-btn-item non-selectable no-outline q-btn--unelevated q-btn--rectangle q-btn--rounded bg-green500 text-white q-btn--actionable q-focusable q-hoverable q-btn--no-uppercase q-btn--wrap q-btn--dense"
-                                                        aria-pressed="true"><span class="q-focus-helper"></span><span
-                                                            class="q-btn__wrapper col row q-anchor--skip"><span
-                                                                class="q-btn__content text-center col items-center q-anchor--skip justify-center row"><span
-                                                                    class="block">Recharge</span></span></span></button><button
-                                                        tabindex="0" type="button"
-                                                        class="q-btn q-btn-item non-selectable no-outline q-btn--unelevated q-btn--rectangle q-btn--rounded bg-white text-black q-btn--actionable q-focusable q-hoverable q-btn--no-uppercase q-btn--wrap q-btn--dense"
-                                                        aria-pressed="false"><span class="q-focus-helper"></span><span
-                                                            class="q-btn__wrapper col row q-anchor--skip"><span
-                                                                class="q-btn__content text-center col items-center q-anchor--skip justify-center row"><span
-                                                                    class="block">Withdraw</span></span></span></button>
-                                                </div>
-                                            </div>
-                                        </div><!---->
-                                    </div>
-                                    <div data-v-644943bf="" data-v-06dddd1c="" class="column items-center">
-                                        <div data-v-644943bf="" role="img" class="q-img overflow-hidden"
-                                            style="width: 140px;">
-                                            <div style="padding-bottom: 100%;"></div>
-                                            <div class="q-img__image absolute-full"
-                                                style="background-size: cover; background-position: 50% 50%; background-image: url(&quot;https://sp99.imgix.net/tg/ss/stake/game/icon/new/null4.png?&amp;dpr=1.25&amp;format=auto&amp;auto=format&amp;q=50&quot;);">
-                                            </div>
-                                            <div class="q-img__content absolute-full"></div>
-                                        </div><span data-v-644943bf="" class="q-mt-sm color">No transaction
-                                            records</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div><!----><!---->
-            </div><!---->
+    <header>
+        <div class="wallet">
+            <h1>Wallet Page</h1>
+        </div>
+        <div class="coins-center">
+            <div class="flex">
+                <img width="20" src="/image/coin.png" alt="">
+                <span>0.000000000000000000 PRC</span>
+            </div>
+            <div class="flex">
+                <span>💎0</span>
+            </div>
+        </div>
+    </header>
+    <div class="invitem">
+        <div class="tab_mainm">
+            <ul>
+                <li class="tab_itemm " data-target="completed">Withdraw</li>
+                <li class="tab_itemm " data-target="inactive">Recharge</li>
+                <li class="tab_itemm checked" data-target="active">Wallet</li>
+            </ul>
+        </div>
 
-            <div data-v-5b5182e2="" data-v-31dd2778="" role="img" class="coinFly q-img overflow-hidden"
-                style="width: 20px; height: 20px; display: none;">
-                <div style="padding-bottom: 101.901%;"></div>
-                <div class="q-img__image absolute-full"
-                    style="background-size: cover; background-position: 50% 50%; background-image: url(&quot;https://sp99.imgix.net/tg/ss/stake/icon/fox_diamond.png?&amp;dpr=1.25&amp;format=auto&amp;auto=format&amp;q=50&quot;);">
-                </div>
-                <div class="q-img__content absolute-full"></div>
+
+        <div>
+
+            <div class="invite-listm3" style="display: none;">
+                <span>Withdraw</span>
+                <span>soon</span>
             </div>
-            <div data-v-5b5182e2="" data-v-31dd2778="" role="img" class="coinFly q-img overflow-hidden"
-                style="width: 20px; height: 20px; display: none;">
-                <div style="padding-bottom: 101.901%;"></div>
-                <div class="q-img__image absolute-full"
-                    style="background-size: cover; background-position: 50% 50%; background-image: url(&quot;https://sp99.imgix.net/tg/ss/stake/icon/fox_diamond.png?&amp;dpr=1.25&amp;format=auto&amp;auto=format&amp;q=50&quot;);">
-                </div>
-                <div class="q-img__content absolute-full"></div>
-            </div>
-            <div data-v-5b5182e2="" data-v-31dd2778="" role="img" class="coinFly q-img overflow-hidden"
-                style="width: 20px; height: 20px; display: none;">
-                <div style="padding-bottom: 101.901%;"></div>
-                <div class="q-img__image absolute-full"
-                    style="background-size: cover; background-position: 50% 50%; background-image: url(&quot;https://sp99.imgix.net/tg/ss/stake/icon/fox_diamond.png?&amp;dpr=1.25&amp;format=auto&amp;auto=format&amp;q=50&quot;);">
-                </div>
-                <div class="q-img__content absolute-full"></div>
-            </div>
-            <div data-v-36f97448="" data-v-31dd2778="" class="su-message fadeIn shadow-12 q-card q-card--bordered"
-                style="display: none;">
-                <div data-v-36f97448="" role="listitem" class="q-pa-none q-item q-item-type row no-wrap">
-                    <div data-v-36f97448=""
-                        class="q-item__section column bg-grey500 q-pa-lg q-item__section--avatar q-item__section--side justify-center">
-                        <span data-v-36f97448="" aria-hidden="true" role="presentation" class="q-icon text-green"
-                            style="font-size: 1.5rem;"><svg viewBox="0 0 24 24" focusable="false">
-                                <use xlink:href="icons.svg#icon-ghost-mode"></use>
-                            </svg></span>
-                    </div>
-                    <div data-v-36f97448=""
-                        class="q-item__section column bg-grey700 q-pa-md q-item__section--main justify-center">
-                        <div data-v-36f97448="" class="text-white" style="line-height: 1.5; padding-right: 20px;"></div>
-                        <!----><i data-v-36f97448="" aria-hidden="true" role="presentation"
-                            class="close pointer q-icon text-grey200 notranslate material-icons"
-                            style="font-size: 1.5rem;">close</i>
+
+
+            <div class="invite-listm" style="display: none;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="shop-card"
+                        style="background: #f3c178; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; align-items: center; border: 2px solid #e2a04a; position: relative;">
+
+                        <div
+                            style="position: absolute; top: 5px; left: 5px; background: #ff4d4d; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; border: 1px solid white; font-weight: bold; display: flex; align-items: center; gap: 3px;">
+                            <span style="font-size: 8px;">First</span> 💎 ${it.bonus}
+                        </div>
+
+                        <img src="${it.img}"
+                            style="width: 70%; margin-top: 30px; margin-bottom: 10px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));">
+
+                        <div style="font-weight: 900; color: #3a7994; font-size: 18px; margin-bottom: 5px;">${it.name}
+                        </div>
+
+                        <div
+                            style="background: #e69a30; width: 100%; text-align: center; padding: 8px 0; color: white; font-weight: bold; border-top: 2px solid #d48a20; cursor: pointer;">
+                            ${it.cost}
+                        </div>
                     </div>
                 </div>
-                <div data-v-36f97448="" class="process bg-grey100" style="animation-duration: 3s;"></div>
             </div>
-        </main>
+
+
+            <div class="invite-listm2" style="display: block;">
+                <div>
+                    <div class="ds">
+                        <span>Your TON address</span>
+                        <button tabindex="0" type="button" style="font-size: 14px;">
+                            <span>
+                                <i aria-hidden="true" style="display: none;"
+                                    role="presentation">account_balance_wallet</i>
+                                Connect Wallet
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
     </div>
-    <script src="">
+    <script>
+        document.addEventListener('click', function (e) {
+
+            const tab = e.target.closest('.tab_itemm, .tab_itemm1');
+            if (!tab) return;
+
+            // TAB ACTIVE
+            document
+                .querySelectorAll('.tab_mainm .tab_itemm, .tab_mainm .tab_itemm1')
+                .forEach(t => t.classList.remove('checked'));
+
+            tab.classList.add('checked');
+
+            const status = tab.dataset.target?.toLowerCase();
+            console.log('STATUS:', status);
+
+            document.querySelectorAll('.invitem').forEach(inviteBlock => {
+
+                const list1 = inviteBlock.querySelector('.invite-listm');
+                const list2 = inviteBlock.querySelector('.invite-listm2');
+                const list3 = inviteBlock.querySelector('.invite-listm3');
+
+                if (!list1 || !list2 || !list3) return;
+
+                // Barchasini yashiramiz
+                list1.style.display = 'none';
+                list2.style.display = 'none';
+                list3.style.display = 'none';
+
+                if (status === 'inactive') {
+                    list1.style.display = 'block';
+                }
+                else if (status === 'active') {
+                    list2.style.display = 'block';
+                }
+                else if (status === 'completed') {
+                    list3.style.display = 'flex';
+                }
+
+            });
+        });
+    </script>
+    <script>
         // show Telegram BackButton and set it to return to main renderGame
         showTelegramBack(() => { showheader(); renderGame(); });
         // hide bottom nav and enable Telegram Back to return to game
