@@ -76,8 +76,18 @@
         .invite-listm2 .ds {
             display: flex;
             align-items: center;
-            flex-direction: column;
             justify-content: space-between;
+        }
+
+        .ds2 {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .tab_mainm1 {
+            display: flex;
         }
 
         .invite-listm2 .ds button {
@@ -86,7 +96,37 @@
             border-radius: 10px;
             height: 30px;
             width: 120px;
-            margin: 30%;
+        }
+
+        .Withdraw,
+        .Recharge {
+            text-align: center;
+            background-color: #ffffff;
+            color: black;
+            border: none;
+            border-radius: 0px 5px 5px 0px;
+            height: 25px;
+            width: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow-x: hidden;
+        }
+
+        .Recharge {
+            border-radius: 5px 0px 0px 5px;
+        }
+
+        .Active {
+            background-color: #ffd700;
+            color: black;
+        }
+        .q-mt-sm {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
         }
     </style>
 
@@ -100,11 +140,7 @@
         </div>
         <div class="coins-center">
             <div class="flex">
-                <img width="20" src="/image/coin.png" alt="">
-                <span>0.000000000000000000 PRC</span>
-            </div>
-            <div class="flex">
-                <span>💎0</span>
+                💎<span id="diamondCount">0</span>
             </div>
         </div>
     </header>
@@ -113,12 +149,12 @@
             <ul>
                 <li class="tab_itemm " data-target="completed">Withdraw</li>
                 <li class="tab_itemm " data-target="inactive">Recharge</li>
-                <li class="tab_itemm checked" data-target="active">Wallet</li>
+                <li class="tab_itemm checked" data-target="active">Records</li>
             </ul>
         </div>
 
 
-        <div>
+        <div class="der">
 
             <div class="invite-listm3" style="display: none;">
                 <span>Withdraw</span>
@@ -163,52 +199,121 @@
                             </span>
                         </button>
                     </div>
+                    <div class="ds2">
+                        <span>Recharge Record</span>
+                        <div class="tab_mainm1 w1">
+                            <div class="Recharge tab_itemm1 w2 Active" data-target="recharge" style="font-size: 14px;">
+                                Recharge</div>
+                            <div class="Withdraw tab_itemm1 w2" data-target="withdraw" style="font-size: 14px;">Withdraw
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
+            </div>
+            <div class="invite-listm4">
+                <span class="q-mt-sm">No transaction records</span>
+            </div>
+            <div class="invite-listm5" style="display: none;">
+                <span class="q-mt-sm">No transaction records</span>
             </div>
 
         </div>
 
     </div>
     <script>
+        // Update diamond display
+        function updateDiamondDisplay() {
+            const diamondCount = document.getElementById('diamondCount');
+            if (diamondCount) {
+                try {
+                    // Load state from localStorage (same as index.js)
+                    const KEY_DIAMOND = "proguzmir_diamond";
+                    const KEY_WALLET = "proguzmir_wallet";
+
+                    function makeUserKey(baseKey, wallet) {
+                        return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest";
+                    }
+
+                    const wallet = localStorage.getItem(KEY_WALLET) || "";
+                    const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
+                    const diamond = parseInt(localStorage.getItem(keyDiamond) || "0", 10);
+
+                    diamondCount.textContent = diamond;
+                } catch (e) {
+                    console.log("Diamond load error:", e);
+                }
+            }
+        }
+
+        // Update on page load
+        updateDiamondDisplay();
+
+        // Update every second to catch changes
+        setInterval(updateDiamondDisplay, 1000);
+    </script>
+    <script>
         document.addEventListener('click', function (e) {
 
-            const tab = e.target.closest('.tab_itemm, .tab_itemm1');
+            const tab = e.target.closest('.tab_itemm, .tab_itemm1, .w2');
             if (!tab) return;
 
-            // TAB ACTIVE
-            document
-                .querySelectorAll('.tab_mainm .tab_itemm, .tab_mainm .tab_itemm1')
-                .forEach(t => t.classList.remove('checked'));
-
-            tab.classList.add('checked');
-
             const status = tab.dataset.target?.toLowerCase();
-            console.log('STATUS:', status);
+            if (!status) return;
 
-            document.querySelectorAll('.invitem').forEach(inviteBlock => {
+            /* ===== TAB MAIN M (1-sistema) ===== */
+            if (tab.closest('.tab_mainm')) {
 
-                const list1 = inviteBlock.querySelector('.invite-listm');
-                const list2 = inviteBlock.querySelector('.invite-listm2');
-                const list3 = inviteBlock.querySelector('.invite-listm3');
+                document
+                    .querySelectorAll('.tab_mainm .tab_itemm, .tab_mainm .tab_itemm1')
+                    .forEach(t => t.classList.remove('checked'));
 
-                if (!list1 || !list2 || !list3) return;
+                tab.classList.add('checked');
 
-                // Barchasini yashiramiz
-                list1.style.display = 'none';
-                list2.style.display = 'none';
-                list3.style.display = 'none';
+                document.querySelectorAll('.invitem').forEach(inviteBlock => {
 
-                if (status === 'inactive') {
-                    list1.style.display = 'block';
-                }
-                else if (status === 'active') {
-                    list2.style.display = 'block';
-                }
-                else if (status === 'completed') {
-                    list3.style.display = 'flex';
-                }
+                    const lists = {
+                        inactive: inviteBlock.querySelector('.invite-listm'),
+                        active: inviteBlock.querySelector('.invite-listm2'),
+                        completed: inviteBlock.querySelector('.invite-listm3'),
+                    };
 
-            });
+                    Object.values(lists).forEach(l => l && (l.style.display = 'none'));
+
+                    if (lists[status]) {
+                        lists[status].style.display =
+                            status === 'completed' ? 'flex' : 'block';
+                    }
+                });
+
+                return; // ❗ BU YERDA TO‘XTAYDI
+            }
+
+            /* ===== W1 / DER (2-sistema) ===== */
+            if (tab.closest('.der')) {
+
+                document
+                    .querySelectorAll('.der .w2')
+                    .forEach(t => t.classList.remove('Active'));
+
+                tab.classList.add('Active');
+
+                document.querySelectorAll('.der').forEach(derBlock => {
+
+                    const lists = {
+                        recharge: derBlock.querySelector('.invite-listm4'),
+                        withdraw: derBlock.querySelector('.invite-listm5'),
+                    };
+
+                    Object.values(lists).forEach(l => l && (l.style.display = 'none'));
+
+                    if (lists[status]) {
+                        lists[status].style.display = 'block';
+                    }
+                });
+
+                return; // ❗ BOSHQA BLOKLARGA O‘TMAYDI
+            }
         });
     </script>
     <script>
