@@ -218,11 +218,14 @@ const content = document.getElementById('content');
 function renderGame() {
     hideTelegramBack();
     const s = loadState();
+    const todayIndex = s.todayIndex ?? 0;
     // update header balance immediately on render
     document.getElementById('headerBalance') && (document.getElementById('headerBalance').innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(getTotalPRCWei(s)));
     if (typeof s.maxEnergy !== 'number') s.maxEnergy = DEFAULT_MAX_ENERGY;
     if (typeof s.energy !== 'number') s.energy = s.maxEnergy;
 
+    const dayNum = todayIndex + 1;
+    const label = (todayIndex === 6) ? 'BIG DAY' : `Day ${dayNum}`;
     const rank = getRankFromWei(s.prcWei);
     const defaultTapImg = rankImage(rank);
     const selectedSkin = s.selectedSkin;
@@ -236,6 +239,7 @@ function renderGame() {
           <div style="display:flex;gap:30px;align-items:center;margin-top: 10px;">
             <div id="dailyBtn" class="btn" style="border-radius:8px;display: flex;flex-direction: column;cursor: pointer;">
               <img style="width: 50px; height:60px; object-fit: contain;" src="./image/daily.png" alt="Daily">
+              <span>${label}</span>
               <span class="text_daily">Daily</span>
             </div>
 
@@ -438,7 +442,10 @@ function renderGame() {
     if (boostsBox) {
         boostsBox.addEventListener('click', (ev) => { ev.stopPropagation(); renderBoosts(); });
     }
-
+    
+        // helpers to hide/show bottom header
+        function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
+        function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
     // helpers to hide/show bottom nav
     function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
     function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
@@ -455,7 +462,11 @@ function renderGame() {
         const s = loadState();
         // show Telegram BackButton and set it to return to main renderGame
         showTelegramBack(() => { showNav(); renderGame(); });
-
+        // show Telegram BackButton and set it to return to main renderGame
+        
+        // hide bottom header and enable Telegram Back to return to game
+        hideheader();
+        showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
         // header with internal tabs (Back handled by Telegram WebApp "X")
         content.innerHTML = `
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
@@ -485,7 +496,7 @@ function renderGame() {
                     <button class="btn buySkinBtn" data-skin="${sk.id}">Buy</button>
                   </div>
                 </div>
-              `).join('')}
+              `).join('')}}
             </div>
           </div>
         `;
@@ -538,7 +549,7 @@ function renderGame() {
         const s = loadState();
         // show Telegram BackButton and set it to return to main renderGame
         showTelegramBack(() => { showNav(); renderGame(); });
-         // show Telegram BackButton and set it to return to main renderGame
+        // show Telegram BackButton and set it to return to main renderGame
         showTelegramBack(() => { showheader(); renderGame(); });
         // hide bottom nav and enable Telegram Back to return to game
         hideheader();
@@ -557,7 +568,7 @@ function renderGame() {
                     <button class="btn playGameBtn" data-id="${g.id}">Play</button>
                   </div>
                 </div>
-              `).join('')}
+              `).join('')}}
             </div>
             <div style="flex:1;"></div>
           </div>
@@ -591,8 +602,8 @@ function renderGame() {
             });
         });
     }
-     function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
-        function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
+    function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
+    function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
     // --- ADD: daily keys & helpers (place near other KEY_* declarations) ---
     const KEY_DAILY_WEEK_START = "proguzmir_daily_week_start";
     const KEY_DAILY_CLAIMS = "proguzmir_daily_claims"; // JSON array of 7 booleans
@@ -628,7 +639,7 @@ function renderGame() {
     }
 
     // rewards: days 0..5 -> 1 diamond, day6 (7th day) -> bigday 5 diamonds
-    const DAILY_REWARDS = [1, 1, 1, 1, 1, 1, 5];
+    const DAILY_REWARDS = [100, 2000, 4000, 8000, 16000, 32000, 10];
 
     // --- ADD: renderDaily UI and logic (standalone page inside content) ---
     function renderDaily() {
@@ -645,6 +656,32 @@ function renderGame() {
         }
         // compute today's index (0..6) or reset if outside range
         let todayIndex = getDailyIndexForToday(weekStartISO);
+        
+        // 🔥 NEW: Check if user missed a day (has unclaimed days before today that are now locked)
+        if (todayIndex !== null && todayIndex > 0) {
+            // Check if there's any unclaimed day before today
+            let missedDay = false;
+            for (let i = 0; i < todayIndex; i++) {
+                if (!claims[i]) {
+                    // Found an unclaimed day before today — user missed it
+                    missedDay = true;
+                    break;
+                }
+            }
+            if (missedDay) {
+                // Reset week: start fresh from today as Day 1
+                weekStartISO = today.toISOString();
+                claims = [false, false, false, false, false, false, false];
+                todayIndex = 0;
+                setDailyData(wallet, weekStartISO, claims);
+            }
+        }
+        
+        // 🔥 todayIndex ni global state ga yozamiz
+        const st = loadState();
+        st.todayIndex = todayIndex;
+        saveState(st);
+        
         if (todayIndex === null) {
             // start new week
             weekStartISO = today.toISOString();
@@ -652,10 +689,13 @@ function renderGame() {
             todayIndex = 0;
             setDailyData(wallet, weekStartISO, claims);
         }
+        
         // show Telegram BackButton and set it to return to main renderGame
         showTelegramBack(() => { showNav(); renderGame(); });
+        
         // build calendar markup
         const items = [];
+
         for (let i = 0; i < 7; i++) {
             const dayNum = i + 1;
             const claimed = !!claims[i];
@@ -663,11 +703,12 @@ function renderGame() {
             const isToday = (i === todayIndex);
             const cls = claimed ? 'claimed' : isToday ? 'today' : '';
             const label = (i === 6) ? 'BIG DAY' : `Day ${dayNum}`;
+            const labelfont = (i === 6) ? 'font-size:13px;' : ``;
             items.push(`
 			<div class="daily-day ${cls}" data-index="${i}" style="display:flex;flex-direction:column;align-items:center;padding:12px;background:rgba(0, 0, 0, 0.43);border-radius:10px;">
 				<img src="./image/daily.png" alt="${label}" style="width:62px;height:62px;object-fit:cover;border-radius:8px;margin-bottom:8px;opacity:${claimed ? 0.5 : 1}">
-				<div style="font-weight:700;margin-bottom:4px;">${label}</div>
-				<div style="font-size:13px;color:#ddd;margin-bottom:6px;">Reward: ${reward}💎</div>
+				<div style="${labelfont} font-weight:700;margin-bottom:4px;position:absolute;padding: 33px 0 0 0;color: black;">${label}</div>
+				<div style="font-size:13px;color:#ddd;margin-bottom:6px;"> ${reward}💎</div>
 				<div>${claimed ? '<span style="color:#8f8">Claimed</span>' : (isToday ? '<button class="claimTodayBtn">Claim</button>' : '<span style="opacity:0.6">Locked</span>')}</div>
 			</div>
 		`);
@@ -675,7 +716,7 @@ function renderGame() {
 
         content.innerHTML = `
 		<div style="padding: 66px 2px 18px;"">
-			<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+			<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;margin-top: 90px;">
 				<button id="dailyBack" class="btn">Back</button>
 				<div style="font-weight:800;font-size:18px;">Daily Rewards</div>
 				<div style="width:72px"></div>
@@ -683,9 +724,9 @@ function renderGame() {
 			<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(90px, 1fr));gap:10px;">
 				${items.join('')}
 			</div>
-			<div style="margin-top:12px;color:#bbb;font-size:13px;">Collect today's reward. 7th day is BIGDAY.</div>
+			<div style="margin-top:12px;color:#bbb;font-size:13px;">Collect today's reward. 7th day is BIGDAY. Miss a day = reset to Day 1.</div>
 		</div>
-	`;
+	    `;
 
         // hide bottom nav and enable Telegram Back to return to game
         hideNav();
@@ -700,7 +741,28 @@ function renderGame() {
             btn.addEventListener('click', () => {
                 // re-load to avoid race
                 const ddata = getDailyData(wallet);
-                const idx = getDailyIndexForToday(ddata.weekStartISO);
+                let idx = getDailyIndexForToday(ddata.weekStartISO);
+                
+                // 🔥 NEW: Re-check for missed days before allowing claim
+                if (idx !== null && idx > 0) {
+                    let missedDay = false;
+                    for (let i = 0; i < idx; i++) {
+                        if (!ddata.claims[i]) {
+                            missedDay = true;
+                            break;
+                        }
+                    }
+                    if (missedDay) {
+                        // Reset to Day 1
+                        const newStart = today.toISOString();
+                        const newClaims = [false, false, false, false, false, false, false];
+                        setDailyData(wallet, newStart, newClaims);
+                        showToast('Kunni o\'tkazdingiz — Day 1 dan boshladik');
+                        renderDaily();
+                        return;
+                    }
+                }
+                
                 if (idx === null) {
                     // week expired, reset
                     const newStart = (new Date()).toISOString();
@@ -711,16 +773,20 @@ function renderGame() {
                     return;
                 }
                 if (ddata.claims[idx]) { showToast('Today already claimed'); return; }
+                
                 // mark claimed
                 ddata.claims[idx] = true;
                 setDailyData(wallet, ddata.weekStartISO, ddata.claims);
-                // reward
+                
+                // reward: ONLY diamonds, NO PRC
                 const reward = DAILY_REWARDS[idx] || 1;
                 const st = loadState();
                 st.diamond = (st.diamond || 0) + reward;
+                // DO NOT MODIFY st.prcWei here — only diamonds
                 saveState(st);
                 animateAddPRC('+' + reward + ' 💎');
                 showToast(`You received ${reward} diamonds!`);
+                
                 // update UI locally
                 renderDaily();
             });
