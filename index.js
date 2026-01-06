@@ -792,7 +792,30 @@ function renderGame() {
             });
         }
     }
-    
+    // show floating animation when PRC added
+function animateAddPRC(text) {
+    const el = document.createElement('div');
+    el.textContent = text;
+    el.style.position = 'fixed';
+    el.style.left = '50%';
+    el.style.bottom = '20%';
+    el.style.transform = 'translateX(-50%)';
+    el.style.padding = '8px 12px';
+    el.style.background = 'rgba(255,255,255,0.06)';
+    el.style.borderRadius = '8px';
+    el.style.color = '#ffd700';
+    el.style.fontWeight = '700';
+    el.style.zIndex = '9999';
+    el.style.transition = 'transform 1s ease, opacity 1s ease';
+    document.body.appendChild(el);
+    requestAnimationFrame(() => {
+        el.style.transform = 'translateX(-50%) translateY(-120px) scale(1.05)';
+        el.style.opacity = '0';
+    });
+    setTimeout(() => { if (el.parentElement) el.parentElement.removeChild(el); }, 1100);
+}
+
+
 // yangi kod: renderGame ichida reklanma uchun dastlabki sozlamalar
 // After content.innerHTML is set — ensure reklanma reflects current claim state
 (function setupReklanmaInitial() {
@@ -1093,28 +1116,7 @@ function msUntilNextMidnight() {
     return t - now;
 }
 
-// show floating animation when PRC added
-function animateAddPRC(text) {
-    const el = document.createElement('div');
-    el.textContent = text;
-    el.style.position = 'fixed';
-    el.style.left = '50%';
-    el.style.bottom = '20%';
-    el.style.transform = 'translateX(-50%)';
-    el.style.padding = '8px 12px';
-    el.style.background = 'rgba(255,255,255,0.06)';
-    el.style.borderRadius = '8px';
-    el.style.color = '#ffd700';
-    el.style.fontWeight = '700';
-    el.style.zIndex = '9999';
-    el.style.transition = 'transform 1s ease, opacity 1s ease';
-    document.body.appendChild(el);
-    requestAnimationFrame(() => {
-        el.style.transform = 'translateX(-50%) translateY(-120px) scale(1.05)';
-        el.style.opacity = '0';
-    });
-    setTimeout(() => { if (el.parentElement) el.parentElement.removeChild(el); }, 1100);
-}
+
 
 
 
