@@ -386,6 +386,36 @@ function renderGame() {
     const gamePreview = document.getElementById('gameCardPreview');
     if (gamePreview) gamePreview.addEventListener('click', (ev) => { ev.stopPropagation(); renderGames(); });
 
+    // --- Helper: show countdown on reklanma element ---
+    function showReklanmaCountdown(rek) {
+        if (!rek) return;
+        
+        const updateCountdown = () => {
+            const msLeft = msUntilNextMidnight();
+            if (msLeft <= 0) {
+                clearClaimDateForCurrentUser();
+                renderGame();
+                return;
+            }
+            const hrs = Math.floor(msLeft / 3600000);
+            const mins = Math.floor((msLeft % 3600000) / 60000);
+            const secs = Math.floor((msLeft % 60000) / 1000);
+            rek.innerHTML = `<div class="reklanma-count" style="color:#fff; font-weight:700;">${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}</div>`;
+        };
+        
+        // Darhol yangilash
+        updateCountdown();
+        
+        // Har soniyada yangilash
+        const intervalId = setInterval(() => {
+            if (!document.body.contains(rek)) {
+                clearInterval(intervalId);
+                return;
+            }
+            updateCountdown();
+        }, 1000);
+    }
+
     // --- ADD: daily button handler (fix for "dailyBtn" not responding) ---
     const dailyBtn = document.getElementById('dailyBtn');
     if (dailyBtn) {
@@ -792,42 +822,6 @@ function renderGame() {
             });
         }
     }
-    // After content.innerHTML is set — ensure reklanma reflects current claim state
-(function setupReklanmaInitial() {
-    const reklanma = document.querySelector('.reklanma2');
-    if (!reklanma) return;
-
-    // if already claimed today -> show countdown (no claim button)
-    if (isClaimedToday()) {
-        // show countdown UI
-        const showCountdown = () => {
-            const msLeft = msUntilNextMidnight();
-            if (msLeft <= 0) {
-                // midnight reached -> clear claim and re-render
-                clearClaimDateForCurrentUser();
-                renderGame();
-                return;
-            }
-            const hrs = Math.floor(msLeft / 3600000);
-            const mins = Math.floor((msLeft % 3600000) / 60000);
-            const secs = Math.floor((msLeft % 60000) / 1000);
-            reklanma.innerHTML = `<div class="reklanma-count" style="color:#fff; font-weight:700;"> ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}</div>`;
-        };
-        showCountdown();
-        // update har soniya
-        const intervalId = setInterval(() => {
-            if (!document.body.contains(reklanma)) { clearInterval(intervalId); return; }
-            const msLeft = msUntilNextMidnight();
-            if (msLeft <= 0) { clearInterval(intervalId); clearClaimDateForCurrentUser(); renderGame(); return; }
-            const hrs = Math.floor(msLeft / 3600000);
-            const mins = Math.floor((msLeft % 3600000) / 60000);
-            const secs = Math.floor((msLeft % 60000) / 1000);
-            const node = document.querySelector('.reklanma-count');
-            if (node) node.textContent = ` ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-        }, 1000);
-        return;
-    }
-})();
 } // end of function renderGame()
 
 // Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
@@ -1324,6 +1318,7 @@ document.querySelectorAll('.nav .tab').forEach(el => {
         }
     });
 });
+
 
 
 
