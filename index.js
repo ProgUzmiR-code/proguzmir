@@ -793,118 +793,6 @@ function renderGame() {
         }
     }
     
-// Yangi: Telegram shareToStory wrapper (p)
-function p(e, t, n) {
-    try {
-        const isPremium = !!(e?.WebApp?.initDataUnsafe?.user && e.WebApp.initDataUnsafe.user.is_premium);
-        const payload = { text: `${t.text} ${t.currentUrl}` };
-        if (isPremium) payload.widget_link = { name: t.btnName, url: t.currentUrl };
-
-        // 1) prefer shareToStory if available
-        if (e?.WebApp && typeof e.WebApp.shareToStory === 'function') {
-            try {
-                e.WebApp.shareToStory(t.link, payload);
-                if (n) n(true);
-            } catch (err) {
-                console.warn('shareToStory error', err);
-                if (n) n(false);
-            }
-            return;
-        }
-
-        // 2) fallback to shareStory (older API)
-        if (e?.WebApp && typeof e.WebApp.shareStory === 'function') {
-            try {
-                e.WebApp.shareStory({ media_url: t.link, caption: payload.text });
-                if (n) n(true);
-            } catch (err) {
-                console.warn('shareStory error', err);
-                if (n) n(false);
-            }
-            return;
-        }
-
-        // 3) Web Share API (browser)
-        if (navigator.share) {
-            navigator.share({ title: t.btnName || 'PROGUZ', text: payload.text, url: t.currentUrl })
-                .then(() => { if (n) n(true); })
-                .catch((err) => { console.warn('navigator.share error', err); if (n) n(false); });
-            return;
-        }
-
-        // 4) final fallback: open t.me share link
-        try {
-            const shareUrl = 'https://t.me/share/url?url=' + encodeURIComponent(t.currentUrl) + '&text=' + encodeURIComponent(payload.text);
-            const w = window.open(shareUrl, '_blank');
-            if (n) n(!!w);
-        } catch (err) {
-            console.warn('t.me fallback error:', err);
-            if (n) n(false);
-        }
-    } catch (err) {
-        console.warn('p() share error', err);
-        if (n) n(false);
-    }
-}
-
-// yangi key: reklanma claim sanasi (YYYY-MM-DD)
-const KEY_REKLAM_CLAIM = "proguzmir_reklanma_claim_date";
-
-// helper: claim key per user
-function claimKeyForWallet(wallet) {
-    return makeUserKey(KEY_REKLAM_CLAIM, wallet);
-}
-function getClaimDateForCurrentUser() {
-    const wallet = localStorage.getItem(KEY_WALLET) || "";
-    return localStorage.getItem(claimKeyForWallet(wallet)) || null;
-}
-function setClaimDateForCurrentUser(dateStr) {
-    const wallet = localStorage.getItem(KEY_WALLET) || "";
-    localStorage.setItem(claimKeyForWallet(wallet), dateStr);
-}
-function clearClaimDateForCurrentUser() {
-    const wallet = localStorage.getItem(KEY_WALLET) || "";
-    localStorage.removeItem(claimKeyForWallet(wallet));
-}
-function isClaimedToday() {
-    const d = getClaimDateForCurrentUser();
-    if (!d) return false;
-    const today = new Date().toISOString().slice(0, 10);
-    return d === today;
-}
-
-// tiny helper: next midnight ms
-function msUntilNextMidnight() {
-    const now = new Date();
-    const t = new Date(now);
-    t.setDate(now.getDate() + 1);
-    t.setHours(0, 0, 0, 0);
-    return t - now;
-}
-
-// show floating animation when PRC added
-function animateAddPRC(text) {
-    const el = document.createElement('div');
-    el.textContent = text;
-    el.style.position = 'fixed';
-    el.style.left = '50%';
-    el.style.bottom = '20%';
-    el.style.transform = 'translateX(-50%)';
-    el.style.padding = '8px 12px';
-    el.style.background = 'rgba(255,255,255,0.06)';
-    el.style.borderRadius = '8px';
-    el.style.color = '#ffd700';
-    el.style.fontWeight = '700';
-    el.style.zIndex = '9999';
-    el.style.transition = 'transform 1s ease, opacity 1s ease';
-    document.body.appendChild(el);
-    requestAnimationFrame(() => {
-        el.style.transform = 'translateX(-50%) translateY(-120px) scale(1.05)';
-        el.style.opacity = '0';
-    });
-    setTimeout(() => { if (el.parentElement) el.parentElement.removeChild(el); }, 1100);
-}
-
 // yangi kod: renderGame ichida reklanma uchun dastlabki sozlamalar
 // After content.innerHTML is set — ensure reklanma reflects current claim state
 (function setupReklanmaInitial() {
@@ -925,7 +813,7 @@ function animateAddPRC(text) {
             const hrs = Math.floor(msLeft / 3600000);
             const mins = Math.floor((msLeft % 3600000) / 60000);
             const secs = Math.floor((msLeft % 60000) / 1000);
-            reklanma.innerHTML = `<div class="reklanma-count" style="color:#fff; font-weight:700;"> ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}</div>`;
+            reklanma.innerHTML = `<div class="reklanma-count" style="color:#fff; font-weight:700;">Claim qilingan — qolgan vaqt: ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}</div>`;
         };
         showCountdown();
         // update har soniya
@@ -937,7 +825,7 @@ function animateAddPRC(text) {
             const mins = Math.floor((msLeft % 3600000) / 60000);
             const secs = Math.floor((msLeft % 60000) / 1000);
             const node = document.querySelector('.reklanma-count');
-            if (node) node.textContent = ` ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            if (node) node.textContent = `Claim qilingan — qolgan vaqt: ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }, 1000);
         return;
     }
@@ -1116,6 +1004,155 @@ function showToast(message) {
     }, 3000);
 }
 
+// Yangi: Telegram shareToStory wrapper (p)
+function p(e, t, n) {
+    try {
+        const isPremium = !!(e?.WebApp?.initDataUnsafe?.user && e.WebApp.initDataUnsafe.user.is_premium);
+        const payload = { text: `${t.text} ${t.currentUrl}` };
+        if (isPremium) payload.widget_link = { name: t.btnName, url: t.currentUrl };
+
+        // 1) prefer shareToStory if available
+        if (e?.WebApp && typeof e.WebApp.shareToStory === 'function') {
+            try {
+                e.WebApp.shareToStory(t.link, payload);
+                if (n) n(true);
+            } catch (err) {
+                console.warn('shareToStory error', err);
+                if (n) n(false);
+            }
+            return;
+        }
+
+        // 2) fallback to shareStory (older API)
+        if (e?.WebApp && typeof e.WebApp.shareStory === 'function') {
+            try {
+                e.WebApp.shareStory({ media_url: t.link, caption: payload.text });
+                if (n) n(true);
+            } catch (err) {
+                console.warn('shareStory error', err);
+                if (n) n(false);
+            }
+            return;
+        }
+
+        // 3) Web Share API (browser)
+        if (navigator.share) {
+            navigator.share({ title: t.btnName || 'PROGUZ', text: payload.text, url: t.currentUrl })
+                .then(() => { if (n) n(true); })
+                .catch((err) => { console.warn('navigator.share error', err); if (n) n(false); });
+            return;
+        }
+
+        // 4) final fallback: open t.me share link
+        try {
+            const shareUrl = 'https://t.me/share/url?url=' + encodeURIComponent(t.currentUrl) + '&text=' + encodeURIComponent(payload.text);
+            const w = window.open(shareUrl, '_blank');
+            if (n) n(!!w);
+        } catch (err) {
+            console.warn('t.me fallback error:', err);
+            if (n) n(false);
+        }
+    } catch (err) {
+        console.warn('p() share error', err);
+        if (n) n(false);
+    }
+}
+
+// yangi key: reklanma claim sanasi (YYYY-MM-DD)
+const KEY_REKLAM_CLAIM = "proguzmir_reklanma_claim_date";
+
+// helper: claim key per user
+function claimKeyForWallet(wallet) {
+    return makeUserKey(KEY_REKLAM_CLAIM, wallet);
+}
+function getClaimDateForCurrentUser() {
+    const wallet = localStorage.getItem(KEY_WALLET) || "";
+    return localStorage.getItem(claimKeyForWallet(wallet)) || null;
+}
+function setClaimDateForCurrentUser(dateStr) {
+    const wallet = localStorage.getItem(KEY_WALLET) || "";
+    localStorage.setItem(claimKeyForWallet(wallet), dateStr);
+}
+function clearClaimDateForCurrentUser() {
+    const wallet = localStorage.getItem(KEY_WALLET) || "";
+    localStorage.removeItem(claimKeyForWallet(wallet));
+}
+function isClaimedToday() {
+    const d = getClaimDateForCurrentUser();
+    if (!d) return false;
+    const today = new Date().toISOString().slice(0, 10);
+    return d === today;
+}
+
+// tiny helper: next midnight ms
+function msUntilNextMidnight() {
+    const now = new Date();
+    const t = new Date(now);
+    t.setDate(now.getDate() + 1);
+    t.setHours(0, 0, 0, 0);
+    return t - now;
+}
+
+// show floating animation when PRC added
+function animateAddPRC(text) {
+    const el = document.createElement('div');
+    el.textContent = text;
+    el.style.position = 'fixed';
+    el.style.left = '50%';
+    el.style.bottom = '20%';
+    el.style.transform = 'translateX(-50%)';
+    el.style.padding = '8px 12px';
+    el.style.background = 'rgba(255,255,255,0.06)';
+    el.style.borderRadius = '8px';
+    el.style.color = '#ffd700';
+    el.style.fontWeight = '700';
+    el.style.zIndex = '9999';
+    el.style.transition = 'transform 1s ease, opacity 1s ease';
+    document.body.appendChild(el);
+    requestAnimationFrame(() => {
+        el.style.transform = 'translateX(-50%) translateY(-120px) scale(1.05)';
+        el.style.opacity = '0';
+    });
+    setTimeout(() => { if (el.parentElement) el.parentElement.removeChild(el); }, 1100);
+}
+
+// yangi kod: renderGame ichida reklanma uchun dastlabki sozlamalar
+// After content.innerHTML is set — ensure reklanma reflects current claim state
+(function setupReklanmaInitial() {
+    const reklanma = document.querySelector('.reklanma2');
+    if (!reklanma) return;
+
+    // if already claimed today -> show countdown (no claim button)
+    if (isClaimedToday()) {
+        // show countdown UI
+        const showCountdown = () => {
+            const msLeft = msUntilNextMidnight();
+            if (msLeft <= 0) {
+                // midnight reached -> clear claim and re-render
+                clearClaimDateForCurrentUser();
+                renderGame();
+                return;
+            }
+            const hrs = Math.floor(msLeft / 3600000);
+            const mins = Math.floor((msLeft % 3600000) / 60000);
+            const secs = Math.floor((msLeft % 60000) / 1000);
+            reklanma.innerHTML = `<div class="reklanma-count" style="color:#fff; font-weight:700;">Claim qilingan — qolgan vaqt: ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}</div>`;
+        };
+        showCountdown();
+        // update har soniya
+        const intervalId = setInterval(() => {
+            if (!document.body.contains(reklanma)) { clearInterval(intervalId); return; }
+            const msLeft = msUntilNextMidnight();
+            if (msLeft <= 0) { clearInterval(intervalId); clearClaimDateForCurrentUser(); renderGame(); return; }
+            const hrs = Math.floor(msLeft / 3600000);
+            const mins = Math.floor((msLeft % 3600000) / 60000);
+            const secs = Math.floor((msLeft % 60000) / 1000);
+            const node = document.querySelector('.reklanma-count');
+            if (node) node.textContent = `Claim qilingan — qolgan vaqt: ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }, 1000);
+        return;
+    }
+})();
 
 
 // Saqlash: lokal snapshot (offline fallback)
