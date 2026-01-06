@@ -389,7 +389,7 @@ function renderGame() {
     // --- Helper: show countdown on reklanma element ---
     function showReklanmaCountdown(rek) {
         if (!rek) return;
-        
+
         const updateCountdown = () => {
             const msLeft = msUntilNextMidnight();
             if (msLeft <= 0) {
@@ -402,10 +402,10 @@ function renderGame() {
             const secs = Math.floor((msLeft % 60000) / 1000);
             rek.innerHTML = `<div class="reklanma-count" style="color:#fff; font-weight:700;">${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}</div>`;
         };
-        
+
         // Darhol yangilash
         updateCountdown();
-        
+
         // Har soniyada yangilash
         const intervalId = setInterval(() => {
             if (!document.body.contains(rek)) {
@@ -472,10 +472,10 @@ function renderGame() {
     if (boostsBox) {
         boostsBox.addEventListener('click', (ev) => { ev.stopPropagation(); renderBoosts(); });
     }
-    
-        // helpers to hide/show bottom header
-        function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
-        function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
+
+    // helpers to hide/show bottom header
+    function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
+    function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
     // helpers to hide/show bottom nav
     function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
     function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
@@ -493,7 +493,7 @@ function renderGame() {
         // show Telegram BackButton and set it to return to main renderGame
         showTelegramBack(() => { showNav(); renderGame(); });
         // show Telegram BackButton and set it to return to main renderGame
-        
+
         // hide bottom header and enable Telegram Back to return to game
         hideheader();
         showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
@@ -549,7 +549,11 @@ function renderGame() {
                 if (!item) return;
                 const state = loadState();
                 if (!chargeCost(state, item.costWei)) { alert('Yetarli PRC yo‘q.'); return; }
-                if (item.type === 'energy') state.maxEnergy = (state.maxEnergy || DEFAULT_MAX_ENERGY) + item.amount;
+                if (item.type === 'energy') {
+                    // Increase both maxEnergy and energy by the purchased amount, then refill energy to max
+                    state.maxEnergy = (state.maxEnergy || DEFAULT_MAX_ENERGY) + item.amount;
+                    state.energy = state.maxEnergy;
+                }
                 else if (item.type === 'taps') state.tapCap = (state.tapCap || DEFAULT_TAP_CAP) + item.amount;
                 saveState(state);
                 alert(`${item.name} sotib olindi.`);
@@ -686,7 +690,7 @@ function renderGame() {
         }
         // compute today's index (0..6) or reset if outside range
         let todayIndex = getDailyIndexForToday(weekStartISO);
-        
+
         // 🔥 NEW: Check if user missed a day (has unclaimed days before today that are now locked)
         if (todayIndex !== null && todayIndex > 0) {
             // Check if there's any unclaimed day before today
@@ -706,12 +710,12 @@ function renderGame() {
                 setDailyData(wallet, weekStartISO, claims);
             }
         }
-        
+
         // 🔥 todayIndex ni global state ga yozamiz
         const st = loadState();
         st.todayIndex = todayIndex;
         saveState(st);
-        
+
         if (todayIndex === null) {
             // start new week
             weekStartISO = today.toISOString();
@@ -719,10 +723,10 @@ function renderGame() {
             todayIndex = 0;
             setDailyData(wallet, weekStartISO, claims);
         }
-        
+
         // show Telegram BackButton and set it to return to main renderGame
         showTelegramBack(() => { showNav(); renderGame(); });
-        
+
         // build calendar markup
         const items = [];
 
@@ -772,7 +776,7 @@ function renderGame() {
                 // re-load to avoid race
                 const ddata = getDailyData(wallet);
                 let idx = getDailyIndexForToday(ddata.weekStartISO);
-                
+
                 // 🔥 NEW: Re-check for missed days before allowing claim
                 if (idx !== null && idx > 0) {
                     let missedDay = false;
@@ -792,7 +796,7 @@ function renderGame() {
                         return;
                     }
                 }
-                
+
                 if (idx === null) {
                     // week expired, reset
                     const newStart = (new Date()).toISOString();
@@ -803,11 +807,11 @@ function renderGame() {
                     return;
                 }
                 if (ddata.claims[idx]) { showToast('Today already claimed'); return; }
-                
+
                 // mark claimed
                 ddata.claims[idx] = true;
                 setDailyData(wallet, ddata.weekStartISO, ddata.claims);
-                
+
                 // reward: ONLY diamonds, NO PRC
                 const reward = DAILY_REWARDS[idx] || 1;
                 const st = loadState();
@@ -816,7 +820,7 @@ function renderGame() {
                 saveState(st);
                 animateAddPRC('+' + reward + ' 💎');
                 showToast(`You received ${reward} diamonds!`);
-                
+
                 // update UI locally
                 renderDaily();
             });
