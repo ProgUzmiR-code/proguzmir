@@ -850,64 +850,6 @@ function msUntilNextMidnight() {
     return t - now;
 }
 
-// Yangi: Telegram shareToStory wrapper (p)
-function p(e, t, n) {
-    try {
-        const isPremium = !!(e?.WebApp?.initDataUnsafe?.user && e.WebApp.initDataUnsafe.user.is_premium);
-        const payload = { text: `${t.text} ${t.currentUrl}` };
-        if (isPremium) payload.widget_link = { name: t.btnName, url: t.currentUrl };
-
-        // 1) prefer shareToStory if available
-        if (e?.WebApp && typeof e.WebApp.shareToStory === 'function') {
-            try {
-                e.WebApp.shareToStory(t.link, payload);
-                if (n) n(true);
-            } catch (err) {
-                console.warn('shareToStory error', err);
-                if (n) n(false);
-            }
-            return;
-        }
-
-        // 2) fallback to shareStory (older API)
-        if (e?.WebApp && typeof e.WebApp.shareStory === 'function') {
-            try {
-                e.WebApp.shareStory({ media_url: t.link, caption: payload.text });
-                if (n) n(true);
-            } catch (err) {
-                console.warn('shareStory error', err);
-                if (n) n(false);
-            }
-            return;
-        }
-
-        // 3) Web Share API (browser)
-        if (navigator.share) {
-            navigator.share({ title: t.btnName || 'PROGUZ', text: payload.text, url: t.currentUrl })
-                .then(() => { if (n) n(true); })
-                .catch((err) => { console.warn('navigator.share error', err); if (n) n(false); });
-            return;
-        }
-
-        // 4) final fallback: open t.me share link
-        try {
-            const shareUrl = 'https://t.me/share/url?url=' + encodeURIComponent(t.currentUrl) + '&text=' + encodeURIComponent(payload.text);
-            const w = window.open(shareUrl, '_blank');
-            if (n) n(!!w);
-        } catch (err) {
-            console.warn('t.me fallback error:', err);
-            if (n) n(false);
-        }
-    } catch (err) {
-        console.warn('p() share error', err);
-        if (n) n(false);
-    }
-}
-
-
-
-    
-
 // yangi kod: renderGame ichida reklanma uchun dastlabki sozlamalar
 // After content.innerHTML is set — ensure reklanma reflects current claim state
 (function setupReklanmaInitial() {
@@ -945,7 +887,6 @@ function p(e, t, n) {
         return;
     }
 })();
-updateCountdown();
 } // end of function renderGame()
 
 // Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
