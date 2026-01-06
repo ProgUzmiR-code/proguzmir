@@ -937,7 +937,7 @@ function animateAddPRC(text) {
             const mins = Math.floor((msLeft % 3600000) / 60000);
             const secs = Math.floor((msLeft % 60000) / 1000);
             const node = document.querySelector('.reklanma-count');
-            if (node) node.textContent = `Claim qilingan — qolgan vaqt: ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            if (node) node.textContent = ` ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }, 1000);
         return;
     }
