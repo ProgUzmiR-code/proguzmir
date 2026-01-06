@@ -942,54 +942,6 @@ function animateAddPRC(text) {
         return;
     }
 })();
-
-
-// Saqlash: lokal snapshot (offline fallback)
-function saveSnapshotToLocal(state) {
-    try {
-        const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
-        const key = makeUserKey('proguzmir_snapshot', wallet);
-        const snap = {
-            prcWei: state.prcWei.toString(),
-            diamond: state.diamond,
-            tapsUsed: state.tapsUsed,
-            tapCap: state.tapCap,
-            selectedSkin: state.selectedSkin,
-            energy: state.energy,
-            maxEnergy: state.maxEnergy,
-            ts: Date.now()
-        };
-        localStorage.setItem(key, JSON.stringify(snap));
-    } catch (err) { console.warn('saveSnapshotToLocal error', err); }
-}
-
-// --- NEW: profile modal + Telegram-based wallet assignment + local-only startup ---
-(function clientOnlyStartup() {
-    // prefer Telegram WebApp id when available (store as tg_{id})
-    try {
-        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-        if (tgUser && tgUser.id) {
-            localStorage.setItem(KEY_WALLET, 'tg_' + String(tgUser.id));
-            // also populate header username if present
-            const nameNode = document.querySelector('.profile .username');
-            if (nameNode) {
-                const display = (tgUser.first_name || '') + (tgUser.last_name ? ' ' + tgUser.last_name : '');
-                nameNode.textContent = display || (tgUser.username ? '@' + tgUser.username : 'Telegram user');
-            }
-        }
-    } catch (err) { /* ignore */ }
-
-    // simple local-only bootstrap: load state and render
-    try {
-        // render UI after small delay to allow loader visuals
-        setTimeout(() => {
-            renderAndWait();
-        }, 250);
-    } catch (err) {
-        console.warn('clientOnlyStartup error', err);
-    }
-})();
-
 } // end of function renderGame()
 
 // Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
@@ -1163,6 +1115,54 @@ function showToast(message) {
         }, 300);
     }, 3000);
 }
+
+
+
+// Saqlash: lokal snapshot (offline fallback)
+function saveSnapshotToLocal(state) {
+    try {
+        const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
+        const key = makeUserKey('proguzmir_snapshot', wallet);
+        const snap = {
+            prcWei: state.prcWei.toString(),
+            diamond: state.diamond,
+            tapsUsed: state.tapsUsed,
+            tapCap: state.tapCap,
+            selectedSkin: state.selectedSkin,
+            energy: state.energy,
+            maxEnergy: state.maxEnergy,
+            ts: Date.now()
+        };
+        localStorage.setItem(key, JSON.stringify(snap));
+    } catch (err) { console.warn('saveSnapshotToLocal error', err); }
+}
+
+// --- NEW: profile modal + Telegram-based wallet assignment + local-only startup ---
+(function clientOnlyStartup() {
+    // prefer Telegram WebApp id when available (store as tg_{id})
+    try {
+        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        if (tgUser && tgUser.id) {
+            localStorage.setItem(KEY_WALLET, 'tg_' + String(tgUser.id));
+            // also populate header username if present
+            const nameNode = document.querySelector('.profile .username');
+            if (nameNode) {
+                const display = (tgUser.first_name || '') + (tgUser.last_name ? ' ' + tgUser.last_name : '');
+                nameNode.textContent = display || (tgUser.username ? '@' + tgUser.username : 'Telegram user');
+            }
+        }
+    } catch (err) { /* ignore */ }
+
+    // simple local-only bootstrap: load state and render
+    try {
+        // render UI after small delay to allow loader visuals
+        setTimeout(() => {
+            renderAndWait();
+        }, 250);
+    } catch (err) {
+        console.warn('clientOnlyStartup error', err);
+    }
+})();
 
 // Profile modal: open when .profile clicked, show info from Telegram WebApp initDataUnsafe.user or localStorage
 (function setupProfileClick() {
