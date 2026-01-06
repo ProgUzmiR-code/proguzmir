@@ -906,8 +906,6 @@ function p(e, t, n) {
 
 
 
-let reklanmaCountdownInterval = null;
-
     
 
 // yangi kod: renderGame ichida reklanma uchun dastlabki sozlamalar
