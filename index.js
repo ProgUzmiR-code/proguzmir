@@ -792,180 +792,7 @@ function renderGame() {
             });
         }
     }
-} // end of function renderGame()
-
-// Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
-(function () {
-    let animInterval = null;
-    let overlay = null;
-    let img = null;
-    let text = null;
-
-    function startLoader() {
-        overlay = overlay || document.getElementById('loadingOverlay');
-        img = img || document.getElementById('loadingImg');
-        text = text || document.getElementById('loadingText');
-        if (!overlay) return;
-        overlay.classList.remove('hidden');
-        overlay.setAttribute('aria-hidden', 'false');
-        // default: show image; if it errors we'll switch to text
-        if (img) {
-            img.style.display = '';
-            text.style.display = 'none';
-            img.classList.remove('sharp');
-            // try to apply sharp/blurry loop
-            let on = false;
-            if (animInterval) clearInterval(animInterval);
-            animInterval = setInterval(() => {
-                if (!img) return;
-                if (on) img.classList.add('sharp');
-                else img.classList.remove('sharp');
-                on = !on;
-            }, 700);
-        } else {
-            // fallback: show text only
-            if (text) { text.style.display = ''; }
-        }
-        // listen for image load/error: if error -> show text instead
-        if (img) {
-            img.addEventListener('error', onImgError);
-            img.addEventListener('load', onImgLoad);
-            // if image already loaded but failed to render (naturalWidth==0), treat as error
-            if (img.complete && img.naturalWidth === 0) onImgError();
-        }
-    }
-    function onImgError() {
-        if (!img || !overlay) return;
-        // hide image, show text
-        img.style.display = 'none';
-        const txt = document.getElementById('loadingText');
-        if (txt) txt.style.display = '';
-        // stop image animation if any
-        if (animInterval) { clearInterval(animInterval); animInterval = null; }
-    }
-    function onImgLoad() {
-        // ensure animation uses sharp state shortly after load
-        if (img) {
-            img.classList.add('sharp');
-        }
-    }
-    function stopLoader() {
-        overlay = overlay || document.getElementById('loadingOverlay');
-        img = img || document.getElementById('loadingImg');
-        text = text || document.getElementById('loadingText');
-        if (!overlay) return;
-        if (animInterval) { clearInterval(animInterval); animInterval = null; }
-        // graceful fade: add hidden class after short delay so CSS transition applies
-        overlay.classList.add('hidden');
-        overlay.setAttribute('aria-hidden', 'true');
-        // cleanup listeners
-        if (img) {
-            img.removeEventListener('error', onImgError);
-            img.removeEventListener('load', onImgLoad);
-        }
-    }
-
-    // expose to global for lifecycle usage
-    window.startLoader = startLoader;
-    window.stopLoader = stopLoader;
-})();
-
-// Helper: render UI then wait for content images to load (or timeout) before hiding loader
-function renderAndWait() {
-    // render synchronously
-    renderGame();
-    // collect images inside content and wait for them
-    const imgs = Array.from(document.getElementById('content').querySelectorAll('img'));
-    const promises = imgs.map(im => {
-        return new Promise(res => {
-            if (im.complete) {
-                // if it failed to load, naturalWidth==0 => consider as loaded to avoid stalling
-                return res();
-            }
-            const ondone = () => { im.removeEventListener('load', ondone); im.removeEventListener('error', ondone); res(); };
-            im.addEventListener('load', ondone);
-            im.addEventListener('error', ondone);
-        });
-    });
-    // wait all or timeout (2s)
-    Promise.race([
-        Promise.all(promises),
-        new Promise(r => setTimeout(r, 2000))
-    ]).then(() => {
-        // give a small delay for final visual
-        setTimeout(() => { window.stopLoader && window.stopLoader(); }, 120);
-    });
-}
-
-// Tab switching (nav fixed at bottom visually)
-document.querySelectorAll('.nav .tab').forEach(el => {
-    el.addEventListener('click', () => {
-        document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
-        el.classList.add('active');
-        const tab = el.dataset.tab;
-        if (tab === 'game') renderGame();
-        if (tab === 'rank') renderRank();
-        if (tab === 'wallet') renderWallet();
-        if (tab === 'market') renderMarket();
-        if (tab === 'earn') renderEarn();
-    });
-});
-
-// default: start loader then render UI and stop loader after content settles
-window.startLoader && window.startLoader();
-// call renderAndWait to render and hide loader when ready
-setTimeout(renderAndWait, 250); // small delay so loader visuals start
-
-document.querySelectorAll('img').forEach(img => {
-    img.addEventListener('contextmenu', e => e.preventDefault()); // O‘ng bosish menyusini o‘chiradi
-});
-document.addEventListener('contextmenu', event => event.preventDefault());
-document.addEventListener('selectstart', event => event.preventDefault());
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('dragstart', e => e.preventDefault());
-document.addEventListener('touchstart', e => e.preventDefault());
-
-
-// helper functions to control Telegram BackButton
-
-
-// --- Telegram BackButton boshqaruv funksiyalari ---
-function showTelegramBack(handler) {
-    if (window.Telegram?.WebApp?.BackButton) {
-        try {
-            window.Telegram.WebApp.BackButton.show();
-            window.Telegram.WebApp.BackButton.onClick(handler);
-        } catch (e) { /* ignore */ }
-    }
-}
-
-function hideTelegramBack() {
-    if (window.Telegram?.WebApp?.BackButton) {
-        try {
-            window.Telegram.WebApp.BackButton.hide();
-            // handlerni bekor qilamiz
-            window.Telegram.WebApp.BackButton.onClick(() => { });
-        } catch (e) { /* ignore */ }
-    }
-}
-
-// simple toast notification function
-function showToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => {
-        toast.classList.add('show');
-    }, 100);
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            document.body.removeChild(toast);
-        }, 300);
-    }, 3000);
-}
-
+    
 // Yangi: Telegram shareToStory wrapper (p)
 function p(e, t, n) {
     try {
@@ -1162,6 +989,180 @@ function saveSnapshotToLocal(state) {
         console.warn('clientOnlyStartup error', err);
     }
 })();
+
+} // end of function renderGame()
+
+// Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
+(function () {
+    let animInterval = null;
+    let overlay = null;
+    let img = null;
+    let text = null;
+
+    function startLoader() {
+        overlay = overlay || document.getElementById('loadingOverlay');
+        img = img || document.getElementById('loadingImg');
+        text = text || document.getElementById('loadingText');
+        if (!overlay) return;
+        overlay.classList.remove('hidden');
+        overlay.setAttribute('aria-hidden', 'false');
+        // default: show image; if it errors we'll switch to text
+        if (img) {
+            img.style.display = '';
+            text.style.display = 'none';
+            img.classList.remove('sharp');
+            // try to apply sharp/blurry loop
+            let on = false;
+            if (animInterval) clearInterval(animInterval);
+            animInterval = setInterval(() => {
+                if (!img) return;
+                if (on) img.classList.add('sharp');
+                else img.classList.remove('sharp');
+                on = !on;
+            }, 700);
+        } else {
+            // fallback: show text only
+            if (text) { text.style.display = ''; }
+        }
+        // listen for image load/error: if error -> show text instead
+        if (img) {
+            img.addEventListener('error', onImgError);
+            img.addEventListener('load', onImgLoad);
+            // if image already loaded but failed to render (naturalWidth==0), treat as error
+            if (img.complete && img.naturalWidth === 0) onImgError();
+        }
+    }
+    function onImgError() {
+        if (!img || !overlay) return;
+        // hide image, show text
+        img.style.display = 'none';
+        const txt = document.getElementById('loadingText');
+        if (txt) txt.style.display = '';
+        // stop image animation if any
+        if (animInterval) { clearInterval(animInterval); animInterval = null; }
+    }
+    function onImgLoad() {
+        // ensure animation uses sharp state shortly after load
+        if (img) {
+            img.classList.add('sharp');
+        }
+    }
+    function stopLoader() {
+        overlay = overlay || document.getElementById('loadingOverlay');
+        img = img || document.getElementById('loadingImg');
+        text = text || document.getElementById('loadingText');
+        if (!overlay) return;
+        if (animInterval) { clearInterval(animInterval); animInterval = null; }
+        // graceful fade: add hidden class after short delay so CSS transition applies
+        overlay.classList.add('hidden');
+        overlay.setAttribute('aria-hidden', 'true');
+        // cleanup listeners
+        if (img) {
+            img.removeEventListener('error', onImgError);
+            img.removeEventListener('load', onImgLoad);
+        }
+    }
+
+    // expose to global for lifecycle usage
+    window.startLoader = startLoader;
+    window.stopLoader = stopLoader;
+})();
+
+// Helper: render UI then wait for content images to load (or timeout) before hiding loader
+function renderAndWait() {
+    // render synchronously
+    renderGame();
+    // collect images inside content and wait for them
+    const imgs = Array.from(document.getElementById('content').querySelectorAll('img'));
+    const promises = imgs.map(im => {
+        return new Promise(res => {
+            if (im.complete) {
+                // if it failed to load, naturalWidth==0 => consider as loaded to avoid stalling
+                return res();
+            }
+            const ondone = () => { im.removeEventListener('load', ondone); im.removeEventListener('error', ondone); res(); };
+            im.addEventListener('load', ondone);
+            im.addEventListener('error', ondone);
+        });
+    });
+    // wait all or timeout (2s)
+    Promise.race([
+        Promise.all(promises),
+        new Promise(r => setTimeout(r, 2000))
+    ]).then(() => {
+        // give a small delay for final visual
+        setTimeout(() => { window.stopLoader && window.stopLoader(); }, 120);
+    });
+}
+
+// Tab switching (nav fixed at bottom visually)
+document.querySelectorAll('.nav .tab').forEach(el => {
+    el.addEventListener('click', () => {
+        document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        const tab = el.dataset.tab;
+        if (tab === 'game') renderGame();
+        if (tab === 'rank') renderRank();
+        if (tab === 'wallet') renderWallet();
+        if (tab === 'market') renderMarket();
+        if (tab === 'earn') renderEarn();
+    });
+});
+
+// default: start loader then render UI and stop loader after content settles
+window.startLoader && window.startLoader();
+// call renderAndWait to render and hide loader when ready
+setTimeout(renderAndWait, 250); // small delay so loader visuals start
+
+document.querySelectorAll('img').forEach(img => {
+    img.addEventListener('contextmenu', e => e.preventDefault()); // O‘ng bosish menyusini o‘chiradi
+});
+document.addEventListener('contextmenu', event => event.preventDefault());
+document.addEventListener('selectstart', event => event.preventDefault());
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
+document.addEventListener('touchstart', e => e.preventDefault());
+
+
+// helper functions to control Telegram BackButton
+
+
+// --- Telegram BackButton boshqaruv funksiyalari ---
+function showTelegramBack(handler) {
+    if (window.Telegram?.WebApp?.BackButton) {
+        try {
+            window.Telegram.WebApp.BackButton.show();
+            window.Telegram.WebApp.BackButton.onClick(handler);
+        } catch (e) { /* ignore */ }
+    }
+}
+
+function hideTelegramBack() {
+    if (window.Telegram?.WebApp?.BackButton) {
+        try {
+            window.Telegram.WebApp.BackButton.hide();
+            // handlerni bekor qilamiz
+            window.Telegram.WebApp.BackButton.onClick(() => { });
+        } catch (e) { /* ignore */ }
+    }
+}
+
+// simple toast notification function
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 100);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
+}
 
 // Profile modal: open when .profile clicked, show info from Telegram WebApp initDataUnsafe.user or localStorage
 (function setupProfileClick() {
