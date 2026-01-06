@@ -1078,6 +1078,44 @@ function animateAddPRC(text) {
     setTimeout(() => { if (el.parentElement) el.parentElement.removeChild(el); }, 1100);
 }
 
+// yangi kod: renderGame ichida reklanma uchun dastlabki sozlamalar
+// After content.innerHTML is set — ensure reklanma reflects current claim state
+(function setupReklanmaInitial() {
+    const reklanma = document.querySelector('.reklanma2');
+    if (!reklanma) return;
+
+    // if already claimed today -> show countdown (no claim button)
+    if (isClaimedToday()) {
+        // show countdown UI
+        const showCountdown = () => {
+            const msLeft = msUntilNextMidnight();
+            if (msLeft <= 0) {
+                // midnight reached -> clear claim and re-render
+                clearClaimDateForCurrentUser();
+                renderGame();
+                return;
+            }
+            const hrs = Math.floor(msLeft / 3600000);
+            const mins = Math.floor((msLeft % 3600000) / 60000);
+            const secs = Math.floor((msLeft % 60000) / 1000);
+            reklanma.innerHTML = `<div class="reklanma-count" style="color:#fff; font-weight:700;">Claim qilingan — qolgan vaqt: ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}</div>`;
+        };
+        showCountdown();
+        // update har soniya
+        const intervalId = setInterval(() => {
+            if (!document.body.contains(reklanma)) { clearInterval(intervalId); return; }
+            const msLeft = msUntilNextMidnight();
+            if (msLeft <= 0) { clearInterval(intervalId); clearClaimDateForCurrentUser(); renderGame(); return; }
+            const hrs = Math.floor(msLeft / 3600000);
+            const mins = Math.floor((msLeft % 3600000) / 60000);
+            const secs = Math.floor((msLeft % 60000) / 1000);
+            const node = document.querySelector('.reklanma-count');
+            if (node) node.textContent = `Claim qilingan — qolgan vaqt: ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }, 1000);
+        return;
+    }
+})();
+
 
 // Saqlash: lokal snapshot (offline fallback)
 function saveSnapshotToLocal(state) {
