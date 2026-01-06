@@ -925,7 +925,7 @@ function animateAddPRC(text) {
             const hrs = Math.floor(msLeft / 3600000);
             const mins = Math.floor((msLeft % 3600000) / 60000);
             const secs = Math.floor((msLeft % 60000) / 1000);
-            reklanma.innerHTML = `<div class="reklanma-count" style="color:#fff; font-weight:700;">Claim qilingan — qolgan vaqt: ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}</div>`;
+            reklanma.innerHTML = `<div class="reklanma-count" style="color:#fff; font-weight:700;"> ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}</div>`;
         };
         showCountdown();
         // update har soniya
