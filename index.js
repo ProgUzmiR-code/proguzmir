@@ -906,7 +906,30 @@ function p(e, t, n) {
 
 
 
+let reklanmaCountdownInterval = null;
 
+function showReklanmaCountdown(reklanmaEl) {
+    if (!reklanmaEl) return;
+    // clear existing interval if any
+    if (reklanmaCountdownInterval) {
+        clearInterval(reklanmaCountdownInterval);
+        reklanmaCountdownInterval = null;
+    }
+    const updateCountdown = () => {
+        const msLeft = msUntilNextMidnight();
+        if (msLeft <= 0) {
+            // midnight reached -> clear claim and re-render
+            clearClaimDateForCurrentUser();
+            renderGame();
+            return;
+        }
+
+        const hrs = Math.floor(msLeft / 3600000);
+        const mins = Math.floor((msLeft % 3600000) / 60000);
+        const secs = Math.floor((msLeft % 60000) / 1000);
+        reklanmaEl.innerHTML = `<div class="reklanma-count" style="color:#fff; font-weight:700;"> ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}</div>`;
+    };
+    updateCountdown();
 
 // yangi kod: renderGame ichida reklanma uchun dastlabki sozlamalar
 // After content.innerHTML is set — ensure reklanma reflects current claim state
