@@ -74,7 +74,7 @@ function loadState() {
 }
 // yangi helper: jami PRC (sotib olingan prcWei + diamond*conversion)
 function getTotalPRCWei(state) {
-    return state.prcWei + BigInt(state.diamond) * DIAMOND_TO_WEI;
+    return state.prcWei;
 }
 
 // xaridni to'lash: avval prcWei dan, yetmasa diamondlardan (butun diamond birliklari)
@@ -218,6 +218,12 @@ const content = document.getElementById('content');
 function renderGame() {
     hideTelegramBack();
     const s = loadState();
+console.log({
+  prcWei: s.prcWei.toString(),
+  diamond: s.diamond,
+  totalWei: getTotalPRCWei(s).toString(),
+  ui: fmtPRC(getTotalPRCWei(s))
+});
     const todayIndex = s.todayIndex ?? 0;
     // update header balance immediately on render
     document.getElementById('headerBalance') && (document.getElementById('headerBalance').innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(getTotalPRCWei(s)));
@@ -812,14 +818,23 @@ function renderGame() {
                 ddata.claims[idx] = true;
                 setDailyData(wallet, ddata.weekStartISO, ddata.claims);
 
-                // reward: ONLY diamonds, NO PRC
-                const reward = DAILY_REWARDS[idx] || 1;
+                // reward: BIG DAY (idx==6) bo‘lsa 10 PRC, boshqa kunlarda diamond
                 const st = loadState();
-                st.diamond = (st.diamond || 0) + reward;
-                // DO NOT MODIFY st.prcWei here — only diamonds
-                saveState(st);
-                animateAddPRC('+' + reward + ' 💎');
-                showToast(`You received ${reward} diamonds!`);
+                if (idx === 6) {
+                    // 10 PRC beramiz
+                    const bigDayRewardWei = 10n * UNIT;
+                    st.prcWei = (st.prcWei || 0n) + bigDayRewardWei;
+                    saveState(st);
+                    animateAddPRC('+' + fmtPRC(bigDayRewardWei));
+                    showToast('BIG DAY! 10 PRC oldingiz!');
+                } else {
+                    // oddiy kun: diamond beramiz
+                    const reward = DAILY_REWARDS[idx] || 1;
+                    st.diamond = (st.diamond || 0) + reward;
+                    saveState(st);
+                    animateAddPRC('+' + reward + ' 💎');
+                    showToast(`Siz ${reward} diamond oldingiz!`);
+                }
 
                 // update UI locally
                 renderDaily();
