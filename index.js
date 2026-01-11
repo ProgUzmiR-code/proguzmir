@@ -154,6 +154,15 @@ function saveState(state) {
     } catch (err) {
         console.warn('saveState: snapshot error', err);
     }
+
+    // Non-blocking Supabase sync (best-effort)
+    try {
+        if (supabaseClient) {
+            syncSnapshotToSupabase(state).catch(e => console.warn('Supabase sync failed', e));
+        }
+    } catch (e) {
+        console.warn('Supabase sync invocation error', e);
+    }
 }
 
 // doim 18 onlik ko'rsatadi (full precision)
@@ -419,10 +428,10 @@ function renderGame() {
     // --- Shop Preview handler ---
     const shopPreview = document.getElementById('shopCardPreview');
     if (shopPreview) {
-        shopPreview.addEventListener('click', (ev) => { 
-            ev.stopPropagation(); 
+        shopPreview.addEventListener('click', (ev) => {
+            ev.stopPropagation();
             document.body.style.background = "#06121a"; // Shopga o'tganda ham fonni tozalaymiz
-            renderShop(); 
+            renderShop();
         });
     }
 
@@ -813,6 +822,34 @@ function saveSnapshotToLocal(state) {
         }
     } catch (err) { /* ignore */ }
 
+    // Init Supabase (if configured in index.html)
+    try {
+        initSupabase();
+        const wallet = localStorage.getItem(KEY_WALLET) || '';
+        if (supabaseClient && wallet) {
+            // load remote and merge if remote has greater PRC (simple heuristic)
+            loadStateFromSupabase(wallet).then(remote => {
+                if (!remote) return;
+                try {
+                    const local = loadState();
+                    if (BigInt(remote.prcWei) > BigInt(local.prcWei || 0n)) {
+                        // prefer remote balance if higher (avoid accidental overwrite)
+                        local.prcWei = BigInt(remote.prcWei);
+                        local.diamond = remote.diamond;
+                        local.energy = remote.energy;
+                        local.maxEnergy = remote.maxEnergy;
+                        local.tapsUsed = remote.tapsUsed;
+                        local.selectedSkin = remote.selectedSkin;
+                        local.todayIndex = remote.todayIndex;
+                        saveState(local);
+                        // re-render if game is currently visible
+                        try { renderGame(); } catch (e) { /* ignore */ }
+                    }
+                } catch (e) { /* ignore merge errors */ }
+            }).catch(e => { /* ignore network errors */ });
+        }
+    } catch (err) { console.warn('clientOnlyStartup supabase init error', err); }
+
     // simple local-only bootstrap: load state and render
     try {
         // render UI after small delay to allow loader visuals
@@ -1035,6 +1072,71 @@ document.addEventListener('click', function (e) {
         }
     });
 });
+
+// --- ADD: Supabase integration helpers (optional, offline-first) ---
+const SUPABASE_URL = (typeof window !== 'undefined' && window.SUPABASE_URL) ? window.SUPABASE_URL : '';
+const SUPABASE_KEY = (typeof window !== 'undefined' && window.SUPABASE_KEY) ? window.SUPABASE_KEY : '';
+let supabaseClient = null;
+
+function initSupabase() {
+    if (!SUPABASE_URL || !SUPABASE_KEY) return;
+    if (typeof supabase === 'undefined') {
+        console.warn('Supabase SDK not available.');
+        return;
+    }
+    try {
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.info('Supabase initialized');
+    } catch (err) {
+        console.warn('Supabase init error', err);
+        supabaseClient = null;
+    }
+}
+
+async function syncSnapshotToSupabase(state) {
+    if (!supabaseClient) return;
+    try {
+        const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || 'guest';
+        const payload = {
+            id: wallet,
+            prc_wei: state.prcWei.toString(),
+            diamond: state.diamond || 0,
+            energy: state.energy || 0,
+            max_energy: state.maxEnergy || DEFAULT_MAX_ENERGY,
+            taps_used: state.tapsUsed || 0,
+            selected_skin: state.selectedSkin || null,
+            today_index: typeof state.todayIndex === 'number' ? state.todayIndex : 0,
+            updated_at: new Date().toISOString()
+        };
+        // upsert into 'users' table (assumes 'id' primary key exists)
+        await supabaseClient.from('users').upsert(payload);
+    } catch (err) {
+        console.warn('syncSnapshotToSupabase error', err);
+    }
+}
+
+async function loadStateFromSupabase(wallet) {
+    if (!supabaseClient || !wallet) return null;
+    try {
+        const { data, error } = await supabaseClient.from('users').select('*').eq('id', wallet).maybeSingle();
+        if (error) { console.warn('loadStateFromSupabase error', error); return null; }
+        if (!data) return null;
+        return {
+            prcWei: BigInt(data.prc_wei || '0'),
+            diamond: Number(data.diamond || 0),
+            tapsUsed: Number(data.taps_used || 0),
+            tapCap: Number(data.tap_cap || DEFAULT_TAP_CAP),
+            selectedSkin: data.selected_skin || '',
+            energy: Number(data.energy || DEFAULT_MAX_ENERGY),
+            maxEnergy: Number(data.max_energy || DEFAULT_MAX_ENERGY),
+            todayIndex: Number(data.today_index || 0),
+            wallet
+        };
+    } catch (err) {
+        console.warn('loadStateFromSupabase error', err);
+        return null;
+    }
+}
 
 
 
