@@ -1058,3 +1058,10 @@ document.addEventListener('click', function (e) {
 const SUPABASE_URL = 'https://iqcpsqqsdspbonmurjxp.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_HFFtHiGVPBNg-AtRApiFqA_NKfMDevH';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+
+
+
+const supabaseUrl = 'https://iqcpsqqsdspbonmurjxp.supabase.co';
+const supabase_Anon_Key = 'sb_publishable_HFFtHiGVPBNg-AtRApiFqA_NKfMDevH';
+const supabase = createClient(supabaseUrl, supabase_Anon_Key);
