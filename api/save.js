@@ -63,7 +63,8 @@ async function syncUserStateToSupabase(state) {
             today_index: (typeof state.todayIndex === 'number') ? state.todayIndex : 0,
             last_sync: new Date().toISOString()
         };
-
+        console.log('Synchronizing user state to Supabase:', payload);
+        
         const { error } = await client.from('user_states').upsert(payload, { onConflict: 'wallet' });
         if (error) console.warn('Supabase sync error:', error.message || error);
     } catch (err) {
