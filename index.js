@@ -1073,31 +1073,7 @@ document.addEventListener('click', function (e) {
     });
 });
 
-// --- ADD: Supabase integration helpers (optional, offline-first) ---
-// Moved above clientOnlyStartup to avoid TDZ / ReferenceError
-const SUPABASE_URL = (typeof window !== 'undefined' && window.SUPABASE_URL) ? window.SUPABASE_URL : '';
-const SUPABASE_KEY = (typeof window !== 'undefined' && window.SUPABASE_KEY) ? window.SUPABASE_KEY : '';
-let supabaseClient = null;
 
-function initSupabase() {
-    if (!SUPABASE_URL || !SUPABASE_KEY) return;
-    if (typeof supabase === 'undefined') {
-        console.warn('Supabase SDK not available.');
-        return;
-    }
-    try {
-        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        console.info('Supabase initialized');
-    } catch (err) {
-        console.warn('Supabase init error', err);
-        supabaseClient = null;
-    }
-}
-
-
-
-
-
-
-
-
+const SUPABASE_URL = 'https://iqcpsqqsdspbonmurjxp.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_HFFtHiGVPBNg-AtRApiFqA_NKfMDevH';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
