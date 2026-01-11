@@ -1094,26 +1094,7 @@ function initSupabase() {
     }
 }
 
-async function syncSnapshotToSupabase(state) {
-    if (!supabaseClient) return;
-    try {
-        const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || 'guest';
-        const payload = {
-            id: wallet,
-            prc_wei: state.prcWei.toString(),
-            diamond: state.diamond || 0,
-            energy: state.energy || 0,
-            max_energy: state.maxEnergy || DEFAULT_MAX_ENERGY,
-            taps_used: state.tapsUsed || 0,
-            selected_skin: state.selectedSkin || null,
-            today_index: typeof state.todayIndex === 'number' ? state.todayIndex : 0,
-            updated_at: new Date().toISOString()
-        };
-        await supabaseClient.from('users').upsert(payload);
-    } catch (err) {
-        console.warn('syncSnapshotToSupabase error', err);
-    }
-}
+
 
 
 
