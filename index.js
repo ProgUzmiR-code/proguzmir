@@ -807,59 +807,40 @@ function saveSnapshotToLocal(state) {
 }
 
 // --- NEW: profile modal + Telegram-based wallet assignment + local-only startup ---
-(function clientOnlyStartup() {
-    // prefer Telegram WebApp id when available (store as tg_{id})
-    try {
-        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-        if (tgUser && tgUser.id) {
-            localStorage.setItem(KEY_WALLET, 'tg_' + String(tgUser.id));
-            // also populate header username if present
-            const nameNode = document.querySelector('.profile .username');
-            if (nameNode) {
-                const display = (tgUser.first_name || '') + (tgUser.last_name ? ' ' + tgUser.last_name : '');
-                nameNode.textContent = display || (tgUser.username ? '@' + tgUser.username : 'Telegram user');
-            }
-        }
-    } catch (err) { /* ignore */ }
+(async function clientOnlyStartup() {
+    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+    if (tgUser && tgUser.id) {
+        const walletId = 'tg_' + String(tgUser.id);
+        localStorage.setItem(KEY_WALLET, walletId);
 
-    // Init Supabase (if configured in index.html)
-    try {
-        initSupabase();
-        const wallet = localStorage.getItem(KEY_WALLET) || '';
-        if (supabaseClient && wallet) {
-            // load remote and merge if remote has greater PRC (simple heuristic)
-            loadStateFromSupabase(wallet).then(remote => {
-                if (!remote) return;
-                try {
-                    const local = loadState();
-                    if (BigInt(remote.prcWei) > BigInt(local.prcWei || 0n)) {
-                        // prefer remote balance if higher (avoid accidental overwrite)
-                        local.prcWei = BigInt(remote.prcWei);
-                        local.diamond = remote.diamond;
-                        local.energy = remote.energy;
-                        local.maxEnergy = remote.maxEnergy;
-                        local.tapsUsed = remote.tapsUsed;
-                        local.selectedSkin = remote.selectedSkin;
-                        local.todayIndex = remote.todayIndex;
-                        saveState(local);
-                        // re-render if game is currently visible
-                        try { renderGame(); } catch (e) { /* ignore */ }
-                    }
-                } catch (e) { /* ignore merge errors */ }
-            }).catch(e => { /* ignore network errors */ });
-        }
-    } catch (err) { console.warn('clientOnlyStartup supabase init error', err); }
+        // Supabase-dan ma'lumotlarni tortib olish
+        const { data, error } = await supabaseClient
+            .from('user_states')
+            .select('*')
+            .eq('wallet', walletId)
+            .single();
 
-    // simple local-only bootstrap: load state and render
-    try {
-        // render UI after small delay to allow loader visuals
-        setTimeout(() => {
-            renderAndWait();
-        }, 250);
-    } catch (err) {
-        console.warn('clientOnlyStartup error', err);
+        if (data && !error) {
+            // Lokal state-ni server ma'lumotlari bilan yangilash
+            const newState = {
+                prcWei: BigInt(data.prc_wei),
+                diamond: data.diamond,
+                wallet: data.wallet,
+                tapsUsed: data.taps_used,
+                tapCap: data.tap_cap,
+                selectedSkin: data.selected_skin || "",
+                energy: data.energy,
+                maxEnergy: data.max_energy,
+                todayIndex: data.today_index
+            };
+            saveState(newState); // Bu UI-ni ham yangilaydi
+        }
     }
+    
+    // UI render qilish
+    renderAndWait();
 })();
+
 
 // Profile modal: open when .profile clicked, show info from Telegram WebApp initDataUnsafe.user or localStorage
 (function setupProfileClick() {
