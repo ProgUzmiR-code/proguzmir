@@ -1074,6 +1074,7 @@ document.addEventListener('click', function (e) {
 });
 
 // --- ADD: Supabase integration helpers (optional, offline-first) ---
+// Moved above clientOnlyStartup to avoid TDZ / ReferenceError
 const SUPABASE_URL = (typeof window !== 'undefined' && window.SUPABASE_URL) ? window.SUPABASE_URL : '';
 const SUPABASE_KEY = (typeof window !== 'undefined' && window.SUPABASE_KEY) ? window.SUPABASE_KEY : '';
 let supabaseClient = null;
@@ -1108,7 +1109,6 @@ async function syncSnapshotToSupabase(state) {
             today_index: typeof state.todayIndex === 'number' ? state.todayIndex : 0,
             updated_at: new Date().toISOString()
         };
-        // upsert into 'users' table (assumes 'id' primary key exists)
         await supabaseClient.from('users').upsert(payload);
     } catch (err) {
         console.warn('syncSnapshotToSupabase error', err);
@@ -1139,4 +1139,26 @@ async function loadStateFromSupabase(wallet) {
 }
 
 
+async function initializeUserData() {
+    let state = loadState(); // Avval lokalni yuklaymiz
+    
+    if (state.wallet && supabaseClient) {
+        // Supabase-dan oxirgi saqlangan holatni tekshiramiz
+        const { data, error } = await supabaseClient
+            .from('user_states')
+            .select('*')
+            .eq('wallet', state.wallet)
+            .single();
+
+        if (data && !error) {
+            // Agar serverda ma'lumot bo'lsa, lokalni yangilaymiz
+            state.prcWei = BigInt(data.prc_wei);
+            state.diamond = data.diamond;
+            state.energy = data.energy;
+            // ... boshqa maydonlar
+            saveState(state); // Lokalga ham yozib qo'yamiz
+            renderGame(); // UI-ni yangilash
+        }
+    }
+}
 
