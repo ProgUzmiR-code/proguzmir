@@ -1154,6 +1154,10 @@ function setupAutoSave() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    if (window.Telegram?.WebApp) {
+        Telegram.WebApp.ready();
+    }
+
     initSupabase();
 
     const saved = await loadUserState();
@@ -1164,6 +1168,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         initNewUser();
     }
 
+    setupAutoSave();
 });
 
 // async function loadUserStateFromSupabase(walletOrIdentifier) {
