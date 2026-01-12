@@ -1,3 +1,7 @@
+const supabaseClient = supabase.createClient(
+  window.SUPABASE_URL,
+  window.SUPABASE_KEY
+);
 const DECIMALS = 18n;
 const UNIT = 10n ** DECIMALS;
 
