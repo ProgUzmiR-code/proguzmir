@@ -836,7 +836,7 @@ function saveSnapshotToLocal(state) {
             saveState(newState); // Bu UI-ni ham yangilaydi
         }
     }
-    
+
     // UI render qilish
     renderAndWait();
 })();
@@ -1055,9 +1055,156 @@ document.addEventListener('click', function (e) {
 });
 
 
-const SUPABASE_URL = 'https://iqcpsqqsdspbonmurjxp.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_HFFtHiGVPBNg-AtRApiFqA_NKfMDevH';
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// const SUPABASE_URL = 'https://iqcpsqqsdspbonmurjxp.supabase.co';
+// const SUPABASE_ANON_KEY = 'sb_publishable_HFFtHiGVPBNg-AtRApiFqA_NKfMDevH';
+// const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+
+
+let supabaseClient = null;
+
+function initSupabase() {
+    if (!window.supabase) {
+        console.error('Supabase yuklanmagan');
+        return;
+    }
+
+    supabaseClient = window.supabase.createClient(
+        window.SUPABASE_URL,
+        window.SUPABASE_KEY
+    );
+
+    console.log('Supabase init OK');
+}
+
+
+async function saveUserState(state) {
+    if (!supabaseClient) return;
+
+    const tg = getTelegramUser();
+    if (!tg) return;
+
+    const payload = {
+        id: tg.id,
+        username: tg.username || null,
+        first_name: tg.first_name || null,
+
+        prc_wei: state.prcWei.toString(),
+        diamond: state.diamond,
+        energy: state.energy,
+        max_energy: state.maxEnergy,
+        taps_used: state.tapsUsed,
+        selected_skin: state.selectedSkin,
+        today_index: state.todayIndex,
+
+        updated_at: new Date().toISOString()
+    };
+
+    await supabaseClient
+        .from('users')
+        .upsert(payload);
+}
+
+
+async function loadUserState() {
+    if (!supabaseClient) return null;
+
+    const tg = getTelegramUser();
+    if (!tg) return null;
+
+    const { data, error } = await supabaseClient
+        .from('users')
+        .select('*')
+        .eq('id', tg.id)
+        .maybeSingle();
+
+    if (error || !data) return null;
+
+    return {
+        prcWei: BigInt(data.prc_wei),
+        diamond: data.diamond,
+        energy: data.energy,
+        maxEnergy: data.max_energy,
+        tapsUsed: data.taps_used,
+        selectedSkin: data.selected_skin,
+        todayIndex: data.today_index
+    };
+}
+
+
+
+function setupAutoSave() {
+
+    // har 30 sekundda
+    setInterval(() => {
+        saveUserState(gameState);
+    }, 30000);
+
+    // brauzer yopilayotganda
+    window.addEventListener('beforeunload', () => {
+        saveUserState(gameState);
+    });
+
+    // Telegram mini app ichida oyna o‘zgarganda
+    if (window.Telegram?.WebApp) {
+        Telegram.WebApp.onEvent('viewportChanged', () => {
+            saveUserState(gameState);
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    initSupabase();
+
+    const saved = await loadUserState();
+
+    if (saved) {
+        restoreState(saved);
+    } else {
+        initNewUser();
+    }
+
+});
+
+// async function loadUserStateFromSupabase(walletOrIdentifier) {
+//     try {
+//         const client = window.supabaseClient || (typeof supabase !== 'undefined' && window.SUPABASE_URL && window.SUPABASE_KEY ? supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY) : null);
+//         if (!client) { console.warn('loadUserStateFromSupabase: supabase client not initialized'); return null; }
+
+//         // normalize incoming identifier into our wallet key convention
+//         function normalizeUserKeyLocal(idOrObj) {
+//             if (!idOrObj) return 'guest';
+//             if (typeof idOrObj === 'object') {
+//                 if (idOrObj.tgId) return 'tg_' + String(idOrObj.tgId);
+//                 if (idOrObj.username) return 'user_' + String(idOrObj.username).toLowerCase();
+//             }
+//             const s = String(idOrObj);
+//             if (/^\d+$/.test(s)) return 'tg_' + s;
+//             if (s.startsWith('tg_') || s.startsWith('user_')) return s;
+//             return 'user_' + s.toLowerCase();
+//         }
+
+//         const walletKey = normalizeUserKeyLocal(walletOrIdentifier || localStorage.getItem('proguzmir_wallet') || '');
+
+//         const { data, error } = await client.from('user_states').select('*').eq('wallet', walletKey).maybeSingle();
+//         if (error) { console.warn('loadUserStateFromSupabase error', error); return null; }
+//         if (!data) return null;
+
+//         return {
+//             prcWei: BigInt(data.prc_wei || '0'),
+//             diamond: Number(data.diamond || 0),
+//             tapsUsed: Number(data.taps_used || 0),
+//             tapCap: Number(data.tap_cap || 0),
+//             selectedSkin: data.selected_skin || '',
+//             energy: Number(data.energy || 0),
+//             maxEnergy: Number(data.max_energy || 0),
+//             todayIndex: Number(data.today_index || 0),
+//             wallet: data.wallet
+//         };
+//     } catch (err) {
+//         console.warn('loadUserStateFromSupabase error', err);
+//         return null;
+//     }
+// }
 
 

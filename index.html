@@ -153,7 +153,12 @@
   <!-- ADD: Supabase CDN (frontend publishable key ok to expose) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-
+        window.SUPABASE_URL = 'https://iqcpsqqsdspbonmurjxp.supabase.co';
+        window.SUPABASE_KEY = 'sb_publishable_HFFtHiGVPBNg-AtRApiFqA_NKfMDevH';
+    function getTelegramUser() {
+      if (!window.Telegram?.WebApp?.initDataUnsafe?.user) return null;
+      return Telegram.WebApp.initDataUnsafe.user;
+    }
   </script>
   <link rel="preload" href="./loading.svg" as="image">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
