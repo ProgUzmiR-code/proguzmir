@@ -44,6 +44,7 @@
       transform: scale(1);
     }
   </style>
+
   <script>
     // Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
     (function () {
@@ -148,21 +149,7 @@
       });
     }
   </script>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- ADD: Supabase CDN (frontend publishable key ok to expose) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- HTML faylda -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
-<script>
-  const SUPABASE_URL = 'https://iqcpsqqsdspbonmurjxp.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlxY3BzcXFzZHNwYm9ubXVyanhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwODgxMTQsImV4cCI6MjA4MzY2NDExNH0.lh3Q8xsHjysG20CiKT6y6hwOINdKxWji1BK6US9BC-c';
-  const SUPABASE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlxY3BzcXFzZHNwYm9ubXVyanhwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODA4ODExNCwiZXhwIjoyMDgzNjY0MTE0fQ.ni36G4PhG4eUVNfaKYkIIRnda5N4c3Zm1_Gr6k_59uM';
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY);
-
-  // endi supabaseClient ishlatish mumkin
-  console.log(supabaseClient);
-</script>
+ 
   <script>
         window.SUPABASE_URL = 'https://iqcpsqqsdspbonmurjxp.supabase.co';
         window.SUPABASE_KEY = 'sb_publishable_HFFtHiGVPBNg-AtRApiFqA_NKfMDevH';
@@ -911,6 +898,7 @@
       </div>
     </div>
   </div>
+  
   <script src="index.js"></script>
   <script>
     let nav = document.querySelector('.nav');
@@ -935,6 +923,21 @@
   <script src="/render/game.js"></script>
   <script src="/render/shop.js"></script>
   <script src="/render/daily.js"></script>
+   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- ADD: Supabase CDN (frontend publishable key ok to expose) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- HTML faylda -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+<script>
+  const SUPABASE_URL = 'https://iqcpsqqsdspbonmurjxp.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlxY3BzcXFzZHNwYm9ubXVyanhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwODgxMTQsImV4cCI6MjA4MzY2NDExNH0.lh3Q8xsHjysG20CiKT6y6hwOINdKxWji1BK6US9BC-c';
+  
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // endi supabaseClient ishlatish mumkin
+  console.log(supabaseClient);
+</script>
 </body>
 
 </html>
