@@ -155,10 +155,35 @@ function saveState(state) {
         console.warn('saveState: snapshot error', err);
     }
 
-    // Non-blocking Supabase sync (best-effort)
+    // Non-blocking Supabase sync (best-effort) — guarded to avoid ReferenceError
     try {
-        if (supabaseClient) {
+        if (typeof supabaseClient !== 'undefined' && supabaseClient && typeof syncSnapshotToSupabase === 'function') {
+            // call existing helper if present
             syncSnapshotToSupabase(state).catch(e => console.warn('Supabase sync failed', e));
+        } else {
+            // if no helper, optionally perform a minimal best-effort upsert when publishable client exists
+            if (typeof supabaseClient !== 'undefined' && supabaseClient && typeof supabaseClient.from === 'function') {
+                // best-effort, non-blocking write (don't await)
+                (async () => {
+                    try {
+                        await supabaseClient.from('user_states').upsert({
+                            wallet: state.wallet || localStorage.getItem(KEY_WALLET) || 'guest',
+                            prc_wei: String(state.prcWei || '0'),
+                            diamond: state.diamond || 0,
+                            taps_used: state.tapsUsed || 0,
+                            tap_cap: state.tapCap || 0,
+                            selected_skin: state.selectedSkin || null,
+                            energy: state.energy || 0,
+                            max_energy: state.maxEnergy || 0,
+                            today_index: state.todayIndex || 0,
+                            updated_at: new Date().toISOString()
+                        });
+                    } catch (e) {
+                        // swallow errors — sync is best-effort
+                        console.warn('Supabase best-effort upsert failed', e);
+                    }
+                })();
+            }
         }
     } catch (e) {
         console.warn('Supabase sync invocation error', e);
@@ -813,34 +838,39 @@ function saveSnapshotToLocal(state) {
         const walletId = 'tg_' + String(tgUser.id);
         localStorage.setItem(KEY_WALLET, walletId);
 
-        // Supabase-dan ma'lumotlarni tortib olish
-        const { data, error } = await supabaseClient
-            .from('user_states')
-            .select('*')
-            .eq('wallet', walletId)
-            .single();
+        // Supabase-dan ma'lumotlarni tortib olish (only if supabaseClient available)
+        try {
+            if (typeof supabaseClient !== 'undefined' && supabaseClient && typeof supabaseClient.from === 'function') {
+                const { data, error } = await supabaseClient
+                    .from('user_states')
+                    .select('*')
+                    .eq('wallet', walletId)
+                    .single();
 
-        if (data && !error) {
-            // Lokal state-ni server ma'lumotlari bilan yangilash
-            const newState = {
-                prcWei: BigInt(data.prc_wei),
-                diamond: data.diamond,
-                wallet: data.wallet,
-                tapsUsed: data.taps_used,
-                tapCap: data.tap_cap,
-                selectedSkin: data.selected_skin || "",
-                energy: data.energy,
-                maxEnergy: data.max_energy,
-                todayIndex: data.today_index
-            };
-            saveState(newState); // Bu UI-ni ham yangilaydi
+                if (data && !error) {
+                    // Lokal state-ni server ma'lumotlari bilan yangilash
+                    const newState = {
+                        prcWei: BigInt(data.prc_wei || '0'),
+                        diamond: data.diamond || 0,
+                        wallet: data.wallet,
+                        tapsUsed: data.taps_used || 0,
+                        tapCap: data.tap_cap || DEFAULT_TAP_CAP,
+                        selectedSkin: data.selected_skin || "",
+                        energy: data.energy || DEFAULT_MAX_ENERGY,
+                        maxEnergy: data.max_energy || DEFAULT_MAX_ENERGY,
+                        todayIndex: data.today_index || 0
+                    };
+                    saveState(newState); // Bu UI-ni ham yangilaydi
+                }
+            }
+        } catch (e) {
+            console.warn('clientOnlyStartup: supabase fetch skipped or failed', e);
         }
     }
 
     // UI render qilish
     renderAndWait();
 })();
-
 
 // Profile modal: open when .profile clicked, show info from Telegram WebApp initDataUnsafe.user or localStorage
 (function setupProfileClick() {
@@ -972,7 +1002,106 @@ function handleHeaderByPage(pageName) {
     }
 }
 
-// Replace previous tab click handler block with enhanced loader
+// Replace the Supabase sync invocation in saveState with a guarded version
+function saveState(state) {
+    // prefer explicit state.wallet but fallback to persisted KEY_WALLET
+    const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
+    const keyPRC = makeUserKey(KEY_PRC, wallet);
+    const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
+    const keyTaps = makeUserKey(KEY_TAPS_USED, wallet);
+    const keyCap = makeUserKey(KEY_TAP_CAP, wallet);
+    const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
+    const keyEnergy = makeUserKey(KEY_ENERGY, wallet);
+    const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
+    const keyTodayIndex = makeUserKey(KEY_TODAY_INDEX, wallet); // YANGI
+
+    // ensure state.wallet stored so subsequent loads use same identifier
+    if (!state.wallet && wallet) state.wallet = wallet;
+
+    localStorage.setItem(keyPRC, state.prcWei.toString());
+    localStorage.setItem(keyDiamond, String(state.diamond));
+    localStorage.setItem(keyTaps, String(state.tapsUsed));
+    localStorage.setItem(keyCap, String(state.tapCap));
+    // ensure energy/maxEnergy saved with sensible defaults (avoid writing "undefined")
+    const maxE = (typeof state.maxEnergy === 'number' && !Number.isNaN(state.maxEnergy)) ? state.maxEnergy : DEFAULT_MAX_ENERGY;
+    const en = (typeof state.energy === 'number' && !Number.isNaN(state.energy)) ? Math.min(state.energy, maxE) : maxE;
+    localStorage.setItem(keyEnergy, String(en));
+    localStorage.setItem(keyMaxEnergy, String(maxE));
+    if (typeof state.todayIndex === 'number') localStorage.setItem(keyTodayIndex, String(state.todayIndex)); // YANGI
+
+    if (state.selectedSkin)
+        localStorage.setItem(keySkin, state.selectedSkin);
+    else localStorage.removeItem(keySkin);
+
+    if (state.wallet)
+        localStorage.setItem(KEY_WALLET, state.wallet);
+
+    const total = getTotalPRCWei(state);
+    const header = document.getElementById('headerBalance');
+    if (header) header.innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(total);
+    const energyEl = document.getElementById('tapsCount');
+    if (energyEl && typeof state.energy !== 'undefined') energyEl.textContent = `${state.energy} / ${state.maxEnergy}`;
+
+    // Local-only snapshot (no server sync)
+    try {
+        if (typeof saveSnapshotToLocal === 'function') saveSnapshotToLocal(state);
+    } catch (err) {
+        console.warn('saveState: snapshot error', err);
+    }
+
+    // Non-blocking Supabase sync (best-effort) — guarded to avoid ReferenceError
+    try {
+        if (typeof supabaseClient !== 'undefined' && supabaseClient && typeof syncSnapshotToSupabase === 'function') {
+            // call existing helper if present
+            syncSnapshotToSupabase(state).catch(e => console.warn('Supabase sync failed', e));
+        } else {
+            // if no helper, optionally perform a minimal best-effort upsert when publishable client exists
+            if (typeof supabaseClient !== 'undefined' && supabaseClient && typeof supabaseClient.from === 'function') {
+                // best-effort, non-blocking write (don't await)
+                (async () => {
+                    try {
+                        await supabaseClient.from('user_states').upsert({
+                            wallet: state.wallet || localStorage.getItem(KEY_WALLET) || 'guest',
+                            prc_wei: String(state.prcWei || '0'),
+                            diamond: state.diamond || 0,
+                            taps_used: state.tapsUsed || 0,
+                            tap_cap: state.tapCap || 0,
+                            selected_skin: state.selectedSkin || null,
+                            energy: state.energy || 0,
+                            max_energy: state.maxEnergy || 0,
+                            today_index: state.todayIndex || 0,
+                            updated_at: new Date().toISOString()
+                        });
+                    } catch (e) {
+                        // swallow errors — sync is best-effort
+                        console.warn('Supabase best-effort upsert failed', e);
+                    }
+                })();
+            }
+        }
+    } catch (e) {
+        console.warn('Supabase sync invocation error', e);
+    }
+}
+
+// --- SAFE: initialize supabaseClient only if CDN + keys are available ---
+let supabaseClient = null;
+try {
+    // window.supabase, window.SUPABASE_URL and window.SUPABASE_KEY are set in index.html if CDN used
+    if (typeof window !== 'undefined' && window.supabase && window.SUPABASE_URL && window.SUPABASE_KEY) {
+        try {
+            supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
+        } catch (e) {
+            console.warn('Supabase client init failed', e);
+            supabaseClient = null;
+        }
+    }
+} catch (e) {
+    console.warn('Supabase client init skipped', e);
+    supabaseClient = null;
+}
+
+// Tab switching (nav fixed at bottom visually)
 document.querySelectorAll('.nav .tab').forEach(el => {
     el.addEventListener('click', async () => {
         document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
