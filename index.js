@@ -46,112 +46,112 @@ function makeUserKey(baseKey, wallet) {
 // --- Replace loadState/saveState behavior: in-memory only (no localStorage persistence) ---
 
 function loadState() {
-	// synchronous accessor: return in-memory state if available, otherwise a sensible default
-	if (window.__gameState) return window.__gameState;
-	const def = {
-		prcWei: 0n,
-		diamond: 0,
-		wallet: '',
-		tapsUsed: 0,
-		tapCap: DEFAULT_TAP_CAP,
-		selectedSkin: '',
-		energy: DEFAULT_MAX_ENERGY,
-		maxEnergy: DEFAULT_MAX_ENERGY,
-		todayIndex: 0
-	};
-	window.__gameState = def;
-	return def;
+    // synchronous accessor: return in-memory state if available, otherwise a sensible default
+    if (window.__gameState) return window.__gameState;
+    const def = {
+        prcWei: 0n,
+        diamond: 0,
+        wallet: '',
+        tapsUsed: 0,
+        tapCap: DEFAULT_TAP_CAP,
+        selectedSkin: '',
+        energy: DEFAULT_MAX_ENERGY,
+        maxEnergy: DEFAULT_MAX_ENERGY,
+        todayIndex: 0
+    };
+    window.__gameState = def;
+    return def;
 }
 
 // apply state to UI without triggering server save
 function applyState(state) {
-	window.__gameState = state;
-	// update header and energy/diamond UI
-	const total = getTotalPRCWei(state);
-	const header = document.getElementById('headerBalance');
-	if (header) header.innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(total);
-	const energyEl = document.getElementById('tapsCount');
-	if (energyEl && typeof state.energy !== 'undefined') energyEl.textContent = `${state.energy} / ${state.maxEnergy}`;
-	const diamondEl = document.getElementById('diamondTop');
-	if (diamondEl) diamondEl.textContent = '💎 ' + (state.diamond || 0);
+    window.__gameState = state;
+    // update header and energy/diamond UI
+    const total = getTotalPRCWei(state);
+    const header = document.getElementById('headerBalance');
+    if (header) header.innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(total);
+    const energyEl = document.getElementById('tapsCount');
+    if (energyEl && typeof state.energy !== 'undefined') energyEl.textContent = `${state.energy} / ${state.maxEnergy}`;
+    const diamondEl = document.getElementById('diamondTop');
+    if (diamondEl) diamondEl.textContent = '💎 ' + (state.diamond || 0);
 }
 
 // persist via server API (no localStorage)
 function saveState(state) {
-	// keep state in memory and update UI
-	applyState(state);
+    // keep state in memory and update UI
+    applyState(state);
 
-	// best-effort server save (only when Telegram initData available)
-	if (!window.Telegram?.WebApp?.initData) {
-		console.warn('saveState: Telegram initData missing; server save skipped');
-		return;
-	}
+    // best-effort server save (only when Telegram initData available)
+    if (!window.Telegram?.WebApp?.initData) {
+        console.warn('saveState: Telegram initData missing; server save skipped');
+        return;
+    }
 
-	try {
-		// fire-and-forget; saveUserState already handles keepalive and errors
-		saveUserState(state).catch(e => console.warn('saveState: server save failed', e));
-	} catch (e) {
-		console.warn('saveState: saveUserState call failed', e);
-	}
+    try {
+        // fire-and-forget; saveUserState already handles keepalive and errors
+        saveUserState(state).catch(e => console.warn('saveState: server save failed', e));
+    } catch (e) {
+        console.warn('saveState: saveUserState call failed', e);
+    }
 }
 
 // remove local snapshot behavior: make saveSnapshotToLocal a no-op to avoid any local writes
 function saveSnapshotToLocal(state) {
-	// intentionally no-op: all persistence should go to server via /api/save
+    // intentionally no-op: all persistence should go to server via /api/save
 }
 
 // Adjust claim date helpers to use in-memory state (avoid localStorage)
 function claimKeyForWallet(wallet) { return wallet || (window.__gameState && window.__gameState.wallet) || 'guest'; }
 function getClaimDateForCurrentUser() {
-	return (window.__gameState && window.__gameState._claimDate) || null;
+    return (window.__gameState && window.__gameState._claimDate) || null;
 }
 function setClaimDateForCurrentUser(dateStr) {
-	if (!window.__gameState) window.__gameState = loadState();
-	window.__gameState._claimDate = dateStr;
+    if (!window.__gameState) window.__gameState = loadState();
+    window.__gameState._claimDate = dateStr;
 }
 function clearClaimDateForCurrentUser() {
-	if (!window.__gameState) return;
-	delete window.__gameState._claimDate;
+    if (!window.__gameState) return;
+    delete window.__gameState._claimDate;
 }
 
 // --- Startup: prefer server load via /api/load and apply result (no local reads/writes) ---
 (async function clientOnlyStartup() {
-	try {
-		// If Telegram user present, attempt server load
-		const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-		if (tgUser && tgUser.id) {
-			// set wallet in-memory
-			const walletId = 'tg_' + String(tgUser.id);
-			if (!window.__gameState) window.__gameState = loadState();
-			window.__gameState.wallet = walletId;
+    try {
+        // If Telegram user present, attempt server load
+        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        if (tgUser && tgUser.id) {
+            // set wallet in-memory
+            const walletId = 'tg_' + String(tgUser.id);
+            if (!window.__gameState) window.__gameState = loadState();
+            window.__gameState.wallet = walletId;
 
-			// fetch server state via API
-			try {
-				const serverState = await loadUserState();
-				if (serverState) {
-					const newState = {
-						prcWei: BigInt(serverState.prcWei || 0n),
-						diamond: Number(serverState.diamond || 0),
-						wallet: walletId,
-						tapsUsed: Number(serverState.tapsUsed || 0),
-						tapCap: Number(serverState.tapCap || DEFAULT_TAP_CAP),
-						selectedSkin: serverState.selectedSkin || '',
-						energy: Number(serverState.energy || DEFAULT_MAX_ENERGY),
-						maxEnergy: Number(serverState.maxEnergy || DEFAULT_MAX_ENERGY),
-						todayIndex: Number(serverState.todayIndex || 0)
-					};
-					applyState(newState); // do NOT immediately re-save
-				}
-			} catch (e) {
-				console.warn('clientOnlyStartup: loadUserState failed', e);
-			}
-		}
-	} catch (e) {
-		console.warn('clientOnlyStartup error', e);
-	}
+            // fetch server state via API
+            try {
+                const serverState = await loadUserState();
+                if (serverState) {
+                    const newState = {
+                        prcWei: BigInt(serverState.prcWei || 0n),
+                        diamond: Number(serverState.diamond || 0),
+                        wallet: walletId,
+                        tapsUsed: Number(serverState.tapsUsed || 0),
+                        tapCap: Number(serverState.tapCap || DEFAULT_TAP_CAP),
+                        selectedSkin: serverState.selectedSkin || '',
+                        energy: Number(serverState.energy || DEFAULT_MAX_ENERGY),
+                        maxEnergy: Number(serverState.maxEnergy || DEFAULT_MAX_ENERGY),
+                        todayIndex: Number(serverState.todayIndex || 0)
+                    };
+                    applyState(newState); // do NOT immediately re-save
+                }
+            } catch (e) {
+                console.warn('clientOnlyStartup: loadUserState failed', e);
+            }
+        }
+    } catch (e) {
+        console.warn('clientOnlyStartup error', e);
+    }
 
-	// render UI after attempt to load
-	renderAndWait();
+    // render UI after attempt to load
+    renderAndWait();
 })();
 
 // --- YANGILANGAN loadState() ---
