@@ -1084,22 +1084,6 @@ function saveState(state) {
     }
 }
 
-// --- SAFE: initialize supabaseClient only if CDN + keys are available ---
-let supabaseClient = null;
-try {
-    // window.supabase, window.SUPABASE_URL and window.SUPABASE_KEY are set in index.html if CDN used
-    if (typeof window !== 'undefined' && window.supabase && window.SUPABASE_URL && window.SUPABASE_KEY) {
-        try {
-            supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
-        } catch (e) {
-            console.warn('Supabase client init failed', e);
-            supabaseClient = null;
-        }
-    }
-} catch (e) {
-    console.warn('Supabase client init skipped', e);
-    supabaseClient = null;
-}
 
 // Tab switching (nav fixed at bottom visually)
 document.querySelectorAll('.nav .tab').forEach(el => {
