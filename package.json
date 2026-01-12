@@ -5,6 +5,8 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "dev": "vercel dev",
+    "start": "vercel dev",
     "build": "[my-framework] build --output public"
   },
   "keywords": [],

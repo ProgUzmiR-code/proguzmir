@@ -39,28 +39,57 @@
 //     }
 // }
 
+import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
 
-async function loadUserState() {
-  if (!supabaseClient) return null;
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
-  const tg = getTelegramUser();
-  if (!tg) return null;
+// Telegram initData verify
+function verifyTelegramInitData(initData) {
+  const urlParams = new URLSearchParams(initData);
+  const hash = urlParams.get('hash');
+  urlParams.delete('hash');
 
-  const { data, error } = await supabaseClient
+  const dataCheckString = [...urlParams.entries()]
+    .sort()
+    .map(([k, v]) => `${k}=${v}`)
+    .join('\n');
+
+  const secret = crypto
+    .createHash('sha256')
+    .update(process.env.TELEGRAM_BOT_TOKEN)
+    .digest();
+
+  const calculatedHash = crypto
+    .createHmac('sha256', secret)
+    .update(dataCheckString)
+    .digest('hex');
+
+  return calculatedHash === hash;
+}
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).end();
+
+  const { initData } = req.body;
+
+  if (!verifyTelegramInitData(initData)) {
+    return res.status(403).json({ error: 'Invalid Telegram data' });
+  }
+
+  const user = JSON.parse(new URLSearchParams(initData).get('user'));
+  const wallet = `tg_${user.id}`;
+
+  const { data, error } = await supabase
     .from('users')
     .select('*')
-    .eq('id', tg.id)
+    .eq('wallet', wallet)
     .maybeSingle();
 
-  if (error || !data) return null;
+  if (error) return res.status(500).json({ error: error.message });
 
-  return {
-    prcWei: BigInt(data.prc_wei),
-    diamond: data.diamond,
-    energy: data.energy,
-    maxEnergy: data.max_energy,
-    tapsUsed: data.taps_used,
-    selectedSkin: data.selected_skin,
-    todayIndex: data.today_index
-  };
+  res.json({ user: data || null });
 }
