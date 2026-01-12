@@ -1054,231 +1054,139 @@ document.addEventListener('click', function (e) {
     });
 });
 
-
-// const SUPABASE_URL = 'https://iqcpsqqsdspbonmurjxp.supabase.co';
-// const SUPABASE_ANON_KEY = 'sb_publishable_HFFtHiGVPBNg-AtRApiFqA_NKfMDevH';
-// const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-
-
-// let supabaseClient = null;
-
-// function initSupabase() {
-//     if (!window.supabase) {
-//         console.error('Supabase yuklanmagan');
-//         return;
-//     }
-
-//     supabaseClient = window.supabase.createClient(
-//         window.SUPABASE_URL,
-//         window.SUPABASE_KEY
-//     );
-
-//     console.log('Supabase init OK');
-// }
-
-
-// async function saveUserState(state) {
-//     if (!supabaseClient) return;
-
-//     const tg = getTelegramUser();
-//     if (!tg) return;
-
-//     const payload = {
-//         id: tg.id,
-//         username: tg.username || null,
-//         first_name: tg.first_name || null,
-
-//         prc_wei: state.prcWei.toString(),
-//         diamond: state.diamond,
-//         energy: state.energy,
-//         max_energy: state.maxEnergy,
-//         taps_used: state.tapsUsed,
-//         selected_skin: state.selectedSkin,
-//         today_index: state.todayIndex,
-
-//         updated_at: new Date().toISOString()
-//     };
-
-//     await supabaseClient
-//         .from('users')
-//         .upsert(payload);
-// }
-
-
-// async function loadUserState() {
-//     if (!supabaseClient) return null;
-
-//     const tg = getTelegramUser();
-//     if (!tg) return null;
-
-//     const { data, error } = await supabaseClient
-//         .from('users')
-//         .select('*')
-//         .eq('id', tg.id)
-//         .maybeSingle();
-
-//     if (error || !data) return null;
-
-//     return {
-//         prcWei: BigInt(data.prc_wei),
-//         diamond: data.diamond,
-//         energy: data.energy,
-//         maxEnergy: data.max_energy,
-//         tapsUsed: data.taps_used,
-//         selectedSkin: data.selected_skin,
-//         todayIndex: data.today_index
-//     };
-// }
-
-
-
-// function setupAutoSave() {
-
-//     // har 30 sekundda
-//     setInterval(() => {
-//         saveUserState(gameState);
-//     }, 30000);
-
-//     // brauzer yopilayotganda
-//     window.addEventListener('beforeunload', () => {
-//         saveUserState(gameState);
-//     });
-
-//     // Telegram mini app ichida oyna o‘zgarganda
-//     if (window.Telegram?.WebApp) {
-//         Telegram.WebApp.onEvent('viewportChanged', () => {
-//             saveUserState(gameState);
-//         });
-//     }
-// }
-
-// document.addEventListener('DOMContentLoaded', async () => {
-//     if (window.Telegram?.WebApp) {
-//         Telegram.WebApp.ready();
-//     }
-
-//     initSupabase();
-
-//     const saved = await loadUserState();
-
-//     if (saved) {
-//         restoreState(saved);
-//     } else {
-//         initNewUser();
-//     }
-
-//     setupAutoSave();
-// });
-
-// async function loadUserStateFromSupabase(walletOrIdentifier) {
-//     try {
-//         const client = window.supabaseClient || (typeof supabase !== 'undefined' && window.SUPABASE_URL && window.SUPABASE_KEY ? supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY) : null);
-//         if (!client) { console.warn('loadUserStateFromSupabase: supabase client not initialized'); return null; }
-
-//         // normalize incoming identifier into our wallet key convention
-//         function normalizeUserKeyLocal(idOrObj) {
-//             if (!idOrObj) return 'guest';
-//             if (typeof idOrObj === 'object') {
-//                 if (idOrObj.tgId) return 'tg_' + String(idOrObj.tgId);
-//                 if (idOrObj.username) return 'user_' + String(idOrObj.username).toLowerCase();
-//             }
-//             const s = String(idOrObj);
-//             if (/^\d+$/.test(s)) return 'tg_' + s;
-//             if (s.startsWith('tg_') || s.startsWith('user_')) return s;
-//             return 'user_' + s.toLowerCase();
-//         }
-
-//         const walletKey = normalizeUserKeyLocal(walletOrIdentifier || localStorage.getItem('proguzmir_wallet') || '');
-
-//         const { data, error } = await client.from('user_states').select('*').eq('wallet', walletKey).maybeSingle();
-//         if (error) { console.warn('loadUserStateFromSupabase error', error); return null; }
-//         if (!data) return null;
-
-//         return {
-//             prcWei: BigInt(data.prc_wei || '0'),
-//             diamond: Number(data.diamond || 0),
-//             tapsUsed: Number(data.taps_used || 0),
-//             tapCap: Number(data.tap_cap || 0),
-//             selectedSkin: data.selected_skin || '',
-//             energy: Number(data.energy || 0),
-//             maxEnergy: Number(data.max_energy || 0),
-//             todayIndex: Number(data.today_index || 0),
-//             wallet: data.wallet
-//         };
-//     } catch (err) {
-//         console.warn('loadUserStateFromSupabase error', err);
-//         return null;
-//     }
-// }
-
+// --- NEW: server bilan saqlash funksiyasi ---
 
 async function saveUserState(state) {
-  if (!window.Telegram?.WebApp?.initData) return;
+    // Accept optional state; fallback to persisted state
+    let st = state;
+    try { if (!st) st = loadState(); } catch (e) { st = null; }
+    if (!st) return;
 
-  await fetch('/api/save', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      initData: Telegram.WebApp.initData,
-      state: {
-        prcWei: state.prcWei.toString(),
-        diamond: state.diamond,
-        energy: state.energy,
-        maxEnergy: state.maxEnergy,
-        tapsUsed: state.tapsUsed,
-        selectedSkin: state.selectedSkin,
-        todayIndex: state.todayIndex
-      }
-    })
-  });
+    // Only attempt server save when Telegram initData is available
+    if (!window.Telegram?.WebApp?.initData) return;
+
+    const payload = {
+        initData: Telegram.WebApp.initData,
+        state: {
+            prcWei: String(st.prcWei),
+            diamond: st.diamond,
+            energy: st.energy,
+            maxEnergy: st.maxEnergy,
+            tapsUsed: st.tapsUsed,
+            selectedSkin: st.selectedSkin,
+            todayIndex: st.todayIndex
+        }
+    };
+
+    try {
+        await fetch('/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            keepalive: true // allow background send on navigation/unload when supported
+        });
+    } catch (err) {
+        console.warn('saveUserState error', err);
+    }
 }
 
 function setupAutoSave() {
-  setInterval(() => saveUserState(gameState), 30000);
+    // periodic autosave
+    setInterval(() => {
+        try { saveUserState(); } catch (e) { console.warn('autosave failed', e); }
+    }, 30000);
 
-  window.addEventListener('beforeunload', () => saveUserState(gameState));
+    // beforeunload: best-effort synchronous background send using sendBeacon
+    window.addEventListener('beforeunload', () => {
+        try {
+            const st = loadState();
+            if (!st || !window.Telegram?.WebApp?.initData) return;
 
-  if (window.Telegram?.WebApp) {
-    Telegram.WebApp.onEvent('viewportChanged', () => saveUserState(gameState));
-  }
+            const payload = {
+                initData: Telegram.WebApp.initData,
+                state: {
+                    prcWei: String(st.prcWei),
+                    diamond: st.diamond,
+                    energy: st.energy,
+                    maxEnergy: st.maxEnergy,
+                    tapsUsed: st.tapsUsed,
+                    selectedSkin: st.selectedSkin,
+                    todayIndex: st.todayIndex
+                }
+            };
+
+            if (navigator.sendBeacon) {
+                const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+                navigator.sendBeacon('/api/save', blob);
+            } else {
+                // fallback: fire-and-forget fetch with keepalive
+                fetch('/api/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                    keepalive: true
+                }).catch(() => { /* ignore */ });
+            }
+        } catch (e) { /* ignore */ }
+    });
+
+    // Telegram viewport changes: save snapshot (if API available)
+    try {
+        if (window.Telegram?.WebApp?.onEvent && typeof Telegram.WebApp.onEvent === 'function') {
+            Telegram.WebApp.onEvent('viewportChanged', () => { try { saveUserState(); } catch (e) { /* ignore */ } });
+        }
+    } catch (e) { /* ignore */ }
 }
 
-
-
 async function loadUserState() {
-  if (!window.Telegram?.WebApp?.initData) return null;
-
-  const res = await fetch('/api/load', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      initData: Telegram.WebApp.initData
-    })
-  });
-
-  const result = await res.json();
-  if (!result.user) return null;
-
-  return {
-    prcWei: BigInt(result.user.prc_wei),
-    diamond: result.user.diamond,
-    energy: result.user.energy,
-    maxEnergy: result.user.max_energy,
-    tapsUsed: result.user.taps_used,
-    selectedSkin: result.user.selected_skin,
-    todayIndex: result.user.today_index
-  };
+    if (!window.Telegram?.WebApp?.initData) return null;
+    try {
+        const res = await fetch('/api/load', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ initData: Telegram.WebApp.initData }),
+            keepalive: true
+        });
+        if (!res.ok) return null;
+        const result = await res.json();
+        if (!result?.user) return null;
+        return {
+            prcWei: BigInt(result.user.prc_wei || '0'),
+            diamond: Number(result.user.diamond || 0),
+            energy: Number(result.user.energy || 0),
+            maxEnergy: Number(result.user.max_energy || 0),
+            tapsUsed: Number(result.user.taps_used || 0),
+            selectedSkin: result.user.selected_skin || '',
+            todayIndex: Number(result.user.today_index || 0)
+        };
+    } catch (err) {
+        console.warn('loadUserState error', err);
+        return null;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const saved = await loadUserState();
+    try {
+        const saved = await loadUserState();
+        if (saved) {
+            if (typeof restoreState === 'function') {
+                restoreState(saved);
+            } else {
+                // fallback: persist and update UI
+                saveState({
+                    prcWei: saved.prcWei,
+                    diamond: saved.diamond,
+                    energy: saved.energy,
+                    maxEnergy: saved.maxEnergy,
+                    tapsUsed: saved.tapsUsed,
+                    selectedSkin: saved.selectedSkin,
+                    todayIndex: saved.todayIndex
+                });
+            }
+        } else {
+            if (typeof initNewUser === 'function') initNewUser();
+        }
+    } catch (e) { console.warn('startup load error', e); }
 
-  if (saved) {
-    restoreState(saved);
-  } else {
-    initNewUser();
-  }
-
-  setupAutoSave(); // har 30 sekundda va oyna o‘zgarganda saqlash
+    setupAutoSave(); // start autosave
 });
