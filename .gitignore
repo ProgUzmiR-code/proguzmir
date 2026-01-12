@@ -8,7 +8,6 @@ Pipfile.lock
 lusck_code
 
 # Env
-
 .env.local
 
 # PyCharm / IDE
