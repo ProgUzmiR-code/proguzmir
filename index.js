@@ -1,4 +1,3 @@
-
 const DECIMALS = 18n;
 const UNIT = 10n ** DECIMALS;
 
@@ -43,6 +42,118 @@ const SKINS = [
 function makeUserKey(baseKey, wallet) {
     return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest";
 }
+
+// --- Replace loadState/saveState behavior: in-memory only (no localStorage persistence) ---
+
+function loadState() {
+	// synchronous accessor: return in-memory state if available, otherwise a sensible default
+	if (window.__gameState) return window.__gameState;
+	const def = {
+		prcWei: 0n,
+		diamond: 0,
+		wallet: '',
+		tapsUsed: 0,
+		tapCap: DEFAULT_TAP_CAP,
+		selectedSkin: '',
+		energy: DEFAULT_MAX_ENERGY,
+		maxEnergy: DEFAULT_MAX_ENERGY,
+		todayIndex: 0
+	};
+	window.__gameState = def;
+	return def;
+}
+
+// apply state to UI without triggering server save
+function applyState(state) {
+	window.__gameState = state;
+	// update header and energy/diamond UI
+	const total = getTotalPRCWei(state);
+	const header = document.getElementById('headerBalance');
+	if (header) header.innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(total);
+	const energyEl = document.getElementById('tapsCount');
+	if (energyEl && typeof state.energy !== 'undefined') energyEl.textContent = `${state.energy} / ${state.maxEnergy}`;
+	const diamondEl = document.getElementById('diamondTop');
+	if (diamondEl) diamondEl.textContent = '💎 ' + (state.diamond || 0);
+}
+
+// persist via server API (no localStorage)
+function saveState(state) {
+	// keep state in memory and update UI
+	applyState(state);
+
+	// best-effort server save (only when Telegram initData available)
+	if (!window.Telegram?.WebApp?.initData) {
+		console.warn('saveState: Telegram initData missing; server save skipped');
+		return;
+	}
+
+	try {
+		// fire-and-forget; saveUserState already handles keepalive and errors
+		saveUserState(state).catch(e => console.warn('saveState: server save failed', e));
+	} catch (e) {
+		console.warn('saveState: saveUserState call failed', e);
+	}
+}
+
+// remove local snapshot behavior: make saveSnapshotToLocal a no-op to avoid any local writes
+function saveSnapshotToLocal(state) {
+	// intentionally no-op: all persistence should go to server via /api/save
+}
+
+// Adjust claim date helpers to use in-memory state (avoid localStorage)
+function claimKeyForWallet(wallet) { return wallet || (window.__gameState && window.__gameState.wallet) || 'guest'; }
+function getClaimDateForCurrentUser() {
+	return (window.__gameState && window.__gameState._claimDate) || null;
+}
+function setClaimDateForCurrentUser(dateStr) {
+	if (!window.__gameState) window.__gameState = loadState();
+	window.__gameState._claimDate = dateStr;
+}
+function clearClaimDateForCurrentUser() {
+	if (!window.__gameState) return;
+	delete window.__gameState._claimDate;
+}
+
+// --- Startup: prefer server load via /api/load and apply result (no local reads/writes) ---
+(async function clientOnlyStartup() {
+	try {
+		// If Telegram user present, attempt server load
+		const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+		if (tgUser && tgUser.id) {
+			// set wallet in-memory
+			const walletId = 'tg_' + String(tgUser.id);
+			if (!window.__gameState) window.__gameState = loadState();
+			window.__gameState.wallet = walletId;
+
+			// fetch server state via API
+			try {
+				const serverState = await loadUserState();
+				if (serverState) {
+					const newState = {
+						prcWei: BigInt(serverState.prcWei || 0n),
+						diamond: Number(serverState.diamond || 0),
+						wallet: walletId,
+						tapsUsed: Number(serverState.tapsUsed || 0),
+						tapCap: Number(serverState.tapCap || DEFAULT_TAP_CAP),
+						selectedSkin: serverState.selectedSkin || '',
+						energy: Number(serverState.energy || DEFAULT_MAX_ENERGY),
+						maxEnergy: Number(serverState.maxEnergy || DEFAULT_MAX_ENERGY),
+						todayIndex: Number(serverState.todayIndex || 0)
+					};
+					applyState(newState); // do NOT immediately re-save
+				}
+			} catch (e) {
+				console.warn('clientOnlyStartup: loadUserState failed', e);
+			}
+		}
+	} catch (e) {
+		console.warn('clientOnlyStartup error', e);
+	}
+
+	// render UI after attempt to load
+	renderAndWait();
+})();
+
 // --- YANGILANGAN loadState() ---
 function loadState() {
     // prefer Telegram WebApp id when available (we store it as "tg_{id}" in KEY_WALLET)
@@ -111,83 +222,20 @@ function chargeCost(state, costWei) {
 
 // --- YANGILANGAN saveState(): remove server sync, keep local snapshot only ---
 function saveState(state) {
-    // prefer explicit state.wallet but fallback to persisted KEY_WALLET
-    const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
-    const keyPRC = makeUserKey(KEY_PRC, wallet);
-    const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
-    const keyTaps = makeUserKey(KEY_TAPS_USED, wallet);
-    const keyCap = makeUserKey(KEY_TAP_CAP, wallet);
-    const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
-    const keyEnergy = makeUserKey(KEY_ENERGY, wallet);
-    const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
-    const keyTodayIndex = makeUserKey(KEY_TODAY_INDEX, wallet); // YANGI
+    // keep state in memory and update UI
+    applyState(state);
 
-    // ensure state.wallet stored so subsequent loads use same identifier
-    if (!state.wallet && wallet) state.wallet = wallet;
-
-    localStorage.setItem(keyPRC, state.prcWei.toString());
-    localStorage.setItem(keyDiamond, String(state.diamond));
-    localStorage.setItem(keyTaps, String(state.tapsUsed));
-    localStorage.setItem(keyCap, String(state.tapCap));
-    // ensure energy/maxEnergy saved with sensible defaults (avoid writing "undefined")
-    const maxE = (typeof state.maxEnergy === 'number' && !Number.isNaN(state.maxEnergy)) ? state.maxEnergy : DEFAULT_MAX_ENERGY;
-    const en = (typeof state.energy === 'number' && !Number.isNaN(state.energy)) ? Math.min(state.energy, maxE) : maxE;
-    localStorage.setItem(keyEnergy, String(en));
-    localStorage.setItem(keyMaxEnergy, String(maxE));
-    if (typeof state.todayIndex === 'number') localStorage.setItem(keyTodayIndex, String(state.todayIndex)); // YANGI
-
-    if (state.selectedSkin)
-        localStorage.setItem(keySkin, state.selectedSkin);
-    else localStorage.removeItem(keySkin);
-
-    if (state.wallet)
-        localStorage.setItem(KEY_WALLET, state.wallet);
-
-    const total = getTotalPRCWei(state);
-    const header = document.getElementById('headerBalance');
-    if (header) header.innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(total);
-    const energyEl = document.getElementById('tapsCount');
-    if (energyEl && typeof state.energy !== 'undefined') energyEl.textContent = `${state.energy} / ${state.maxEnergy}`;
-
-    // Local-only snapshot (no server sync)
-    try {
-        if (typeof saveSnapshotToLocal === 'function') saveSnapshotToLocal(state);
-    } catch (err) {
-        console.warn('saveState: snapshot error', err);
+    // best-effort server save (only when Telegram initData available)
+    if (!window.Telegram?.WebApp?.initData) {
+        console.warn('saveState: Telegram initData missing; server save skipped');
+        return;
     }
 
-    // Non-blocking Supabase sync (best-effort) — guarded to avoid ReferenceError
     try {
-        if (typeof supabaseClient !== 'undefined' && supabaseClient && typeof syncSnapshotToSupabase === 'function') {
-            // call existing helper if present
-            syncSnapshotToSupabase(state).catch(e => console.warn('Supabase sync failed', e));
-        } else {
-            // if no helper, optionally perform a minimal best-effort upsert when publishable client exists
-            if (typeof supabaseClient !== 'undefined' && supabaseClient && typeof supabaseClient.from === 'function') {
-                // best-effort, non-blocking write (don't await)
-                (async () => {
-                    try {
-                        await supabaseClient.from('user_states').upsert({
-                            wallet: state.wallet || localStorage.getItem(KEY_WALLET) || 'guest',
-                            prc_wei: String(state.prcWei || '0'),
-                            diamond: state.diamond || 0,
-                            taps_used: state.tapsUsed || 0,
-                            tap_cap: state.tapCap || 0,
-                            selected_skin: state.selectedSkin || null,
-                            energy: state.energy || 0,
-                            max_energy: state.maxEnergy || 0,
-                            today_index: state.todayIndex || 0,
-                            updated_at: new Date().toISOString()
-                        });
-                    } catch (e) {
-                        // swallow errors — sync is best-effort
-                        console.warn('Supabase best-effort upsert failed', e);
-                    }
-                })();
-            }
-        }
+        // fire-and-forget; saveUserState already handles keepalive and errors
+        saveUserState(state).catch(e => console.warn('saveState: server save failed', e));
     } catch (e) {
-        console.warn('Supabase sync invocation error', e);
+        console.warn('saveState: saveUserState call failed', e);
     }
 }
 
@@ -1005,83 +1053,20 @@ function handleHeaderByPage(pageName) {
 
 // Replace the Supabase sync invocation in saveState with a guarded version
 function saveState(state) {
-    // prefer explicit state.wallet but fallback to persisted KEY_WALLET
-    const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
-    const keyPRC = makeUserKey(KEY_PRC, wallet);
-    const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
-    const keyTaps = makeUserKey(KEY_TAPS_USED, wallet);
-    const keyCap = makeUserKey(KEY_TAP_CAP, wallet);
-    const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
-    const keyEnergy = makeUserKey(KEY_ENERGY, wallet);
-    const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
-    const keyTodayIndex = makeUserKey(KEY_TODAY_INDEX, wallet); // YANGI
+    // keep state in memory and update UI
+    applyState(state);
 
-    // ensure state.wallet stored so subsequent loads use same identifier
-    if (!state.wallet && wallet) state.wallet = wallet;
-
-    localStorage.setItem(keyPRC, state.prcWei.toString());
-    localStorage.setItem(keyDiamond, String(state.diamond));
-    localStorage.setItem(keyTaps, String(state.tapsUsed));
-    localStorage.setItem(keyCap, String(state.tapCap));
-    // ensure energy/maxEnergy saved with sensible defaults (avoid writing "undefined")
-    const maxE = (typeof state.maxEnergy === 'number' && !Number.isNaN(state.maxEnergy)) ? state.maxEnergy : DEFAULT_MAX_ENERGY;
-    const en = (typeof state.energy === 'number' && !Number.isNaN(state.energy)) ? Math.min(state.energy, maxE) : maxE;
-    localStorage.setItem(keyEnergy, String(en));
-    localStorage.setItem(keyMaxEnergy, String(maxE));
-    if (typeof state.todayIndex === 'number') localStorage.setItem(keyTodayIndex, String(state.todayIndex)); // YANGI
-
-    if (state.selectedSkin)
-        localStorage.setItem(keySkin, state.selectedSkin);
-    else localStorage.removeItem(keySkin);
-
-    if (state.wallet)
-        localStorage.setItem(KEY_WALLET, state.wallet);
-
-    const total = getTotalPRCWei(state);
-    const header = document.getElementById('headerBalance');
-    if (header) header.innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(total);
-    const energyEl = document.getElementById('tapsCount');
-    if (energyEl && typeof state.energy !== 'undefined') energyEl.textContent = `${state.energy} / ${state.maxEnergy}`;
-
-    // Local-only snapshot (no server sync)
-    try {
-        if (typeof saveSnapshotToLocal === 'function') saveSnapshotToLocal(state);
-    } catch (err) {
-        console.warn('saveState: snapshot error', err);
+    // best-effort server save (only when Telegram initData available)
+    if (!window.Telegram?.WebApp?.initData) {
+        console.warn('saveState: Telegram initData missing; server save skipped');
+        return;
     }
 
-    // Non-blocking Supabase sync (best-effort) — guarded to avoid ReferenceError
     try {
-        if (typeof supabaseClient !== 'undefined' && supabaseClient && typeof syncSnapshotToSupabase === 'function') {
-            // call existing helper if present
-            syncSnapshotToSupabase(state).catch(e => console.warn('Supabase sync failed', e));
-        } else {
-            // if no helper, optionally perform a minimal best-effort upsert when publishable client exists
-            if (typeof supabaseClient !== 'undefined' && supabaseClient && typeof supabaseClient.from === 'function') {
-                // best-effort, non-blocking write (don't await)
-                (async () => {
-                    try {
-                        await supabaseClient.from('user_states').upsert({
-                            wallet: state.wallet || localStorage.getItem(KEY_WALLET) || 'guest',
-                            prc_wei: String(state.prcWei || '0'),
-                            diamond: state.diamond || 0,
-                            taps_used: state.tapsUsed || 0,
-                            tap_cap: state.tapCap || 0,
-                            selected_skin: state.selectedSkin || null,
-                            energy: state.energy || 0,
-                            max_energy: state.maxEnergy || 0,
-                            today_index: state.todayIndex || 0,
-                            updated_at: new Date().toISOString()
-                        });
-                    } catch (e) {
-                        // swallow errors — sync is best-effort
-                        console.warn('Supabase best-effort upsert failed', e);
-                    }
-                })();
-            }
-        }
+        // fire-and-forget; saveUserState already handles keepalive and errors
+        saveUserState(state).catch(e => console.warn('saveState: server save failed', e));
     } catch (e) {
-        console.warn('Supabase sync invocation error', e);
+        console.warn('saveState: saveUserState call failed', e);
     }
 }
 

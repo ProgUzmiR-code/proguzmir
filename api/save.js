@@ -39,6 +39,7 @@ export default async function handler(req, res) {
   }
 
   const user = JSON.parse(new URLSearchParams(initData).get('user'));
+  const wallet = `tg_${user.id}`;
 
   const payload = {
     id: user.id,
@@ -50,14 +51,17 @@ export default async function handler(req, res) {
     energy: state.energy || 0,
     max_energy: state.maxEnergy || 0,
     taps_used: state.tapsUsed || 0,
+    tap_cap: state.tapCap || 0,
     selected_skin: state.selectedSkin || null,
     today_index: state.todayIndex || 0,
+    username: user.username || null,
+    first_name: user.first_name || null,
     updated_at: new Date().toISOString()
   };
 
   const { error } = await supabase
-    .from('users')
-    .upsert(payload);
+    .from('user_states')
+    .upsert(payload, { onConflict: ['wallet'] });
 
   if (error) return res.status(500).json({ error: error.message });
 
