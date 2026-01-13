@@ -1,4 +1,3 @@
-
 const DECIMALS = 18n;
 const UNIT = 10n ** DECIMALS;
 
@@ -862,6 +861,13 @@ function saveSnapshotToLocal(state) {
                         todayIndex: data.today_index || 0
                     };
                     saveState(newState); // Bu UI-ni ham yangilaydi
+                    
+                    // YANGI: Header va diamond ni darhol yangilash
+                    updateHeaderPRC();
+                    const diamondEl = document.getElementById('diamondTop');
+                    if (diamondEl) {
+                        diamondEl.textContent = '💎 ' + newState.diamond;
+                    }
                 }
             }
         } catch (e) {
