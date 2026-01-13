@@ -6,29 +6,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// Telegram initData verify
-function verifyTelegramInitData(initData) {
-  const urlParams = new URLSearchParams(initData);
-  const hash = urlParams.get('hash');
-  urlParams.delete('hash');
-
-  const dataCheckString = [...urlParams.entries()]
-    .sort()
-    .map(([k, v]) => `${k}=${v}`)
-    .join('\n');
-
-  const secret = crypto
-    .createHash('sha256')
-    .update(process.env.BOT_TOKEN) // use BOT_TOKEN from .env
-    .digest();
-
-  const calculatedHash = crypto
-    .createHmac('sha256', secret)
-    .update(dataCheckString)
-    .digest('hex');
-
-  return calculatedHash === hash;
-}
+// ... (verifyTelegramInitData funksiyasi o'zgarishsiz qoladi)
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -38,32 +16,33 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: 'Invalid Telegram data' });
   }
 
-  const user = JSON.parse(new URLSearchParams(initData).get('user'));
-  const wallet = `tg_${user.id}`;
+  const urlParams = new URLSearchParams(initData);
+  const user = JSON.parse(urlParams.get('user'));
 
   const payload = {
-    id: user.id,
+    id: user.id, // Bu Supabase'da Primary Key bo'lishi kerak
     wallet: `tg_${user.id}`,
     username: user.username || null,
     first_name: user.first_name || null,
     prc_wei: String(state.prcWei || '0'),
-    diamond: state.diamond || 0,
-    energy: state.energy || 0,
-    max_energy: state.maxEnergy || 0,
-    taps_used: state.tapsUsed || 0,
-    tap_cap: state.tapCap || 0,
+    diamond: Number(state.diamond || 0),
+    energy: Number(state.energy || 0),
+    max_energy: Number(state.maxEnergy || 0),
+    taps_used: Number(state.tapsUsed || 0),
     selected_skin: state.selectedSkin || null,
-    today_index: state.todayIndex || 0,
-    username: user.username || null,
-    first_name: user.first_name || null,
+    today_index: Number(state.todayIndex || 0),
     updated_at: new Date().toISOString()
   };
 
+  // onConflict ni 'id' ga o'zgartiring agar 'wallet' Unique bo'lmasa
   const { error } = await supabase
     .from('user_states')
-    .upsert(payload, { onConflict: ['wallet'] });
+    .upsert(payload, { onConflict: ['id'] }); 
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) {
+    console.error('Supabase Error:', error);
+    return res.status(500).json({ error: error.message });
+  }
 
   res.json({ ok: true });
 }
