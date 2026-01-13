@@ -323,7 +323,7 @@ function renderGame() {
 
           </div>
 
-          <div id="diamondTop" class="diamond">💎 ${s.diamond} </div>
+          <div id="diamondTop" class="diamond" >💎 <span data-diamond-display>${s.diamond}</span> </div>
         </div>
         <!-- previews row: diamond above, previews here, then tap below -->
         <div id="previewsRow" style="display:flex; justify-content: space-between; align-items: center;">
@@ -635,9 +635,39 @@ function updateHeaderPRC() {
     }
 }
 
+// --- YANGI: Header Diamond ni real vaqitda yangilash (global) ---
+function updateHeaderDiamond() {
+    // Header ichidagi diamond ni yangilash (agar mavjud bo'lsa)
+    // Bu function header.html yoki panel componentida diamond display qilish uchun
+    const diamondElements = document.querySelectorAll('[data-diamond-display]');
+    if (diamondElements.length === 0) return; // Agar diamond display element yo'q bo'lsa chiq
+
+    const KEY_DIAMOND = "proguzmir_diamond";
+    const KEY_WALLET = "proguzmir_wallet";
+
+    function makeUserKey(baseKey, wallet) {
+        return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest";
+    }
+
+    const wallet = localStorage.getItem(KEY_WALLET) || "";
+    const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
+    try {
+        const diamond = parseInt(localStorage.getItem(keyDiamond) || "0", 10);
+        diamondElements.forEach(el => {
+            el.textContent = String(diamond);
+        });
+    } catch (e) {
+        console.log("Header Diamond update error:", e);
+    }
+}
+
 // Update on load and every second
 updateHeaderPRC();
-setInterval(updateHeaderPRC, 1000);
+updateHeaderDiamond();
+setInterval(() => {
+    updateHeaderPRC();
+    updateHeaderDiamond();
+}, 1000);
 
 // Tab switching (nav fixed at bottom visually)
 document.querySelectorAll('.nav .tab').forEach(el => {
