@@ -1126,7 +1126,6 @@ function saveState(state) {
     }
 }
 
-
 // Tab switching (nav fixed at bottom visually)
 document.querySelectorAll('.nav .tab').forEach(el => {
     el.addEventListener('click', async () => {
@@ -1420,6 +1419,14 @@ async function loadUserState() {
         if (!res.ok) return null;
         const result = await res.json();
         if (!result?.user) return null;
+
+        // YANGI: Safe handling of JSONB fields (already objects from API, but defensive)
+        const safeParse = (val) => {
+            if (val === null || val === undefined) return null;
+            if (typeof val === 'string') return JSON.parse(val);
+            return val;
+        };
+
         return {
             prcWei: BigInt(result.user.prc_wei || '0'),
             diamond: Number(result.user.diamond || 0),
@@ -1428,11 +1435,11 @@ async function loadUserState() {
             tapsUsed: Number(result.user.taps_used || 0),
             selectedSkin: result.user.selected_skin || '',
             todayIndex: Number(result.user.today_index || 0),
-            // YANGI: Additional fields
+            // YANGI: Additional fields with safe parsing
             dailyWeekStart: result.user.daily_week_start || null,
-            dailyClaims: result.user.daily_claims || null,
-            cardsLvl: result.user.cards_lvl || null,
-            boosts: result.user.boosts || null
+            dailyClaims: safeParse(result.user.daily_claims),
+            cardsLvl: safeParse(result.user.cards_lvl),
+            boosts: safeParse(result.user.boosts)
         };
     } catch (err) {
         console.warn('loadUserState error', err);
