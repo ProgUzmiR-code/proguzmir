@@ -1356,6 +1356,18 @@ function setupAutoSave() {
             const st = loadState();
             if (!st || !window.Telegram?.WebApp?.initData) return;
 
+            // YANGI: Retrieve additional fields from localStorage (FIX for undefined variables)
+            const wallet = st.wallet || localStorage.getItem(KEY_WALLET) || "";
+            const keyDailyWeekStart = makeUserKey(KEY_DAILY_WEEK_START, wallet);
+            const keyDailyClaims = makeUserKey(KEY_DAILY_CLAIMS, wallet);
+            const keyCardsLvl = makeUserKey('proguzmir_cards_lvl', wallet);
+            const keyBoosts = makeUserKey('proguzmir_boosts', wallet);
+
+            const dailyWeekStart = localStorage.getItem(keyDailyWeekStart) || null;
+            const dailyClaims = localStorage.getItem(keyDailyClaims) || null;
+            const cardsLvl = localStorage.getItem(keyCardsLvl) || null;
+            const boosts = localStorage.getItem(keyBoosts) || null;
+
             const payload = {
                 initData: Telegram.WebApp.initData,
                 state: {
@@ -1366,7 +1378,6 @@ function setupAutoSave() {
                     tapsUsed: st.tapsUsed,
                     selectedSkin: st.selectedSkin,
                     todayIndex: st.todayIndex,
-                    // YANGI: Additional fields
                     dailyWeekStart: dailyWeekStart,
                     dailyClaims: dailyClaims ? JSON.parse(dailyClaims) : null,
                     cardsLvl: cardsLvl ? JSON.parse(cardsLvl) : null,
