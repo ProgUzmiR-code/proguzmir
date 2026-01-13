@@ -46,22 +46,14 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: error.message });
     }
 
-    // YANGI: JSONB columns are already objects, don't parse them
+    // YANGI: Parse JSON fields safely
     let result = null;
     if (data) {
       result = {
         ...data,
-        // JSONB columns come as objects, not strings
-        // Only parse if they're strings (defensive programming)
-        daily_claims: typeof data.daily_claims === 'string' 
-          ? JSON.parse(data.daily_claims) 
-          : (data.daily_claims || null),
-        cards_lvl: typeof data.cards_lvl === 'string' 
-          ? JSON.parse(data.cards_lvl) 
-          : (data.cards_lvl || null),
-        boosts: typeof data.boosts === 'string' 
-          ? JSON.parse(data.boosts) 
-          : (data.boosts || null)
+        daily_claims: data.daily_claims ? JSON.parse(data.daily_claims) : null,
+        cards_lvl: data.cards_lvl ? JSON.parse(data.cards_lvl) : null,
+        boosts: data.boosts ? JSON.parse(data.boosts) : null
       };
     }
 
