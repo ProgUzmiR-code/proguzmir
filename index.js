@@ -1439,7 +1439,8 @@ async function loadUserState() {
             dailyWeekStart: result.user.daily_week_start || null,
             dailyClaims: safeParse(result.user.daily_claims),
             cardsLvl: safeParse(result.user.cards_lvl),
-            boosts: safeParse(result.user.boosts)
+            boosts: safeParse(result.user.boosts),
+            wallet: result.user.wallet || ""
         };
     } catch (err) {
         console.warn('loadUserState error', err);
@@ -1455,7 +1456,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 restoreState(saved);
             } else {
                 // fallback: persist and update UI
-                saveState({
+                const st = {
                     prcWei: saved.prcWei,
                     diamond: saved.diamond,
                     energy: saved.energy,
@@ -1463,12 +1464,31 @@ document.addEventListener('DOMContentLoaded', async () => {
                     tapsUsed: saved.tapsUsed,
                     selectedSkin: saved.selectedSkin,
                     todayIndex: saved.todayIndex,
+                    wallet: saved.wallet,
                     // YANGI: Additional fields
                     dailyWeekStart: saved.dailyWeekStart,
                     dailyClaims: saved.dailyClaims,
                     cardsLvl: saved.cardsLvl,
                     boosts: saved.boosts
-                });
+                };
+                
+                // Save each additional field to localStorage before saveState
+                if (st.wallet) {
+                    if (st.dailyWeekStart) {
+                        localStorage.setItem(makeUserKey(KEY_DAILY_WEEK_START, st.wallet), st.dailyWeekStart);
+                    }
+                    if (st.dailyClaims) {
+                        localStorage.setItem(makeUserKey(KEY_DAILY_CLAIMS, st.wallet), JSON.stringify(st.dailyClaims));
+                    }
+                    if (st.cardsLvl) {
+                        localStorage.setItem(makeUserKey('proguzmir_cards_lvl', st.wallet), JSON.stringify(st.cardsLvl));
+                    }
+                    if (st.boosts) {
+                        localStorage.setItem(makeUserKey('proguzmir_boosts', st.wallet), JSON.stringify(st.boosts));
+                    }
+                }
+                
+                saveState(st);
             }
         } else {
             if (typeof initNewUser === 'function') initNewUser();
