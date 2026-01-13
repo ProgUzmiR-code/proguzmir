@@ -47,18 +47,17 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing initData or state' });
     }
 
-    // Tekshiruv (ixtiyoriy - agar Telegram initData bo'lmasa)
-    // if (!verifyTelegramInitData(initData)) {
-    //   return res.status(403).json({ error: 'Invalid Telegram data' });
-    // }
-
     const urlParams = new URLSearchParams(initData);
     const user = JSON.parse(urlParams.get('user') || '{}');
 
-    const wallet = user.id ? `tg_${user.id}` : 'guest';
+    if (!user.id) {
+      return res.status(400).json({ error: 'Missing user ID from Telegram' });
+    }
 
-    // Upsert operatsiyasi (yangi ma'lumot qo'shish yoki mavjudni yangilash)
-    const { error } = await supabase
+    const wallet = `tg_${user.id}`;
+
+    // Upsert with wallet as the conflict key (not id)
+    const { data, error } = await supabase
       .from('user_states')
       .upsert({
         wallet: wallet,
@@ -72,17 +71,17 @@ export default async function handler(req, res) {
         today_index: Number(state.todayIndex || 0),
         updated_at: new Date().toISOString()
       }, {
-        onConflict: 'wallet'
+        onConflict: 'wallet'  // Use wallet as the unique identifier
       });
 
     if (error) {
-      console.error('Supabase upsert xatosi:', error);
+      console.error('Supabase upsert error:', error);
       return res.status(500).json({ error: error.message });
     }
 
     return res.status(200).json({ ok: true, wallet });
   } catch (err) {
-    console.error('Save API xatosi:', err);
-    return res.status(500).json({ error: err.message || 'Server xatosi' });
+    console.error('Save API error:', err);
+    return res.status(500).json({ error: err.message || 'Server error' });
   }
 }

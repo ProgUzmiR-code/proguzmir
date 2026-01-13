@@ -28,7 +28,12 @@ export default async function handler(req, res) {
 
     const urlParams = new URLSearchParams(initData);
     const user = JSON.parse(urlParams.get('user') || '{}');
-    const wallet = user.id ? `tg_${user.id}` : 'guest';
+
+    if (!user.id) {
+      return res.status(400).json({ error: 'Missing user ID from Telegram' });
+    }
+
+    const wallet = `tg_${user.id}`;
 
     const { data, error } = await supabase
       .from('user_states')
@@ -37,13 +42,13 @@ export default async function handler(req, res) {
       .maybeSingle();
 
     if (error) {
-      console.error('Supabase select xatosi:', error);
+      console.error('Supabase select error:', error);
       return res.status(500).json({ error: error.message });
     }
 
     return res.status(200).json({ user: data || null });
   } catch (err) {
-    console.error('Load API xatosi:', err);
-    return res.status(500).json({ error: err.message || 'Server xatosi' });
+    console.error('Load API error:', err);
+    return res.status(500).json({ error: err.message || 'Server error' });
   }
 }
