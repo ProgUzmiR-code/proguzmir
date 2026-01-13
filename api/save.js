@@ -56,7 +56,7 @@ export default async function handler(req, res) {
 
     const wallet = `tg_${user.id}`;
 
-    // Upsert with wallet as the conflict key (not id)
+    // YANGI: Extended state with all fields
     const { data, error } = await supabase
       .from('user_states')
       .upsert({
@@ -69,9 +69,20 @@ export default async function handler(req, res) {
         energy: Number(state.energy || 0),
         max_energy: Number(state.maxEnergy || 0),
         today_index: Number(state.todayIndex || 0),
+        
+        // YANGI: Daily quest data
+        daily_week_start: state.dailyWeekStart || null,
+        daily_claims: state.dailyClaims ? JSON.stringify(state.dailyClaims) : null,
+        
+        // YANGI: Income/Card upgrade data
+        cards_lvl: state.cardsLvl ? JSON.stringify(state.cardsLvl) : null,
+        
+        // YANGI: Boosts/Upgrades data
+        boosts: state.boosts ? JSON.stringify(state.boosts) : null,
+        
         updated_at: new Date().toISOString()
       }, {
-        onConflict: 'wallet'  // Use wallet as the unique identifier
+        onConflict: 'wallet'
       });
 
     if (error) {

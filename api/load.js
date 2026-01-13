@@ -52,3 +52,15 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message || 'Server error' });
   }
 }
+// YANGI: Parse JSON fields safely
+    // let result = null;
+    // if (data) {
+    //   result = {
+    //     ...data,
+    //     daily_claims: data.daily_claims ? JSON.parse(data.daily_claims) : null,
+    //     cards_lvl: data.cards_lvl ? JSON.parse(data.cards_lvl) : null,
+    //     boosts: data.boosts ? JSON.parse(data.boosts) : null
+    //   };
+    // }
+
+    // return res.status(200).json({ user: result || null });

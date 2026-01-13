@@ -18,6 +18,12 @@ const KEY_ENERGY = "proguzmir_energy";
 const KEY_MAX_ENERGY = "proguzmir_max_energy";
 const KEY_TODAY_INDEX = "proguzmir_today_index"; // YANGI: kunlik index uchun
 const DEFAULT_MAX_ENERGY = 1000;
+// --- ADD: daily keys & helpers (place near other KEY_* declarations) ---
+
+const KEY_DAILY_WEEK_START = "proguzmir_daily_week_start";
+const KEY_DAILY_CLAIMS = "proguzmir_daily_claims"; // JSON array of 7 booleans
+const DAILY_REWARDS = [1000, 2000, 3000, 6000, 7000, 9000, 30000]; // diamonds for days 1..6, 10 PRC for day 7
+
 
 // Default tap cap va blok o'lchami
 const DEFAULT_TAP_CAP = 1000;
@@ -838,44 +844,43 @@ function saveSnapshotToLocal(state) {
         const walletId = 'tg_' + String(tgUser.id);
         localStorage.setItem(KEY_WALLET, walletId);
 
-        // Supabase-dan ma'lumotlarni tortib olish (only if supabaseClient available)
+        // YANGI: Load ALL data from Supabase using helper
         try {
-            if (typeof supabaseClient !== 'undefined' && supabaseClient && typeof supabaseClient.from === 'function') {
-                const { data, error } = await supabaseClient
-                    .from('user_states')
-                    .select('*')
-                    .eq('wallet', walletId)
-                    .single();
-
-                if (data && !error) {
-                    // Lokal state-ni server ma'lumotlari bilan yangilash
-                    const newState = {
-                        prcWei: BigInt(data.prc_wei || '0'),
-                        diamond: data.diamond || 0,
-                        wallet: data.wallet,
-                        tapsUsed: data.taps_used || 0,
-                        tapCap: data.tap_cap || DEFAULT_TAP_CAP,
-                        selectedSkin: data.selected_skin || "",
-                        energy: data.energy || DEFAULT_MAX_ENERGY,
-                        maxEnergy: data.max_energy || DEFAULT_MAX_ENERGY,
-                        todayIndex: data.today_index || 0
-                    };
-                    saveState(newState); // Bu UI-ni ham yangilaydi
-                    
-                    // YANGI: Header va diamond ni darhol yangilash
-                    updateHeaderPRC();
-                    const diamondEl = document.getElementById('diamondTop');
-                    if (diamondEl) {
-                        diamondEl.textContent = '💎 ' + newState.diamond;
-                    }
+            const supabaseState = await loadAllStateFromSupabase(walletId);
+            if (supabaseState) {
+                // Save to localStorage and sync state
+                localStorage.setItem(makeUserKey(KEY_PRC, walletId), supabaseState.prcWei.toString());
+                localStorage.setItem(makeUserKey(KEY_DIAMOND, walletId), String(supabaseState.diamond));
+                localStorage.setItem(makeUserKey(KEY_TAPS_USED, walletId), String(supabaseState.tapsUsed));
+                localStorage.setItem(makeUserKey(KEY_TAP_CAP, walletId), String(supabaseState.tapCap));
+                localStorage.setItem(makeUserKey(KEY_SELECTED_SKIN, walletId), supabaseState.selectedSkin);
+                localStorage.setItem(makeUserKey(KEY_ENERGY, walletId), String(supabaseState.energy));
+                localStorage.setItem(makeUserKey(KEY_MAX_ENERGY, walletId), String(supabaseState.maxEnergy));
+                localStorage.setItem(makeUserKey(KEY_TODAY_INDEX, walletId), String(supabaseState.todayIndex));
+                
+                // YANGI: Save additional fields
+                if (supabaseState.dailyWeekStart) {
+                    localStorage.setItem(makeUserKey(KEY_DAILY_WEEK_START, walletId), supabaseState.dailyWeekStart);
                 }
+                if (supabaseState.dailyClaims) {
+                    localStorage.setItem(makeUserKey(KEY_DAILY_CLAIMS, walletId), JSON.stringify(supabaseState.dailyClaims));
+                }
+                if (supabaseState.cardsLvl) {
+                    localStorage.setItem(makeUserKey('proguzmir_cards_lvl', walletId), JSON.stringify(supabaseState.cardsLvl));
+                }
+                if (supabaseState.boosts) {
+                    localStorage.setItem(makeUserKey('proguzmir_boosts', walletId), JSON.stringify(supabaseState.boosts));
+                }
+
+                updateHeaderPRC();
+                const diamondEl = document.getElementById('diamondTop');
+                if (diamondEl) diamondEl.textContent = '💎 ' + supabaseState.diamond;
             }
         } catch (e) {
-            console.warn('clientOnlyStartup: supabase fetch skipped or failed', e);
+            console.warn('clientOnlyStartup: supabase load skipped or failed', e);
         }
     }
 
-    // UI render qilish
     renderAndWait();
 })();
 
@@ -1174,16 +1179,110 @@ document.addEventListener('click', function (e) {
     });
 });
 
-// --- NEW: server bilan saqlash funksiyasi ---
+// YANGI: Helper function to load all state from Supabase
+async function loadAllStateFromSupabase(walletId) {
+    try {
+        if (typeof supabaseClient === 'undefined' || !supabaseClient) return null;
+        
+        const { data, error } = await supabaseClient
+            .from('user_states')
+            .select('*')
+            .eq('wallet', walletId)
+            .single();
 
+        if (error || !data) return null;
+
+        // Parse JSON fields
+        const dailyClaims = data.daily_claims ? JSON.parse(data.daily_claims) : null;
+        const cardsLvl = data.cards_lvl ? JSON.parse(data.cards_lvl) : null;
+        const boosts = data.boosts ? JSON.parse(data.boosts) : null;
+
+        return {
+            prcWei: BigInt(data.prc_wei || '0'),
+            diamond: data.diamond || 0,
+            wallet: data.wallet,
+            tapsUsed: data.taps_used || 0,
+            tapCap: data.tap_cap || DEFAULT_TAP_CAP,
+            selectedSkin: data.selected_skin || "",
+            energy: data.energy || DEFAULT_MAX_ENERGY,
+            maxEnergy: data.max_energy || DEFAULT_MAX_ENERGY,
+            todayIndex: data.today_index || 0,
+            dailyWeekStart: data.daily_week_start || null,
+            dailyClaims: dailyClaims,
+            cardsLvl: cardsLvl,
+            boosts: boosts
+        };
+    } catch (e) {
+        console.warn('loadAllStateFromSupabase error:', e);
+        return null;
+    }
+}
+
+// --- UPDATED: clientOnlyStartup() ---
+(async function clientOnlyStartup() {
+    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+    if (tgUser && tgUser.id) {
+        const walletId = 'tg_' + String(tgUser.id);
+        localStorage.setItem(KEY_WALLET, walletId);
+
+        // YANGI: Load ALL data from Supabase using helper
+        try {
+            const supabaseState = await loadAllStateFromSupabase(walletId);
+            if (supabaseState) {
+                // Save to localStorage and sync state
+                localStorage.setItem(makeUserKey(KEY_PRC, walletId), supabaseState.prcWei.toString());
+                localStorage.setItem(makeUserKey(KEY_DIAMOND, walletId), String(supabaseState.diamond));
+                localStorage.setItem(makeUserKey(KEY_TAPS_USED, walletId), String(supabaseState.tapsUsed));
+                localStorage.setItem(makeUserKey(KEY_TAP_CAP, walletId), String(supabaseState.tapCap));
+                localStorage.setItem(makeUserKey(KEY_SELECTED_SKIN, walletId), supabaseState.selectedSkin);
+                localStorage.setItem(makeUserKey(KEY_ENERGY, walletId), String(supabaseState.energy));
+                localStorage.setItem(makeUserKey(KEY_MAX_ENERGY, walletId), String(supabaseState.maxEnergy));
+                localStorage.setItem(makeUserKey(KEY_TODAY_INDEX, walletId), String(supabaseState.todayIndex));
+                
+                // YANGI: Save additional fields
+                if (supabaseState.dailyWeekStart) {
+                    localStorage.setItem(makeUserKey(KEY_DAILY_WEEK_START, walletId), supabaseState.dailyWeekStart);
+                }
+                if (supabaseState.dailyClaims) {
+                    localStorage.setItem(makeUserKey(KEY_DAILY_CLAIMS, walletId), JSON.stringify(supabaseState.dailyClaims));
+                }
+                if (supabaseState.cardsLvl) {
+                    localStorage.setItem(makeUserKey('proguzmir_cards_lvl', walletId), JSON.stringify(supabaseState.cardsLvl));
+                }
+                if (supabaseState.boosts) {
+                    localStorage.setItem(makeUserKey('proguzmir_boosts', walletId), JSON.stringify(supabaseState.boosts));
+                }
+
+                updateHeaderPRC();
+                const diamondEl = document.getElementById('diamondTop');
+                if (diamondEl) diamondEl.textContent = '💎 ' + supabaseState.diamond;
+            }
+        } catch (e) {
+            console.warn('clientOnlyStartup: supabase load skipped or failed', e);
+        }
+    }
+
+    renderAndWait();
+})();
+
+// UPDATED: saveUserState() to include all fields
 async function saveUserState(state) {
-    // Accept optional state; fallback to persisted state
     let st = state;
     try { if (!st) st = loadState(); } catch (e) { st = null; }
     if (!st) return;
 
-    // Only attempt server save when Telegram initData is available
     if (!window.Telegram?.WebApp?.initData) return;
+
+    const wallet = st.wallet || localStorage.getItem(KEY_WALLET) || "";
+    const keyDailyWeekStart = makeUserKey(KEY_DAILY_WEEK_START, wallet);
+    const keyDailyClaims = makeUserKey(KEY_DAILY_CLAIMS, wallet);
+    const keyCardsLvl = makeUserKey('proguzmir_cards_lvl', wallet);
+    const keyBoosts = makeUserKey('proguzmir_boosts', wallet);
+
+    const dailyWeekStart = localStorage.getItem(keyDailyWeekStart) || null;
+    const dailyClaims = localStorage.getItem(keyDailyClaims) || null;
+    const cardsLvl = localStorage.getItem(keyCardsLvl) || null;
+    const boosts = localStorage.getItem(keyBoosts) || null;
 
     const payload = {
         initData: Telegram.WebApp.initData,
@@ -1194,7 +1293,12 @@ async function saveUserState(state) {
             maxEnergy: st.maxEnergy,
             tapsUsed: st.tapsUsed,
             selectedSkin: st.selectedSkin,
-            todayIndex: st.todayIndex
+            todayIndex: st.todayIndex,
+            // YANGI: Additional fields
+            dailyWeekStart: dailyWeekStart,
+            dailyClaims: dailyClaims ? JSON.parse(dailyClaims) : null,
+            cardsLvl: cardsLvl ? JSON.parse(cardsLvl) : null,
+            boosts: boosts ? JSON.parse(boosts) : null
         }
     };
 
@@ -1203,7 +1307,7 @@ async function saveUserState(state) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
-            keepalive: true // allow background send on navigation/unload when supported
+            keepalive: true
         });
     } catch (err) {
         console.warn('saveUserState error', err);

@@ -1,9 +1,3 @@
-// --- ADD: daily keys & helpers (place near other KEY_* declarations) ---
-
-const KEY_DAILY_WEEK_START = "proguzmir_daily_week_start";
-const KEY_DAILY_CLAIMS = "proguzmir_daily_claims"; // JSON array of 7 booleans
-const DAILY_REWARDS = [1000, 2000, 3000, 6000, 7000, 9000, 30000]; // diamonds for days 1..6, 10 PRC for day 7
-
 // helpers to get/set daily data in localStorage
 
 function dailyWeekStartKey(wallet) { return makeUserKey(KEY_DAILY_WEEK_START, wallet); }
@@ -23,6 +17,16 @@ function getDailyData(wallet) {
 function setDailyData(wallet, weekStartISO, claims) {
     localStorage.setItem(dailyWeekStartKey(wallet), weekStartISO || "");
     localStorage.setItem(dailyClaimsKey(wallet), JSON.stringify(claims));
+    
+    // YANGI: Sync to Supabase
+    try {
+        if (typeof saveUserState === 'function') {
+            const st = loadState();
+            st.dailyWeekStart = weekStartISO;
+            st.dailyClaims = claims;
+            saveUserState(st);
+        }
+    } catch (e) { console.warn('Daily sync to Supabase failed', e); }
 }
 
 // helper: get index (0..6) for today relative to weekStartISO; if weekStartISO null -> create new week start = today
