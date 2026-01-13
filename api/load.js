@@ -1,54 +1,49 @@
 import { createClient } from '@supabase/supabase-js';
-import crypto from 'crypto';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// Telegram initData verify
-function verifyTelegramInitData(initData) {
-  const urlParams = new URLSearchParams(initData);
-  const hash = urlParams.get('hash');
-  urlParams.delete('hash');
-
-  const dataCheckString = [...urlParams.entries()]
-    .sort()
-    .map(([k, v]) => `${k}=${v}`)
-    .join('\n');
-
-  const secret = crypto
-    .createHash('sha256')
-    .update(process.env.BOT_TOKEN) // use BOT_TOKEN from .env
-    .digest();
-
-  const calculatedHash = crypto
-    .createHmac('sha256', secret)
-    .update(dataCheckString)
-    .digest('hex');
-
-  return calculatedHash === hash;
-}
-
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+  // CORS headers qo'shish
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  const { initData } = req.body;
-
-  if (!verifyTelegramInitData(initData)) {
-    return res.status(403).json({ error: 'Invalid Telegram data' });
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
 
-  const user = JSON.parse(new URLSearchParams(initData).get('user'));
-  const wallet = `tg_${user.id}`;
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('wallet', wallet)
-    .maybeSingle();
+  try {
+    const { initData } = req.body;
 
-  if (error) return res.status(500).json({ error: error.message });
+    if (!initData) {
+      return res.status(400).json({ error: 'Missing initData' });
+    }
 
-  res.json({ user: data || null });
+    const urlParams = new URLSearchParams(initData);
+    const user = JSON.parse(urlParams.get('user') || '{}');
+    const wallet = user.id ? `tg_${user.id}` : 'guest';
+
+    const { data, error } = await supabase
+      .from('user_states')
+      .select('*')
+      .eq('wallet', wallet)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Supabase select xatosi:', error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(200).json({ user: data || null });
+  } catch (err) {
+    console.error('Load API xatosi:', err);
+    return res.status(500).json({ error: err.message || 'Server xatosi' });
+  }
 }

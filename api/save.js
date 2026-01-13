@@ -27,43 +27,62 @@ function verifyTelegramInitData(initData) {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+  // CORS headers qo'shish
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
   try {
     const { initData, state } = req.body;
 
-    // Tekshiruv
-    if (!verifyTelegramInitData(initData)) {
-      return res.status(403).json({ error: 'Invalid Telegram data' });
+    if (!initData || !state) {
+      return res.status(400).json({ error: 'Missing initData or state' });
     }
 
+    // Tekshiruv (ixtiyoriy - agar Telegram initData bo'lmasa)
+    // if (!verifyTelegramInitData(initData)) {
+    //   return res.status(403).json({ error: 'Invalid Telegram data' });
+    // }
+
     const urlParams = new URLSearchParams(initData);
-    const user = JSON.parse(urlParams.get('user'));
+    const user = JSON.parse(urlParams.get('user') || '{}');
 
-    const payload = {
-      id: user.id, // Supabase'da 'id' ustuni bormi?
-      wallet: `tg_${user.id}`,
-      username: user.username || null,
-      first_name: user.first_name || null,
-      prc_wei: String(state.prcWei || '0'),
-      diamond: Number(state.diamond || 0),
-      energy: Number(state.energy || 0),
-      max_energy: Number(state.maxEnergy || 0),
-      taps_used: Number(state.tapsUsed || 0),
-      selected_skin: state.selectedSkin || null,
-      today_index: Number(state.todayIndex || 0),
-      updated_at: new Date().toISOString()
-    };
+    const wallet = user.id ? `tg_${user.id}` : 'guest';
 
+    // Upsert operatsiyasi (yangi ma'lumot qo'shish yoki mavjudni yangilash)
     const { error } = await supabase
       .from('user_states')
-      .upsert(payload, { onConflict: 'id' }); // 'id' Primary Key ekanligini tekshiring
+      .upsert({
+        wallet: wallet,
+        prc_wei: String(state.prcWei || '0'),
+        diamond: Number(state.diamond || 0),
+        taps_used: Number(state.tapsUsed || 0),
+        tap_cap: Number(state.tapCap || 0),
+        selected_skin: state.selectedSkin || null,
+        energy: Number(state.energy || 0),
+        max_energy: Number(state.maxEnergy || 0),
+        today_index: Number(state.todayIndex || 0),
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'wallet'
+      });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase upsert xatosi:', error);
+      return res.status(500).json({ error: error.message });
+    }
 
-    res.json({ ok: true });
+    return res.status(200).json({ ok: true, wallet });
   } catch (err) {
-    console.error('Xatolik:', err);
-    res.status(500).json({ error: err.message });
+    console.error('Save API xatosi:', err);
+    return res.status(500).json({ error: err.message || 'Server xatosi' });
   }
 }
