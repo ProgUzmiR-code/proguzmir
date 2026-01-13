@@ -1335,7 +1335,12 @@ function setupAutoSave() {
                     maxEnergy: st.maxEnergy,
                     tapsUsed: st.tapsUsed,
                     selectedSkin: st.selectedSkin,
-                    todayIndex: st.todayIndex
+                    todayIndex: st.todayIndex,
+                    // YANGI: Additional fields
+                    dailyWeekStart: dailyWeekStart,
+                    dailyClaims: dailyClaims ? JSON.parse(dailyClaims) : null,
+                    cardsLvl: cardsLvl ? JSON.parse(cardsLvl) : null,
+                    boosts: boosts ? JSON.parse(boosts) : null
                 }
             };
 
@@ -1381,7 +1386,12 @@ async function loadUserState() {
             maxEnergy: Number(result.user.max_energy || 0),
             tapsUsed: Number(result.user.taps_used || 0),
             selectedSkin: result.user.selected_skin || '',
-            todayIndex: Number(result.user.today_index || 0)
+            todayIndex: Number(result.user.today_index || 0),
+            // YANGI: Additional fields
+            dailyWeekStart: result.user.daily_week_start || null,
+            dailyClaims: result.user.daily_claims || null,
+            cardsLvl: result.user.cards_lvl || null,
+            boosts: result.user.boosts || null
         };
     } catch (err) {
         console.warn('loadUserState error', err);
@@ -1404,7 +1414,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     maxEnergy: saved.maxEnergy,
                     tapsUsed: saved.tapsUsed,
                     selectedSkin: saved.selectedSkin,
-                    todayIndex: saved.todayIndex
+                    todayIndex: saved.todayIndex,
+                    // YANGI: Additional fields
+                    dailyWeekStart: saved.dailyWeekStart,
+                    dailyClaims: saved.dailyClaims,
+                    cardsLvl: saved.cardsLvl,
+                    boosts: saved.boosts
                 });
             }
         } else {
