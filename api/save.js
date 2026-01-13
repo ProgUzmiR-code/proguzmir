@@ -8,7 +8,7 @@ const supabase = createClient(
 
 // MA'LUMOTLARNI TEKSHIRISH FUNKSIYASI
 function verifyTelegramInitData(initData) {
-  const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN; // Vercel Settings'ga qo'shing
+  const BOT_TOKEN = process.env.BOT_TOKEN; // Vercel Settings'ga qo'shing
   if (!BOT_TOKEN) return false;
 
   const urlParams = new URLSearchParams(initData);
