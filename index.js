@@ -1231,10 +1231,10 @@ function setupAutoSave() {
 
             if (navigator.sendBeacon) {
                 const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-                navigator.sendBeacon('./api/save.js', blob);
+                navigator.sendBeacon('./api/save', blob);
             } else {
                 // fallback: fire-and-forget fetch with keepalive
-                fetch('./api/save.js', {
+                fetch('./api/save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
