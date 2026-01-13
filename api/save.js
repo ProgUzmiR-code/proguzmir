@@ -37,7 +37,7 @@ export default async function handler(req, res) {
   // onConflict ni 'id' ga o'zgartiring agar 'wallet' Unique bo'lmasa
   const { error } = await supabase
     .from('user_states')
-    .upsert(payload, { onConflict: ['id'] }); 
+    .upsert(payload, { onConflict: ['id'] });
 
   if (error) {
     console.error('Supabase Error:', error);
