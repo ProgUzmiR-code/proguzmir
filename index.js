@@ -303,7 +303,7 @@ function renderGame() {
       <div class="tap-area">
         <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10px;">
           <div style="display:flex;gap:30px;align-items:center;margin-top: 10px;">
-            <div id="dailyBtn" class="btn" style="border-radius:8px;display: flex;flex-direction: column;align-items: center;cursor: pointer;">
+            <div id="dailyBtn" class="btn bton" style="border-radius:8px;display: flex;flex-direction: column;align-items: center;cursor: pointer;">
               <img class="dailyImg" src="./image/daily.png" alt="Daily">
               <span  style="font-size:15px; font-weight:700;margin-bottom:4px;position:absolute;padding: 33px 0 0 0;color: black;">${label}</span>
               <span class="text_daily">Daily Login</span>
