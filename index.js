@@ -404,13 +404,13 @@ function renderGame() {
                     claimBtn.addEventListener('click', () => {
                         const todayStr = new Date().toISOString().slice(0, 10);
                         setClaimDateForCurrentUser(todayStr);
-                        
+
                         const st = loadState();
                         st.prcWei = BigInt(st.prcWei) + BASE_WEI;
-                        
+
                         // YANGI: Also save the claim date to Supabase via saveUserState
                         saveState(st);
-                        
+
                         // YANGI: Ensure claim date is synced to Supabase
                         try {
                             if (typeof saveUserState === 'function') {
@@ -419,7 +419,7 @@ function renderGame() {
                         } catch (e) {
                             console.warn('Failed to sync claim date to Supabase:', e);
                         }
-                        
+
                         animateAddPRC('+' + fmtPRC(BASE_WEI));
                         showToast('🎉 +1000PRC');
                         // faqat reklanma elementini countdown ga o'tkazamiz, sahifani qayta render qilmaymiz
@@ -534,7 +534,7 @@ function renderGame() {
     const incomePreview = document.getElementById('incomeCardPreview');
     if (incomePreview) incomePreview.addEventListener('click', (ev) => { ev.stopPropagation(); window.location.href = './income/income.html'; });
 
-    
+
     // Har qanday joydagi Daily tugmasini tutib olish uchun global listener
     document.addEventListener('click', (ev) => {
         // Tugmani ID yoki Klass orqali qidiramiz
@@ -902,7 +902,7 @@ function saveSnapshotToLocal(state) {
                 localStorage.setItem(makeUserKey(KEY_ENERGY, walletId), String(supabaseState.energy));
                 localStorage.setItem(makeUserKey(KEY_MAX_ENERGY, walletId), String(supabaseState.maxEnergy));
                 localStorage.setItem(makeUserKey(KEY_TODAY_INDEX, walletId), String(supabaseState.todayIndex));
-                
+
                 // YANGI: Save additional fields
                 if (supabaseState.dailyWeekStart) {
                     localStorage.setItem(makeUserKey(KEY_DAILY_WEEK_START, walletId), supabaseState.dailyWeekStart);
@@ -1227,7 +1227,7 @@ document.addEventListener('click', function (e) {
 async function loadAllStateFromSupabase(walletId) {
     try {
         if (typeof supabaseClient === 'undefined' || !supabaseClient) return null;
-        
+
         const { data, error } = await supabaseClient
             .from('user_states')
             .select('*')
@@ -1282,7 +1282,7 @@ async function loadAllStateFromSupabase(walletId) {
                 localStorage.setItem(makeUserKey(KEY_ENERGY, walletId), String(supabaseState.energy));
                 localStorage.setItem(makeUserKey(KEY_MAX_ENERGY, walletId), String(supabaseState.maxEnergy));
                 localStorage.setItem(makeUserKey(KEY_TODAY_INDEX, walletId), String(supabaseState.todayIndex));
-                
+
                 // YANGI: Save additional fields
                 if (supabaseState.dailyWeekStart) {
                     localStorage.setItem(makeUserKey(KEY_DAILY_WEEK_START, walletId), supabaseState.dailyWeekStart);
@@ -1438,7 +1438,7 @@ async function loadUserState() {
         const result = await res.json();
         if (!result?.user) return null;
 
-        // YANGI: Safe handling of JSONB fields (already objects from API, but defensive)
+        // YANGI: Safe handling of JSONB fields
         const safeParse = (val) => {
             if (val === null || val === undefined) return null;
             if (typeof val === 'string') return JSON.parse(val);
@@ -1458,6 +1458,7 @@ async function loadUserState() {
             dailyClaims: safeParse(result.user.daily_claims),
             cardsLvl: safeParse(result.user.cards_lvl),
             boosts: safeParse(result.user.boosts),
+            claimDate: result.user.claim_date || null,  // YANGI: Claim sanasi
             wallet: result.user.wallet || ""
         };
     } catch (err) {
@@ -1489,7 +1490,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     cardsLvl: saved.cardsLvl,
                     boosts: saved.boosts
                 };
-                
+
                 // Save each additional field to localStorage before saveState
                 if (st.wallet) {
                     if (st.dailyWeekStart) {
@@ -1504,8 +1505,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (st.boosts) {
                         localStorage.setItem(makeUserKey('proguzmir_boosts', st.wallet), JSON.stringify(st.boosts));
                     }
+                    // YANGI: Claim sanasini localStorage'ga qayta yuklash
+                    if (saved.claimDate) {
+                        localStorage.setItem(makeUserKey(KEY_REKLAM_CLAIM, st.wallet), saved.claimDate);
+                    }
                 }
-                
+
                 saveState(st);
             }
         } else {
