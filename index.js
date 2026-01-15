@@ -310,7 +310,7 @@ function renderGame() {
             </div>
 
             <!-- Lucky Code key next to Daily -->
-            <div id="luckyKeyBtn" title="Lucky Code" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+            <div id="luckyKeyBtn" class=" bton" title="Lucky Code" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
               <img src="./image/lukcy.png" alt="Lucky" class="luckyImg">
               <span style="">Lucky Code</span>
             </div>

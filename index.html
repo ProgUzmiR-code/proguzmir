@@ -44,7 +44,7 @@
       transform: scale(1);
     }
   </style>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
     // Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
     (function () {
@@ -151,7 +151,7 @@
   </script>
 
   <script>
-   
+
     function getTelegramUser() {
       if (!window.Telegram?.WebApp?.initDataUnsafe?.user) return null;
       return Telegram.WebApp.initDataUnsafe.user;
@@ -287,7 +287,7 @@
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
-        
+
 
 
 
@@ -561,17 +561,43 @@
 
       color: #ffe600;
     }
-    .bton {
+
+    /* .bton {
       transition: transform 0.1s ease, opacity 0.1s ease, color 0.1s ease;
     }
+
+    .bton:active {
+      transform: scale(0.90);
+
+      opacity: 0.9;
+    } */
+
+    /* Barcha tugmalar uchun umumiy klass */
+    .bton {
+      /* 1. Havorang kvadratni yo'qotish */
+      -webkit-tap-highlight-color: transparent;
+
+      /* 2. Mobil brauzer kechikishini yo'qotish */
+      touch-action: manipulation;
+
+      /* 3. Bosilganda silliq kichrayish uchun */
+      transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+
+      /* 4. Matnni belgilashni taqiqlash (muhim!) */
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Faqat bosilgan holatda (active) */
     .bton:active {
       color: #ffe600;
-      /* Bosilganda 5% ga kichraytirish */
-    transform: scale(0.95);
-    
-    /* Ixtiyoriy: Bir oz xiralashtirish (effektni kuchaytirish uchun) */
-    opacity: 0.9;
+      /* 5. 7% ga kichraytirish (sezilarli bo'lishi uchun) */
+      transform: scale(0.93) !important;
+
+      /* Bir oz shaffoflik */
+      opacity: 0.9;
     }
+
     .btn-group {
       display: flex;
       border-radius: 10px;
@@ -913,7 +939,7 @@
   </div>
   <!-- ADD: Supabase CDN (frontend publishable key ok to expose) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
+
   <script src="index.js"></script>
   <script>
     let nav = document.querySelector('.nav');
@@ -938,9 +964,9 @@
   <script src="/render/game.js"></script>
   <script src="/render/shop.js"></script>
   <script src="/render/daily.js"></script>
-  
 
-  
+
+
 </body>
 
 </html>
