@@ -80,6 +80,9 @@ export default async function handler(req, res) {
         // YANGI: Boosts/Upgrades data
         boosts: state.boosts ? JSON.stringify(state.boosts) : null,
         
+        // YANGI: Daily claim date
+        claim_date: state.claimDate || null,
+        
         updated_at: new Date().toISOString()
       }, {
         onConflict: 'wallet'

@@ -404,9 +404,22 @@ function renderGame() {
                     claimBtn.addEventListener('click', () => {
                         const todayStr = new Date().toISOString().slice(0, 10);
                         setClaimDateForCurrentUser(todayStr);
+                        
                         const st = loadState();
                         st.prcWei = BigInt(st.prcWei) + BASE_WEI;
+                        
+                        // YANGI: Also save the claim date to Supabase via saveUserState
                         saveState(st);
+                        
+                        // YANGI: Ensure claim date is synced to Supabase
+                        try {
+                            if (typeof saveUserState === 'function') {
+                                saveUserState(st);
+                            }
+                        } catch (e) {
+                            console.warn('Failed to sync claim date to Supabase:', e);
+                        }
+                        
                         animateAddPRC('+' + fmtPRC(BASE_WEI));
                         showToast('🎉 +1000PRC');
                         // faqat reklanma elementini countdown ga o'tkazamiz, sahifani qayta render qilmaymiz
@@ -416,6 +429,37 @@ function renderGame() {
             });
         });
     }, 300);
+
+    // --- Helper: show countdown on reklanma element ---
+    function showReklanmaCountdown(rek) {
+        if (!rek) return;
+
+        const updateCountdown = () => {
+            const msLeft = msUntilNextMidnight();
+            if (msLeft <= 0) {
+                clearClaimDateForCurrentUser();
+                renderGame();
+                return;
+            }
+            const hrs = Math.floor(msLeft / 3600000);
+            const mins = Math.floor((msLeft % 3600000) / 60000);
+            const secs = Math.floor((msLeft % 60000) / 1000);
+            rek.innerHTML = `<div class="reklanma-count" style="color:#fff; font-weight:700;">${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}</div>`;
+        };
+
+        // Darhol yangilash
+        updateCountdown();
+
+        // Har soniyada yangilash
+        const intervalId = setInterval(() => {
+            if (!document.body.contains(rek)) {
+                clearInterval(intervalId);
+                return;
+            }
+            updateCountdown();
+        }, 1000);
+    }
+
 
     // tap handler: use energy (manual only) 
     const tapBtn = document.getElementById('tapBtn');
@@ -490,36 +534,7 @@ function renderGame() {
     const incomePreview = document.getElementById('incomeCardPreview');
     if (incomePreview) incomePreview.addEventListener('click', (ev) => { ev.stopPropagation(); window.location.href = './income/income.html'; });
 
-    // --- Helper: show countdown on reklanma element ---
-    function showReklanmaCountdown(rek) {
-        if (!rek) return;
-
-        const updateCountdown = () => {
-            const msLeft = msUntilNextMidnight();
-            if (msLeft <= 0) {
-                clearClaimDateForCurrentUser();
-                renderGame();
-                return;
-            }
-            const hrs = Math.floor(msLeft / 3600000);
-            const mins = Math.floor((msLeft % 3600000) / 60000);
-            const secs = Math.floor((msLeft % 60000) / 1000);
-            rek.innerHTML = `<div class="reklanma-count" style="color:#fff; font-weight:700;">${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}</div>`;
-        };
-
-        // Darhol yangilash
-        updateCountdown();
-
-        // Har soniyada yangilash
-        const intervalId = setInterval(() => {
-            if (!document.body.contains(rek)) {
-                clearInterval(intervalId);
-                return;
-            }
-            updateCountdown();
-        }, 1000);
-    }
-
+    
     // Har qanday joydagi Daily tugmasini tutib olish uchun global listener
     document.addEventListener('click', (ev) => {
         // Tugmani ID yoki Klass orqali qidiramiz
@@ -1294,7 +1309,7 @@ async function loadAllStateFromSupabase(walletId) {
     renderAndWait();
 })();
 
-// UPDATED: saveUserState() to include all fields
+// UPDATED: saveUserState() to include all fields INCLUDING claim date
 async function saveUserState(state) {
     let st = state;
     try { if (!st) st = loadState(); } catch (e) { st = null; }
@@ -1307,11 +1322,13 @@ async function saveUserState(state) {
     const keyDailyClaims = makeUserKey(KEY_DAILY_CLAIMS, wallet);
     const keyCardsLvl = makeUserKey('proguzmir_cards_lvl', wallet);
     const keyBoosts = makeUserKey('proguzmir_boosts', wallet);
+    const keyClaimDate = makeUserKey(KEY_REKLAM_CLAIM, wallet);  // YANGI: Add claim date key
 
     const dailyWeekStart = localStorage.getItem(keyDailyWeekStart) || null;
     const dailyClaims = localStorage.getItem(keyDailyClaims) || null;
     const cardsLvl = localStorage.getItem(keyCardsLvl) || null;
     const boosts = localStorage.getItem(keyBoosts) || null;
+    const claimDate = localStorage.getItem(keyClaimDate) || null;  // YANGI: Get claim date
 
     const payload = {
         initData: Telegram.WebApp.initData,
@@ -1327,7 +1344,8 @@ async function saveUserState(state) {
             dailyWeekStart: dailyWeekStart,
             dailyClaims: dailyClaims ? JSON.parse(dailyClaims) : null,
             cardsLvl: cardsLvl ? JSON.parse(cardsLvl) : null,
-            boosts: boosts ? JSON.parse(boosts) : null
+            boosts: boosts ? JSON.parse(boosts) : null,
+            claimDate: claimDate  // YANGI: Include claim date
         }
     };
 
