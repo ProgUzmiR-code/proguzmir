@@ -1373,17 +1373,19 @@ function setupAutoSave() {
             const st = loadState();
             if (!st || !window.Telegram?.WebApp?.initData) return;
 
-            // YANGI: Retrieve additional fields from localStorage (FIX for undefined variables)
+            // YANGI: Retrieve additional fields from localStorage
             const wallet = st.wallet || localStorage.getItem(KEY_WALLET) || "";
             const keyDailyWeekStart = makeUserKey(KEY_DAILY_WEEK_START, wallet);
             const keyDailyClaims = makeUserKey(KEY_DAILY_CLAIMS, wallet);
             const keyCardsLvl = makeUserKey('proguzmir_cards_lvl', wallet);
             const keyBoosts = makeUserKey('proguzmir_boosts', wallet);
+            const keyClaimDate = makeUserKey(KEY_REKLAM_CLAIM, wallet);  // YANGI: Claim date key
 
             const dailyWeekStart = localStorage.getItem(keyDailyWeekStart) || null;
             const dailyClaims = localStorage.getItem(keyDailyClaims) || null;
             const cardsLvl = localStorage.getItem(keyCardsLvl) || null;
             const boosts = localStorage.getItem(keyBoosts) || null;
+            const claimDate = localStorage.getItem(keyClaimDate) || null;  // YANGI: Get claim date
 
             const payload = {
                 initData: Telegram.WebApp.initData,
@@ -1398,7 +1400,8 @@ function setupAutoSave() {
                     dailyWeekStart: dailyWeekStart,
                     dailyClaims: dailyClaims ? JSON.parse(dailyClaims) : null,
                     cardsLvl: cardsLvl ? JSON.parse(cardsLvl) : null,
-                    boosts: boosts ? JSON.parse(boosts) : null
+                    boosts: boosts ? JSON.parse(boosts) : null,
+                    claimDate: claimDate  // YANGI: Include claim date
                 }
             };
 
