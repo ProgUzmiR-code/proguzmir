@@ -561,7 +561,10 @@
 
       color: #ffe600;
     }
-    .bton:hover {
+    .bton {
+      transition: transform 0.1s ease, opacity 0.1s ease, color 0.1s ease;
+    }
+    .bton:active {
       color: #ffe600;
       /* Bosilganda 5% ga kichraytirish */
     transform: scale(0.95);
