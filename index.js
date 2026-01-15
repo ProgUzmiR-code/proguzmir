@@ -16,7 +16,8 @@ const KEY_TAP_CAP = "proguzmir_tap_cap";
 const KEY_SELECTED_SKIN = "proguzmir_selected_skin";
 const KEY_ENERGY = "proguzmir_energy";
 const KEY_MAX_ENERGY = "proguzmir_max_energy";
-const KEY_TODAY_INDEX = "proguzmir_today_index"; // YANGI: kunlik index uchun
+const KEY_TODAY_INDEX = "proguzmir_today_index";
+const KEY_RANK = "proguzmir_rank";  // YANGI: Rank uchun key
 const DEFAULT_MAX_ENERGY = 1000;
 // --- ADD: daily keys & helpers (place near other KEY_* declarations) ---
 
@@ -68,7 +69,8 @@ function loadState() {
     const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
     const keyEnergy = makeUserKey(KEY_ENERGY, wallet);
     const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
-    const keyTodayIndex = makeUserKey(KEY_TODAY_INDEX, wallet); // YANGI
+    const keyTodayIndex = makeUserKey(KEY_TODAY_INDEX, wallet);
+    const keyRank = makeUserKey(KEY_RANK, wallet);  // YANGI: Rank key
 
     const prc = localStorage.getItem(keyPRC) || "0";
     const diamond = parseInt(localStorage.getItem(keyDiamond) || "0", 10);
@@ -76,13 +78,15 @@ function loadState() {
     const tapCap = parseInt(localStorage.getItem(keyCap) || String(DEFAULT_TAP_CAP), 10);
     const selectedSkin = localStorage.getItem(keySkin) || "";
     const maxEnergy = parseInt(localStorage.getItem(keyMaxEnergy) || String(DEFAULT_MAX_ENERGY), 10);
-    const todayIndex = parseInt(localStorage.getItem(keyTodayIndex) || "0", 10); // YANGI
+    const todayIndex = parseInt(localStorage.getItem(keyTodayIndex) || "0", 10);
+    const rank = localStorage.getItem(keyRank) || "bronze";  // YANGI: Rank
+
     let energy = parseInt(localStorage.getItem(keyEnergy) || String(maxEnergy), 10);
     // clamp energy to maxEnergy to avoid >max on corrupted storage
     if (Number.isNaN(energy)) energy = maxEnergy;
     if (energy > maxEnergy) energy = maxEnergy;
 
-    return { prcWei: BigInt(prc), diamond, wallet, tapsUsed, tapCap, selectedSkin, energy, maxEnergy, todayIndex }; // YANGI: todayIndex qo'shdi
+    return { prcWei: BigInt(prc), diamond, wallet, tapsUsed, tapCap, selectedSkin, energy, maxEnergy, todayIndex, rank }; // YANGI: rank qo'shdi
 }
 // yangi helper: jami PRC (sotib olingan prcWei + diamond*conversion)
 function getTotalPRCWei(state) {
@@ -125,7 +129,8 @@ function saveState(state) {
     const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
     const keyEnergy = makeUserKey(KEY_ENERGY, wallet);
     const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
-    const keyTodayIndex = makeUserKey(KEY_TODAY_INDEX, wallet); // YANGI
+    const keyTodayIndex = makeUserKey(KEY_TODAY_INDEX, wallet);
+    const keyRank = makeUserKey(KEY_RANK, wallet);  // YANGI: Rank key
 
     // ensure state.wallet stored so subsequent loads use same identifier
     if (!state.wallet && wallet) state.wallet = wallet;
@@ -139,7 +144,8 @@ function saveState(state) {
     const en = (typeof state.energy === 'number' && !Number.isNaN(state.energy)) ? Math.min(state.energy, maxE) : maxE;
     localStorage.setItem(keyEnergy, String(en));
     localStorage.setItem(keyMaxEnergy, String(maxE));
-    if (typeof state.todayIndex === 'number') localStorage.setItem(keyTodayIndex, String(state.todayIndex)); // YANGI
+    if (typeof state.todayIndex === 'number') localStorage.setItem(keyTodayIndex, String(state.todayIndex));
+    if (state.rank) localStorage.setItem(keyRank, state.rank);  // YANGI: Rank saqlash
 
     if (state.selectedSkin)
         localStorage.setItem(keySkin, state.selectedSkin);
@@ -1070,7 +1076,8 @@ function saveState(state) {
     const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
     const keyEnergy = makeUserKey(KEY_ENERGY, wallet);
     const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
-    const keyTodayIndex = makeUserKey(KEY_TODAY_INDEX, wallet); // YANGI
+    const keyTodayIndex = makeUserKey(KEY_TODAY_INDEX, wallet);
+    const keyRank = makeUserKey(KEY_RANK, wallet);  // YANGI: Rank key
 
     // ensure state.wallet stored so subsequent loads use same identifier
     if (!state.wallet && wallet) state.wallet = wallet;
@@ -1084,7 +1091,8 @@ function saveState(state) {
     const en = (typeof state.energy === 'number' && !Number.isNaN(state.energy)) ? Math.min(state.energy, maxE) : maxE;
     localStorage.setItem(keyEnergy, String(en));
     localStorage.setItem(keyMaxEnergy, String(maxE));
-    if (typeof state.todayIndex === 'number') localStorage.setItem(keyTodayIndex, String(state.todayIndex)); // YANGI
+    if (typeof state.todayIndex === 'number') localStorage.setItem(keyTodayIndex, String(state.todayIndex));
+    if (state.rank) localStorage.setItem(keyRank, state.rank);  // YANGI: Rank saqlash
 
     if (state.selectedSkin)
         localStorage.setItem(keySkin, state.selectedSkin);

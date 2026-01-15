@@ -54,7 +54,8 @@ export default async function handler(req, res) {
         daily_claims: data.daily_claims ? JSON.parse(data.daily_claims) : null,
         cards_lvl: data.cards_lvl ? JSON.parse(data.cards_lvl) : null,
         boosts: data.boosts ? JSON.parse(data.boosts) : null,
-        claim_date: data.claim_date || null  // YANGI: Claim sanasi
+        claim_date: data.claim_date || null,
+        rank: data.rank || 'bronze'  // YANGI: Rank field
       };
     }
 

@@ -69,6 +69,7 @@ export default async function handler(req, res) {
         energy: Number(state.energy || 0),
         max_energy: Number(state.maxEnergy || 0),
         today_index: Number(state.todayIndex || 0),
+        rank: state.rank || 'bronze',  // YANGI: Rank field
 
         // YANGI: Daily quest data
         daily_week_start: state.dailyWeekStart || null,
