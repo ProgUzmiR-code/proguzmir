@@ -316,7 +316,7 @@ function renderGame() {
             </div>
 
             <!-- daily income -->
-            <div id="incomeBtn" title="Daily Income" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+            <div id="incomeBtn" class=" bton" title="Daily Income" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
               <img src="./image/lukcy.png" alt="Lucky" class="luckyImg">
               <span style="">Daily Income</span>
             </div>
@@ -328,13 +328,13 @@ function renderGame() {
         <!-- previews row: diamond above, previews here, then tap below -->
         <div id="previewsRow" style="display:flex; justify-content: space-between; align-items: center;">
           
-          <div id="shopCardPreview" style="display: flex;  flex-direction: column; cursor:pointer; align-items: center;">
+          <div id="shopCardPreview" class=" bton" style="display: flex;  flex-direction: column; cursor:pointer; align-items: center;">
             <img src="./image/shop.png" alt="shop" class="shopImg">
             <div style="flex:1; text-align:left;">
               <div style="font-weight:700;">Shop</div>
             </div>
           </div>
-          <div id="gameCardPreview" style="display: flex;  flex-direction: column; cursor:pointer; align-items: center;">
+          <div id="gameCardPreview" class=" bton" style="display: flex;  flex-direction: column; cursor:pointer; align-items: center;">
             <img src="./image/game.png" alt="game" class="gameImg">
             <div style="flex:1; text-align:left;">
               <div style="font-weight:800; font-size:14px;">Play Games</div>
@@ -350,7 +350,7 @@ function renderGame() {
           <div id="tapsBox" style="display:flex; align-items:center; gap:8px; background: rgba(0,0,0,0.35); border-radius:10px; padding:6px 12px;">
             ⚡️<span id="tapsCount">${s.energy} / ${s.maxEnergy}</span>
           </div>
-          <div  class="reklanma2">
+          <div  class="reklanma2 bton">
             <img class="reklanma" width="20" src="./image/reklanma.png" alt="">
             <div class="reklanma1">
                 <span>+1000PRC</span>
