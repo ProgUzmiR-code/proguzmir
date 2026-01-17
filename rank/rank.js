@@ -76,24 +76,25 @@
                         return;
                     }
 
-                    // 3. Ekranga chiqarish
+                    // 3. Ekranga chiqarish (forEach ichida)
                     filteredUsers.forEach((user, index) => {
                         const pos = index + 1;
                         const isMe = String(user.wallet) === String(state.wallet);
                         const rankClass = pos <= 3 ? `top${pos}` : '';
 
+                        // "Siz" dan keyin foydalanuvchi ismini chiqarish mantiqi
+                        // isMe bo'lsa: "Siz (Ism)", bo'lmasa: "Ism"
+                        const displayName = isMe ? `Siz (${user.name})` : user.name;
+
                         const wrapper = document.createElement('div');
-                        wrapper.className = `rank-item ${rankClass} bton`; // Effekt qo'shdik
+                        wrapper.className = `rank-item ${rankClass} bton`;
                         if (isMe) wrapper.style.border = '1px solid gold';
 
-
-
-                        // 2. Render qismida (forEach ichida):
                         wrapper.innerHTML = `
                             <div class="rank-left">
                                 <div class="rank-position ${rankClass}">${pos}</div>
                                 <div class="rank-info">
-                                    <div class="rank-name">${isMe ? 'Siz' : user.name}</div>
+                                    <div class="rank-name">${displayName}</div>
                                 </div>
                             </div>
                             <div class="rank-score">${safeFmtPRC(user.score)}</div>
@@ -101,6 +102,7 @@
 
                         rankListContainer.appendChild(wrapper);
                     });
+
 
                 } catch (e) {
                     console.error('API xatosi:', e);
