@@ -54,6 +54,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing user ID from Telegram' });
     }
 
+    const startParam = urlParams.get('start_param'); // Telegram startapp parametrini shu yerdan oladi
+
     const wallet = `tg_${user.id}`;
 
     // YANGI: Extended state with all fields
@@ -72,7 +74,7 @@ export default async function handler(req, res) {
         max_energy: Number(state.maxEnergy || 0),
         today_index: Number(state.todayIndex || 0),
         rank: state.rank || 'bronze',  // YANGI: Rank field
-
+        referrer_id: startParam ? `ref_tg_${startParam}` : state.referrerId || null, // YANGI: Taklif eden shaxsning ID'si
         // YANGI: Daily quest data
         daily_week_start: state.dailyWeekStart || null,
         daily_claims: state.dailyClaims ? JSON.stringify(state.dailyClaims) : null,

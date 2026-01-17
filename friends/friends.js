@@ -105,49 +105,49 @@ if (document.readyState === 'loading') {
 }
 
 async function loadFriendsList() {
-    const wallet = localStorage.getItem('proguzmir_wallet');
-    if (!wallet) return;
+    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+    if (!tgUser) return;
 
+    const userId = tgUser.id; // Faqat raqamli ID yuboramiz
     const listContainer = document.querySelector('.fs-list');
 
     try {
-        const response = await fetch(`/api/friends?referrer=${wallet}`);
+        // API ga tg_12345 formatida emas, faqat 12345 yuboramiz (serverda ref_tg_ qo'shiladi)
+        const response = await fetch(`/api/friends?referrer=${userId}`);
         const { friends } = await response.json();
 
+        const box = document.querySelector('.box');
         if (friends && friends.length > 0) {
-            document.querySelector('.box').style.display = 'none'; // "No data" ni yashirish
-            let html = '';
-            friends.forEach((f, i) => {
-                html += `
-                    <div class="fs-item">
-                        <div class="item-icon">${i + 1}</div>
-                        <div class="item-info">
-                            <div class="item__label">${f.first_name || 'Foydalanuvchi'} ${f.last_name || ''}</div>
-                            <div class="item__num">${f.prc_wei || '0'} PRC</div>
-                        </div>
-                    </div>`;
-            });
-            // Ro'yxatni joylash
-            if (listContainer) {
-                listContainer.innerHTML = html;
-            } else {
-                // Agar container yo'q bo'lsa, yaratamiz
-                const newList = document.createElement('div');
-                newList.className = 'fs-list';
-                newList.innerHTML = html;
-                document.querySelector('.fs').appendChild(newList);
-            }
+            if (box) box.style.display = 'none'; 
+            
+            let html = friends.map((f, i) => `
+                <div class="fs-item">
+                    <div class="item-icon">${i + 1}</div>
+                    <div class="item-info">
+                        <div class="item__label">${f.first_name || 'Foydalanuvchi'}</div>
+                        <div class="item__num">${f.prc_wei || '0'} PRC</div>
+                    </div>
+                </div>
+            `).join('');
 
-            // Do'stlar sonini yangilash
-            const friendCount = document.querySelector('.fs__title span');
-            if (friendCount) {
-                friendCount.textContent = `(${friends.length})`;
+            const container = document.querySelector('.fs');
+            // Mavjud ro'yxatni tozalab yangisini qo'shamiz
+            let listDiv = document.querySelector('.fs-list');
+            if (!listDiv) {
+                listDiv = document.createElement('div');
+                listDiv.className = 'fs-list';
+                container.appendChild(listDiv);
             }
+            listDiv.innerHTML = html;
+
+            const friendCount = document.querySelector('.fs__title span');
+            if (friendCount) friendCount.textContent = `(${friends.length})`;
         }
     } catch (e) {
         console.error("Do'stlarni yuklashda xato:", e);
     }
 }
+
 
 // Page load da do'stlar ro'yxatini yuklash
 document.addEventListener('DOMContentLoaded', loadFriendsList);
