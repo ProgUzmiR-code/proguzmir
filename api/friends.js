@@ -27,7 +27,7 @@ export default async function handler(req, res) {
         const { data, error } = await supabase
             .from('user_states')
             .select('first_name, last_name, prc_wei, wallet')
-            .eq('referrer_id', `ref_${referrer}`);
+            .eq('referrer_id', `ref_tg_${referrer}`);
 
         if (error) {
             console.error('Supabase query error:', error);

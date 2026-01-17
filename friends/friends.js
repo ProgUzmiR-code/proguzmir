@@ -103,7 +103,7 @@ async function loadFriendsList() {
         const { friends, count } = await response.json();
 
         const box = document.querySelector('.box');
-
+        
         if (friends && friends.length > 0) {
             if (box) box.style.display = 'none';
 
@@ -119,13 +119,13 @@ async function loadFriendsList() {
 
             const container = document.querySelector('.fs');
             let listDiv = document.querySelector('.fs-list');
-
+            
             if (!listDiv) {
                 listDiv = document.createElement('div');
                 listDiv.className = 'fs-list';
                 container.appendChild(listDiv);
             }
-
+            
             listDiv.innerHTML = html;
 
             const friendCount = document.querySelector('.fs__title span');
