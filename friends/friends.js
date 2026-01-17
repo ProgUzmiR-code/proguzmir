@@ -104,53 +104,100 @@ if (document.readyState === 'loading') {
     processInviteCode();
 }
 
+// YANGI: Do'stlar ro'yxatini yuklash (Vue qo'llanmadan)
 async function loadFriendsList() {
-    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-    if (!tgUser) return;
+    const wallet = localStorage.getItem('proguzmir_wallet');
+    if (!wallet) return;
 
-    const userId = tgUser.id; // Faqat raqamli ID yuboramiz
+    const userId = wallet.replace('tg_', ''); // Faqat raqamli ID
     const listContainer = document.querySelector('.fs-list');
 
     try {
-        // API ga tg_12345 formatida emas, faqat 12345 yuboramiz (serverda ref_tg_ qo'shiladi)
+        // API dan do'stlarni olish
         const response = await fetch(`/api/friends?referrer=${userId}`);
-        const { friends } = await response.json();
+        const { friends, count } = await response.json();
 
         const box = document.querySelector('.box');
+        
         if (friends && friends.length > 0) {
-            if (box) box.style.display = 'none'; 
-            
+            // "No data" xabarini yashirish
+            if (box) box.style.display = 'none';
+
+            // Do'stlar ro'yxatini yaratish
             let html = friends.map((f, i) => `
                 <div class="fs-item">
                     <div class="item-icon">${i + 1}</div>
                     <div class="item-info">
-                        <div class="item__label">${f.first_name || 'Foydalanuvchi'}</div>
+                        <div class="item__label">${f.first_name || 'Foydalanuvchi'} ${f.last_name || ''}</div>
                         <div class="item__num">${f.prc_wei || '0'} PRC</div>
                     </div>
                 </div>
             `).join('');
 
             const container = document.querySelector('.fs');
-            // Mavjud ro'yxatni tozalab yangisini qo'shamiz
             let listDiv = document.querySelector('.fs-list');
+            
+            // Agar ro'yxat yo'q bo'lsa, uni yaratamiz
             if (!listDiv) {
                 listDiv = document.createElement('div');
                 listDiv.className = 'fs-list';
                 container.appendChild(listDiv);
             }
+            
             listDiv.innerHTML = html;
 
+            // Do'stlar sonini yangilash
             const friendCount = document.querySelector('.fs__title span');
-            if (friendCount) friendCount.textContent = `(${friends.length})`;
+            if (friendCount) {
+                friendCount.textContent = `(${friends.length})`;
+            }
+        } else {
+            // Agar do'st bo'lmasa
+            if (box) box.style.display = 'flex';
         }
     } catch (e) {
         console.error("Do'stlarni yuklashda xato:", e);
     }
 }
 
+// YANGI: Invite statistics yangilash
+async function loadInviteStats() {
+    const wallet = localStorage.getItem('proguzmir_wallet');
+    if (!wallet) return;
 
-// Page load da do'stlar ro'yxatini yuklash
-document.addEventListener('DOMContentLoaded', loadFriendsList);
+    const userId = wallet.replace('tg_', '');
 
-// Har 30 sekundda ro'yxatni yangilash
+    try {
+        const response = await fetch(`/api/friends?referrer=${userId}`);
+        const { count } = await response.json();
+
+        // UI da ko'rsatish
+        const totalDiv = document.querySelector('.total');
+        if (totalDiv) {
+            const statsHTML = `
+                <div class="total__title">Do'stlar Statistikasi</div>
+                <div class="total__stats" style="display:flex;gap:20px;justify-content:center;margin-top:10px;">
+                    <div>
+                        <div style="font-size:24px;font-weight:700;color:#ffe600;">${count}</div>
+                        <div style="font-size:12px;color:#aaa;">Taklif qilingan</div>
+                    </div>
+                </div>
+            `;
+            totalDiv.innerHTML = statsHTML;
+        }
+    } catch (e) {
+        console.error("Statistika yuklashda xato:", e);
+    }
+}
+
+// Page load da chaqirish
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadInviteStats();
+    await loadFriendsList();
+    initInvite(); // Existing function
+    processInviteCode(); // Existing function
+});
+
+// Har 30 sekundda yangilash
 setInterval(loadFriendsList, 30000);
+setInterval(loadInviteStats, 60000);
