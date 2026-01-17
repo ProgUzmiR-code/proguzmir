@@ -52,7 +52,7 @@
 
                     // 1. Ma'lumotlarni map qilishda username-ni ham qo'shing
                     let allUsers = data.map(u => ({
-                        name: u.username || `User ${u.wallet.replace('tg_', '')}`, // Bazada ism bo'lsa o'shani, bo'lmasa ID ni oladi
+                        name: u.first_name || u.last_name || `User ${u.wallet.replace('tg_', '')}`, // Bazada ism bo'lsa o'shani, bo'lmasa lasname ni qo'yamiz
                         score: u.prc_wei || "0",
                         wallet: u.wallet
                     }));
