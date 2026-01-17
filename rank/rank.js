@@ -50,9 +50,9 @@
 
                     const data = result.leaderboard;
 
-                    // 1. Ma'lumotlarni formatlash va BigInt saralash
+                    // 1. Ma'lumotlarni map qilishda username-ni ham qo'shing
                     let allUsers = data.map(u => ({
-                        name: `User ${u.wallet.replace('tg_', '')}`,
+                        name: u.username || `User ${u.wallet.replace('tg_', '')}`, // Bazada ism bo'lsa o'shani, bo'lmasa ID ni oladi
                         score: u.prc_wei || "0",
                         wallet: u.wallet
                     }));
@@ -86,12 +86,7 @@
                         wrapper.className = `rank-item ${rankClass} bton`; // Effekt qo'shdik
                         if (isMe) wrapper.style.border = '1px solid gold';
 
-                        // 1. Ma'lumotlarni map qilishda username-ni ham qo'shing
-                        let allUsers = data.map(u => ({
-                            name: u.username || `User ${u.wallet.replace('tg_', '')}`, // Bazada ism bo'lsa o'shani, bo'lmasa ID ni oladi
-                            score: u.prc_wei || "0",
-                            wallet: u.wallet
-                        }));
+
 
                         // 2. Render qismida (forEach ichida):
                         wrapper.innerHTML = `
