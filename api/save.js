@@ -61,7 +61,8 @@ export default async function handler(req, res) {
       .from('user_states')
       .upsert({
         wallet: wallet,
-        username: user.first_name || user.last_name || 'Anonymous',
+        first_name: user.first_name || "anonymous",
+        last_name: user.last_name || "anonymous",
         prc_wei: String(state.prcWei || '0'),
         diamond: Number(state.diamond || 0),
         taps_used: Number(state.tapsUsed || 0),
