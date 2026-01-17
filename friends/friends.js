@@ -99,7 +99,7 @@ async function loadFriendsList() {
     const listContainer = document.querySelector('.fs-list');
 
     try {
-        const response = await fetch(`/api/friends?referrer=${userId}`);
+        fetch(`${window.location.origin}/api/friends?referrer=${userId}`);
         const { friends, count } = await response.json();
 
         const box = document.querySelector('.box');
@@ -147,7 +147,7 @@ async function loadInviteStats() {
     const userId = wallet.replace('tg_', '');
 
     try {
-        const response = await fetch(`/api/friends?referrer=${userId}`);
+        fetch(`${window.location.origin}/api/friends?referrer=${userId}`);
         const { count } = await response.json();
 
         const totalDiv = document.querySelector('.total');
