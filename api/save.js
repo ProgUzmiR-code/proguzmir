@@ -86,6 +86,8 @@ export default async function handler(req, res) {
         // YANGI: Daily claim date — har kunning claim sanasi
         claim_date: state.claimDate || null,
 
+        referrer_id: state.referrerId || null,  // YANGI: Taklif eden shaxsning ID'si
+
         updated_at: new Date().toISOString()
       }, {
         onConflict: 'wallet'
