@@ -39,77 +39,59 @@
 
             // YANGI: Haqiqiy ma'lumotlarni Supabase'dan olish
             async function loadLeaderboard() {
-                const client = window.supabaseClient || window.supabase;
-                if (!client) {
-                    console.error('Supabase client topilmadi!');
-                    return;
-                }
-
-                rankListContainer.innerHTML = '<div class="loading">Ma\'lumotlar yuklanmoqda...</div>';
+                rankListContainer.innerHTML = '<div class="loading">Yuklanmoqda...</div>';
 
                 try {
-                    const { data, error } = await client
-                        .from('user_states')
-                        .select('wallet, prc_wei')
-                        .order('prc_wei', { ascending: false }) // Bazaning o'zida saralash (String bo'lsa ham)
-                        .limit(100);
+                    // Supabase o'rniga o'zimizning API dan olamiz
+                    const response = await fetch('/api/leaderboard');
+                    const result = await response.json();
 
-                    if (error) throw error;
+                    if (!result.leaderboard) throw new Error("Ma'lumot topilmadi");
 
-                    let allUsers = [];
-                    if (data) {
-                        allUsers = data.map(u => ({
-                            name: `User ${u.wallet.slice(0, 10)}`,
-                            score: u.prc_wei || "0",
-                            wallet: u.wallet
-                        }));
-                    }
+                    const data = result.leaderboard;
 
-                    // Foydalanuvchining o'zini qo'shish mantiqi
-                    const userInList = allUsers.find(u => u.wallet === state.wallet);
-                    if (!userInList && state.wallet) {
-                        allUsers.push({
-                            name: window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || "Siz",
-                            score: String(state.prcWei || 0n),
-                            wallet: state.wallet
-                        });
-                    }
+                    // 1. Ma'lumotlarni formatlash va BigInt saralash
+                    let allUsers = data.map(u => ({
+                        name: `User ${u.wallet.replace('tg_', '')}`,
+                        score: u.prc_wei || "0",
+                        wallet: u.wallet
+                    }));
 
-                    // To'g'ri BigInt saralash
                     allUsers.sort((a, b) => {
                         const vA = BigInt(a.score);
                         const vB = BigInt(b.score);
                         return vB > vA ? 1 : vB < vA ? -1 : 0;
                     });
 
-                    // Tanlangan rank (ligaga) qarab filtrlash
+                    // 2. Tanlangan rank bo'yicha filtrlash
                     const filteredUsers = allUsers.filter(user => {
                         const userRank = getRankFromWei(BigInt(user.score));
                         return normalizeRank(userRank) === normalizeRank(rankName);
                     });
 
-                    rankListContainer.innerHTML = ''; // Tozalash
+                    rankListContainer.innerHTML = '';
 
                     if (filteredUsers.length === 0) {
                         rankListContainer.innerHTML = `<div class="empty-state">${rankName} ligasida hech kim yo'q</div>`;
                         return;
                     }
 
+                    // 3. Ekranga chiqarish
                     filteredUsers.forEach((user, index) => {
                         const pos = index + 1;
-                        const isMe = String(user.wallet || '') === String(state.wallet);
+                        const isMe = String(user.wallet) === String(state.wallet);
                         const rankClass = pos <= 3 ? `top${pos}` : '';
 
                         const wrapper = document.createElement('div');
-                        wrapper.className = `rank-item ${rankClass}`;
-                        if (isMe) wrapper.classList.add('me'); // CSS uchun
+                        wrapper.className = `rank-item ${rankClass} bton`; // Effekt qo'shdik
+                        if (isMe) wrapper.style.border = '1px solid gold';
 
                         wrapper.innerHTML = `
                 <div class="rank-left">
                     <div class="rank-position ${rankClass}">${pos}</div>
                     <div class="rank-info">
-                        <div class="rank-name">${user.name} ${isMe ? '<small>(Siz)</small>' : ''}</div>
-                        <div class="rank-id">${(user.wallet || '').slice(0, 12)}</div>
+                        <div class="rank-name">${user.name} ${isMe ? '(Siz)' : ''}</div>
+                        <div class="rank-id">${user.wallet.slice(0, 15)}</div>
                     </div>
                 </div>
                 <div class="rank-score">${safeFmtPRC(user.score)}</div>
@@ -118,10 +100,11 @@
                     });
 
                 } catch (e) {
-                    console.error('Aniq xatolik:', e); // F12 konsolida ko'rasiz
-                    rankListContainer.innerHTML = `<div class="error">Xatolik: ${e.message || e.details || 'Noma\'lum xato'}</div>`;
+                    console.error('API xatosi:', e);
+                    rankListContainer.innerHTML = '<div class="error">Reytingni yuklashda xatolik yuz berdi.</div>';
                 }
             }
+
 
 
             // Async funksiyani chaqirish
