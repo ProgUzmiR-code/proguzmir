@@ -52,7 +52,7 @@
 
                     // 1. Ma'lumotlarni map qilishda username-ni ham qo'shing
                     let allUsers = data.map(u => ({
-                        name: u.first_name || u.last_name || `User ${u.wallet.replace('tg_', '')}`, // Bazada ism bo'lsa o'shani, bo'lmasa lasname ni qo'yamiz
+                        name: u.first_name || u.last_name, // Bazada ism bo'lsa o'shani, bo'lmasa lasname ni qo'yamiz
                         score: u.prc_wei || "0",
                         wallet: u.wallet
                     }));
@@ -79,7 +79,7 @@
                     // 3. Ekranga chiqarish
                     filteredUsers.forEach((user, index) => {
                         const pos = index + 1;
-                        const isMe = String(user.first_name) === String(state.wallet);
+                        const isMe = String(user.wallet) === String(state.wallet);
                         const rankClass = pos <= 3 ? `top${pos}` : '';
 
                         const wrapper = document.createElement('div');
