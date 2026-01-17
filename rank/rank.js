@@ -93,7 +93,7 @@
                             <div class="rank-left">
                                 <div class="rank-position ${rankClass}">${pos}</div>
                                 <div class="rank-info">
-                                    <div class="rank-name">${isMe ? 'Siz' : user.name}</div>
+                                    <div class="rank-name">${isMe ? 'Siz' : user.first_name}</div>
                                     <div class="rank-id">ID: ${user.wallet.replace('tg_', '')}</div>
                                 </div>
                             </div>
