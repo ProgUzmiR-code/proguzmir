@@ -49,16 +49,25 @@ export default async function handler(req, res) {
 
     const urlParams = new URLSearchParams(initData);
     const user = JSON.parse(urlParams.get('user') || '{}');
+    const startParam = urlParams.get('start_param'); // ref_tg_123456 yoki null
 
     if (!user.id) {
       return res.status(400).json({ error: 'Missing user ID from Telegram' });
     }
 
-    const startParam = urlParams.get('start_param'); // Telegram startapp parametrini shu yerdan oladi
-
     const wallet = `tg_${user.id}`;
+    const referrerId = startParam && startParam.startsWith('ref_') ? startParam.replace('ref_', '') : null;
 
-    // YANGI: Extended state with all fields
+    // YANGI: Foydalanuvchi mavjudligini tekshirish (yangi foydalanuvchimi?)
+    const { data: existingUser } = await supabase
+      .from('user_states')
+      .select('wallet')
+      .eq('wallet', wallet)
+      .single();
+
+    const isNewUser = !existingUser;
+
+    // Foydalanuvchini upsert qilish
     const { data, error } = await supabase
       .from('user_states')
       .upsert({
@@ -73,23 +82,13 @@ export default async function handler(req, res) {
         energy: Number(state.energy || 0),
         max_energy: Number(state.maxEnergy || 0),
         today_index: Number(state.todayIndex || 0),
-        rank: state.rank || 'bronze',  // YANGI: Rank field
-        referrer_id: startParam ? `ref_tg_${startParam}` : state.referrerId || null, // YANGI: Taklif eden shaxsning ID'si
-        // YANGI: Daily quest data
+        rank: state.rank || 'bronze',
+        referrer_id: referrerId || null,
         daily_week_start: state.dailyWeekStart || null,
         daily_claims: state.dailyClaims ? JSON.stringify(state.dailyClaims) : null,
-
-        // YANGI: Income/Card upgrade data
         cards_lvl: state.cardsLvl ? JSON.stringify(state.cardsLvl) : null,
-
-        // YANGI: Boosts/Upgrades data
         boosts: state.boosts ? JSON.stringify(state.boosts) : null,
-
-        // YANGI: Daily claim date — har kunning claim sanasi
         claim_date: state.claimDate || null,
-
-        referrer_id: state.referrerId || null,  // YANGI: Taklif eden shaxsning ID'si
-
         updated_at: new Date().toISOString()
       }, {
         onConflict: 'wallet'
@@ -100,7 +99,34 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: error.message });
     }
 
-    return res.status(200).json({ ok: true, wallet });
+    // YANGI: Yangi foydalanuvchi bo'lsa va referrer_id mavjud bo'lsa, referrer'ga bonus berish
+    if (isNewUser && referrerId) {
+      try {
+        // /api/referral-bonus chaqirish
+        const bonusRes = await fetch(
+          `${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'http://localhost:3000'}/api/referral-bonus`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              referrerId: referrerId,
+              newUserWallet: wallet
+            })
+          }
+        );
+
+        if (!bonusRes.ok) {
+          console.warn('Referral bonus API error:', await bonusRes.text());
+        } else {
+          console.log('Referral bonus given:', await bonusRes.json());
+        }
+      } catch (bonusErr) {
+        console.warn('Referral bonus error (non-critical):', bonusErr);
+        // Hatolik bo'lsa ham, foydalanuvchi ro'yxatdan o'tgan bo'ladi
+      }
+    }
+
+    return res.status(200).json({ ok: true, wallet, isNewUser });
   } catch (err) {
     console.error('Save API error:', err);
     return res.status(500).json({ error: err.message || 'Server error' });

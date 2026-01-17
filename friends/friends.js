@@ -9,71 +9,68 @@ function initInvite() {
     if (!btn) return;
 
     btn.onclick = () => {
-        const tg = window.Telegram?.WebApp;
-        const user = tg?.initDataUnsafe?.user;
-
-        if (!user) {
+        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        if (!tgUser) {
             alert('Telegram user topilmadi');
             return;
         }
 
-        const refCode = `tg_${user.id}`;
-        const botUsername = 'ProgUzmiRBot';
+        // Taklif havolasini shakllantirish
+        const botUsername = 'ProgUzmiRBot'; // O'zingizning bot nomini kiriting
+        const inviteLink = `https://t.me/${botUsername}?startapp=ref_tg_${tgUser.id}`;
 
-        const inviteLink = `https://t.me/${botUsername}?startapp=ref_${refCode}`;
+        const shareText = `https://t.me/${botUsername}?startapp=ref_tg_${tgUser.id}
+Menga qo'shil va bonuslarga ega bo'! 💎 
+Har do'st uchun +500 olmoslar 🎮 
+O'yin o'yna va pul yutib ol!`;
 
-        const text =
-`Menga qo‘shil va bonuslarga ega bo‘l! 💎
-Har do‘st uchun +500 olmoslar 🎮
-O‘yinni o‘yna va pul yutib ol! 🚀`;
-
-        // Telegram native share (chat tanlash chiqadi)
-        if (tg?.openTelegramLink) {
-            tg.openTelegramLink(
-                `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(text)}`
-            );
-        } else {
-            window.open(
-                `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(text)}`,
-                '_blank'
-            );
-        }
+        // Telegram orqali share: chat tanlash oynasi chiqadi
+        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
+        window.Telegram.WebApp.openTelegramLink(shareUrl);
     };
 }
 
 /* ================= FRIENDS LIST ================= */
 
-async function loadFriends() {
+async function loadFriendsList() {
     const wallet = localStorage.getItem('proguzmir_wallet');
     if (!wallet) return;
 
     const userId = wallet.replace('tg_', '');
+    const listContainer = document.querySelector('.fs-list');
 
     try {
-        const res = await fetch(`${API_BASE}/api/friends?referrer=${userId}`);
-        if (!res.ok) throw new Error('API error');
+        const response = await fetch(`/api/friends?referrer=${userId}`);
+        const { friends } = await response.json();
 
-        const { friends, count } = await res.json();
+        const box = document.querySelector('.box');
 
-        const list = document.querySelector('.fs-list');
-        const titleCount = document.querySelector('.fs__title span');
+        if (friends && friends.length > 0) {
+            if (box) box.style.display = 'none';
 
-        titleCount.textContent = `(${count})`;
-
-        if (!friends.length) return;
-
-        list.innerHTML = friends.map((f, i) => `
-            <div class="fs-item">
-                <div class="item-icon">${i + 1}</div>
-                <div class="item-info">
-                    <div class="item__label">${f.first_name || 'User'}</div>
-                    <div class="item__num">${f.prc_wei || 0} PRC</div>
+            let html = friends.map((f, i) => `
+                <div class="fs-item">
+                    <div class="item-icon">${i + 1}</div>
+                    <div class="item-info">
+                        <div class="item__label">${f.first_name || 'Foydalanuvchi'}</div>
+                        <div class="item__num">${f.prc_wei || '0'} PRC</div>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `).join('');
 
+            if (listContainer) {
+                listContainer.innerHTML = html;
+            }
+
+            const friendCount = document.querySelector('.fs__title span');
+            if (friendCount) {
+                friendCount.textContent = `(${friends.length})`;
+            }
+        } else {
+            if (box) box.style.display = 'flex';
+        }
     } catch (e) {
-        console.error('Friends load error:', e);
+        console.error("Do'stlarni yuklashda xato:", e);
     }
 }
 
@@ -81,7 +78,7 @@ async function loadFriends() {
 
 document.addEventListener('DOMContentLoaded', () => {
     initInvite();
-    loadFriends();
+    loadFriendsList();
 });
 
-setInterval(loadFriends, 30000);
+setInterval(loadFriendsList, 30000);
