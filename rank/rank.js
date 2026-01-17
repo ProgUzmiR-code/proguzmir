@@ -118,8 +118,8 @@
                     });
 
                 } catch (e) {
-                    console.error('Supabase yuklashda xato:', e);
-                    rankListContainer.innerHTML = '<div class="error">Ma\'lumotlarni yuklab bo\'lmadi.</div>';
+                    console.error('Aniq xatolik:', e); // F12 konsolida ko'rasiz
+                    rankListContainer.innerHTML = `<div class="error">Xatolik: ${e.message || e.details || 'Noma\'lum xato'}</div>`;
                 }
             }
 
@@ -148,7 +148,7 @@
             displayLeaderboard(selected);
         }
 
-        // Tablarga event qo'shish
+        // Tablarga event qo'shish 
         tabs.forEach(tab => {
             // Oldingi eventlarni tozalash (agar kerak bo'lsa) va yangisini qo'shish
             tab.onclick = (e) => {
@@ -161,7 +161,7 @@
         updateTabs(currentRank);
     }
 
-    // Global eksport
+    // Global eksport 
     window.initRankPage = initRankPage;
 
     // Avto-start
