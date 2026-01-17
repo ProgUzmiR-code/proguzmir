@@ -79,7 +79,7 @@
                     // 3. Ekranga chiqarish
                     filteredUsers.forEach((user, index) => {
                         const pos = index + 1;
-                        const isMe = String(user.wallet) === String(state.wallet);
+                        const isMe = String(user.first_name) === String(state.wallet);
                         const rankClass = pos <= 3 ? `top${pos}` : '';
 
                         const wrapper = document.createElement('div');
@@ -93,8 +93,7 @@
                             <div class="rank-left">
                                 <div class="rank-position ${rankClass}">${pos}</div>
                                 <div class="rank-info">
-                                    <div class="rank-name">${isMe ? 'Siz' : user.first_name}</div>
-                                    <div class="rank-id">ID: ${user.wallet.replace('tg_', '')}</div>
+                                    <div class="rank-name">${isMe ? 'Siz' : user.name}</div>
                                 </div>
                             </div>
                             <div class="rank-score">${safeFmtPRC(user.score)}</div>
