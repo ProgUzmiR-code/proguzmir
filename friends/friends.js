@@ -144,6 +144,7 @@ async function loadFriendsList() {
             avatar.textContent = (f.first_name || 'U').slice(0, 2).toUpperCase();
 
             const info = document.createElement('div');
+            info.className = 'money';
             info.style.display = 'flex';
             info.style.alignItems = 'center';
             info.style.gap = '170px';
