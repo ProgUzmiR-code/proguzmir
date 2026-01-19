@@ -1,5 +1,3 @@
-// friends.js
-
 const API_BASE = window.location.origin;
 
 /* ================= INVITE ================= */
