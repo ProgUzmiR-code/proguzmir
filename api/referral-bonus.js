@@ -7,6 +7,15 @@ const supabase = createClient(
 
 const REFERRAL_BONUS = 500n; // 500 almonds
 
+function toWallet(input) {
+    if (!input) return null;
+    const s = String(input);
+    if (s.startsWith('tg_')) return s;
+    if (s.startsWith('ref_tg_')) return s.replace(/^ref_/, ''); // ref_tg_123 -> tg_123
+    if (/^\d+$/.test(s)) return `tg_${s}`; // 123 -> tg_123
+    return s;
+}
+
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -27,6 +36,12 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Missing referrerId or newUserWallet' });
         }
 
+        // Normalize referrer to wallet format used in 'wallet' column
+        const referrerWallet = toWallet(referrerId);
+        if (!referrerWallet) {
+            return res.status(400).json({ error: 'Invalid referrerId' });
+        }
+
         // Yangi foydalanuvchini tekshirish
         const { data: newUser, error: userError } = await supabase
             .from('user_states')
@@ -43,11 +58,11 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'User already has a referrer' });
         }
 
-        // Referrer bo'yicha foydalanuvchini topish
+        // Referrer bo'yicha foydalanuvchini topish (by wallet)
         const { data: referrer, error: refError } = await supabase
             .from('user_states')
             .select('diamond')
-            .eq('wallet', referrerId)
+            .eq('wallet', referrerWallet)
             .single();
 
         if (refError || !referrer) {
@@ -60,7 +75,7 @@ export default async function handler(req, res) {
         const { error: updateError } = await supabase
             .from('user_states')
             .update({ diamond: newDiamond })
-            .eq('wallet', referrerId);
+            .eq('wallet', referrerWallet);
 
         if (updateError) {
             console.error('Update error:', updateError);

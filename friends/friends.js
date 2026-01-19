@@ -56,11 +56,12 @@ async function loadFriendsList() {
     const wallet = localStorage.getItem('proguzmir_wallet');
     if (!wallet) return;
 
-    const userId = wallet.replace('tg_', '');
+    const userId = wallet.replace(/^tg_/, ''); // safer replace
+    const referrerParam = `ref_tg_${userId}`;
     const listContainer = document.querySelector('.fs-list');
 
     try {
-        const response = await fetch(`/api/friends?referrer=${userId}`);
+        const response = await fetch(`/api/friends?referrer=${encodeURIComponent(referrerParam)}`);
         const { friends } = await response.json();
 
         const box = document.querySelector('.box');
@@ -69,14 +70,14 @@ async function loadFriendsList() {
             if (box) box.style.display = 'none';
 
             let html = friends.map((f, i) => `
-                <div class="fs-item">
-                    <div class="item-icon">${i + 1}</div>
-                    <div class="item-info">
-                        <div class="item__label">${f.first_name || 'Foydalanuvchi'}</div>
-                        <div class="item__num">${f.prc_wei || '0'} PRC</div>
-                    </div>
-                </div>
-            `).join('');
+				<div class="fs-item">
+					<div class="item-icon">${i + 1}</div>
+					<div class="item-info">
+						<div class="item__label">${f.first_name || 'Foydalanuvchi'}</div>
+						<div class="item__num">${f.prc_wei || '0'} PRC</div>
+					</div>
+				</div>
+			`).join('');
 
             if (listContainer) {
                 listContainer.innerHTML = html;
