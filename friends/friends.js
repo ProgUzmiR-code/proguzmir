@@ -1,6 +1,27 @@
 // Global export
 window.initInvite = initInvite;
 
+const Base62 = {
+    chars: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    encode(num) {
+        let str = "";
+        let n = BigInt(num);
+        if (n === 0n) return this.chars[0];
+        while (n > 0n) {
+            str = this.chars[Number(n % 62n)] + str;
+            n /= 62n;
+        }
+        return str;
+    },
+    decode(str) {
+        let num = 0n;
+        for (let i = 0; i < str.length; i++) {
+            num = num * 62n + BigInt(this.chars.indexOf(str[i]));
+        }
+        return num.toString();
+    }
+};
+
 function initInvite() {
     const sendBtn = document.querySelector('.btn-send');
     if (sendBtn) {
@@ -20,21 +41,40 @@ function initInvite() {
 function shareReferralLink() {
     const tg = window.Telegram?.WebApp;
     const user = tg?.initDataUnsafe?.user;
-    
-    // Hamyon manzilini yoki User ID ni referral ID sifatida ishlatamiz
-    const refId = localStorage.getItem('proguzmir_wallet') || (user ? user.id : '');
-    
-    if (!refId) {
+
+    // raw ref id (wallet or telegram id)
+    const refRaw = localStorage.getItem('proguzmir_wallet') || (user ? String(user.id) : '');
+
+    if (!refRaw) {
         alert("Referral link yaratish uchun hamyon ulanmagan!");
         return;
     }
 
+    // Encode ref for privacy: prefer Base62 for numeric ids, fallback to URL-safe base64-like string
+    let encodedRef;
+    try {
+        if (/^\d+$/.test(refRaw)) {
+            encodedRef = Base62.encode(refRaw);
+        } else {
+            const digits = (refRaw.match(/\d+/) || [null])[0];
+            if (digits) {
+                encodedRef = Base62.encode(digits);
+            } else {
+                // compact base64 fallback (URL-safe, no padding)
+                encodedRef = btoa(unescape(encodeURIComponent(refRaw))).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
+            }
+        }
+    } catch (e) {
+        console.warn('ref encode failed, using raw', e);
+        encodedRef = refRaw;
+    }
+
     const botUsername = 'prouztestbot'; // O'zingizning botingiz username'ini yozing
-    const inviteLink = `https://t.me/${botUsername}?startapp=ref_${refId}`;
+    const inviteLink = `https://t.me/${botUsername}?startapp=ref_${encodedRef}`;
     const shareText = `🚀 Men bilan PROGUZ o'yinida qatnashing va PRC tokenlariga ega bo'ling!`;
-    
+
     const fullUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
-    
+
     if (tg && tg.openTelegramLink) {
         tg.openTelegramLink(fullUrl);
     } else {
