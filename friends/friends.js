@@ -147,8 +147,6 @@ async function loadFriendsList() {
             info.className = 'money';
             info.style.display = 'flex';
             info.style.alignItems = 'center';
-            info.style.gap = '170px';
-            info.style.maxWidth = '200px';
             const name = document.createElement('div');
             name.style.fontWeight = '700';
             name.textContent = f.first_name || 'Unknown';
