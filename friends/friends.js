@@ -14,7 +14,7 @@ function initInvite() {
     btn.onclick = async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        
+
         try {
             // Telegram WebApp mavjudligini tekshirish
             if (!window.Telegram || !window.Telegram.WebApp) {
@@ -43,10 +43,10 @@ O'yin o'yna va pul yutib ol!`;
 
             // Telegram orqali share: chat tanlash oynasi chiqadi
             const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
-            
+
             console.log('Share URL:', shareUrl);
             window.Telegram.WebApp.openTelegramLink(shareUrl);
-            
+
         } catch (error) {
             console.error('Invite xatosi:', error);
             alert('Xato: ' + (error.message || 'Noma\'lum xato'));
