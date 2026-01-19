@@ -29,7 +29,7 @@ function shareReferralLink() {
         return;
     }
 
-    const botUsername = 'ProgUzmiRBot'; // O'zingizning botingiz username'ini yozing
+    const botUsername = '@prouztestbot'; // O'zingizning botingiz username'ini yozing
     const inviteLink = `https://t.me/${botUsername}?startapp=ref_${refId}`;
     const shareText = `🚀 Men bilan PROGUZ o'yinida qatnashing va PRC tokenlariga ega bo'ling!`;
     
