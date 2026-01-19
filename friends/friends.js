@@ -1,3 +1,4 @@
+// friends.js
 // Global export
 window.initInvite = initInvite;
 

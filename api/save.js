@@ -1,3 +1,4 @@
+// api/save.js
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
@@ -68,18 +69,41 @@ export default async function handler(req, res) {
 
     const urlParams = new URLSearchParams(initData);
     const user = JSON.parse(urlParams.get('user') || '{}');
-    const startParam = urlParams.get('start_param'); // "ref_cn6EdW" ko'rinishida keladi
+    const startParam = urlParams.get('start_param'); // ref_<encoded> or null
 
+    const wallet = String(user.id);
+    // Decode referrer from start_param if present
     let referrerId = null;
     if (startParam && startParam.startsWith('ref_')) {
-      const encodedCode = startParam.replace('ref_', '');
+      const code = startParam.replace('ref_', '');
+      // Base62 decode helper (returns decimal string)
+      const base62Decode = (s) => {
+        const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        let num = 0n;
+        for (let i = 0; i < s.length; i++) {
+          const idx = chars.indexOf(s[i]);
+          if (idx < 0) throw new Error('Invalid base62 char');
+          num = num * 62n + BigInt(idx);
+        }
+        return num.toString();
+      };
 
-      // Agar kod raqamlardan iborat bo'lsa (eskicha link bo'lsa) shunday qoladi
-      if (/^\d+$/.test(encodedCode)) {
-        referrerId = encodedCode;
-      } else {
-        // Agar shifrlangan bo'lsa, uni yechamiz (Masalan: "cn6EdW" -> "7420319183")
-        referrerId = Base62.decode(encodedCode);
+      try {
+        if (/^[0-9a-zA-Z]+$/.test(code)) {
+          // likely Base62-encoded numeric id
+          referrerId = base62Decode(code);
+        } else {
+          // fallback: decode URL-safe base64 (replace - _ with + /)
+          const b64 = code.replace(/-/g, '+').replace(/_/g, '/');
+          try {
+            referrerId = Buffer.from(b64, 'base64').toString('utf8');
+          } catch (e) {
+            referrerId = code; // last resort: store raw code
+          }
+        }
+      } catch (err) {
+        console.warn('referrer decode failed, storing raw code', err);
+        referrerId = code;
       }
     }
 
@@ -87,9 +111,6 @@ export default async function handler(req, res) {
     if (!user.id) {
       return res.status(400).json({ error: 'Missing user ID from Telegram' });
     }
-
-    const wallet = String(user.id);
-    
 
     // YANGI: Foydalanuvchi mavjudligini tekshirish (yangi foydalanuvchimi?)
     const { data: existingUser } = await supabase
