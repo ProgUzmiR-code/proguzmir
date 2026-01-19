@@ -1,53 +1,56 @@
 /* ================= INVITE ================= */
 
-function initInvite() {
-    const btn = document.querySelector('.btn-send');
-    if (!btn) {
-        console.warn('Invite button topilmadi');
-        return;
-    }
+// move invite logic into a delegated handler so we don't depend on querying the button at init-time
+async function handleInviteClick(e) {
+    // find closest .btn-send (works if clicked element or child is clicked)
+    const btn = e.target.closest?.('.btn-send');
+    if (!btn) return;
 
-    btn.onclick = async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+    e.preventDefault();
+    e.stopPropagation();
 
-        try {
-            // Telegram WebApp mavjudligini tekshirish
-            if (!window.Telegram || !window.Telegram.WebApp) {
-                console.error('Telegram WebApp mavjud emas');
-                alert('Iltimos, Telegram ilovasi orqali kiriting');
-                return;
-            }
+    try {
+        // Telegram WebApp mavjudligini tekshirish
+        if (!window.Telegram || !window.Telegram.WebApp) {
+            console.error('Telegram WebApp mavjud emas');
+            alert('Iltimos, Telegram ilovasi orqali kiriting');
+            return;
+        }
 
-            const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
-            if (!tgUser || !tgUser.id) {
-                console.error('Telegram user ma\'lumoti topilmadi:', tgUser);
-                alert('Foydalanuvchi ma\'lumoti topilmadi. Iltimos, qayta kiriting.');
-                return;
-            }
+        const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
+        if (!tgUser || !tgUser.id) {
+            console.error('Telegram user ma\\'lumoti topilmadi: ', tgUser);
+			alert('Foydalanuvchi ma\\'lumoti topilmadi.Iltimos, qayta kiriting.');
+			return;
+        }
 
-            console.log('Taklif yuborilmoqda, user ID:', tgUser.id);
+        console.log('Taklif yuborilmoqda, user ID:', tgUser.id);
 
-            // Taklif havolasini shakllantirish
-            const botUsername = 'ProgUzmiRBot';
-            const inviteLink = `https://t.me/${botUsername}?startapp=ref_tg_${tgUser.id}`;
+        // Taklif havolasini shakllantirish
+        const botUsername = 'ProgUzmiRBot';
+        const inviteLink = `https://t.me/${botUsername}?startapp=ref_tg_${tgUser.id}`;
 
-            const shareText = `https://t.me/${botUsername}?startapp=ref_tg_${tgUser.id}
+        const shareText = `https://t.me/${botUsername}?startapp=ref_tg_${tgUser.id}
 Menga qo'shil va bonuslarga ega bo'! 💎 
 Har do'st uchun +500 olmoslar 🎮 
 O'yin o'yna va pul yutib ol!`;
 
-            // Telegram orqali share: chat tanlash oynasi chiqadi
-            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
+        // Telegram orqali share: chat tanlash oynasi chiqadi
+        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
 
-            console.log('Share URL:', shareUrl);
-            window.Telegram.WebApp.openTelegramLink(shareUrl);
+        console.log('Share URL:', shareUrl);
+        window.Telegram.WebApp.openTelegramLink(shareUrl);
 
-        } catch (error) {
-            console.error('Invite xatosi:', error);
-            alert('Xato: ' + (error.message || 'Noma\'lum xato'));
-        }
-    };
+    } catch (error) {
+        console.error('Invite xatosi:', error);
+        alert('Xato: ' + (error.message || 'Noma\\'lum xato'));
+	}
+}
+
+function initInvite() {
+    // Register handler idempotently
+    document.removeEventListener('click', handleInviteClick);
+    document.addEventListener('click', handleInviteClick);
 }
 
 /* ================= FRIENDS LIST ================= */
