@@ -19,7 +19,7 @@ function initInvite() {
 // Yangi taklif qilish funksiyasi
 function shareReferralLink() {
     const tg = window.Telegram?.WebApp;
-    const user = initDataUnsafe?.user;
+    const user = tg?.initDataUnsafe?.user;
     
     // Hamyon manzilini yoki User ID ni referral ID sifatida ishlatamiz
     const refId = localStorage.getItem('proguzmir_wallet') || (user ? user.id : '');
