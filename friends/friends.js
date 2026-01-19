@@ -146,6 +146,7 @@ async function loadFriendsList() {
             const info = document.createElement('div');
             info.style.display = 'flex';
             info.style.alignItems = 'center';
+            info.style.gap = '170px';
             const name = document.createElement('div');
             name.style.fontWeight = '700';
             name.textContent = f.first_name || 'Unknown';
