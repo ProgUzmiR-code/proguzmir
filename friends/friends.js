@@ -160,20 +160,6 @@ async function loadFriendsList() {
             left.appendChild(avatar);
             left.appendChild(info);
 
-            const right = document.createElement('div');
-            const send = document.createElement('button');
-            send.className = 'btn';
-            send.textContent = 'Send';
-            send.style.padding = '6px 10px';
-            send.style.borderRadius = '8px';
-            send.style.cursor = 'pointer';
-            send.addEventListener('click', (ev) => {
-                ev.stopPropagation();
-                openSendModal(f);
-            });
-
-            right.appendChild(send);
-
             item.appendChild(left);
             item.appendChild(right);
             container.appendChild(item);
