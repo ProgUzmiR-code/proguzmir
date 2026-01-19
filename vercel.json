@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     { "src": "api/referral-bonus.js", "use": "@vercel/node" },
-    { "src": "api/friends.js", "use": "@vercel/node" },
+    { "src": "api/invite.js", "use": "@vercel/node" },
     { "src": "api/leaderboard.js", "use": "@vercel/node" },
     { "src": "api/save.js", "use": "@vercel/node" },
     { "src": "api/load.js", "use": "@vercel/node" },
@@ -11,7 +11,7 @@
   "routes": [
     { "src": "/api/leaderboard", "dest": "/api/leaderboard.js" },
     { "src": "/api/referral-bonus", "dest": "/api/referral-bonus.js" },
-    { "src": "/api/friends", "dest": "/api/friends.js" },
+    { "src": "/api/invite", "dest": "/api/invite.js" },
     { "src": "/api/save", "dest": "/api/save.js" },
     { "src": "/api/load", "dest": "/api/load.js" },
     { "handle": "filesystem" },
