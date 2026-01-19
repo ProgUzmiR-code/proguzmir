@@ -56,7 +56,7 @@ export default async function handler(req, res) {
     }
 
     const wallet = String(user.id);
-    const referrerId = startParam && startParam.startsWith('ref_') ? startParam.replace('ref_', '') : null;
+    const referrerId = startParam && startParam.startsWith('ref_') ? startParam.replace('ref_', '').replace('tg_', '') : null;
 
     // YANGI: Foydalanuvchi mavjudligini tekshirish (yangi foydalanuvchimi?)
     const { data: existingUser } = await supabase
