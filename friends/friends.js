@@ -95,11 +95,18 @@ async function loadFriendsList() {
     }
 }
 
-/* ================= INIT ================= */
 
-document.addEventListener('DOMContentLoaded', () => {
+// Global eksport 
+window.initInvite = initInvite;
+
+// Avto-start
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        initInvite();
+        loadFriendsList();
+    });
+} else {
     initInvite();
     loadFriendsList();
-});
-
+}
 setInterval(loadFriendsList, 30000);

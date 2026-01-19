@@ -1179,8 +1179,7 @@ document.querySelectorAll('.nav .tab').forEach(el => {
             await loadHtmlIntoContent('./friends/friends.html');
 
             // 2. Kontent yuklanib bo'lgach, JS mantiqni ulaymiz (Xuddi rank kabi)
-            try { if (typeof window.initInvite === 'function') { window.initInvite(); } } catch (e) { console.warn('initInvite call error', e); }
-
+           try { if (typeof initInvite === 'function') initInvite(); } catch (e) { console.warn('initInvite call error', e); }
             handleHeaderByPage('invite');
         }
 
