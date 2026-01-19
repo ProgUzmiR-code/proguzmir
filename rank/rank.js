@@ -159,3 +159,20 @@
         initRankPage();
     }
 })();
+
+
+else if (tab === 'invite') {
+    // 1. Avval HTML kontentni yuklaymiz
+    await loadHtmlIntoContent('./friends/friends.html');
+
+    // 2. Kontent yuklanib bo'lgach, JS mantiqni ulaymiz (Xuddi rank kabi)
+    try { 
+        if (typeof window.initInvite === 'function') {
+            window.initInvite(); 
+        } 
+    } catch (e) { 
+        console.warn('initInvite call error', e); 
+    }
+
+    handleHeaderByPage('invite');
+}

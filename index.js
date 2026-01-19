@@ -1174,6 +1174,16 @@ document.querySelectorAll('.nav .tab').forEach(el => {
             await loadHtmlIntoContent('./friends/friends.html');
             handleHeaderByPage('invite');
         }
+        else if (tab === 'invite') {
+            // 1. Avval HTML kontentni yuklaymiz
+            await loadHtmlIntoContent('./friends/friends.html');
+
+            // 2. Kontent yuklanib bo'lgach, JS mantiqni ulaymiz (Xuddi rank kabi)
+            try { if (typeof window.initInvite === 'function') { window.initInvite(); } } catch (e) { console.warn('initInvite call error', e); }
+
+            handleHeaderByPage('invite');
+        }
+
         else if (tab === 'earn') {
             await loadHtmlIntoContent('./earn/earn.html');
             handleHeaderByPage('earn');
