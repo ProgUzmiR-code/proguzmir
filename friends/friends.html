@@ -278,35 +278,7 @@
         </div>
         <div class="btn-send">Send to invite</div>
     </div>
-    <script>
-        // Friends bo'limi uchun mantiq
-        function initInvite() {
-            // "Send to invite" tugmasini topamiz
-            const inviteBtn = document.querySelector('.btn-send');
-
-            if (inviteBtn) {
-                inviteBtn.onclick = () => {
-                    const tg = window.Telegram.WebApp;
-                    const user = tg.initDataUnsafe?.user;
-
-                    if (user) {
-                        const botUsername = 'ProgUzmiRBot'; // Bot manzili
-                        const inviteLink = `https://t.me/${botUsername}?startapp=ref_${user.id}`;
-                        const shareText = `🚀 ProgUzmiR o'yiniga qo'shiling va bonuslarga ega bo'ling!`;
-
-                        // Telegram ulashish oynasini ochish
-                        const fullUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
-                        tg.openTelegramLink(fullUrl);
-                    } else {
-                        alert("Telegram ma'lumotlari yuklanmadi.");
-                    }
-                };
-            }
-        }
-
-        // Sahifa yuklanganda funksiyani ishga tushiramiz
-        document.addEventListener('DOMContentLoaded', initInvite);
-    </script>
+    <script src="/friends/friends.js"></script>
 
 </body>
 
