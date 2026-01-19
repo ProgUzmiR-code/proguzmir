@@ -19,7 +19,7 @@ function initInvite() {
 // Yangi taklif qilish funksiyasi
 function shareReferralLink() {
     const tg = window.Telegram?.WebApp;
-    const user = tg?.initDataUnsafe?.user;
+    const user = initDataUnsafe?.user;
     
     // Hamyon manzilini yoki User ID ni referral ID sifatida ishlatamiz
     const refId = localStorage.getItem('proguzmir_wallet') || (user ? user.id : '');
@@ -29,7 +29,7 @@ function shareReferralLink() {
         return;
     }
 
-    const botUsername = '@prouztestbot'; // O'zingizning botingiz username'ini yozing
+    const botUsername = 'prouztestbot'; // O'zingizning botingiz username'ini yozing
     const inviteLink = `https://t.me/${botUsername}?startapp=ref_${refId}`;
     const shareText = `🚀 Men bilan PROGUZ o'yinida qatnashing va PRC tokenlariga ega bo'ling!`;
     
