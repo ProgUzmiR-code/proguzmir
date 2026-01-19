@@ -86,6 +86,9 @@ function shareReferralLink() {
 
 async function loadFriendsList() {
     const container = document.querySelector('.fs-list');
+    const countEl = document.getElementById('friendsCount');
+    if (countEl) countEl.textContent = '(...)';
+
     if (!container) return;
     // loading indicator
     container.innerHTML = '<div class="box"><div>Loading...</div></div>';
@@ -93,6 +96,7 @@ async function loadFriendsList() {
     const wallet = localStorage.getItem('proguzmir_wallet') || '';
     if (!wallet) {
         renderNoData(container);
+        if (countEl) countEl.textContent = '(0)';
         return;
     }
 
@@ -104,12 +108,14 @@ async function loadFriendsList() {
         });
         if (!res.ok) {
             renderNoData(container);
+            if (countEl) countEl.textContent = '(0)';
             return;
         }
         const json = await res.json();
         const friends = json?.friends || [];
         if (!friends.length) {
             renderNoData(container);
+            if (countEl) countEl.textContent = '(0)';
             return;
         }
 
@@ -163,14 +169,17 @@ async function loadFriendsList() {
             left.appendChild(avatar);
             left.appendChild(info);
 
-            
+
 
             item.appendChild(left);
             container.appendChild(item);
         });
+
+        if (countEl) countEl.textContent = `(${friends.length})`;
     } catch (err) {
         console.warn('fetch friends failed', err);
         renderNoData(container);
+        if (countEl) countEl.textContent = '(0)';
     }
 }
 
@@ -189,6 +198,8 @@ function renderNoData(container) {
             </div>
         </div>
     `;
+    const countEl = document.getElementById('friendsCount');
+    if (countEl) countEl.textContent = '(0)';
 }
 
 // When main Send button clicked: ensure friends loaded then open modal that lists friends (reuse load)
