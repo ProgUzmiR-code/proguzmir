@@ -57,7 +57,7 @@ function loadState() {
         const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
         if (tgId) {
             // ensure the KEY_WALLET contains tg_{id} while in Telegram
-            wallet = 'tg_' + String(tgId);
+            wallet = String(tgId);
             localStorage.setItem(KEY_WALLET, wallet);
         }
     } catch (e) { /* ignore */ }
@@ -892,7 +892,7 @@ function saveSnapshotToLocal(state) {
 (async function clientOnlyStartup() {
     const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
     if (tgUser && tgUser.id) {
-        const walletId = 'tg_' + String(tgUser.id);
+        const walletId = String(tgUser.id);
         localStorage.setItem(KEY_WALLET, walletId);
 
         // YANGI: Load ALL data from Supabase using helper
@@ -1283,7 +1283,7 @@ async function loadAllStateFromSupabase(walletId) {
 (async function clientOnlyStartup() {
     const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
     if (tgUser && tgUser.id) {
-        const walletId = 'tg_' + String(tgUser.id);
+        const walletId = String(tgUser.id);
         localStorage.setItem(KEY_WALLET, walletId);
 
         // YANGI: Load ALL data from Supabase using helper
