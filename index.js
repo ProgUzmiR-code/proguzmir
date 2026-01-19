@@ -1169,8 +1169,14 @@ document.querySelectorAll('.nav .tab').forEach(el => {
         else if (tab === 'invite') {
             await loadHtmlIntoContent('./friends/friends.html');
 
-            // Ensure the rank page JS initializes (initRankPage exposed by rank.js)
-            try { if (typeof initRankPage === 'function') initRankPage(); } catch (e) { console.warn('initRankPage call error', e); }
+            // friends.js ni qo‘lda yuklash
+            if (!window.__friendsLoaded) {
+                const script = document.createElement('script');
+                script.src = './friends/friends.js';
+                script.defer = true;
+                document.body.appendChild(script);
+                window.__friendsLoaded = true;
+            }
 
             handleHeaderByPage('invite');
         }
