@@ -2,13 +2,46 @@
 window.initInvite = initInvite;
 
 function initInvite() {
-    // attach Send button
     const sendBtn = document.querySelector('.btn-send');
-    if (sendBtn) sendBtn.addEventListener('click', onSendInviteClick);
+    if (sendBtn) {
+        // Eski onclick bo'lsa tozalaymiz va yangisini qo'shamiz
+        sendBtn.onclick = (ev) => {
+            ev.preventDefault();
+            console.log("Invite tugmasi bosildi");
+            shareReferralLink();
+        };
+    }
 
-    // initial load
+    // Do'stlar ro'yxatini pastda yuklayveradi
     loadFriendsList().catch(e => console.warn('loadFriendsList error', e));
 }
+
+// Yangi taklif qilish funksiyasi
+function shareReferralLink() {
+    const tg = window.Telegram?.WebApp;
+    const user = tg?.initDataUnsafe?.user;
+    
+    // Hamyon manzilini yoki User ID ni referral ID sifatida ishlatamiz
+    const refId = localStorage.getItem('proguzmir_wallet') || (user ? user.id : '');
+    
+    if (!refId) {
+        alert("Referral link yaratish uchun hamyon ulanmagan!");
+        return;
+    }
+
+    const botUsername = 'ProgUzmiRBot'; // O'zingizning botingiz username'ini yozing
+    const inviteLink = `https://t.me/${botUsername}?startapp=ref_${refId}`;
+    const shareText = `🚀 Men bilan PROGUZ o'yinida qatnashing va PRC tokenlariga ega bo'ling!`;
+    
+    const fullUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
+    
+    if (tg && tg.openTelegramLink) {
+        tg.openTelegramLink(fullUrl);
+    } else {
+        window.open(fullUrl, '_blank');
+    }
+}
+
 
 async function loadFriendsList() {
     const container = document.querySelector('.fs-list');
