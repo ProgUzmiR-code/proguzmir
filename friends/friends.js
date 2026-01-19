@@ -6,27 +6,51 @@ const API_BASE = window.location.origin;
 
 function initInvite() {
     const btn = document.querySelector('.btn-send');
-    if (!btn) return;
+    if (!btn) {
+        console.warn('Invite button topilmadi');
+        return;
+    }
 
-    btn.onclick = () => {
-        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-        if (!tgUser) {
-            alert('Telegram user topilmadi');
-            return;
-        }
+    btn.onclick = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        try {
+            // Telegram WebApp mavjudligini tekshirish
+            if (!window.Telegram || !window.Telegram.WebApp) {
+                console.error('Telegram WebApp mavjud emas');
+                alert('Iltimos, Telegram ilovasi orqali kiriting');
+                return;
+            }
 
-        // Taklif havolasini shakllantirish
-        const botUsername = 'ProgUzmiRBot'; // O'zingizning bot nomini kiriting
-        const inviteLink = `https://t.me/${botUsername}?startapp=ref_tg_${tgUser.id}`;
+            const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
+            if (!tgUser || !tgUser.id) {
+                console.error('Telegram user ma\'lumoti topilmadi:', tgUser);
+                alert('Foydalanuvchi ma\'lumoti topilmadi. Iltimos, qayta kiriting.');
+                return;
+            }
 
-        const shareText = `https://t.me/${botUsername}?startapp=ref_tg_${tgUser.id}
+            console.log('Taklif yuborilmoqda, user ID:', tgUser.id);
+
+            // Taklif havolasini shakllantirish
+            const botUsername = 'ProgUzmiRBot';
+            const inviteLink = `https://t.me/${botUsername}?startapp=ref_tg_${tgUser.id}`;
+
+            const shareText = `https://t.me/${botUsername}?startapp=ref_tg_${tgUser.id}
 Menga qo'shil va bonuslarga ega bo'! 💎 
 Har do'st uchun +500 olmoslar 🎮 
 O'yin o'yna va pul yutib ol!`;
 
-        // Telegram orqali share: chat tanlash oynasi chiqadi
-        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
-        window.Telegram.WebApp.openTelegramLink(shareUrl);
+            // Telegram orqali share: chat tanlash oynasi chiqadi
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
+            
+            console.log('Share URL:', shareUrl);
+            window.Telegram.WebApp.openTelegramLink(shareUrl);
+            
+        } catch (error) {
+            console.error('Invite xatosi:', error);
+            alert('Xato: ' + (error.message || 'Noma\'lum xato'));
+        }
     };
 }
 
