@@ -37,7 +37,7 @@ export default async function handler(req, res) {
         if (!wallet) return res.status(400).json({ error: 'wallet required' });
 
         // Try multiple possible values for referrer_id to be tolerant to storage formats
-        const candidates = [wallet, `tg_${wallet}`];
+        const candidates = [wallet, `${wallet}`];
         try {
             // also add Base62 encoded numeric variant as a best-effort match
             if (/^\d+$/.test(wallet)) candidates.push(Base62.encode(wallet));
