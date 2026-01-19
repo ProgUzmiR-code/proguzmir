@@ -279,115 +279,35 @@
         <div class="btn-send bton">Send to invite</div>
     </div>
     <script>
-        // friends.js
-
-        const API_BASE = window.location.origin;
-
-        /* ================= INVITE ================= */
-
+        // Friends bo'limi uchun mantiq
         function initInvite() {
-            const btn = document.querySelector('.btn-send');
-            if (!btn) {
-                console.warn('Invite button topilmadi');
-                return;
-            }
+            // "Send to invite" tugmasini topamiz
+            const inviteBtn = document.querySelector('.btn-send');
 
-            btn.onclick = async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
+            if (inviteBtn) {
+                inviteBtn.onclick = () => {
+                    const tg = window.Telegram.WebApp;
+                    const user = tg.initDataUnsafe?.user;
 
-                try {
-                    // Telegram WebApp mavjudligini tekshirish
-                    if (!window.Telegram || !window.Telegram.WebApp) {
-                        console.error('Telegram WebApp mavjud emas');
-                        alert('Iltimos, Telegram ilovasi orqali kiriting');
-                        return;
+                    if (user) {
+                        const botUsername = 'ProgUzmiRBot'; // Bot manzili
+                        const inviteLink = `https://t.me/${botUsername}?startapp=ref_${user.id}`;
+                        const shareText = `🚀 ProgUzmiR o'yiniga qo'shiling va bonuslarga ega bo'ling!`;
+
+                        // Telegram ulashish oynasini ochish
+                        const fullUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
+                        tg.openTelegramLink(fullUrl);
+                    } else {
+                        alert("Telegram ma'lumotlari yuklanmadi.");
                     }
-
-                    const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
-                    if (!tgUser || !tgUser.id) {
-                        console.error('Telegram user ma\'lumoti topilmadi:', tgUser);
-                        alert('Foydalanuvchi ma\'lumoti topilmadi. Iltimos, qayta kiriting.');
-                        return;
-                    }
-
-                    console.log('Taklif yuborilmoqda, user ID:', tgUser.id);
-
-                    // Taklif havolasini shakllantirish
-                    const botUsername = 'ProgUzmiRBot';
-                    const inviteLink = `https://t.me/${botUsername}?startapp=ref_tg_${tgUser.id}`;
-
-                    const shareText = `https://t.me/${botUsername}?startapp=ref_tg_${tgUser.id}
-Menga qo'shil va bonuslarga ega bo'! 💎 
-Har do'st uchun +500 olmoslar 🎮 
-O'yin o'yna va pul yutib ol!`;
-
-                    // Telegram orqali share: chat tanlash oynasi chiqadi
-                    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
-
-                    console.log('Share URL:', shareUrl);
-                    window.Telegram.WebApp.openTelegramLink(shareUrl);
-
-                } catch (error) {
-                    console.error('Invite xatosi:', error);
-                    alert('Xato: ' + (error.message || 'Noma\'lum xato'));
-                }
-            };
-        }
-
-        /* ================= FRIENDS LIST ================= */
-
-        async function loadFriendsList() {
-            const wallet = localStorage.getItem('proguzmir_wallet');
-            if (!wallet) return;
-
-            const userId = wallet.replace('tg_', '');
-            const listContainer = document.querySelector('.fs-list');
-
-            try {
-                const response = await fetch(`/api/friends?referrer=${userId}`);
-                const { friends } = await response.json();
-
-                const box = document.querySelector('.box');
-
-                if (friends && friends.length > 0) {
-                    if (box) box.style.display = 'none';
-
-                    let html = friends.map((f, i) => `
-                <div class="fs-item">
-                    <div class="item-icon">${i + 1}</div>
-                    <div class="item-info">
-                        <div class="item__label">${f.first_name || 'Foydalanuvchi'}</div>
-                        <div class="item__num">${f.prc_wei || '0'} PRC</div>
-                    </div>
-                </div>
-            `).join('');
-
-                    if (listContainer) {
-                        listContainer.innerHTML = html;
-                    }
-
-                    const friendCount = document.querySelector('.fs__title span');
-                    if (friendCount) {
-                        friendCount.textContent = `(${friends.length})`;
-                    }
-                } else {
-                    if (box) box.style.display = 'flex';
-                }
-            } catch (e) {
-                console.error("Do'stlarni yuklashda xato:", e);
+                };
             }
         }
 
-        /* ================= INIT ================= */
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initInvite();
-            loadFriendsList();
-        });
-
-        setInterval(loadFriendsList, 30000);
+        // Sahifa yuklanganda funksiyani ishga tushiramiz
+        document.addEventListener('DOMContentLoaded', initInvite);
     </script>
+
 </body>
 
 </html>
