@@ -1174,10 +1174,6 @@ document.querySelectorAll('.nav .tab').forEach(el => {
 
             handleHeaderByPage('invite');
         }
-        else if (tab === 'invite') {
-            await loadHtmlIntoContent('./friends/friends.html');
-            handleHeaderByPage('invite');
-        }
         else if (tab === 'earn') {
             await loadHtmlIntoContent('./earn/earn.html');
             handleHeaderByPage('earn');
