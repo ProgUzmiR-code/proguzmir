@@ -6,6 +6,25 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
+const Base62 = {
+  chars: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  decode(str) {
+    if (!str) return null;
+    let num = 0n;
+    try {
+      for (let i = 0; i < str.length; i++) {
+        const index = this.chars.indexOf(str[i]);
+        if (index === -1) return null; // Noto'g'ri belgi bo'lsa
+        num = num * 62n + BigInt(index);
+      }
+      return num.toString();
+    } catch (e) {
+      return null;
+    }
+  }
+};
+
+
 // MA'LUMOTLARNI TEKSHIRISH FUNKSIYASI
 function verifyTelegramInitData(initData) {
   const BOT_TOKEN = process.env.BOT_TOKEN; // Vercel Settings'ga qo'shing
@@ -49,14 +68,28 @@ export default async function handler(req, res) {
 
     const urlParams = new URLSearchParams(initData);
     const user = JSON.parse(urlParams.get('user') || '{}');
-    const startParam = urlParams.get('start_param'); // ref_tg_123456 yoki null
+    const startParam = urlParams.get('start_param'); // "ref_cn6EdW" ko'rinishida keladi
+
+    let referrerId = null;
+    if (startParam && startParam.startsWith('ref_')) {
+      const encodedCode = startParam.replace('ref_', '');
+
+      // Agar kod raqamlardan iborat bo'lsa (eskicha link bo'lsa) shunday qoladi
+      if (/^\d+$/.test(encodedCode)) {
+        referrerId = encodedCode;
+      } else {
+        // Agar shifrlangan bo'lsa, uni yechamiz (Masalan: "cn6EdW" -> "7420319183")
+        referrerId = Base62.decode(encodedCode);
+      }
+    }
+
 
     if (!user.id) {
       return res.status(400).json({ error: 'Missing user ID from Telegram' });
     }
 
     const wallet = String(user.id);
-    const referrerId = startParam && startParam.startsWith('ref_') ? startParam.replace('ref_', '').replace('tg_', '') : null;
+    
 
     // YANGI: Foydalanuvchi mavjudligini tekshirish (yangi foydalanuvchimi?)
     const { data: existingUser } = await supabase
