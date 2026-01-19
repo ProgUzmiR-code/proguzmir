@@ -48,15 +48,10 @@ export default async function handler(req, res) {
 
         // Try queries sequentially so we can surface the first successful result
         for (const candidate of candidates) {
-            const { data, error } = await supabase
+            const q = await supabase
                 .from('user_states')
-                .select('wallet, prc_wei, diamond, first_name') // username ni olib tashladik
+                .select('wallet, prc_wei, diamond, first_name')
                 .eq('referrer_id', candidate);
-
-            if (error) {
-                console.error('Supabase error:', error);
-                return res.status(500).json({ error: error.message });
-            }
 
             if (q.error) {
                 // non-fatal: note error and continue trying other candidates
