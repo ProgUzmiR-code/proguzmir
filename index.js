@@ -1170,18 +1170,23 @@ document.querySelectorAll('.nav .tab').forEach(el => {
             await loadHtmlIntoContent('./wallet/wallet.html');
             handleHeaderByPage('wallet');
         }
+
         else if (tab === 'invite') {
-            await loadHtmlIntoContent('./friends/friends.html');
-            handleHeaderByPage('invite');
-        }
-        else if (tab === 'invite') {
-            // 1. Avval HTML kontentni yuklaymiz
+            // 1. HTML yuklash
             await loadHtmlIntoContent('./friends/friends.html');
 
-            // 2. Kontent yuklanib bo'lgach, JS mantiqni ulaymiz (Xuddi rank kabi)
-           try { if (typeof initInvite === 'function') initInvite(); } catch (e) { console.warn('initInvite call error', e); }
+            // 2. Element DOM-da paydo bo'lishi uchun juda qisqa tanaffus (micro-task)
+            setTimeout(() => {
+                if (typeof initInvite === 'function') {
+                    initInvite();
+                } else {
+                    console.warn('initInvite hali yuklanmagan!');
+                }
+            }, 50);
+
             handleHeaderByPage('invite');
         }
+
 
         else if (tab === 'earn') {
             await loadHtmlIntoContent('./earn/earn.html');
