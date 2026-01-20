@@ -91,141 +91,103 @@ function shareReferralLink() {
     }
 }
 
-// --- NEW: render helper to avoid duplication and to render cached data ---
-function renderFriends(friends, container) {
-    if (!container) return;
-    container.innerHTML = '';
-    
-    friends.forEach(f => {
-        const item = document.createElement('div');
-        item.className = 'invite-item';
-        // Dizayn: orasini ochish va siqilmaslik uchun style
-        item.style.display = 'flex';
-        item.style.justifyContent = 'space-between';
-        item.style.alignItems = 'center';
-        item.style.padding = '12px'; 
-        item.style.marginBottom = '10px';
-        item.style.background = 'rgba(255,255,255,0.05)';
-        item.style.borderRadius = '12px';
-        item.style.width = '100%';
-        item.style.boxSizing = 'border-box';
-
-        const left = document.createElement('div');
-        left.style.display = 'flex';
-        left.style.gap = '15px'; // Avatar va matn orasi
-        left.style.alignItems = 'center';
-        left.style.flex = '1';
-        left.style.minWidth = '0'; // Matn qisilib qolmasligi uchun
-
-        const avatar = document.createElement('div');
-        avatar.style.width = '42px';
-        avatar.style.height = '42px';
-        avatar.style.flexShrink = '0'; // Avatar shakli o'zgarmasligi uchun
-        avatar.style.borderRadius = '50%';
-        avatar.style.background = 'linear-gradient(45deg, #f39c12, #e67e22)';
-        avatar.style.display = 'flex';
-        avatar.style.alignItems = 'center';
-        avatar.style.justifyContent = 'center';
-        avatar.style.color = '#fff';
-        avatar.style.fontWeight = 'bold';
-        avatar.textContent = (f.first_name || 'U').slice(0, 1).toUpperCase();
-
-        const info = document.createElement('div');
-        info.style.display = 'flex';
-        info.style.flexDirection = 'column'; // Ism va pul ustma-ust
-        info.style.overflow = 'hidden';
-
-        const name = document.createElement('div');
-        name.style.fontWeight = '600';
-        name.style.whiteSpace = 'nowrap';
-        name.style.overflow = 'hidden';
-        name.style.textOverflow = 'ellipsis'; // Uzun ismlar uchun ...
-        name.textContent = f.first_name || 'Unknown';
-
-        const prc = document.createElement('div');
-        prc.style.fontSize = '12px';
-        prc.style.opacity = '0.7';
-        try {
-            prc.textContent = (typeof fmtPRC === 'function') ? fmtPRC(BigInt(f.prc_wei || '0')) : (f.prc_wei || '0');
-        } catch (e) {
-            prc.textContent = (f.prc_wei || '0');
-        }
-
-        info.appendChild(name);
-        info.appendChild(prc);
-        left.appendChild(avatar);
-        left.appendChild(info);
-        item.appendChild(left);
-        container.appendChild(item);
-    });
-}
-
-// Operativ xotirada ham saqlab turamiz (RAM Cache)
-let friendsMemoryCache = null;
 
 async function loadFriendsList() {
-    // 1. Konteynerni qidiramiz
     const container = document.querySelector('.fs-list');
     const countEl = document.getElementById('friendsCount');
-    
-    // Agar konteyner bo'lmasa, demak foydalanuvchi hali Friends bo'limiga o'tmagan
+    if (countEl) countEl.textContent = '(...)';
+
     if (!container) return;
+    // loading indicator
+    container.innerHTML = '<div class="box"><div>Loading...</div></div>';
 
     const wallet = localStorage.getItem('proguzmir_wallet') || '';
-    const cacheKey = makeUserKey(FRIENDS_CACHE_KEY, wallet);
-
-    // 2. Birinchi navbatda RAM keshni tekshiramiz
-    if (friendsMemoryCache) {
-        renderFriends(friendsMemoryCache, container);
-        if (countEl) countEl.textContent = `(${friendsMemoryCache.length})`;
-    } 
-    // 3. Ikkinchi navbatda LocalStorage keshni tekshiramiz
-    else {
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-            try {
-                const parsed = JSON.parse(cached);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    friendsMemoryCache = parsed; // RAM-ga yozish
-                    renderFriends(parsed, container);
-                    if (countEl) countEl.textContent = `(${parsed.length})`;
-                }
-            } catch (e) {
-                console.error("Cache parse error", e);
-            }
-        } else {
-            // Agar kesh mutlaqo bo'sh bo'lsa, Loading ko'rsatamiz
-            container.innerHTML = '<div class="box"><div>Loading...</div></div>';
-        }
+    if (!wallet) {
+        renderNoData(container);
+        if (countEl) countEl.textContent = '(0)';
+        return;
     }
 
-    if (!wallet) return;
-
-    // 4. Fondagi yangilash (API so'rovi)
     try {
         const res = await fetch('/api/invite', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ wallet })
         });
-
-        if (res.ok) {
-            const json = await res.json();
-            const friends = json?.friends || [];
-            
-            // Ma'lumotlarni saqlash va chizish
-            friendsMemoryCache = friends;
-            localStorage.setItem(cacheKey, JSON.stringify(friends));
-            
-            // Konteyner hali ham ko'rinib turganini tekshirib keyin chizamiz
-            const currentContainer = document.querySelector('.fs-list');
-            if (currentContainer) {
-                renderFriends(friends, currentContainer);
-                if (countEl) countEl.textContent = `(${friends.length})`;
-            }
+        if (!res.ok) {
+            renderNoData(container);
+            if (countEl) countEl.textContent = '(0)';
+            return;
         }
+        const json = await res.json();
+        const friends = json?.friends || [];
+        if (!friends.length) {
+            renderNoData(container);
+            if (countEl) countEl.textContent = '(0)';
+            return;
+        }
+
+        // Render list
+        container.innerHTML = '';
+        friends.forEach(f => {
+            const item = document.createElement('div');
+            item.className = 'invite-item';
+            item.style.display = 'flex';
+            item.style.justifyContent = 'space-between';
+            item.style.alignItems = 'center';
+            item.style.padding = '8px';
+            item.style.marginBottom = '8px';
+            item.style.background = 'rgba(255,255,255,0.03)';
+            item.style.borderRadius = '8px';
+
+            const left = document.createElement('div');
+            left.style.display = 'flex';
+            left.style.gap = '10px';
+            left.style.alignItems = 'center';
+
+            const avatar = document.createElement('div');
+            avatar.style.width = '44px';
+            avatar.style.height = '44px';
+            avatar.style.borderRadius = '8px';
+            avatar.style.background = 'rgba(255,255,255,0.03)';
+            avatar.style.display = 'flex';
+            avatar.style.alignItems = 'center';
+            avatar.style.justifyContent = 'center';
+            avatar.style.fontWeight = '700';
+            avatar.style.color = '#fff';
+            avatar.textContent = (f.first_name || 'U').slice(0, 2).toUpperCase();
+
+            const info = document.createElement('div');
+            info.className = 'money';
+            info.style.display = 'flex';
+            info.style.alignItems = 'center';
+            const name = document.createElement('div');
+            name.style.fontWeight = '700';
+            name.textContent = f.first_name || 'Unknown';
+            const prc = document.createElement('div');
+            prc.style.opacity = '0.8';
+            try {
+                prc.textContent = (typeof fmtPRC === 'function') ? fmtPRC(BigInt(f.prc_wei || '0')) : (f.prc_wei || '0');
+            } catch (e) {
+                prc.textContent = (f.prc_wei || '0');
+            }
+            info.appendChild(name);
+            info.appendChild(prc);
+
+            left.appendChild(avatar);
+            left.appendChild(info);
+
+
+
+            item.appendChild(left);
+            container.appendChild(item);
+        });
+
+        if (countEl) countEl.textContent = `(${friends.length})`;
     } catch (err) {
-        console.warn('Sync failed', err);
+        console.warn('fetch friends failed', err);
+        renderNoData(container);
+        if (countEl) countEl.textContent = '(0)';
     }
 }
 
