@@ -160,33 +160,48 @@ function renderFriends(friends, container) {
     });
 }
 
+// Operativ xotirada ham saqlab turamiz (RAM Cache)
+let friendsMemoryCache = null;
+
 async function loadFriendsList() {
+    // 1. Konteynerni qidiramiz
     const container = document.querySelector('.fs-list');
     const countEl = document.getElementById('friendsCount');
+    
+    // Agar konteyner bo'lmasa, demak foydalanuvchi hali Friends bo'limiga o'tmagan
     if (!container) return;
 
     const wallet = localStorage.getItem('proguzmir_wallet') || '';
     const cacheKey = makeUserKey(FRIENDS_CACHE_KEY, wallet);
 
-    // 1) Keshni birinchi tekshirish (Loading... yozuvidan oldin!)
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-        const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-            renderFriends(parsed, container);
-            if (countEl) countEl.textContent = `(${parsed.length})`;
+    // 2. Birinchi navbatda RAM keshni tekshiramiz
+    if (friendsMemoryCache) {
+        renderFriends(friendsMemoryCache, container);
+        if (countEl) countEl.textContent = `(${friendsMemoryCache.length})`;
+    } 
+    // 3. Ikkinchi navbatda LocalStorage keshni tekshiramiz
+    else {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+            try {
+                const parsed = JSON.parse(cached);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    friendsMemoryCache = parsed; // RAM-ga yozish
+                    renderFriends(parsed, container);
+                    if (countEl) countEl.textContent = `(${parsed.length})`;
+                }
+            } catch (e) {
+                console.error("Cache parse error", e);
+            }
+        } else {
+            // Agar kesh mutlaqo bo'sh bo'lsa, Loading ko'rsatamiz
+            container.innerHTML = '<div class="box"><div>Loading...</div></div>';
         }
-    } else {
-        // Agar keshda yo'q bo'lsa, keyin loading ko'rsatilsin
-        container.innerHTML = '<div class="box"><div>Loading...</div></div>';
     }
 
-    if (!wallet) {
-        if (!cached) renderNoData(container);
-        return;
-    }
+    if (!wallet) return;
 
-    // 2) API dan yangilash (Fon rejimida)
+    // 4. Fondagi yangilash (API so'rovi)
     try {
         const res = await fetch('/api/invite', {
             method: 'POST',
@@ -198,18 +213,22 @@ async function loadFriendsList() {
             const json = await res.json();
             const friends = json?.friends || [];
             
-            if (friends.length > 0) {
-                renderFriends(friends, container);
-                localStorage.setItem(cacheKey, JSON.stringify(friends));
+            // Ma'lumotlarni saqlash va chizish
+            friendsMemoryCache = friends;
+            localStorage.setItem(cacheKey, JSON.stringify(friends));
+            
+            // Konteyner hali ham ko'rinib turganini tekshirib keyin chizamiz
+            const currentContainer = document.querySelector('.fs-list');
+            if (currentContainer) {
+                renderFriends(friends, currentContainer);
                 if (countEl) countEl.textContent = `(${friends.length})`;
-            } else if (!cached) {
-                renderNoData(container);
             }
         }
     } catch (err) {
-        console.warn('Friends fetch failed', err);
+        console.warn('Sync failed', err);
     }
 }
+
 
 
 function renderNoData(container) {
