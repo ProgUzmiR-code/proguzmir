@@ -137,7 +137,7 @@ async function loadFriendsList() {
             item.style.alignItems = 'center';
             item.style.padding = '8px';
             item.style.marginBottom = '8px';
-            item.style.background = 'rgba(0, 0, 0, 0.7)';
+            item.style.background = 'rgba(0, 0, 0, 0.5)';
             item.style.borderRadius = '8px';
 
             const left = document.createElement('div');
