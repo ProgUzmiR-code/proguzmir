@@ -1,6 +1,7 @@
 // friends.js
 // Global export
 window.initInvite = initInvite;
+let _friendsLocalCache = null;
 
 const Base62 = {
     chars: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
