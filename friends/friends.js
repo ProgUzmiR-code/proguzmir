@@ -158,9 +158,6 @@ async function loadFriendsList() {
             avatar.textContent = (f.first_name || 'U').slice(0, 2).toUpperCase();
 
             const info = document.createElement('div');
-            info.className = 'money';
-            info.style.display = 'flex';
-            info.style.alignItems = 'center';
             const name = document.createElement('div');
             name.style.fontWeight = '700';
             name.textContent = f.first_name || 'Unknown';
