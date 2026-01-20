@@ -23,18 +23,26 @@ const Base62 = {
     }
 };
 
-function initInvite() {
-    const sendBtn = document.querySelector('.btn-send');
-    if (sendBtn) {
-        // Eski onclick bo'lsa tozalaymiz va yangisini qo'shamiz
-        sendBtn.onclick = (ev) => {
-            ev.preventDefault();
-            console.log("Invite tugmasi bosildi");
-            shareReferralLink();
-        };
-    }
+// --- NEW helpers: per-user key and persistent cache ---
+function makeUserKey(baseKey, wallet) {
+    return wallet ? baseKey + "_" + String(wallet).toLowerCase() : baseKey + "_guest";
+}
+const FRIENDS_CACHE_KEY = 'proguzmir_friends';
 
-    // Do'stlar ro'yxatini pastda yuklayveradi
+// Single delegated listener so .btn-send works after page switches
+if (!window._proguzmir_friends_delegate_installed) {
+    document.addEventListener('click', (ev) => {
+        const btn = ev.target.closest && ev.target.closest('.btn-send');
+        if (btn) {
+            ev.preventDefault && ev.preventDefault();
+            try { shareReferralLink(); } catch (e) { console.warn('shareReferralLink error', e); }
+        }
+    });
+    window._proguzmir_friends_delegate_installed = true;
+}
+
+function initInvite() {
+    // keep existing per-page init (now safe because main click handler is delegated)
     loadFriendsList().catch(e => console.warn('loadFriendsList error', e));
 }
 
@@ -83,6 +91,61 @@ function shareReferralLink() {
     }
 }
 
+// --- NEW: render helper to avoid duplication and to render cached data ---
+function renderFriends(friends, container) {
+    container.innerHTML = '';
+    friends.forEach(f => {
+        const item = document.createElement('div');
+        item.className = 'invite-item';
+        item.style.display = 'flex';
+        item.style.justifyContent = 'space-between';
+        item.style.alignItems = 'center';
+        item.style.padding = '8px';
+        item.style.marginBottom = '8px';
+        item.style.background = 'rgba(255,255,255,0.03)';
+        item.style.borderRadius = '8px';
+
+        const left = document.createElement('div');
+        left.style.display = 'flex';
+        left.style.gap = '10px';
+        left.style.alignItems = 'center';
+
+        const avatar = document.createElement('div');
+        avatar.style.width = '44px';
+        avatar.style.height = '44px';
+        avatar.style.borderRadius = '8px';
+        avatar.style.background = 'rgba(255,255,255,0.03)';
+        avatar.style.display = 'flex';
+        avatar.style.alignItems = 'center';
+        avatar.style.justifyContent = 'center';
+        avatar.style.fontWeight = '700';
+        avatar.style.color = '#fff';
+        avatar.textContent = (f.first_name || 'U').slice(0, 2).toUpperCase();
+
+        const info = document.createElement('div');
+        info.className = 'money';
+        info.style.display = 'flex';
+        info.style.alignItems = 'center';
+        const name = document.createElement('div');
+        name.style.fontWeight = '700';
+        name.textContent = f.first_name || 'Unknown';
+        const prc = document.createElement('div');
+        prc.style.opacity = '0.8';
+        try {
+            prc.textContent = (typeof fmtPRC === 'function') ? fmtPRC(BigInt(f.prc_wei || '0')) : (f.prc_wei || '0');
+        } catch (e) {
+            prc.textContent = (f.prc_wei || '0');
+        }
+        info.appendChild(name);
+        info.appendChild(prc);
+
+        left.appendChild(avatar);
+        left.appendChild(info);
+
+        item.appendChild(left);
+        container.appendChild(item);
+    });
+}
 
 async function loadFriendsList() {
     const container = document.querySelector('.fs-list');
@@ -100,6 +163,22 @@ async function loadFriendsList() {
         return;
     }
 
+    // 1) Try render from local cache immediately
+    try {
+        const cacheKey = makeUserKey(FRIENDS_CACHE_KEY, wallet);
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed) && parsed.length) {
+                renderFriends(parsed, container);
+                if (countEl) countEl.textContent = `(${parsed.length})`;
+            }
+        }
+    } catch (e) {
+        console.warn('friends cache parse error', e);
+    }
+
+    // 2) Fetch fresh list (will update UI and cache)
     try {
         const res = await fetch('/api/invite', {
             method: 'POST',
@@ -107,8 +186,11 @@ async function loadFriendsList() {
             body: JSON.stringify({ wallet })
         });
         if (!res.ok) {
-            renderNoData(container);
-            if (countEl) countEl.textContent = '(0)';
+            // If server returns error and we already rendered cache, keep it; otherwise show no-data.
+            if (!container.querySelector('.invite-item')) {
+                renderNoData(container);
+                if (countEl) countEl.textContent = '(0)';
+            }
             return;
         }
         const json = await res.json();
@@ -116,70 +198,25 @@ async function loadFriendsList() {
         if (!friends.length) {
             renderNoData(container);
             if (countEl) countEl.textContent = '(0)';
+            // clear cache when empty
+            try { localStorage.removeItem(makeUserKey(FRIENDS_CACHE_KEY, wallet)); } catch (e) { }
             return;
         }
 
-        // Render list
-        container.innerHTML = '';
-        friends.forEach(f => {
-            const item = document.createElement('div');
-            item.className = 'invite-item';
-            item.style.display = 'flex';
-            item.style.justifyContent = 'space-between';
-            item.style.alignItems = 'center';
-            item.style.padding = '8px';
-            item.style.marginBottom = '8px';
-            item.style.background = 'rgba(255,255,255,0.03)';
-            item.style.borderRadius = '8px';
-
-            const left = document.createElement('div');
-            left.style.display = 'flex';
-            left.style.gap = '10px';
-            left.style.alignItems = 'center';
-
-            const avatar = document.createElement('div');
-            avatar.style.width = '44px';
-            avatar.style.height = '44px';
-            avatar.style.borderRadius = '8px';
-            avatar.style.background = 'rgba(255,255,255,0.03)';
-            avatar.style.display = 'flex';
-            avatar.style.alignItems = 'center';
-            avatar.style.justifyContent = 'center';
-            avatar.style.fontWeight = '700';
-            avatar.style.color = '#fff';
-            avatar.textContent = (f.first_name || 'U').slice(0, 2).toUpperCase();
-
-            const info = document.createElement('div');
-            info.className = 'money';
-            info.style.display = 'flex';
-            info.style.alignItems = 'center';
-            const name = document.createElement('div');
-            name.style.fontWeight = '700';
-            name.textContent = f.first_name || 'Unknown';
-            const prc = document.createElement('div');
-            prc.style.opacity = '0.8';
-            try {
-                prc.textContent = (typeof fmtPRC === 'function') ? fmtPRC(BigInt(f.prc_wei || '0')) : (f.prc_wei || '0');
-            } catch (e) {
-                prc.textContent = (f.prc_wei || '0');
-            }
-            info.appendChild(name);
-            info.appendChild(prc);
-
-            left.appendChild(avatar);
-            left.appendChild(info);
-
-
-
-            item.appendChild(left);
-            container.appendChild(item);
-        });
+        // Render fresh and persist to cache
+        renderFriends(friends, container);
+        try {
+            localStorage.setItem(makeUserKey(FRIENDS_CACHE_KEY, wallet), JSON.stringify(friends));
+        } catch (e) { console.warn('persist friends cache failed', e); }
 
         if (countEl) countEl.textContent = `(${friends.length})`;
     } catch (err) {
         console.warn('fetch friends failed', err);
-        renderNoData(container);
-        if (countEl) countEl.textContent = '(0)';
+        // If we rendered cached items earlier, keep them; otherwise show no-data
+        if (!container.querySelector('.invite-item')) {
+            renderNoData(container);
+            if (countEl) countEl.textContent = '(0)';
+        }
     }
 }
 
@@ -233,8 +270,6 @@ async function onSendInviteClick(ev) {
         showToast && showToast('Error loading friends');
     }
 }
-
-
 
 // Auto-start similar to previous behavior
 if (document.readyState === 'loading') {
