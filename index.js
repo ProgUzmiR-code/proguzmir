@@ -361,6 +361,8 @@ console.log({
         // update model
         state.energy = Math.max(0, state.energy - 1);
         state.diamond += 1;
+        // --- YANGI: har bir tap uchun PRC ham oshadi ---
+        state.prcWei = (state.prcWei || 0n) + BASE_WEI;
 
         // update UI immediately (don't rely on saveState to succeed)
         const diamondEl = document.getElementById('diamondTop');
