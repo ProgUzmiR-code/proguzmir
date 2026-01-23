@@ -1,9 +1,6 @@
 // earn/earn.js
 
 // --- Keys management ---
-
-
-
 // helper to get per-wallet storage key
 function keysStorageKey(base) {
     const wallet = (localStorage.getItem('proguzmir_wallet') || 'guest').toString();
@@ -61,15 +58,12 @@ function useKeys(amount) {
         return false;
     }
 }
-
-// Test uchun: Sahifa yuklanganda 10 ta kalit qo'shish
-// addKeys(10);
 // --- NEW: invite-item click -> open link, verify membership, award bonus ---
 document.addEventListener('click', async function (ev) {
     const item = ev.target.closest('.invite-item.bton');
     if (!item) return;
 
-    // 1. Agar foydalanuvchi "Claim" tugmasini bossa
+    // 1. Agar foydalanuchi "Claim" tugmasini bossa
     if (ev.target.classList.contains('claim-inline-btn')) {
         // href ni saqlab qolish uchun item dan qidiramiz yoki dataset dan olamiz
         const anchor = item.querySelector('a');
@@ -113,40 +107,111 @@ document.addEventListener('click', async function (ev) {
 function awardBonusAndCloseInline(item, href) {
     const claimBtn = item.querySelector('.claim-inline-btn');
     const arrowDiv = item.querySelector('.invite-arrow');
-    
+
     if (claimBtn) {
         claimBtn.classList.add('processing');
         claimBtn.innerHTML = `<span class="loading-dots"></span>`;
     }
 
     setTimeout(() => {
+        // parse key bonus
         let bonusKeys = 0;
         const keysNode = item.querySelector('.invite__keys');
         if (keysNode) {
-            const m = keysNode.textContent.match(/(\d+)/);
+            const m = (keysNode.textContent || '').match(/(\d+)/);
             if (m) bonusKeys = parseInt(m[1], 10) || 0;
         }
-
         if (bonusKeys > 0) addKeys(bonusKeys);
 
-        // --- MUHIM O'ZGARIŞ: Strelkani qaytarish ---
+        // parse diamond amount from invite__num (looks like "💎 20,000")
+        let diamonds = 0;
+        const numNode = item.querySelector('.invite__num');
+        if (numNode) {
+            const txt = numNode.textContent || '';
+            const match = txt.match(/💎\s*([\d,]+)/) || txt.match(/([\d,]+)\s*$/);
+            if (match) {
+                diamonds = parseInt(match[1].replace(/,/g, ''), 10) || 0;
+            }
+        }
+
+        // award diamonds: persist per-wallet and update UI
+        if (diamonds > 0) {
+            try {
+                const wallet = (localStorage.getItem('proguzmir_wallet') || 'guest').toString();
+                const keyDiamond = (typeof makeUserKey === 'function') ? makeUserKey(KEY_DIAMOND, wallet) : `proguzmir_diamond_${wallet}`;
+                const cur = parseInt(localStorage.getItem(keyDiamond) || '0', 10) || 0;
+                const updated = cur + diamonds;
+                localStorage.setItem(keyDiamond, String(updated));
+                // update any diamond displays
+                document.querySelectorAll('[data-diamond-display]').forEach(el => el.textContent = String(updated));
+                const top = document.getElementById('diamondTop');
+                if (top) top.textContent = '💎 ' + String(updated);
+                if (typeof updateHeaderDiamond === 'function') try { updateHeaderDiamond(); } catch (e) { /* ignore */ }
+            } catch (e) { console.warn('award diamonds failed', e); }
+        }
+
+        // animate reward particles (coins + keys)
+        try {
+            const particleCount = Math.min(12, Math.max(4, Math.round((diamonds || 0) / 5000) + (bonusKeys || 0)));
+            animateRewardParticles(item, particleCount);
+        } catch (e) { console.warn('particle animation failed', e); }
+
+        // restore arrow icon
         if (arrowDiv) {
             arrowDiv.innerHTML = `
                 <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon">
-                    <img src="/image/arrow.svg" alt="">
+                    <img src="/image/done.svg" alt="">
                 </span>`;
         }
 
-        markAsCompleted(item, href);
-        
-        // Elementni darhol yashiramiz (Active ro'yxatidan yo'qolishi uchun)
+        // mark completed & hide from active view
+        try { markAsCompleted(item, href); } catch (e) { item.classList.add('is-completed'); }
         item.style.display = 'none';
-        
+
         showToast('Bonus claimed!');
-    }, 2500); 
+    }, 2500);
 }
 
+// animate floating reward particles from item position upward
+function animateRewardParticles(item, count) {
+    if (!item || !count) return;
+    const rect = item.getBoundingClientRect();
+    const startX = rect.right - 40; // near arrow
+    const startY = rect.top + rect.height / 2;
+    for (let i = 0; i < count; i++) {
+        (function (idx) {
+            const img = document.createElement('img');
+            // alternate coin/key or randomize
+            img.src = (idx % 2 === 0) ? '/image/diamond.png' : '/image/key.png';
+            const size = Math.floor(12 + Math.random() * 30); // 12..42px
+            img.style.position = 'fixed';
+            img.style.left = (startX + (Math.random() * 40 - 20)) + 'px';
+            img.style.top = (startY + (Math.random() * 20 - 10)) + 'px';
+            img.style.width = size + 'px';
+            img.style.height = 'auto';
+            img.style.zIndex = 20000;
+            img.style.pointerEvents = 'none';
+            img.style.opacity = '1';
+            img.style.transform = `translateY(0px) rotate(${Math.random() * 60 - 30}deg) scale(${0.8 + Math.random() * 0.6})`;
+            img.style.transition = `transform ${900 + Math.random() * 700}ms cubic-bezier(.2,.9,.2,1), opacity ${900 + Math.random() * 700}ms linear`;
+            document.body.appendChild(img);
 
+            // force layout then animate
+            requestAnimationFrame(() => {
+                const dy = 120 + Math.random() * 180; // upward distance
+                const dx = (Math.random() * 80 - 40); // horizontal drift
+                const rot = Math.random() * 360;
+                img.style.transform = `translate(${dx}px, -${dy}px) rotate(${rot}deg) scale(${0.6 + Math.random()})`;
+                img.style.opacity = '0';
+            });
+
+            // cleanup
+            setTimeout(() => {
+                if (img.parentElement) img.parentElement.removeChild(img);
+            }, 1700 + Math.random() * 800);
+        })(i);
+    }
+}
 
 function markAsCompleted(item, href) {
     if (!item) return;
@@ -160,9 +225,9 @@ function markAsCompleted(item, href) {
         a.removeAttribute('href'); // Silkkani o'chirish
         a.style.cursor = 'default'; // Kursorni o'zgartirish
         a.style.pointerEvents = 'none'; // Bosishni butunlay taqiqlash
-        
+
         // Agar bosilsa ham hech narsa qilmasligi uchun:
-        a.onclick = function(e) {
+        a.onclick = function (e) {
             e.preventDefault();
             return false;
         };
