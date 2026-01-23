@@ -28,11 +28,11 @@
         }
     </style>
     <style>
-        .tab_main {
+        .tab_main1 {
             margin-top: 10px;
         }
 
-        .tab_main ul {
+        .tab_main1 ul {
             display: flex;
             justify-content: center;
             background-color: rgba(41, 87, 157, .7);
@@ -44,7 +44,7 @@
             list-style: none;
         }
 
-        .tab_item {
+        .tab_item1 {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -59,7 +59,7 @@
             cursor: pointer;
         }
 
-        .checked {
+        .checked1 {
             background-color: rgb(55, 177, 214);
             font-weight: 700;
             height: 24px;
@@ -170,14 +170,14 @@
     </style>
 
     <style>
-        .invite-list {
+        .invite-list1 {
             overflow-x: hidden;
             -webkit-overflow-scroling: touch;
             display: block;
             flex-wrap: wrap;
         }
 
-        .invite-list2 {
+        .invite-list_2 {
             overflow-x: hidden;
             -webkit-overflow-scroling: touch;
             display: none;
@@ -343,10 +343,10 @@
     <div>
         <div id="diamondDisplay" class="diamond">
             💎 <span id="diamondCount">0</span></div>
-        <div class="tab_main">
+        <div class="tab_main1">
             <ul>
-                <li class="tab_item checked" data-target="active">Blockchain</li>
-                <li class="tab_item" data-target="inactive">ERC-20</li>
+                <li class="tab_item1 checked1" data-target="active">Blockchain</li>
+                <li class="tab_item1" data-target="inactive">ERC-20</li>
             </ul>
             <button id="incomeBack" class="btn">Back</button>
 
@@ -359,7 +359,7 @@
                         <span class="material-icons-outlined">close</span>
                     </div>
                 </div>
-                <div class="pop-main invite-list">
+                <div class="pop-main invite-list1">
                     <div class="energy__img">
                         <img src="" alt=""><!---->
                     </div>
@@ -411,8 +411,8 @@
             </div>
         </div>
 
-        <div class="invite">
-            <div class="invite-list">
+        <div class="invite1">
+            <div class="invite-list1">
                 <div class="flexc">
                     <div data-target="Bitcoin" class="boo-item"><!----><!---->
                         <div class="boo-icon">
@@ -458,7 +458,7 @@
                 </div>
             </div>
 
-            <div class="invite-list2">
+            <div class="invite-list_2">
                 <div class="flexc">
                     <div data-target="" class="boo-item"><!----><!---->
                         <div class="boo-icon">
@@ -485,6 +485,56 @@
         </div>
     </div>
     </div>
+    <script>
+        // FAQAT bitta listener kifoya, u butun document ni kuzatadi
+        document.addEventListener('click', function (e) {
+            // 1. Bosilgan element tab_item1 ekanligini tekshiramiz
+            const tab = e.target.closest('.tab_item, .tab_item1');
+
+            // Agar bosilgan narsa tab bo'lmasa, funksiyani to'xtatamiz
+            if (!tab) return;
+
+            console.log("Tab bosildi!");
+
+            // 2. Barcha tablarni topamiz (tab_main1 ichidagilarini)
+            const tabs = document.querySelectorAll('.tab_main1 .tab_item1');
+
+            // 3. 'checked' klassini almashtiramiz
+            tabs.forEach(item => item.classList.remove('checked1'));
+            tab.classList.add('checked1');
+
+            // 4. Statusni aniqlaymiz (data-target orqali qilish ishonchliroq, lekin matn orqali ham bo'ladi)
+            const status = (tab.dataset.target || '').trim().toLowerCase();
+            console.log('Status: ' + status);
+
+            // 5. Ro'yxatlarni almashtiramiz
+            const inviteBlocks = document.querySelectorAll('.invite1');
+            inviteBlocks.forEach(inviteBlock => {
+                const list1 = inviteBlock.querySelector('.invite-list1');
+                console.log('list1: ' + list1);
+                const list2 = inviteBlock.querySelector('.invite-list_2');
+                console.log('list2: ' + list2);
+
+
+                if (list1 && list2) {
+                    if (status === 'inactive') {
+                        list1.style.display = 'none';
+                        console.log('none: ' + list1);
+                        list2.style.display = 'block';
+                        console.log('block: ' + list2);
+
+                    } else if (status === 'active') {
+                        list1.style.display = 'block';
+                        console.log('block: ' + list1);
+
+                        list2.style.display = 'none';
+                        console.log('none: ' + list2);
+
+                    }
+                }
+            });
+        });
+    </script>
     <script>
         // Koinlar haqida internetdan (CoinGecko API) ma'lumot olish funksiyasi
         async function getCoinDescription(coinId) {

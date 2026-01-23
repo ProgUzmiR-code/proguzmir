@@ -208,6 +208,86 @@
 
         }
 
+        .invite-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 60px;
+            /* Tugma sig'ishi uchun */
+        }
+
+        .claim-inline-btn {
+            background: #007bff;
+            /* Ko'k rang yoki o'yiningiz rangida */
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            animation: pulse 1.5s infinite;
+            /* E'tibor tortish uchun effekt */
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Yuklanish nuqtalari uchun dizayn */
+        .loading-dots {
+            display: inline-block;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .loading-dots::after {
+            content: '.';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+
+            0%,
+            20% {
+                content: '•';
+            }
+
+            40% {
+                content: '• •';
+            }
+
+            60% {
+                content: '• • •';
+            }
+
+            80%,
+            100% {
+                content: '• • • •';
+            }
+        }
+
+        /* Claim tugmasi bosilganda qimirlab turishi uchun */
+        .claim-inline-btn.processing {
+            background: #555 !important;
+            pointer-events: none;
+            /* Qayta bosishni cheklaydi */
+            opacity: 0.8;
+        }
+
+
+
         .tab_item {
             cursor: pointer;
         }
@@ -219,6 +299,34 @@
         .earn-header {
             text-align: center;
             color: #ffd700;
+        }
+
+        /* Barcha ro'yxatlarni dastlab yashiramiz */
+        /* 1. Odatiy holatda hamma vazifalar ko'rinadi */
+        .invite-item {
+            display: flex;
+        }
+
+        /* 2. AKTIV TABDA: Bajarilgan vazifalarni yashiramiz */
+        .tab_active_view .invite-item.is-completed {
+            display: none !important;
+
+        }
+
+        /* 3. INAKTIV TABDA: Faqat bajarilgan vazifalarni ko'rsatamiz, qolganini yashiramiz */
+        .tab_inactive_view .invite-item {
+            display: none !important;
+        }
+
+        .tab_inactive_view .invite-item.is-completed {
+            display: flex !important;
+            pointer-events: none !important;
+            /* Butun blokni bosishni yopadi */
+            cursor: default !important;
+        }
+
+        button.btn {
+            margin-left: 8% !important;
         }
     </style>
     <title>Document</title>
@@ -240,7 +348,7 @@
             </div>
             <div id="dailyBtn" class="invite">
                 <div class="invite-list">
-                    <div class="invite-item bton">
+                    <div class="invite-item bton" style="display: flex !important;">
                         <div class="invite-icon">
                             <img class="dailyBtn" src="/image/calendar.png" alt="">
                         </div>
@@ -376,7 +484,7 @@
             </div>
         </div><!----><!----><!----><!---->
     </div>
-<script src="/earn/earn.js"></script>
+    <script src="/earn/earn.js"></script>
 </body>
 
 </html>

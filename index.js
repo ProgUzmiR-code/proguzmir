@@ -42,7 +42,8 @@ const SKINS = [
 ];
 
 
-
+const KEY_KEYS_TOTAL = 'proguzmir_keys_total';
+const KEY_KEYS_USED = 'proguzmir_keys_used';
 
 // Init state (default PRC = 0.0000000000000037 PRC -> 3700 wei)
 // --- YANGI: foydalanuvchiga xos key yaratish funksiyasi ---
@@ -1191,56 +1192,6 @@ document.querySelectorAll('.nav .tab').forEach(el => {
         else if (tab === 'earn') {
             await loadHtmlIntoContent('./earn/earn.html');
             handleHeaderByPage('earn');
-        }
-    });
-});
-
-
-// FAQAT bitta listener kifoya, u butun document ni kuzatadi
-document.addEventListener('click', function (e) {
-    // 1. Bosilgan element .tab_item yoki .tab_item1 ekanligini tekshiramiz
-    const tab = e.target.closest('.tab_item, .tab_item1');
-
-    // Agar bosilgan narsa tab bo'lmasa, funksiyani to'xtatamiz
-    if (!tab) return;
-
-    console.log("Tab bosildi!");
-
-    // 2. Barcha tablarni topamiz (tab_main ichidagilarini)
-    const tabs = document.querySelectorAll('.tab_main .tab_item, .tab_main .tab_item1');
-
-    // 3. 'checked' klassini almashtiramiz
-    tabs.forEach(item => item.classList.remove('checked'));
-    tab.classList.add('checked');
-
-    // 4. Statusni aniqlaymiz (data-target orqali qilish ishonchliroq, lekin matn orqali ham bo'ladi)
-    const status = (tab.dataset.target || '').trim().toLowerCase();
-    console.log('Status: ' + status);
-
-    // 5. Ro'yxatlarni almashtiramiz
-    const inviteBlocks = document.querySelectorAll('.invite');
-    inviteBlocks.forEach(inviteBlock => {
-        const list1 = inviteBlock.querySelector('.invite-list');
-        console.log('list1: ' + list1);
-        const list2 = inviteBlock.querySelector('.invite-list2');
-        console.log('list2: ' + list2);
-
-
-        if (list1 && list2) {
-            if (status === 'inactive') {
-                list1.style.display = 'none';
-                console.log('none: ' + list1);
-                list2.style.display = 'block';
-                console.log('block: ' + list2);
-
-            } else if (status === 'active') {
-                list1.style.display = 'block';
-                console.log('block: ' + list1);
-
-                list2.style.display = 'none';
-                console.log('none: ' + list2);
-
-            }
         }
     });
 });
