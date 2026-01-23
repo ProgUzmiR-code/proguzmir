@@ -65,7 +65,8 @@ document.addEventListener('click', async function (ev) {
 
     // 1. Agar foydalanuchi "Claim" tugmasini bossa
     if (ev.target.classList.contains('claim-inline-btn')) {
-        // href ni saqlab qolish uchun item dan qidiramiz yoki dataset dan olamiz
+        // guard: ignore if already processing
+        if (ev.target.classList.contains('processing')) return;
         const anchor = item.querySelector('a');
         const href = anchor ? anchor.getAttribute('data-href') || anchor.getAttribute('href') : '';
         awardBonusAndCloseInline(item, href);
@@ -77,35 +78,33 @@ document.addEventListener('click', async function (ev) {
 
     ev.preventDefault();
     const href = anchor.getAttribute('href');
-
-    // --- O'ZGARTIRILGAN QISM (YouTube bloklanmasligi uchun) ---
+    
     try {
         if (window.Telegram && window.Telegram.WebApp) {
-            // Telegramning o'z funksiyasi orqali tashqi brauzerda ochish
             window.Telegram.WebApp.openLink(href);
         } else {
-            // Oddiy brauzerlar uchun
             window.open(href, '_blank');
         }
     } catch (e) {
         console.error("Linkni ochishda xato:", e);
-        window.open(href, '_blank'); // Zaxira varianti
+        window.open(href, '_blank');
     }
-    // --------------------------------------------------------
 
-    // 2. invite-arrow ichini tozalab, "Claim" tugmasini joylash
+    // Show Claim button
     const arrowDiv = item.querySelector('.invite-arrow');
     if (arrowDiv) {
-        // Linkni keyinroq ishlatish uchun 'data-href' sifatida saqlab qo'yamiz (chunki keyin href o'chiriladi)
         anchor.setAttribute('data-href', href);
         arrowDiv.innerHTML = `<button class="claim-inline-btn">Claim</button>`;
     }
 });
 
-
-// Bonus berish funksiyasi (2 soniyalik kutish bilan)
 function awardBonusAndCloseInline(item, href) {
     const claimBtn = item.querySelector('.claim-inline-btn');
+    if (!claimBtn) return; // guard
+
+    // prevent double-click / double execution
+    if (claimBtn.classList.contains('processing')) return;
+
     const arrowDiv = item.querySelector('.invite-arrow');
 
     if (claimBtn) {
@@ -134,7 +133,7 @@ function awardBonusAndCloseInline(item, href) {
             }
         }
 
-        // award diamonds: persist per-wallet and update UI
+        // award diamonds
         if (diamonds > 0) {
             try {
                 const wallet = (localStorage.getItem('proguzmir_wallet') || 'guest').toString();
@@ -142,7 +141,6 @@ function awardBonusAndCloseInline(item, href) {
                 const cur = parseInt(localStorage.getItem(keyDiamond) || '0', 10) || 0;
                 const updated = cur + diamonds;
                 localStorage.setItem(keyDiamond, String(updated));
-                // update any diamond displays
                 document.querySelectorAll('[data-diamond-display]').forEach(el => el.textContent = String(updated));
                 const top = document.getElementById('diamondTop');
                 if (top) top.textContent = '💎 ' + String(updated);
@@ -150,7 +148,7 @@ function awardBonusAndCloseInline(item, href) {
             } catch (e) { console.warn('award diamonds failed', e); }
         }
 
-        // animate reward particles (coins + keys)
+        // animate particles
         try {
             const particleCount = Math.min(12, Math.max(4, Math.round((diamonds || 0) / 5000) + (bonusKeys || 0)));
             animateRewardParticles(item, particleCount);
@@ -164,7 +162,7 @@ function awardBonusAndCloseInline(item, href) {
                 </span>`;
         }
 
-        // mark completed & hide from active view
+        // mark completed & hide
         try { markAsCompleted(item, href); } catch (e) { item.classList.add('is-completed'); }
         item.style.display = 'none';
 
