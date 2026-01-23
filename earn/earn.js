@@ -255,8 +255,9 @@ function markAsCompleted(item, href) {
             e.preventDefault();
             return false;
         };
+        
     }
-
+    
     // 3. LocalStorage-ga saqlash
     const wallet = (localStorage.getItem('proguzmir_wallet') || 'guest').toString();
     const claimKey = `proguzmir_claimed_${encodeURIComponent(href)}_${wallet}`;
@@ -275,10 +276,18 @@ function markAsCompleted(item, href) {
         const claimKey = `proguzmir_claimed_${encodeURIComponent(href)}_${wallet}`;
         if (localStorage.getItem(claimKey)) {
             it.classList.add('is-completed'); // Shunchaki klass qo'shdik
+
+            // YANGI: Ensure 'done.svg' is displayed in the invite-arrow for completed items
+            const arrowDiv = it.querySelector('.invite-arrow');
+            if (arrowDiv) {
+                arrowDiv.innerHTML = `
+                    <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon">
+                        <img src="/image/done.svg" alt="">
+                    </span>`;
+            }
         }
     });
 })();
-
 
 // Tablarni boshqarish funksiyasi
 document.addEventListener('click', function (e) {
