@@ -42,6 +42,8 @@ function addKeys(amount) {
     usedKeys += amount;
     saveKeysToStorage();
     updateKeyDisplay();
+    // YANGI: sync to Supabase
+    try { syncKeysToSupabase(); } catch (e) { console.warn('syncKeysToSupabase failed', e); }
 }
 
 // Kalitni ishlatish funksiyasi
@@ -52,12 +54,36 @@ function useKeys(amount) {
         usedKeys -= amount;
         saveKeysToStorage();
         updateKeyDisplay();
+        // YANGI: sync to Supabase
+        try { syncKeysToSupabase(); } catch (e) { console.warn('syncKeysToSupabase failed', e); }
         return true;
     } else {
         alert("Kalitlar yetarli emas!");
         return false;
     }
 }
+
+// YANGI: sync keys to Supabase
+function syncKeysToSupabase() {
+    if (!window.Telegram?.WebApp?.initData) return;
+    const wallet = localStorage.getItem('proguzmir_wallet') || 'guest';
+    const payload = {
+        initData: Telegram.WebApp.initData,
+        keys: {
+            keysTotal: totalKeys,
+            keysUsed: usedKeys
+        }
+    };
+    try {
+        fetch('/api/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            keepalive: true
+        }).catch(e => console.warn('syncKeysToSupabase fetch failed', e));
+    } catch (e) { console.warn('syncKeysToSupabase error', e); }
+}
+
 // --- NEW: invite-item click -> open link, verify membership, award bonus ---
 document.addEventListener('click', async function (ev) {
     const item = ev.target.closest('.invite-item.bton');
@@ -78,7 +104,7 @@ document.addEventListener('click', async function (ev) {
 
     ev.preventDefault();
     const href = anchor.getAttribute('href');
-    
+
     try {
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.openLink(href);

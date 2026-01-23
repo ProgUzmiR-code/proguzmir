@@ -143,6 +143,9 @@ export default async function handler(req, res) {
         cards_lvl: state.cardsLvl ? JSON.stringify(state.cardsLvl) : null,
         boosts: state.boosts ? JSON.stringify(state.boosts) : null,
         claim_date: state.claimDate || null,
+        // YANGI: keys fields
+        keys_total: Number(state.keysTotal || 0),
+        keys_used: Number(state.keysUsed || 0),
         updated_at: new Date().toISOString()
       }, {
         onConflict: 'wallet'

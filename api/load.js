@@ -56,7 +56,9 @@ export default async function handler(req, res) {
         cards_lvl: data.cards_lvl ? JSON.parse(data.cards_lvl) : null,
         boosts: data.boosts ? JSON.parse(data.boosts) : null,
         claim_date: data.claim_date || null,
-        rank: data.rank || 'bronze'  // YANGI: Rank field
+        rank: data.rank || 'bronze',  // YANGI: Rank field
+        keys_total: data.keys_total || 0,  // YANGI: Keys fields
+        keys_used: data.keys_used || 0
       };
     }
 

@@ -132,6 +132,8 @@ function saveState(state) {
     const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
     const keyTodayIndex = makeUserKey(KEY_TODAY_INDEX, wallet);
     const keyRank = makeUserKey(KEY_RANK, wallet);  // YANGI: Rank key
+    const keyKeysTotal = makeUserKey(KEY_KEYS_TOTAL, wallet);
+    const keyKeysUsed = makeUserKey(KEY_KEYS_USED, wallet);
 
     // ensure state.wallet stored so subsequent loads use same identifier
     if (!state.wallet && wallet) state.wallet = wallet;
@@ -923,6 +925,9 @@ function saveSnapshotToLocal(state) {
                 if (supabaseState.boosts) {
                     localStorage.setItem(makeUserKey('proguzmir_boosts', walletId), JSON.stringify(supabaseState.boosts));
                 }
+                // YANGI: Save keys
+                localStorage.setItem(makeUserKey(KEY_KEYS_TOTAL, walletId), String(supabaseState.keysTotal));
+                localStorage.setItem(makeUserKey(KEY_KEYS_USED, walletId), String(supabaseState.keysUsed));
 
                 updateHeaderPRC();
                 const diamondEl = document.getElementById('diamondTop');
@@ -1079,6 +1084,8 @@ function saveState(state) {
     const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
     const keyTodayIndex = makeUserKey(KEY_TODAY_INDEX, wallet);
     const keyRank = makeUserKey(KEY_RANK, wallet);  // YANGI: Rank key
+    const keyKeysTotal = makeUserKey(KEY_KEYS_TOTAL, wallet);
+    const keyKeysUsed = makeUserKey(KEY_KEYS_USED, wallet);
 
     // ensure state.wallet stored so subsequent loads use same identifier
     if (!state.wallet && wallet) state.wallet = wallet;
@@ -1227,7 +1234,10 @@ async function loadAllStateFromSupabase(walletId) {
             dailyWeekStart: data.daily_week_start || null,
             dailyClaims: dailyClaims,
             cardsLvl: cardsLvl,
-            boosts: boosts
+            boosts: boosts,
+            // YANGI: keys fields
+            keysTotal: data.keys_total || 0,
+            keysUsed: data.keys_used || 0
         };
     } catch (e) {
         console.warn('loadAllStateFromSupabase error:', e);
@@ -1269,6 +1279,9 @@ async function loadAllStateFromSupabase(walletId) {
                 if (supabaseState.boosts) {
                     localStorage.setItem(makeUserKey('proguzmir_boosts', walletId), JSON.stringify(supabaseState.boosts));
                 }
+                // YANGI: Save keys
+                localStorage.setItem(makeUserKey(KEY_KEYS_TOTAL, walletId), String(supabaseState.keysTotal));
+                localStorage.setItem(makeUserKey(KEY_KEYS_USED, walletId), String(supabaseState.keysUsed));
 
                 updateHeaderPRC();
                 const diamondEl = document.getElementById('diamondTop');
@@ -1282,7 +1295,7 @@ async function loadAllStateFromSupabase(walletId) {
     renderAndWait();
 })();
 
-// UPDATED: saveUserState() to include all fields INCLUDING claim date
+// UPDATED: saveUserState() to include all fields INCLUDING claim date AND keys
 async function saveUserState(state) {
     let st = state;
     try { if (!st) st = loadState(); } catch (e) { st = null; }
@@ -1295,13 +1308,19 @@ async function saveUserState(state) {
     const keyDailyClaims = makeUserKey(KEY_DAILY_CLAIMS, wallet);
     const keyCardsLvl = makeUserKey('proguzmir_cards_lvl', wallet);
     const keyBoosts = makeUserKey('proguzmir_boosts', wallet);
-    const keyClaimDate = makeUserKey(KEY_REKLAM_CLAIM, wallet);  // YANGI: Add claim date key
+    const keyClaimDate = makeUserKey(KEY_REKLAM_CLAIM, wallet);
+    // YANGI: keys keys
+    const keyKeysTotal = makeUserKey(KEY_KEYS_TOTAL, wallet);
+    const keyKeysUsed = makeUserKey(KEY_KEYS_USED, wallet);
 
     const dailyWeekStart = localStorage.getItem(keyDailyWeekStart) || null;
     const dailyClaims = localStorage.getItem(keyDailyClaims) || null;
     const cardsLvl = localStorage.getItem(keyCardsLvl) || null;
     const boosts = localStorage.getItem(keyBoosts) || null;
-    const claimDate = localStorage.getItem(keyClaimDate) || null;  // YANGI: Get claim date
+    const claimDate = localStorage.getItem(keyClaimDate) || null;
+    // YANGI: get keys from localStorage
+    const keysTotal = parseInt(localStorage.getItem(keyKeysTotal) || '0', 10);
+    const keysUsed = parseInt(localStorage.getItem(keyKeysUsed) || '0', 10);
 
     const payload = {
         initData: Telegram.WebApp.initData,
@@ -1313,12 +1332,14 @@ async function saveUserState(state) {
             tapsUsed: st.tapsUsed,
             selectedSkin: st.selectedSkin,
             todayIndex: st.todayIndex,
-            // YANGI: Additional fields
             dailyWeekStart: dailyWeekStart,
             dailyClaims: dailyClaims ? JSON.parse(dailyClaims) : null,
             cardsLvl: cardsLvl ? JSON.parse(cardsLvl) : null,
             boosts: boosts ? JSON.parse(boosts) : null,
-            claimDate: claimDate  // YANGI: Include claim date
+            claimDate: claimDate,
+            // YANGI: include keys
+            keysTotal: keysTotal,
+            keysUsed: keysUsed
         }
     };
 
@@ -1374,7 +1395,11 @@ function setupAutoSave() {
                     dailyClaims: dailyClaims ? JSON.parse(dailyClaims) : null,
                     cardsLvl: cardsLvl ? JSON.parse(cardsLvl) : null,
                     boosts: boosts ? JSON.parse(boosts) : null,
-                    claimDate: claimDate  // YANGI: Include claim date
+                    claimDate: claimDate,
+                    // YANGI: include keys
+                    keysTotal: parseInt(localStorage.getItem(makeUserKey(KEY_KEYS_TOTAL, wallet)) || '0', 10),
+                    keysUsed: parseInt(localStorage.getItem(makeUserKey(KEY_KEYS_USED, wallet)) || '0', 10)
+                    
                 }
             };
 
@@ -1435,7 +1460,10 @@ async function loadUserState() {
             cardsLvl: safeParse(result.user.cards_lvl),
             boosts: safeParse(result.user.boosts),
             claimDate: result.user.claim_date || null,  // YANGI: Claim sanasi
-            wallet: result.user.wallet || ""
+            wallet: result.user.wallet || "",
+            // YANGI: keys fields
+            keysTotal: Number(result.user.keys_total || 0),
+            keysUsed: Number(result.user.keys_used || 0)
         };
     } catch (err) {
         console.warn('loadUserState error', err);
@@ -1464,7 +1492,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     dailyWeekStart: saved.dailyWeekStart,
                     dailyClaims: saved.dailyClaims,
                     cardsLvl: saved.cardsLvl,
-                    boosts: saved.boosts
+                    boosts: saved.boosts,
+                    keysTotal: saved.keysTotal,
+                    keysUsed: saved.keysUsed
                 };
 
                 // Save each additional field to localStorage before saveState
@@ -1485,6 +1515,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (saved.claimDate) {
                         localStorage.setItem(makeUserKey(KEY_REKLAM_CLAIM, st.wallet), saved.claimDate);
                     }
+                    // YANGI: keys saqlash
+                    localStorage.setItem(makeUserKey(KEY_KEYS_TOTAL, st.wallet), String(st.keysTotal));
+                    localStorage.setItem(makeUserKey(KEY_KEYS_USED, st.wallet), String(st.keysUsed));
                 }
 
                 saveState(st);
