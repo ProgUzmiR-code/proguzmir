@@ -64,15 +64,16 @@ function useKeys(amount) {
 
 // Test uchun: Sahifa yuklanganda 10 ta kalit qo'shish
 // addKeys(10);
-
 // --- NEW: invite-item click -> open link, verify membership, award bonus ---
 document.addEventListener('click', async function (ev) {
     const item = ev.target.closest('.invite-item.bton');
     if (!item) return;
 
-    // Agar foydalanuvchi aynan yangi paydo bo'lgan "Claim" tugmasini bossa
+    // 1. Agar foydalanuvchi "Claim" tugmasini bossa
     if (ev.target.classList.contains('claim-inline-btn')) {
-        const href = item.querySelector('a').getAttribute('href');
+        // href ni saqlab qolish uchun item dan qidiramiz yoki dataset dan olamiz
+        const anchor = item.querySelector('a');
+        const href = anchor ? anchor.getAttribute('data-href') || anchor.getAttribute('href') : '';
         awardBonusAndCloseInline(item, href);
         return;
     }
@@ -83,15 +84,30 @@ document.addEventListener('click', async function (ev) {
     ev.preventDefault();
     const href = anchor.getAttribute('href');
 
-    // 1. Linkni ochish
-    window.open(href, '_blank');
+    // --- O'ZGARTIRILGAN QISM (YouTube bloklanmasligi uchun) ---
+    try {
+        if (window.Telegram && window.Telegram.WebApp) {
+            // Telegramning o'z funksiyasi orqali tashqi brauzerda ochish
+            window.Telegram.WebApp.openLink(href);
+        } else {
+            // Oddiy brauzerlar uchun
+            window.open(href, '_blank');
+        }
+    } catch (e) {
+        console.error("Linkni ochishda xato:", e);
+        window.open(href, '_blank'); // Zaxira varianti
+    }
+    // --------------------------------------------------------
 
     // 2. invite-arrow ichini tozalab, "Claim" tugmasini joylash
     const arrowDiv = item.querySelector('.invite-arrow');
     if (arrowDiv) {
+        // Linkni keyinroq ishlatish uchun 'data-href' sifatida saqlab qo'yamiz (chunki keyin href o'chiriladi)
+        anchor.setAttribute('data-href', href);
         arrowDiv.innerHTML = `<button class="claim-inline-btn">Claim</button>`;
     }
 });
+
 
 // Bonus berish funksiyasi (2 soniyalik kutish bilan)
 function awardBonusAndCloseInline(item, href) {
