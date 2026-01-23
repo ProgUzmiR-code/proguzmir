@@ -23,7 +23,7 @@ function renderShop() {
                         <div id="tabSkins" class="btn">Skins</div>
                     </div>
                 </div>
-                <button id="incomeBack" class="btn">Back</button>
+                <button id="shopBack" class="btn">Back</button>
                 <div style="display:flex; gap:12px; margin-top:6px;">
                     <div id="energyCol" style="flex:1; display:flex; flex-direction:column; gap:12px;">
                       ${SHOP.map(it => `
@@ -139,7 +139,8 @@ function renderShop() {
   showTelegramBack(() => { hideTelegramBack(); showheader(); showNav(); renderGame(); });
 
   // back handler
-  document.getElementById('incomeBack').addEventListener('click', () => { document.body.style.background = ""; hideTelegramBack(); showNav(); showheader(); renderGame(); });
+  document.getElementById('shopBack').addEventListener('click', () => { hideTelegramBack(); showNav(); showheader(); renderGame(); });
+  // document.getElementById('shopBack').addEventListener('click', () => { document.body.style.background = ""; hideTelegramBack(); showNav(); showheader(); renderGame(); });
   // helpers to hide/show bottom header
 
   function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
