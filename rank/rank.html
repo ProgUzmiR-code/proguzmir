@@ -306,7 +306,18 @@
         <div id="rankList"></div>
         <!-- rank.js now is managed centrally; no per-page script tag to avoid path/resolution issues -->
     </div>
-
+    <script>
+        // show Telegram BackButton and set it to return to main renderGame
+        showTelegramBack(() => { showheader(); renderGame(); });
+        // hide bottom nav and enable Telegram Back to return to game
+        hideheader();
+        showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
+        // back handler
+        document.getElementById('keyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
+        // helpers to hide/show bottom header
+        function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
+        function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
+    </script>
     <script src="/rank/rank.js"></script>
 </body>
 
