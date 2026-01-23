@@ -17,7 +17,7 @@ function getDailyData(wallet) {
 function setDailyData(wallet, weekStartISO, claims) {
     localStorage.setItem(dailyWeekStartKey(wallet), weekStartISO || "");
     localStorage.setItem(dailyClaimsKey(wallet), JSON.stringify(claims));
-    
+
     // YANGI: Sync to Supabase
     try {
         if (typeof saveUserState === 'function') {
@@ -208,6 +208,10 @@ function renderDaily() {
 
             // update UI locally
             renderDaily();
+            // YANGI: update the Earn page's daily login icon if the function exists
+            if (window.updateDailyLoginTaskIcon && typeof window.updateDailyLoginTaskIcon === 'function') {
+                window.updateDailyLoginTaskIcon();
+            }
         });
     }
 

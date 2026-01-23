@@ -84,10 +84,52 @@ function syncKeysToSupabase() {
     } catch (e) { console.warn('syncKeysToSupabase error', e); }
 }
 
-// --- NEW: invite-item click -> open link, verify membership, award bonus ---
+// --- NEW: Function to update the Daily Login task's UI in Earn page ---
+// This function needs access to global data related to daily claims, usually provided by index.js/render/daily.js
+function updateDailyLoginTaskIcon() {
+    const dailyLoginArrow = document.getElementById('dailyLoginArrow');
+    const dailyLoginItem = document.getElementById('dailyLoginTask');
+
+    // Check if elements and necessary global functions are available
+    // These functions (getDailyData, getDailyIndexForToday, makeUserKey) are expected to be in global scope from index.js/render/daily.js
+    if (!dailyLoginArrow || !dailyLoginItem || typeof getDailyData === 'undefined' || typeof getDailyIndexForToday === 'undefined' || typeof makeUserKey === 'undefined') {
+        console.warn("Daily login UI update skipped: missing elements or global functions.");
+        return;
+    }
+
+    const wallet = (localStorage.getItem('proguzmir_wallet') || 'guest').toString();
+    const { weekStartISO, claims } = getDailyData(wallet);
+    const todayIndex = getDailyIndexForToday(weekStartISO);
+
+    // Determine if today's daily reward is claimed
+    const isDailyClaimed = (todayIndex !== null && claims[todayIndex]);
+
+    if (isDailyClaimed) {
+        dailyLoginItem.classList.add('is-completed');
+        dailyLoginArrow.innerHTML = `
+            <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon">
+                <img src="/image/done.svg" alt="">
+            </span>`;
+    } else {
+        dailyLoginItem.classList.remove('is-completed');
+        dailyLoginArrow.innerHTML = `
+            <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon">
+                <img src="/image/arrow.svg" alt="">
+            </span>`;
+    }
+}
+
+// Expose the function globally for render/daily.js to call
+window.updateDailyLoginTaskIcon = updateDailyLoginTaskIcon;
+
+
+// --- O'ZGARTIRILGAN: invite-item click -> open link, set pending + show Claim button ---
 document.addEventListener('click', async function (ev) {
     const item = ev.target.closest('.invite-item.bton');
     if (!item) return;
+
+    // Skip the daily login item for this generic click handler, as its interaction is handled separately
+    if (item.id === 'dailyLoginTask') return;
 
     // 1. Agar foydalanuchi "Claim" tugmasini bossa
     if (ev.target.classList.contains('claim-inline-btn')) {
@@ -119,6 +161,7 @@ document.addEventListener('click', async function (ev) {
     // Show Claim button
     const arrowDiv = item.querySelector('.invite-arrow');
     if (arrowDiv) {
+        // Linkni keyinroq ishlatish uchun 'data-href' sifatida saqlab qo'yamiz
         anchor.setAttribute('data-href', href);
         arrowDiv.innerHTML = `<button class="claim-inline-btn">Claim</button>`;
     }
@@ -246,6 +289,11 @@ function markAsCompleted(item, href) {
     // 2. Linkni (silkkani) topamiz va uni butunlay o'chiramiz
     const a = item.querySelector('a');
     if (a) {
+        // Store the original href in a data attribute before removing the href, if it exists
+        const originalHref = a.getAttribute('href');
+        if (originalHref) {
+            a.setAttribute('data-original-href', originalHref);
+        }
         a.removeAttribute('href'); // Silkkani o'chirish
         a.style.cursor = 'default'; // Kursorni o'zgartirish
         a.style.pointerEvents = 'none'; // Bosishni butunlay taqiqlash
@@ -265,21 +313,22 @@ function markAsCompleted(item, href) {
 }
 
 
-// --- INIT: move already-claimed invite items to inactive on load ---
-(function initClaimedInviteItems() {
+// --- O'ZGARTIRILGAN: Initialize all invite items on load, including the Daily Login task ---
+(function initAllInviteItemsState() {
     const wallet = (localStorage.getItem('proguzmir_wallet') || 'guest').toString();
-    document.querySelectorAll('.invite-item.bton').forEach(it => {
+    
+    // Handle generic tasks
+    // Exclude dailyLoginTask as it has its own specific update logic
+    document.querySelectorAll('.invite-item.bton:not(#dailyLoginTask)').forEach(it => {
         const anchor = it.querySelector('a[href]');
         const href = anchor ? anchor.getAttribute('href') : null;
         if (!href) return;
 
         const claimKey = `proguzmir_claimed_${encodeURIComponent(href)}_${wallet}`;
         if (localStorage.getItem(claimKey)) {
-            it.classList.add('is-completed'); // Shunchaki klass qo'shdik
-
-            // YANGI: Ensure 'done.svg' is displayed in the invite-arrow for completed items
+            it.classList.add('is-completed');
             const arrowDiv = it.querySelector('.invite-arrow');
-            if (arrowDiv) {
+            if (arrowDiv && !arrowDiv.querySelector('img[src*="done.svg"]')) {
                 arrowDiv.innerHTML = `
                     <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon">
                         <img src="/image/done.svg" alt="">
@@ -287,6 +336,10 @@ function markAsCompleted(item, href) {
             }
         }
     });
+
+    // Handle the specific Daily Login task separately
+    updateDailyLoginTaskIcon();
+
 })();
 
 // Tablarni boshqarish funksiyasi
@@ -318,12 +371,22 @@ window.addEventListener('DOMContentLoaded', () => {
     if (mainContainer) {
         mainContainer.classList.add('tab_active_view');
     }
+    // Call initAllInviteItemsState here to ensure all task states are set after DOM is ready
+    initAllInviteItemsState(); 
 });
 
 // Sahifa yuklanganda default holat: Active
-document.querySelector('.earn-main').classList.add('tab_active_view');
+// This line might be redundant if DOMContentLoaded handles it, but good to keep it for robustness.
+if (document.readyState !== 'loading') {
+    const mainContainer = document.querySelector('.earn-main');
+    if (mainContainer) {
+        mainContainer.classList.add('tab_active_view');
+    }
+}
 
 // initialize persisted keys when script loads / DOM ready
+// This is already being called in DOMContentLoaded in earn.js, so remove the redundant call in index.js.
+// Keeping this part here for consistency with original file, but logic merged above.
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadKeysFromStorage);
 } else {
