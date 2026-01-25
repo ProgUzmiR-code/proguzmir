@@ -53,7 +53,7 @@ function openSelectionModal(btnElement) {
             <h3 style="color: #fff; margin-bottom: 20px;">Hamyonni tanlang</h3>
             
             <button id="btnTon" style="width: 100%; padding: 12px; margin-bottom: 10px; background: #0098EA; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <img src="https://ton.org/download/ton_symbol.png" width="20"> TON Wallet
+                <img src="https://cryptologos.cc/logos/toncoin-ton-logo.svg?v=040" width="20"> TON Wallet
             </button>
             
             <button id="btnMetaMask" style="width: 100%; padding: 12px; margin-bottom: 20px; background: #F6851B; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
