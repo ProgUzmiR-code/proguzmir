@@ -45,6 +45,8 @@
     }
   </style>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
   <script>
     // Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
     (function () {
@@ -757,11 +759,13 @@
         gap: 100px !important;
       }
     }
+
     @media (max-width: 420px) {
       .money {
         gap: 90px !important;
       }
     }
+
     @media (max-width: 320px) {
       :root {
         --header-height: 56px;

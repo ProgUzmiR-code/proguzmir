@@ -1,6 +1,8 @@
 {
+  "url": "https://proguzmir.vercel.app/",
   "name": "ProgUzmiR",
   "short_name": "ProgUzmiR",
+  "iconUrl": "https://proguzmir.vercel.app/image/logo.png",
   "start_url": "/",
   "display": "fullscreen",
   "background_color": "#000000",

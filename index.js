@@ -1176,6 +1176,19 @@ document.querySelectorAll('.nav .tab').forEach(el => {
         }
         else if (tab === 'wallet') {
             await loadHtmlIntoContent('./wallet/wallet.html');
+            if (!document.getElementById('wallet-script-tag')) {
+                const script = document.createElement('script');
+                script.src = './wallet/wallet.js';
+                script.id = 'wallet-script-tag';
+                script.onload = () => {
+                    // Script yuklangach ishga tushiramiz
+                    if (window.initWalletPage) window.initWalletPage();
+                };
+                document.body.appendChild(script);
+            } else {
+                // Agar script oldin yuklangan bo'lsa, to'g'ridan-to'g'ri funksiyani chaqiramiz
+                if (window.initWalletPage) window.initWalletPage();
+            }
             handleHeaderByPage('wallet');
         }
 
