@@ -66,7 +66,8 @@ function setupTonButton() {
     });
 }
 
-// UI yangilash
+// ton.js dagi updateTonUI funksiyasi
+
 function updateTonUI() {
     const btnTon = document.getElementById('btnTon');
     if (!btnTon) return;
@@ -74,19 +75,40 @@ function updateTonUI() {
     const walletType = localStorage.getItem(TON_KEYS.TYPE);
     const address = localStorage.getItem(TON_KEYS.WALLET);
 
+    // Elementlarni topamiz
     const textSpan = btnTon.querySelector('.invite-info span');
+    const arrowDiv = btnTon.querySelector('.invite-arrow'); // Strelka turgan joy
     
+    // Asl strelka kodi (qaytarish uchun)
+    const defaultArrow = `
+        <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon">
+            <img src="/image/arrow.svg" alt="">
+        </span>`;
+
     if (walletType === 'ton' && address) {
+        // ULANGAN HOLAT
         const shortAddr = address.slice(0, 4) + "..." + address.slice(-4);
-        btnTon.style.background = "rgba(40, 167, 69, 0.3)";
-        btnTon.style.border = "1px solid #28a745";
+        
+        btnTon.style.background = "rgba(40, 167, 69, 0.15)"; // Och yashil fon
+        btnTon.style.border = "1px solid #28a745"; // Yashil hoshiya
+        
         if(textSpan) textSpan.innerHTML = `Ulandi: <b style="color:#fff">${shortAddr}</b>`;
+        
+        // Strelka o'rniga "Uzish" tugmasini qo'yamiz
+        if(arrowDiv) arrowDiv.innerHTML = `<button class="disconnect-btn">Uzish</button>`;
+        
     } else {
+        // UZILGAN (ODDIY) HOLAT
         btnTon.style.background = "";
         btnTon.style.border = "";
+        
         if(textSpan) textSpan.innerText = "Connect TON Wallet";
+        
+        // Strelkani qaytarib joyiga qo'yamiz
+        if(arrowDiv) arrowDiv.innerHTML = defaultArrow;
     }
 }
+
 
 // Yordamchi funksiyalar
 function saveTonData(address) {

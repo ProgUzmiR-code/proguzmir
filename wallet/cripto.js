@@ -131,26 +131,49 @@ function setupMetaMaskButton() {
     });
 }
 
-// UI Yangilash
+// metamask.js dagi updateMetaMaskUI funksiyasi
+
 function updateMetaMaskUI() {
     const btnMeta = document.getElementById('btnMetaMask');
     if (!btnMeta) return;
 
     const walletType = localStorage.getItem(EVM_KEYS.TYPE);
     const address = localStorage.getItem(EVM_KEYS.WALLET);
+    
+    // Elementlarni topamiz
     const textSpan = btnMeta.querySelector('.invite-info span');
+    const arrowDiv = btnMeta.querySelector('.invite-arrow'); // Strelka turgan joy
+
+    // Asl strelka kodi
+    const defaultArrow = `
+        <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon">
+            <img src="/image/arrow.svg" alt="">
+        </span>`;
 
     if (walletType === 'evm' && address) {
+        // ULANGAN HOLAT
         const shortAddr = address.slice(0, 4) + "..." + address.slice(-4);
-        btnMeta.style.background = "rgba(40, 167, 69, 0.3)";
+        
+        btnMeta.style.background = "rgba(40, 167, 69, 0.15)";
         btnMeta.style.border = "1px solid #28a745";
+        
         if(textSpan) textSpan.innerHTML = `Ulandi: <b style="color:#fff">${shortAddr}</b>`;
+        
+        // Strelka o'rniga "Uzish" tugmasi
+        if(arrowDiv) arrowDiv.innerHTML = `<button class="disconnect-btn">Uzish</button>`;
+        
     } else {
+        // UZILGAN HOLAT
         btnMeta.style.background = "";
         btnMeta.style.border = "";
+        
         if(textSpan) textSpan.innerText = "Connect MetaMask / EVM";
+        
+        // Strelkani qaytarish
+        if(arrowDiv) arrowDiv.innerHTML = defaultArrow;
     }
 }
+
 
 // Yordamchi funksiyalar
 function saveEvmData(address) {

@@ -182,6 +182,34 @@
             width: 100%;
             height: 100%;
         }
+
+        /* Uzish tugmasi dizayni */
+        .disconnect-btn {
+            background: rgba(255, 77, 77, 0.2);
+            /* Qizg'ish shaffof fon */
+            color: #ff4d4d;
+            /* Qizil yozuv */
+            border: 1px solid #ff4d4d;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        /* Bosilgandagi animatsiya (kichrayish) */
+        .disconnect-btn:active {
+            transform: scale(0.90);
+            background: #ff4d4d;
+            color: white;
+        }
+
+        /* Hover effekti (kompyuterda sichqoncha borganda) */
+        .disconnect-btn:hover {
+            background: rgba(255, 77, 77, 0.3);
+        }
     </style>
 
     <title>Document</title>
@@ -277,7 +305,7 @@
                         </span>
                     </div>
                 </div>
-                
+
                 <div id="btnMetaMask" class="invite-item bton">
                     <div class="invite-icon">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="">
