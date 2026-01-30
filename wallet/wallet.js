@@ -97,26 +97,16 @@ if (typeof TON_CONNECT_UI !== 'undefined') {
 
 // Biz buni initWalletPage ichiga qo'shishimiz mumkin yoki alohida listener
 // TON Connectning o'z listeneri bor:
-setTimeout(() => {
-    if(tonConnectUI) {
-        tonConnectUI.onStatusChange(wallet => {
-            if (wallet) {
-                const rawAddress = wallet.account.address;
-                // TON manzilini o'qishga qulay formatga o'tkazish (User friendly)
-                const userFriendlyAddress = TON_CONNECT_UI.toUserFriendlyAddress(rawAddress);
-                
-                saveWallet(userFriendlyAddress, 'ton');
-                // UI ni yangilash uchun qayta init qilamiz yoki buttonni topamiz
-                const btn = document.querySelector('.invite-listm2 .ds button');
-                if(btn) updateBtnUI(btn, userFriendlyAddress, 'ton');
-            } else {
-                // Agar TON uzilsa
-                const type = localStorage.getItem(KEY_WALLET_TYPE);
-                if (type === 'ton') disconnectWallet(null);
-            }
-        });
-    }
-}, 1000);
+tonConnectUI.onStatusChange(wallet => {
+  if (wallet) {
+    const raw = wallet.account.address;
+    const friendly = TON_CONNECT_UI.toUserFriendlyAddress(raw);
+    saveWallet(friendly, 'ton');
+
+    const btn = document.querySelector('.invite-listm2 .ds button');
+    if (btn) updateBtnUI(btn, friendly, 'ton');
+  }
+});
 
 
 // 4. MetaMask (EVM) ulanish funksiyasi
