@@ -980,6 +980,16 @@
   <script src="/render/game.js"></script>
   <script src="/render/shop.js"></script>
   <script src="/render/daily.js"></script>
+  
+
+  <script type="module">
+    import { createAppKit } from 'https://cdn.jsdelivr.net/npm/@reown/appkit@1.1.2/+esm'
+    import { EthersAdapter } from 'https://cdn.jsdelivr.net/npm/@reown/appkit-adapter-ethers@1.1.2/+esm'
+    import { mainnet, arbitrum, polygon, bsc } from 'https://cdn.jsdelivr.net/npm/@reown/appkit-networks@1.1.2/+esm'
+
+    // Global o'zgaruvchiga yuklaymiz, wallet.js ishlatishi uchun
+    window.AppKitLibrary = { createAppKit, EthersAdapter, networks: [mainnet, polygon, bsc] };
+  </script>
 
 </body>
 
