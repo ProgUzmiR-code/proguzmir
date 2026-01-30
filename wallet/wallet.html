@@ -336,6 +336,30 @@
         function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
         function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
     </script>
+    <script>
+  let session = null
+
+  async function handleConnect() {
+    // universalConnector is the universal connector instance from the implementation section
+    if (!universalConnector) {
+      return
+    }
+
+    const { session: providerSession } = await universalConnector.connect()
+    session = providerSession
+  }
+
+  async function handleDisconnect() {
+    if (!universalConnector) {
+      return
+    }
+    await universalConnector.disconnect()
+    session = null
+  }
+
+  document.getElementById('open-connect-modal').addEventListener('click', handleConnect)
+  document.getElementById('disconnect').addEventListener('click', handleDisconnect)
+</script>
 </body>
 
 </html>

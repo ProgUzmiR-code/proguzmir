@@ -186,7 +186,7 @@ function openSelectionModal() {
             <button id="btnTon" style="width: 100%; padding: 12px; margin-bottom: 10px; background: #0098EA; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
                 <img src="https://cryptologos.cc/logos/toncoin-ton-logo.svg?v=040" width="20"> TON Wallet
             </button>
-            <button id="btnMetaMask" style="width: 100%; padding: 12px; margin-bottom: 20px; background: #5a77df; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <button id="open-connect-modal" style="width: 100%; padding: 12px; margin-bottom: 20px; background: #5a77df; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" width="20"> MetaMask / EVM
             </button>
             <button id="btnClose" style="background: transparent; border: 1px solid #fff; color: #fff; padding: 5px 15px; border-radius: 5px; cursor: pointer;">Yopish</button>
