@@ -1,3 +1,5 @@
+// wallet/wallet.js
+
 // Global o'zgaruvchilar
 let tonConnectUI;
 const KEY_CONNECTED_WALLET = "proguzmir_crypto_wallet";
@@ -10,7 +12,7 @@ function initWalletPage() {
     // TON Connectni sozlash
     if (!tonConnectUI) {
         tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: './tonconnect-manifest.json', // Manifest fayl manzili
+            manifestUrl: '/tonconnect-manifest.json', // Manifest fayl manzili
             buttonRootId: null // Biz o'z tugmamizdan foydalanamiz
         });
     }
