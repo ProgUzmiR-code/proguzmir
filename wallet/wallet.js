@@ -8,7 +8,7 @@ const KEY_WALLET_TYPE = "proguzmir_wallet_type";
 
 // ❗ DIQQAT: Bu yerga Reown (WalletConnect) Project ID qo'yilishi kerak.
 // Supabase ID emas! (cloud.reown.com dan olingan ID)
-const projectId = "4d9838cef79b26992ff9102c92999f79"; 
+const projectId = "4d9838cef79b26992ff9102c92999f79";
 
 // ❗ TOKEN MA'LUMOTLARI
 const MY_TOKEN = {
@@ -28,7 +28,7 @@ async function initAppKit() {
         console.log("AppKit kutubxonasi hali yuklanmadi yoki topilmadi.");
         return;
     }
-    
+
     const { createAppKit, EthersAdapter, networks } = window.AppKitLibrary;
 
     try {
@@ -47,16 +47,16 @@ async function initAppKit() {
         // Hodisalarni tinglash
         evmModal.subscribeEvents(state => {
             if (state.data.event === 'CONNECT_SUCCESS') {
-                const address = evmModal.getAddress(); 
+                const address = evmModal.getAddress();
                 saveWallet(address, 'evm');
                 updateUI();
-                
+
                 // Ulangandan so'ng 1 soniya o'tib tokenni taklif qilish
                 setTimeout(() => {
-                    addTokenToWallet(); 
+                    addTokenToWallet();
                 }, 1000);
             }
-            
+
             if (state.data.event === 'DISCONNECT_SUCCESS') {
                 disconnectWallet(null, false);
             }
@@ -70,7 +70,7 @@ async function initAppKit() {
 
         appKitInitialized = true;
         console.log("MetaMask (AppKit) ishga tushdi!");
-        
+
     } catch (error) {
         console.error("AppKit xatosi:", error);
     }
@@ -85,7 +85,7 @@ async function addTokenToWallet() {
         }
 
         const provider = evmModal.getProvider();
-        if(!provider) return;
+        if (!provider) return;
 
         const wasAdded = await provider.request({
             method: 'wallet_watchAsset',
@@ -113,7 +113,7 @@ function initWalletPage() {
     console.log("Wallet page initialized");
 
     // MetaMaskni ishga tushirishga harakat qilamiz
-    if(window.AppKitLibrary) {
+    if (window.AppKitLibrary) {
         initAppKit();
     } else {
         // Internet sekin bo'lsa, 1.5 soniyadan keyin qayta urinib ko'radi
@@ -123,7 +123,7 @@ function initWalletPage() {
     // TON Connectni sozlash
     if (!tonConnectUI) {
         tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: 'https://proguzmir.vercel.app/tonconnect-manifest.json', 
+            manifestUrl: 'https://proguzmir.vercel.app/tonconnect-manifest.json',
             buttonRootId: null
         });
 
@@ -142,10 +142,10 @@ function initWalletPage() {
 
     // Tugmani sozlash
     const connectBtn = document.querySelector('.invite-listm2 .ds button');
-    
+
     // UI ni hozirgi holatga keltirish
     checkConnectedWallet(connectBtn);
-    updateUI(); 
+    updateUI();
 
     if (connectBtn) {
         // Eski hodisalarni tozalash
@@ -156,9 +156,9 @@ function initWalletPage() {
             e.preventDefault();
             if (localStorage.getItem(KEY_CONNECTED_WALLET)) {
                 // Agar ulangan bo'lsa
-                if(localStorage.getItem(KEY_WALLET_TYPE) === 'evm') {
+                if (localStorage.getItem(KEY_WALLET_TYPE) === 'evm') {
                     // MetaMask bo'lsa: Token qo'shish yoki Uzishni tanlash
-                    if(confirm("Tokenni MetaMaskga qo'shmoqchimisiz? (Bekor qilish = Hamyonni uzish)")) {
+                    if (confirm("Tokenni MetaMaskga qo'shmoqchimisiz? (Bekor qilish = Hamyonni uzish)")) {
                         addTokenToWallet();
                     } else {
                         disconnectWallet(newBtn, true);
@@ -179,7 +179,7 @@ function initWalletPage() {
 function openSelectionModal() {
     const modal = document.createElement('div');
     modal.style.cssText = `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center;`;
-    
+
     modal.innerHTML = `
         <div style="background: #06121a; padding: 25px; border-radius: 15px; border: 1px solid #ffd700; text-align: center; width: 300px;">
             <h3 style="color: #fff; margin-bottom: 20px;">Hamyonni tanlang</h3>
@@ -194,18 +194,33 @@ function openSelectionModal() {
     `;
     document.body.appendChild(modal);
 
-    document.getElementById('btnTon').onclick = async () => { modal.remove(); try { await tonConnectUI.openModal(); } catch (e) {} };
-    
-    document.getElementById('btnMetaMask').onclick = () => { 
-        modal.remove(); 
-        if(evmModal) evmModal.open(); 
-        else {
-            alert("Tizim yuklanmoqda... Qayta urining");
-            initAppKit();
-        }
-    };
-    
-    document.getElementById('btnClose').onclick = () => modal.remove();
+    const btnTon = document.getElementById('btnTon');
+    if (btnTon) {
+        btnTon.onclick = async () => {
+            modal.remove();
+            try {
+                if (tonConnectUI && typeof tonConnectUI.openModal === 'function') {
+                    await tonConnectUI.openModal();
+                }
+            } catch (e) { /* ignore modal open errors */ }
+        };
+    }
+
+    const btnMeta = document.getElementById('open-connect-modal') || document.getElementById('btnMetaMask');
+    if (btnMeta) {
+        btnMeta.onclick = () => {
+            modal.remove();
+            if (evmModal && typeof evmModal.open === 'function') {
+                evmModal.open();
+            } else {
+                alert("Tizim yuklanmoqda... Qayta urining");
+                initAppKit();
+            }
+        };
+    }
+
+    const btnClose = document.getElementById('btnClose');
+    if (btnClose) btnClose.onclick = () => modal.remove();
 }
 
 function saveWallet(address, type) {
@@ -225,11 +240,11 @@ async function disconnectWallet(btnElement, showAlert = true) {
     const type = localStorage.getItem(KEY_WALLET_TYPE);
     if (type === 'ton' && tonConnectUI) await tonConnectUI.disconnect();
     if (type === 'evm' && evmModal) await evmModal.disconnect();
-    
+
     localStorage.removeItem(KEY_CONNECTED_WALLET);
     localStorage.removeItem(KEY_WALLET_TYPE);
     updateUI();
-    if(showAlert) alert("Hamyon uzildi.");
+    if (showAlert) alert("Hamyon uzildi.");
 }
 
 function updateUI() {
@@ -246,7 +261,7 @@ function updateUI() {
         btn.style.color = "#fff";
     } else {
         btn.innerHTML = `<span><i aria-hidden="true" style="display: none;"></i>Connect Wallet</span>`;
-        btn.style.background = ""; 
+        btn.style.background = "";
         btn.style.color = "";
     }
 }

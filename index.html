@@ -206,12 +206,11 @@
   <script>
     function updateClipPath() {
       const el = document.querySelector('.circle1');
+      if (!el) return;
       const w = el.offsetWidth;
       const h = el.offsetHeight;
 
       const rightX = w - 15;
-
-      // Pastki bukilish chuqurligi (ichiga kirish chuqurligi)
       const bottomIn = -1;
 
       const path = ` M 10 0 L 0 0 L 2 7 A 10 10 0 0 0 14 15 L 10 15 L ${rightX} 15 C ${w} 15 ${w - 3} 6 ${w - 9} 0 L ${w * .61} 0 L ${w * 0.60} 0 L ${w * 0.61} 15 A 1 10 0 0 0 0 15 L 0 ${h - bottomIn} C 0 ${h - 10} 10 ${h - 10} 14 ${h - 10} L ${w - 14} ${h - 10} C ${w - 1} ${h - 10} ${w} ${h} ${w} ${h - bottomIn}  L ${w} 0`;
@@ -224,14 +223,14 @@
   </script>
 
   <script>
-    function updateClipPath() {
+    // renamed second function to avoid override and target .circle2
+    function updateClipPath2() {
       const el = document.querySelector('.circle2');
+      if (!el) return;
       const w = el.offsetWidth;
       const h = el.offsetHeight;
 
       const rightX = w - 15;
-
-      // Pastki bukilish chuqurligi (ichiga kirish chuqurligi)
       const bottomIn = -1;
 
       const path = ` M 10 0 L 0 0 L 2 7 A 10 10 0 0 0 14 15 L 10 15 L ${rightX} 15 C ${w} 15 ${w - 3} 6 ${w - 9} 0 L ${w * .61} 0 L ${w * 0.60} 0 L ${w * 0.61} 15 A 1 10 0 0 0 0 15 L 0 ${h - bottomIn} C 0 ${h - 10} 10 ${h - 10} 14 ${h - 10} L ${w - 14} ${h - 10} C ${w - 1} ${h - 10} ${w} ${h} ${w} ${h - bottomIn}  L ${w} 0`;
@@ -239,13 +238,17 @@
       el.style.clipPath = `path("${path}")`;
     }
 
-    window.addEventListener("resize", updateClipPath);
-    window.addEventListener("load", updateClipPath);
+    window.addEventListener("resize", updateClipPath2);
+    window.addEventListener("load", updateClipPath2);
 
-    window.Telegram.WebApp.expand();
-    window.Telegram.WebApp.setHeaderColor("transparent");
-    window.Telegram.WebApp.disableVerticalSwipes();
+    // Safe Telegram calls
+    if (window.Telegram && window.Telegram.WebApp) {
+      try { window.Telegram.WebApp.expand && window.Telegram.WebApp.expand(); } catch (e) {}
+      try { window.Telegram.WebApp.setHeaderColor && window.Telegram.WebApp.setHeaderColor("transparent"); } catch (e) {}
+      try { window.Telegram.WebApp.disableVerticalSwipes && window.Telegram.WebApp.disableVerticalSwipes(); } catch (e) {}
+    }
   </script>
+
   <script>
     window.addEventListener("DOMContentLoaded", () => {
       const tg = window.Telegram.WebApp;
