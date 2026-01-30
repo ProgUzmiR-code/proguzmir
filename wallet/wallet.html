@@ -4,17 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-
-    <script type="module">
-        import { createAppKit } from 'https://cdn.jsdelivr.net/npm/@reown/appkit@1.1.2/+esm'
-        import { EthersAdapter } from 'https://cdn.jsdelivr.net/npm/@reown/appkit-adapter-ethers@1.1.2/+esm'
-        import { mainnet, arbitrum, polygon, bsc } from 'https://cdn.jsdelivr.net/npm/@reown/appkit-networks@1.1.2/+esm'
-
-        // Bu qator kutubxonani global qilib ochib beradi
-        window.AppKitLibrary = { createAppKit, EthersAdapter, networks: [mainnet, polygon, bsc] };
-        console.log("AppKit Library yuklandi!"); // Konsolda shu yozuv chiqishi kerak
-    </script>
 
     <style>
         html,
