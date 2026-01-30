@@ -49,15 +49,19 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
   <script src="https://unpkg.com/@reown/appkit@latest/dist/appkit.umd.js"></script>
 
-  <script type="module">
-    import { createAppKit } from 'https://cdn.jsdelivr.net/npm/@reown/appkit@1.1.2/+esm'
-    import { EthersAdapter } from 'https://cdn.jsdelivr.net/npm/@reown/appkit-adapter-ethers@1.1.2/+esm'
-    import { mainnet, arbitrum, polygon, bsc } from 'https://cdn.jsdelivr.net/npm/@reown/appkit-networks@1.1.2/+esm'
 
-    // Global o'zgaruvchiga yuklaymiz
+  <script type="module">
+    // CDN havolalarini yangiladik (esm.sh ishlatsak xato bermaydi)
+    import { createAppKit } from 'https://esm.sh/@reown/appkit@1.6.0'
+    import { EthersAdapter } from 'https://esm.sh/@reown/appkit-adapter-ethers@1.6.0'
+    import { mainnet, arbitrum, polygon, bsc } from 'https://esm.sh/@reown/appkit-networks@1.6.0'
+
+    // Kutubxonani "window" ga ulaymiz, shunda wallet.js uni ko'ra oladi
     window.AppKitLibrary = { createAppKit, EthersAdapter, networks: [mainnet, polygon, bsc] };
-    console.log("AppKit Library (index.html dan) yuklandi!");
+
+    console.log("AppKit (MetaMask) kutubxonasi yuklandi!");
   </script>
+
 
   <script>
     // Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
