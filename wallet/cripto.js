@@ -101,7 +101,8 @@ function initMetaMaskWallet() {
     updateMetaMaskUI();
 }
 
-// Tugmani sozlash
+// metamask.js ichidagi setupMetaMaskButton funksiyasi
+
 function setupMetaMaskButton() {
     const btnMeta = document.getElementById('btnMetaMask');
     if (!btnMeta) return;
@@ -113,23 +114,26 @@ function setupMetaMaskButton() {
         const currentType = localStorage.getItem(EVM_KEYS.TYPE);
 
         if (currentType === 'evm') {
-            // Ulangan bo'lsa -> Token qo'shish yoki Uzish
-            if(confirm("Tokenni hamyonga qo'shasizmi? (Bekor qilish = Hamyonni uzish)")) {
-                addToken();
-            } else {
+            // ❗ YANGI QISM: Tasdiqlash oynasi (OK / Cancel)
+            const isConfirmed = confirm("Haqiqatan ham MetaMask hamyonini uzmoqchimisiz?");
+
+            if (isConfirmed) {
+                // Agar "OK" bossa, uzamiz
                 if(evmModal) evmModal.disconnect();
                 clearEvmData();
             }
-        } else if (!currentType) {
-            // Ulanmagan bo'lsa -> Ulaymiz
+            // Agar "Cancel" bossa, oynani yopadi va uzmaydi
+        } 
+        else if (!currentType) {
             if(evmModal) evmModal.open();
             else { alert("Tizim yuklanmoqda... biroz kuting"); initMetaMaskSystem(); }
-        } else {
-            // Agar TON ulangan bo'lsa
+        } 
+        else {
             alert("Avval TON hamyonni uzing!");
         }
     });
 }
+
 
 // metamask.js dagi updateMetaMaskUI funksiyasi
 

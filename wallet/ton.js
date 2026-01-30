@@ -40,7 +40,8 @@ function initTonWallet() {
     updateTonUI();
 }
 
-// Tugmaga hodisa qo'shish
+// ton.js ichidagi setupTonButton funksiyasi
+
 function setupTonButton() {
     const btnTon = document.getElementById('btnTon');
     if (!btnTon) return;
@@ -49,22 +50,30 @@ function setupTonButton() {
     const newBtn = btnTon.cloneNode(true);
     btnTon.parentNode.replaceChild(newBtn, btnTon);
 
-    newBtn.addEventListener('click', async () => {
+    newBtn.addEventListener('click', async (e) => {
+        // Agar bosilgan element "Disconnect" tugmasi bo'lsa yoki umumiy div bo'lsa
         const currentType = localStorage.getItem(TON_KEYS.TYPE);
 
         if (currentType === 'ton') {
-            // Agar allaqachon ulangan bo'lsa -> Uzish
-            await tonConnectUI.disconnect();
-            clearTonData();
-        } else if (!currentType) {
-            // Agar hech narsa ulanmagan bo'lsa -> Ulaymiz
+            // ❗ YANGI QISM: Tasdiqlash oynasi (OK / Cancel)
+            const isConfirmed = confirm("Haqiqatan ham TON hamyonini uzmoqchimisiz?");
+            
+            if (isConfirmed) {
+                // Agar "OK" bossa, uzamiz
+                await tonConnectUI.disconnect();
+                clearTonData();
+            }
+            // Agar "Cancel" bossa, hech narsa qilmaymiz
+        } 
+        else if (!currentType) {
             try { await tonConnectUI.openModal(); } catch (e) { console.error(e); }
-        } else {
-            // Agar MetaMask ulangan bo'lsa
+        } 
+        else {
             alert("Avval MetaMask hamyonni uzing!");
         }
     });
 }
+
 
 // ton.js dagi updateTonUI funksiyasi
 
