@@ -19,12 +19,12 @@
 
         .wallet {
             margin-top: 48px;
-        }
 
-        .wallet h1 {
-            font-size: 24px;
-            text-align: center;
-            color: #ffd700;
+            h1 {
+                font-size: 24px;
+                text-align: center;
+                color: #ffd700;
+            }
         }
 
         header .flex {
@@ -177,18 +177,18 @@
 
                         <div
                             style="position: absolute; top: 5px; left: 5px; background: #ff4d4d; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; border: 1px solid white; font-weight: bold; display: flex; align-items: center; gap: 3px;">
-                            <span style="font-size: 8px;">First</span> 💎 N/A
+                            <span style="font-size: 8px;">First</span> 💎 ${it.bonus}
                         </div>
 
-                        <img src="./image/loading.svg"
+                        <img src="${it.img}"
                             style="width: 70%; margin-top: 30px; margin-bottom: 10px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));">
 
-                        <div style="font-weight: 900; color: #3a7994; font-size: 18px; margin-bottom: 5px;">Item
+                        <div style="font-weight: 900; color: #3a7994; font-size: 18px; margin-bottom: 5px;">${it.name}
                         </div>
 
                         <div
                             style="background: #e69a30; width: 100%; text-align: center; padding: 8px 0; color: white; font-weight: bold; border-top: 2px solid #d48a20; cursor: pointer;">
-                            0
+                            ${it.cost}
                         </div>
                     </div>
                 </div>
@@ -198,7 +198,7 @@
                 <div>
                     <div class="ds">
                         <span>Your TON address</span>
-                        <button id="open-connect-modal" class="bton" tabindex="0" type="button" style="font-size: 14px;">
+                        <button class="bton" tabindex="0" type="button" style="font-size: 14px;">
                             <span>
                                 <i aria-hidden="true" style="display: none;"
                                     role="presentation">account_balance_wallet</i>
@@ -325,52 +325,17 @@
         });
     </script>
     <script>
-        // Safe guards for optional functions/elements used for Telegram/back navigation
-        if (typeof showTelegramBack === 'function') {
-            try { showTelegramBack(() => { if (typeof showheader === 'function') showheader(); if (typeof renderGame === 'function') renderGame(); }); } catch (e) { }
-        }
-        if (typeof hideheader === 'function') {
-            try { hideheader(); } catch (e) { }
-        }
-        if (typeof showTelegramBack === 'function') {
-            try { showTelegramBack(() => { if (typeof hideTelegramBack === 'function') hideTelegramBack(); if (typeof showheader === 'function') showheader(); if (typeof renderGame === 'function') renderGame(); }); } catch (e) { }
-        }
-
-        const keyBackEl = document.getElementById('keyBack');
-        if (keyBackEl) {
-            keyBackEl.addEventListener('click', () => { if (typeof hideTelegramBack === 'function') hideTelegramBack(); if (typeof showheader === 'function') showheader(); if (typeof renderGame === 'function') renderGame(); });
-        }
-
+        // show Telegram BackButton and set it to return to main renderGame
+        showTelegramBack(() => { showheader(); renderGame(); });
+        // hide bottom nav and enable Telegram Back to return to game
+        hideheader();
+        showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
+        // back handler
+        document.getElementById('keyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); renderGame(); });
+        // helpers to hide/show bottom header
         function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
         function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
     </script>
-
-    <script>
-        let session = null
-
-        async function handleConnect() {
-            if (typeof universalConnector === 'undefined' || !universalConnector) return;
-            try {
-                const { session: providerSession } = await universalConnector.connect()
-                session = providerSession
-            } catch (e) { console.warn('connect failed', e); }
-        }
-
-        async function handleDisconnect() {
-            if (typeof universalConnector === 'undefined' || !universalConnector) return;
-            try {
-                await universalConnector.disconnect()
-                session = null
-            } catch (e) { console.warn('disconnect failed', e); }
-        }
-
-        const openBtn = document.getElementById('open-connect-modal');
-        if (openBtn) openBtn.addEventListener('click', handleConnect);
-
-        const disconnectBtn = document.getElementById('disconnect');
-        if (disconnectBtn) disconnectBtn.addEventListener('click', handleDisconnect);
-    </script>
-
 </body>
 
 </html>
