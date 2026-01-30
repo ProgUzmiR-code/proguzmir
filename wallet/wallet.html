@@ -19,12 +19,12 @@
 
         .wallet {
             margin-top: 48px;
+        }
 
-            h1 {
-                font-size: 24px;
-                text-align: center;
-                color: #ffd700;
-            }
+        .wallet h1 {
+            font-size: 24px;
+            text-align: center;
+            color: #ffd700;
         }
 
         header .flex {
@@ -53,7 +53,7 @@
             flex-direction: column;
             cursor: pointer;
             align-items: center;
-            padding: 10px 20px 10px 20px;
+            padding: 10px 15px 10px 15px;
             list-style: none;
         }
 
@@ -136,6 +136,52 @@
             color: white;
 
         }
+
+        .invite-item {
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 7px;
+            background: hsla(0, 0%, 0%, 0.5);
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-align: center;
+            align-items: center;
+        }
+
+        .invite-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 9px;
+            background: hsla(0, 0%, 100%, .15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .invite-info {
+            flex: 1;
+            margin-left: 10px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .invite-item .invite-arrow {
+            display: flex;
+            align-items: center;
+        }
+
+        .scoped-svg-icon {
+            display: flex;
+            align-items: center;
+        }
+
+        .invite-icon img {
+            margin: auto;
+            width: 100%;
+            height: 100%;
+        }
     </style>
 
     <title>Document</title>
@@ -155,9 +201,10 @@
     <div class="invitem">
         <div class="tab_mainm">
             <ul>
-                <li class="tab_itemm " data-target="completed">Withdraw</li>
-                <li class="tab_itemm " data-target="inactive">Recharge</li>
-                <li class="tab_itemm checked" data-target="active">Records</li>
+                <li class="tab_itemm " data-target="completed2">Withdraw</li>
+                <li class="tab_itemm " data-target="completed">Recharge</li>
+                <li class="tab_itemm " data-target="inactive">Records</li>
+                <li class="tab_itemm checked" data-target="active">Connect</li>
             </ul>
         </div>
 
@@ -177,35 +224,26 @@
 
                         <div
                             style="position: absolute; top: 5px; left: 5px; background: #ff4d4d; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; border: 1px solid white; font-weight: bold; display: flex; align-items: center; gap: 3px;">
-                            <span style="font-size: 8px;">First</span> 💎 ${it.bonus}
+                            <span style="font-size: 8px;">First</span> 💎 N/A
                         </div>
 
-                        <img src="${it.img}"
+                        <img src="./image/loading.svg"
                             style="width: 70%; margin-top: 30px; margin-bottom: 10px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));">
 
-                        <div style="font-weight: 900; color: #3a7994; font-size: 18px; margin-bottom: 5px;">${it.name}
+                        <div style="font-weight: 900; color: #3a7994; font-size: 18px; margin-bottom: 5px;">Item
                         </div>
 
                         <div
                             style="background: #e69a30; width: 100%; text-align: center; padding: 8px 0; color: white; font-weight: bold; border-top: 2px solid #d48a20; cursor: pointer;">
-                            ${it.cost}
+                            0
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="invite-listm2" style="display: block;">
+            <div class="invite-listm2" style="display: none;">
                 <div>
-                    <div class="ds">
-                        <span>Your TON address</span>
-                        <button class="bton" tabindex="0" type="button" style="font-size: 14px;">
-                            <span>
-                                <i aria-hidden="true" style="display: none;"
-                                    role="presentation">account_balance_wallet</i>
-                                Connect Wallet
-                            </span>
-                        </button>
-                    </div>
+
                     <div class="ds2">
                         <span>Recharge Record</span>
                         <div class="tab_mainm1 w1">
@@ -216,16 +254,45 @@
                         </div>
 
                     </div>
-                    <div class="invite-listm4">
+                    <div class="invite-listm5">
                         <span class="q-mt-sm">No transaction records</span>
                     </div>
-                    <div class="invite-listm5" style="display: none;">
+                    <div class="invite-listm6" style="display: none;">
                         <span class="q-mt-sm">No transaction records</span>
                     </div>
                 </div>
             </div>
 
+            <div class="invite-listm4" style="display: block;">
+                <div id="btnTon" class="invite-item bton">
+                    <div class="invite-icon">
+                        <img src="https://cryptologos.cc/logos/toncoin-ton-logo.svg?v=040" alt="">
+                    </div>
+                    <div class="invite-info">
+                        <span>Your TON address connected</span>
+                    </div>
+                    <div class="invite-arrow">
+                        <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                            <img src="/image/arrow.svg" alt="">
+                        </span>
+                    </div>
+                </div>
+                
+                <div id="btnMetaMask" class="invite-item bton">
+                    <div class="invite-icon">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="">
+                    </div>
+                    <div class="invite-info">
+                        <span>Your MetaMask address connected</span>
+                    </div>
+                    <div class="invite-arrow">
+                        <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                            <img src="/image/arrow.svg" alt="">
+                        </span>
+                    </div>
+                </div>
 
+            </div>
         </div>
 
     </div>
@@ -281,16 +348,17 @@
                 document.querySelectorAll('.invitem').forEach(inviteBlock => {
 
                     const lists = {
-                        inactive: inviteBlock.querySelector('.invite-listm'),
-                        active: inviteBlock.querySelector('.invite-listm2'),
-                        completed: inviteBlock.querySelector('.invite-listm3'),
+                        inactive: inviteBlock.querySelector('.invite-listm2'),
+                        active: inviteBlock.querySelector('.invite-listm4'),
+                        completed: inviteBlock.querySelector('.invite-listm'),
+                        completed1: inviteBlock.querySelector('.invite-listm3'),
                     };
 
                     Object.values(lists).forEach(l => l && (l.style.display = 'none'));
 
                     if (lists[status]) {
                         lists[status].style.display =
-                            status === 'completed' ? 'flex' : 'block';
+                            status === 'completed1' ? 'flex' : 'block';
                     }
                 });
 
@@ -309,8 +377,8 @@
                 document.querySelectorAll('.der').forEach(derBlock => {
 
                     const lists = {
-                        recharge: derBlock.querySelector('.invite-listm4'),
-                        withdraw: derBlock.querySelector('.invite-listm5'),
+                        recharge: derBlock.querySelector('.invite-listm5'),
+                        withdraw: derBlock.querySelector('.invite-listm6'),
                     };
 
                     Object.values(lists).forEach(l => l && (l.style.display = 'none'));

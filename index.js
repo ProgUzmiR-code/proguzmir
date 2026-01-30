@@ -1174,23 +1174,18 @@ document.querySelectorAll('.nav .tab').forEach(el => {
             try { if (typeof initRankPage === 'function') initRankPage(); } catch (e) { console.warn('initRankPage call error', e); }
             handleHeaderByPage('rank');
         }
-        else if (tab === 'wallet') {
-            await loadHtmlIntoContent('./wallet/wallet.html');
-            if (!document.getElementById('wallet-script-tag')) {
-                const script = document.createElement('script');
-                script.src = './wallet/wallet.js';
-                script.id = 'wallet-script-tag';
-                script.onload = () => {
-                    // Script yuklangach ishga tushiramiz
-                    if (window.initWalletPage) window.initWalletPage();
-                };
-                document.body.appendChild(script);
-            } else {
-                // Agar script oldin yuklangan bo'lsa, to'g'ridan-to'g'ri funksiyani chaqiramiz
-                if (window.initWalletPage) window.initWalletPage();
-            }
-            handleHeaderByPage('wallet');
-        }
+        // index.js ichida
+
+else if (tab === 'wallet') {
+    await loadHtmlIntoContent('./wallet/wallet.html');
+    
+    // Eski initWalletPage() o'rniga yangilarini chaqiramiz:
+    if (window.initTonWallet) window.initTonWallet();
+    if (window.initMetaMaskWallet) window.initMetaMaskWallet();
+
+    handleHeaderByPage('wallet');
+}
+
 
         else if (tab === 'invite') {
             // 1. HTML yuklash

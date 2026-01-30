@@ -49,18 +49,15 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
   <script src="https://unpkg.com/@reown/appkit@latest/dist/appkit.umd.js"></script>
 
-
   <script type="module">
-    // CDN havolalarini yangiladik (esm.sh ishlatsak xato bermaydi)
-    import { createAppKit } from 'https://esm.sh/@reown/appkit@1.6.0'
-    import { EthersAdapter } from 'https://esm.sh/@reown/appkit-adapter-ethers@1.6.0'
-    import { mainnet, arbitrum, polygon, bsc } from 'https://esm.sh/@reown/appkit-networks@1.6.0'
-
-    // Kutubxonani "window" ga ulaymiz, shunda wallet.js uni ko'ra oladi
+    import { createAppKit } from 'https://cdn.jsdelivr.net/npm/@reown/appkit@1.1.2/+esm'
+    import { EthersAdapter } from 'https://cdn.jsdelivr.net/npm/@reown/appkit-adapter-ethers@1.1.2/+esm'
+    import { mainnet, arbitrum, polygon, bsc } from 'https://cdn.jsdelivr.net/npm/@reown/appkit-networks@1.1.2/+esm'
     window.AppKitLibrary = { createAppKit, EthersAdapter, networks: [mainnet, polygon, bsc] };
-
-    console.log("AppKit (MetaMask) kutubxonasi yuklandi!");
   </script>
+
+
+
 
 
   <script>
@@ -243,9 +240,9 @@
 
     // Safe Telegram calls
     if (window.Telegram && window.Telegram.WebApp) {
-      try { window.Telegram.WebApp.expand && window.Telegram.WebApp.expand(); } catch (e) {}
-      try { window.Telegram.WebApp.setHeaderColor && window.Telegram.WebApp.setHeaderColor("transparent"); } catch (e) {}
-      try { window.Telegram.WebApp.disableVerticalSwipes && window.Telegram.WebApp.disableVerticalSwipes(); } catch (e) {}
+      try { window.Telegram.WebApp.expand && window.Telegram.WebApp.expand(); } catch (e) { }
+      try { window.Telegram.WebApp.setHeaderColor && window.Telegram.WebApp.setHeaderColor("transparent"); } catch (e) { }
+      try { window.Telegram.WebApp.disableVerticalSwipes && window.Telegram.WebApp.disableVerticalSwipes(); } catch (e) { }
     }
   </script>
 
@@ -999,7 +996,8 @@
   <script src="/render/game.js"></script>
   <script src="/render/shop.js"></script>
   <script src="/render/daily.js"></script>
-
+  <script src="/wallet/ton.js"></script>
+  <script src="/wallet/cripto.js"></script>
 
 </body>
 
