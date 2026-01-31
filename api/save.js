@@ -121,6 +121,10 @@ export default async function handler(req, res) {
 
     const isNewUser = !existingUser;
 
+    // Safely extract wallet fields from incoming state (support camelCase and snake_case)
+    const tonWalletVal = (state && (state.tonWallet || state.ton_wallet)) ? (state.tonWallet || state.ton_wallet) : null;
+    const cryptoWalletVal = (state && (state.cryptoWallet || state.crypto_wallet)) ? (state.cryptoWallet || state.crypto_wallet) : null;
+
     // Foydalanuvchini upsert qilish
     const { data, error } = await supabase
       .from('user_states')
@@ -146,6 +150,9 @@ export default async function handler(req, res) {
         // YANGI: keys fields
         keys_total: Number(state.keysTotal || 0),
         keys_used: Number(state.keysUsed || 0),
+        // persist wallets from incoming state
+        ton_wallet: tonWalletVal,
+        crypto_wallet: cryptoWalletVal,
         updated_at: new Date().toISOString()
       }, {
         onConflict: 'wallet'
