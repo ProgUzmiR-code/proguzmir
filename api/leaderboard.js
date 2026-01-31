@@ -1,3 +1,4 @@
+// api/leaderboard.js
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -13,11 +14,12 @@ export default async function handler(req, res) {
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     try {
-        // Faqat kerakli ustunlarni va top 100 ta userni olamiz
+        // ❗ tg_id va connected_wallet ni olamiz
         const { data, error } = await supabase
             .from('user_states')
-            .select('wallet, prc_wei, first_name, last_name') // Ismlarni qo'shdik
-            .limit(200);
+            .select('tg_id, connected_wallet, prc_wei, diamond, first_name, last_name')
+            .order('diamond', { ascending: false }) // Olmos bo'yicha tartiblash (ixtiyoriy)
+            .limit(100);
 
         if (error) throw error;
 

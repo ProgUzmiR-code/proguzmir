@@ -1,4 +1,5 @@
 // api/save.js
+
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
@@ -7,28 +8,9 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const Base62 = {
-  chars: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
-  decode(str) {
-    if (!str) return null;
-    let num = 0n;
-    try {
-      for (let i = 0; i < str.length; i++) {
-        const index = this.chars.indexOf(str[i]);
-        if (index === -1) return null; // Noto'g'ri belgi bo'lsa
-        num = num * 62n + BigInt(index);
-      }
-      return num.toString();
-    } catch (e) {
-      return null;
-    }
-  }
-};
-
-
 // MA'LUMOTLARNI TEKSHIRISH FUNKSIYASI
 function verifyTelegramInitData(initData) {
-  const BOT_TOKEN = process.env.BOT_TOKEN; // Vercel Settings'ga qo'shing
+  const BOT_TOKEN = process.env.BOT_TOKEN;
   if (!BOT_TOKEN) return false;
 
   const urlParams = new URLSearchParams(initData);
@@ -47,18 +29,13 @@ function verifyTelegramInitData(initData) {
 }
 
 export default async function handler(req, res) {
-  // CORS headers qo'shish
+  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
     const { initData, state } = req.body;
@@ -67,16 +44,22 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing initData or state' });
     }
 
+    // 1. Telegramdan kelgan ma'lumotni o'qiymiz
     const urlParams = new URLSearchParams(initData);
     const user = JSON.parse(urlParams.get('user') || '{}');
-    const startParam = urlParams.get('start_param'); // ref_<encoded> or null
+    const startParam = urlParams.get('start_param');
 
-    const wallet = String(user.id);
-    // Decode referrer from start_param if present
+    if (!user.id) {
+      return res.status(400).json({ error: 'Missing user ID from Telegram' });
+    }
+
+    // ❗ O'ZGARISH: wallet o'rniga tg_id ishlatamiz
+    const tgId = String(user.id);
+
+    // Referrer ID ni aniqlash (Base62 decode)
     let referrerId = null;
     if (startParam && startParam.startsWith('ref_')) {
       const code = startParam.replace('ref_', '');
-      // Base62 decode helper (returns decimal string)
       const base62Decode = (s) => {
         const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         let num = 0n;
@@ -90,44 +73,34 @@ export default async function handler(req, res) {
 
       try {
         if (/^[0-9a-zA-Z]+$/.test(code)) {
-          // likely Base62-encoded numeric id
           referrerId = base62Decode(code);
         } else {
-          // fallback: decode URL-safe base64 (replace - _ with + /)
-          const b64 = code.replace(/-/g, '+').replace(/_/g, '/');
-          try {
-            referrerId = Buffer.from(b64, 'base64').toString('utf8');
-          } catch (e) {
-            referrerId = code; // last resort: store raw code
-          }
+          referrerId = code; 
         }
       } catch (err) {
-        console.warn('referrer decode failed, storing raw code', err);
+        console.warn('referrer decode failed', err);
         referrerId = code;
       }
     }
 
-
-    if (!user.id) {
-      return res.status(400).json({ error: 'Missing user ID from Telegram' });
-    }
-
-    // YANGI: Foydalanuvchi mavjudligini tekshirish (yangi foydalanuvchimi?)
+    // 2. Foydalanuvchi bor-yo'qligini tekshirish (tg_id bo'yicha)
     const { data: existingUser } = await supabase
       .from('user_states')
-      .select('wallet')
-      .eq('wallet', wallet)
+      .select('tg_id') 
+      .eq('tg_id', tgId) // ❗ wallet -> tg_id
       .single();
 
     const isNewUser = !existingUser;
 
-    // Foydalanuvchini upsert qilish
+    // 3. Bazaga yozish (Upsert)
     const { data, error } = await supabase
       .from('user_states')
       .upsert({
-        wallet: wallet,
+        tg_id: tgId, // ❗ wallet -> tg_id (Asosiy kalit)
         first_name: user.first_name || null,
         last_name: user.last_name || null,
+        
+        // O'yin ma'lumotlari
         prc_wei: String(state.prcWei || '0'),
         diamond: Number(state.diamond || 0),
         taps_used: Number(state.tapsUsed || 0),
@@ -137,18 +110,20 @@ export default async function handler(req, res) {
         max_energy: Number(state.maxEnergy || 0),
         today_index: Number(state.todayIndex || 0),
         rank: state.rank || 'bronze',
-        referrer_id: referrerId || null,
+        
+        // Referal
+        referrer_id: isNewUser ? (referrerId || null) : undefined, // Faqat yangi user bo'lsa yozamiz
+        
         daily_week_start: state.dailyWeekStart || null,
         daily_claims: state.dailyClaims ? JSON.stringify(state.dailyClaims) : null,
         cards_lvl: state.cardsLvl ? JSON.stringify(state.cardsLvl) : null,
         boosts: state.boosts ? JSON.stringify(state.boosts) : null,
         claim_date: state.claimDate || null,
-        // YANGI: keys fields
         keys_total: Number(state.keysTotal || 0),
         keys_used: Number(state.keysUsed || 0),
         updated_at: new Date().toISOString()
       }, {
-        onConflict: 'wallet'
+        onConflict: 'tg_id' // ❗ wallet -> tg_id
       });
 
     if (error) {
@@ -156,34 +131,27 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: error.message });
     }
 
-    // YANGI: Yangi foydalanuvchi bo'lsa va referrer_id mavjud bo'lsa, referrer'ga bonus berish
+    // 4. Referal bonusi (Agar yangi user bo'lsa)
     if (isNewUser && referrerId) {
       try {
-        // /api/referral-bonus chaqirish
         const bonusRes = await fetch(
-          `${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'http://localhost:3000'}/api/referral-bonus`,
+          `${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'https://proguzmir.vercel.app/'}/api/referral-bonus`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               referrerId: referrerId,
-              newUserWallet: wallet
+              newUserTgId: tgId // ❗ Nomini o'zgartirdik aniqlik uchun
             })
           }
         );
-
-        if (!bonusRes.ok) {
-          console.warn('Referral bonus API error:', await bonusRes.text());
-        } else {
-          console.log('Referral bonus given:', await bonusRes.json());
-        }
+        if (!bonusRes.ok) console.warn('Referral bonus API error:', await bonusRes.text());
       } catch (bonusErr) {
-        console.warn('Referral bonus error (non-critical):', bonusErr);
-        // Hatolik bo'lsa ham, foydalanuvchi ro'yxatdan o'tgan bo'ladi
+        console.warn('Referral bonus error:', bonusErr);
       }
     }
 
-    return res.status(200).json({ ok: true, wallet, isNewUser });
+    return res.status(200).json({ ok: true, tgId, isNewUser });
   } catch (err) {
     console.error('Save API error:', err);
     return res.status(500).json({ error: err.message || 'Server error' });
