@@ -1302,8 +1302,8 @@ async function loadAllStateFromSupabase(walletId) {
 
     renderAndWait();
 })();
+// index.js ichidagi saveUserState funksiyasi
 
-// UPDATED: saveUserState() to include all fields INCLUDING claim date AND keys
 async function saveUserState(state) {
     let st = state;
     try { if (!st) st = loadState(); } catch (e) { st = null; }
@@ -1312,21 +1312,16 @@ async function saveUserState(state) {
     if (!window.Telegram?.WebApp?.initData) return;
 
     const wallet = st.wallet || localStorage.getItem(KEY_WALLET) || "";
-    const keyDailyWeekStart = makeUserKey(KEY_DAILY_WEEK_START, wallet);
-    const keyDailyClaims = makeUserKey(KEY_DAILY_CLAIMS, wallet);
-    const keyCardsLvl = makeUserKey('proguzmir_cards_lvl', wallet);
-    const keyBoosts = makeUserKey('proguzmir_boosts', wallet);
-    const keyClaimDate = makeUserKey(KEY_REKLAM_CLAIM, wallet);
-    // YANGI: keys keys
+    // ... boshqa kalitlar ...
     const keyKeysTotal = makeUserKey(KEY_KEYS_TOTAL, wallet);
     const keyKeysUsed = makeUserKey(KEY_KEYS_USED, wallet);
 
-    const dailyWeekStart = localStorage.getItem(keyDailyWeekStart) || null;
-    const dailyClaims = localStorage.getItem(keyDailyClaims) || null;
-    const cardsLvl = localStorage.getItem(keyCardsLvl) || null;
-    const boosts = localStorage.getItem(keyBoosts) || null;
-    const claimDate = localStorage.getItem(keyClaimDate) || null;
-    // YANGI: get keys from localStorage
+    // LocalStorage dan hamyon manzillarini olamiz (ton.js va cripto.js yozgan joydan)
+    // Kalitlar ton.js va cripto.js dagi bilan bir xil bo'lishi kerak!
+    const localTonWallet = localStorage.getItem("proguzmir_ton_wallet"); 
+    const localCryptoWallet = localStorage.getItem("proguzmir_crypto_wallet");
+
+    // ... boshqa o'qishlar ...
     const keysTotal = parseInt(localStorage.getItem(keyKeysTotal) || '0', 10);
     const keysUsed = parseInt(localStorage.getItem(keyKeysUsed) || '0', 10);
 
@@ -1340,14 +1335,17 @@ async function saveUserState(state) {
             tapsUsed: st.tapsUsed,
             selectedSkin: st.selectedSkin,
             todayIndex: st.todayIndex,
-            dailyWeekStart: dailyWeekStart,
-            dailyClaims: dailyClaims ? JSON.parse(dailyClaims) : null,
-            cardsLvl: cardsLvl ? JSON.parse(cardsLvl) : null,
-            boosts: boosts ? JSON.parse(boosts) : null,
-            claimDate: claimDate,
-            // YANGI: include keys
+            dailyWeekStart: localStorage.getItem(makeUserKey(KEY_DAILY_WEEK_START, wallet)),
+            dailyClaims: JSON.parse(localStorage.getItem(makeUserKey(KEY_DAILY_CLAIMS, wallet)) || 'null'),
+            cardsLvl: JSON.parse(localStorage.getItem(makeUserKey('proguzmir_cards_lvl', wallet)) || 'null'),
+            boosts: JSON.parse(localStorage.getItem(makeUserKey('proguzmir_boosts', wallet)) || 'null'),
+            claimDate: localStorage.getItem(makeUserKey(KEY_REKLAM_CLAIM, wallet)),
             keysTotal: keysTotal,
-            keysUsed: keysUsed
+            keysUsed: keysUsed,
+
+            // ❗ YANGI: Hamyonlarni payloadga qo'shamiz
+            tonWallet: localTonWallet,
+            cryptoWallet: localCryptoWallet
         }
     };
 
@@ -1362,52 +1360,37 @@ async function saveUserState(state) {
         console.warn('saveUserState error', err);
     }
 }
+// index.js ichidagi setupAutoSave funksiyasi
 
 function setupAutoSave() {
-    // periodic autosave
     setInterval(() => {
         try { saveUserState(); } catch (e) { console.warn('autosave failed', e); }
     }, 30000);
 
-    // beforeunload: best-effort synchronous background send using sendBeacon
     window.addEventListener('beforeunload', () => {
         try {
             const st = loadState();
             if (!st || !window.Telegram?.WebApp?.initData) return;
 
-            // YANGI: Retrieve additional fields from localStorage
             const wallet = st.wallet || localStorage.getItem(KEY_WALLET) || "";
-            const keyDailyWeekStart = makeUserKey(KEY_DAILY_WEEK_START, wallet);
-            const keyDailyClaims = makeUserKey(KEY_DAILY_CLAIMS, wallet);
-            const keyCardsLvl = makeUserKey('proguzmir_cards_lvl', wallet);
-            const keyBoosts = makeUserKey('proguzmir_boosts', wallet);
-            const keyClaimDate = makeUserKey(KEY_REKLAM_CLAIM, wallet);  // YANGI: Claim date key
+            // ... boshqa o'zgaruvchilar ...
 
-            const dailyWeekStart = localStorage.getItem(keyDailyWeekStart) || null;
-            const dailyClaims = localStorage.getItem(keyDailyClaims) || null;
-            const cardsLvl = localStorage.getItem(keyCardsLvl) || null;
-            const boosts = localStorage.getItem(keyBoosts) || null;
-            const claimDate = localStorage.getItem(keyClaimDate) || null;  // YANGI: Get claim date
+            // ❗ Hamyonlarni o'qish
+            const localTonWallet = localStorage.getItem("proguzmir_ton_wallet");
+            const localCryptoWallet = localStorage.getItem("proguzmir_crypto_wallet");
 
             const payload = {
                 initData: Telegram.WebApp.initData,
                 state: {
                     prcWei: String(st.prcWei),
                     diamond: st.diamond,
-                    energy: st.energy,
-                    maxEnergy: st.maxEnergy,
-                    tapsUsed: st.tapsUsed,
-                    selectedSkin: st.selectedSkin,
-                    todayIndex: st.todayIndex,
-                    dailyWeekStart: dailyWeekStart,
-                    dailyClaims: dailyClaims ? JSON.parse(dailyClaims) : null,
-                    cardsLvl: cardsLvl ? JSON.parse(cardsLvl) : null,
-                    boosts: boosts ? JSON.parse(boosts) : null,
-                    claimDate: claimDate,
-                    // YANGI: include keys
+                    // ... boshqa state maydonlari ...
                     keysTotal: parseInt(localStorage.getItem(makeUserKey(KEY_KEYS_TOTAL, wallet)) || '0', 10),
-                    keysUsed: parseInt(localStorage.getItem(makeUserKey(KEY_KEYS_USED, wallet)) || '0', 10)
-                    
+                    keysUsed: parseInt(localStorage.getItem(makeUserKey(KEY_KEYS_USED, wallet)) || '0', 10),
+
+                    // ❗ YANGI: Payloadga qo'shish
+                    tonWallet: localTonWallet,
+                    cryptoWallet: localCryptoWallet
                 }
             };
 
@@ -1415,15 +1398,14 @@ function setupAutoSave() {
                 const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
                 navigator.sendBeacon('/api/save', blob);
             } else {
-                // fallback: fire-and-forget fetch with keepalive
                 fetch('/api/save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                     keepalive: true
-                }).catch(() => { /* ignore */ });
+                }).catch(() => { });
             }
-        } catch (e) { /* ignore */ }
+        } catch (e) { }
     });
 
     // Telegram viewport changes: save snapshot (if API available)
@@ -1433,6 +1415,7 @@ function setupAutoSave() {
         }
     } catch (e) { /* ignore */ }
 }
+
 
 async function loadUserState() {
     if (!window.Telegram?.WebApp?.initData) return null;
@@ -1447,7 +1430,7 @@ async function loadUserState() {
         const result = await res.json();
         if (!result?.user) return null;
 
-        // YANGI: Safe handling of JSONB fields
+        // JSON maydonlarni xavfsiz o'qish
         const safeParse = (val) => {
             if (val === null || val === undefined) return null;
             if (typeof val === 'string') return JSON.parse(val);
@@ -1462,22 +1445,27 @@ async function loadUserState() {
             tapsUsed: Number(result.user.taps_used || 0),
             selectedSkin: result.user.selected_skin || '',
             todayIndex: Number(result.user.today_index || 0),
-            // YANGI: Additional fields with safe parsing
+            
             dailyWeekStart: result.user.daily_week_start || null,
             dailyClaims: safeParse(result.user.daily_claims),
             cardsLvl: safeParse(result.user.cards_lvl),
             boosts: safeParse(result.user.boosts),
-            claimDate: result.user.claim_date || null,  // YANGI: Claim sanasi
-            wallet: result.user.wallet || "",
-            // YANGI: keys fields
+            claimDate: result.user.claim_date || null,
+            wallet: result.user.wallet || "", // Bu tg_id
+            
             keysTotal: Number(result.user.keys_total || 0),
-            keysUsed: Number(result.user.keys_used || 0)
+            keysUsed: Number(result.user.keys_used || 0),
+
+            // ❗ YANGI: Hamyon manzillarini qabul qilish
+            tonWallet: result.user.ton_wallet || null,
+            cryptoWallet: result.user.crypto_wallet || null
         };
     } catch (err) {
         console.warn('loadUserState error', err);
         return null;
     }
 }
+// index.js oxiridagi DOMContentLoaded qismi
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -1486,7 +1474,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (typeof restoreState === 'function') {
                 restoreState(saved);
             } else {
-                // fallback: persist and update UI
+                // Fallback: State ni tiklash
                 const st = {
                     prcWei: saved.prcWei,
                     diamond: saved.diamond,
@@ -1495,37 +1483,39 @@ document.addEventListener('DOMContentLoaded', async () => {
                     tapsUsed: saved.tapsUsed,
                     selectedSkin: saved.selectedSkin,
                     todayIndex: saved.todayIndex,
-                    wallet: saved.wallet,
-                    // YANGI: Additional fields
+                    wallet: saved.wallet, // tg_id
+                    
                     dailyWeekStart: saved.dailyWeekStart,
                     dailyClaims: saved.dailyClaims,
                     cardsLvl: saved.cardsLvl,
                     boosts: saved.boosts,
                     keysTotal: saved.keysTotal,
-                    keysUsed: saved.keysUsed
+                    keysUsed: saved.keysUsed,
+                    
+                    // ❗ YANGI: Hamyonlar
+                    tonWallet: saved.tonWallet,
+                    cryptoWallet: saved.cryptoWallet
                 };
 
-                // Save each additional field to localStorage before saveState
+                // LocalStorage ga qo'shimcha maydonlarni saqlash
                 if (st.wallet) {
-                    if (st.dailyWeekStart) {
-                        localStorage.setItem(makeUserKey(KEY_DAILY_WEEK_START, st.wallet), st.dailyWeekStart);
+                    if (st.dailyWeekStart) localStorage.setItem(makeUserKey(KEY_DAILY_WEEK_START, st.wallet), st.dailyWeekStart);
+                    if (st.dailyClaims) localStorage.setItem(makeUserKey(KEY_DAILY_CLAIMS, st.wallet), JSON.stringify(st.dailyClaims));
+                    if (st.cardsLvl) localStorage.setItem(makeUserKey('proguzmir_cards_lvl', st.wallet), JSON.stringify(st.cardsLvl));
+                    if (st.boosts) localStorage.setItem(makeUserKey('proguzmir_boosts', st.wallet), JSON.stringify(st.boosts));
+                    if (st.keysTotal) localStorage.setItem(makeUserKey(KEY_KEYS_TOTAL, st.wallet), String(st.keysTotal));
+                    if (st.keysUsed) localStorage.setItem(makeUserKey(KEY_KEYS_USED, st.wallet), String(st.keysUsed));
+
+                    // ❗ YANGI: Agar bazada hamyon bo'lsa, uni LocalStorage ga tiklaymiz
+                    // Shunda ton.js va cripto.js buni ko'rib, UI ni yangilaydi
+                    if (st.tonWallet) {
+                        localStorage.setItem("proguzmir_ton_wallet", st.tonWallet); // ton.js dagi kalit bilan bir xil bo'lsin
+                        localStorage.setItem("proguzmir_ton_type", "ton");
                     }
-                    if (st.dailyClaims) {
-                        localStorage.setItem(makeUserKey(KEY_DAILY_CLAIMS, st.wallet), JSON.stringify(st.dailyClaims));
+                    if (st.cryptoWallet) {
+                        localStorage.setItem("proguzmir_crypto_wallet", st.cryptoWallet); // cripto.js dagi kalit bilan bir xil bo'lsin
+                        localStorage.setItem("proguzmir_crypto_type", "evm");
                     }
-                    if (st.cardsLvl) {
-                        localStorage.setItem(makeUserKey('proguzmir_cards_lvl', st.wallet), JSON.stringify(st.cardsLvl));
-                    }
-                    if (st.boosts) {
-                        localStorage.setItem(makeUserKey('proguzmir_boosts', st.wallet), JSON.stringify(st.boosts));
-                    }
-                    // YANGI: Claim sanasini localStorage'ga qayta yuklash
-                    if (saved.claimDate) {
-                        localStorage.setItem(makeUserKey(KEY_REKLAM_CLAIM, st.wallet), saved.claimDate);
-                    }
-                    // YANGI: keys saqlash
-                    localStorage.setItem(makeUserKey(KEY_KEYS_TOTAL, st.wallet), String(st.keysTotal));
-                    localStorage.setItem(makeUserKey(KEY_KEYS_USED, st.wallet), String(st.keysUsed));
                 }
 
                 saveState(st);
@@ -1535,5 +1525,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (e) { console.warn('startup load error', e); }
 
-    setupAutoSave(); // start autosave
+    setupAutoSave(); 
 });

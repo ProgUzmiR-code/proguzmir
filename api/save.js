@@ -122,8 +122,8 @@ export default async function handler(req, res) {
     const isNewUser = !existingUser;
 
     // Safely extract wallet fields from incoming state (support camelCase and snake_case)
-    const tonWalletVal = (state && (state.tonWallet || state.ton_wallet)) ? (state.tonWallet || state.ton_wallet) : null;
-    const cryptoWalletVal = (state && (state.cryptoWallet || state.crypto_wallet)) ? (state.cryptoWallet || state.crypto_wallet) : null;
+    const tonWalletVal = state && (state.tonWallet || state.ton_wallet) ? (state.tonWallet || state.ton_wallet) : null;
+    const cryptoWalletVal = state && (state.cryptoWallet || state.crypto_wallet) ? (state.cryptoWallet || state.crypto_wallet) : null;
 
     // Foydalanuvchini upsert qilish
     const { data, error } = await supabase
