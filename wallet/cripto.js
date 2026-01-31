@@ -138,6 +138,9 @@ function updateMetaMaskUI() {
     const walletType = localStorage.getItem(EVM_KEYS.TYPE);
     const address = localStorage.getItem(EVM_KEYS.WALLET);
     const textSpan = btnMeta.querySelector('.invite-info span');
+    const iconImg = btnMeta.querySelector('.invite-icon img'); // ❗ Rasm elementi
+    // Standart rasm (Ulanmaganda chiqadigan)
+    const defaultIcon = "https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg";
 
     if (walletType === 'evm' && address) {
         // ULANGAN HOLAT
@@ -148,12 +151,22 @@ function updateMetaMaskUI() {
         
         // Bu yerda manzilni ko'rsatamiz
         if(textSpan) textSpan.innerHTML = `Connected: <b style="color:#fff">${shortAddr}</b>`;
+
+         // 1. Rasmni o'zgartirish (AppKitdan ma'lumot olamiz)
+        if (evmModal) {
+            const walletInfo = evmModal.getWalletInfo(); // Hamyon info
+            if (walletInfo && walletInfo.icon) {
+                iconImg.src = walletInfo.icon; // Masalan, Trust Wallet logosi
+            }
+        }
         
     } else {
         // ULANMAGAN HOLAT
         btnMeta.style.background = "";
         btnMeta.style.border = "";
         if(textSpan) textSpan.innerText = "Connect MetaMask / EVM";
+        // Rasmni asl holiga qaytarish
+        if(iconImg) iconImg.src = defaultIcon;
     }
 }
 
