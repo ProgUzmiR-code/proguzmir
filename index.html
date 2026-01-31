@@ -49,18 +49,22 @@
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
   <script type="module">
-    import { createAppKit } from 'https://esm.sh/@reown/appkit'
-    import { EthersAdapter } from 'https://esm.sh/@reown/appkit-adapter-ethers'
-    import { mainnet, arbitrum, polygon, bsc } from 'https://esm.sh/@reown/appkit-networks'
+    // 1. Asosiy AppKit
+    import { createAppKit } from 'https://esm.sh/@reown/appkit@latest'
 
-    // Kutubxonani global o'zgaruvchiga yuklaymiz
+    // 2. Ethers Adapter (EVM uchun)
+    import { EthersAdapter } from 'https://esm.sh/@reown/appkit-adapter-ethers@latest'
+
+    // 3. TARMOQLAR (Siz so'ragan qism)
+    // Hujjatdagidek "/networks" yo'lidan olamiz, faqat oldiga https://esm.sh... qo'yamiz
+    import { mainnet, arbitrum, polygon, bsc } from 'https://esm.sh/@reown/appkit@latest/networks'
+
+    // Kutubxonani globalga chiqaramiz
+    // DIQQAT: Solana qo'shmadim, chunki EthersAdapter faqat EVM (ETH, BNB, Polygon) ni o'qiydi.
     window.AppKitLibrary = { createAppKit, EthersAdapter, networks: [mainnet, polygon, bsc] };
-    console.log("AppKit Library (index.html) muvaffaqiyatli yuklandi!");
+
+    console.log("AppKit Library (Networks moduli bilan) yuklandi!");
   </script>
-
-
-
-
 
 
   <script>
