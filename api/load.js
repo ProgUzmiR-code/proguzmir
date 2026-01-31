@@ -1,5 +1,4 @@
 // api/load.js
-
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -8,29 +7,39 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
+  // CORS headers qo'shish
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
   try {
     const { initData } = req.body;
-    if (!initData) return res.status(400).json({ error: 'Missing initData' });
+
+    if (!initData) {
+      return res.status(400).json({ error: 'Missing initData' });
+    }
 
     const urlParams = new URLSearchParams(initData);
     const user = JSON.parse(urlParams.get('user') || '{}');
 
-    if (!user.id) return res.status(400).json({ error: 'Missing user ID' });
+    if (!user.id) {
+      return res.status(400).json({ error: 'Missing user ID from Telegram' });
+    }
 
-    // ❗ tg_id dan foydalanamiz
-    const tgId = String(user.id);
+    const wallet = String(user.id);
 
     const { data, error } = await supabase
       .from('user_states')
       .select('*')
-      .eq('tg_id', tgId) // ❗ wallet -> tg_id
+      .eq('wallet', wallet)
       .maybeSingle();
 
     if (error) {
@@ -38,27 +47,24 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: error.message });
     }
 
+    // YANGI: Parse JSON fields safely
     let result = null;
     if (data) {
       result = {
         ...data,
-        // JSON maydonlarni parse qilish
         daily_claims: data.daily_claims ? JSON.parse(data.daily_claims) : null,
         cards_lvl: data.cards_lvl ? JSON.parse(data.cards_lvl) : null,
         boosts: data.boosts ? JSON.parse(data.boosts) : null,
         claim_date: data.claim_date || null,
-        rank: data.rank || 'bronze',
-        keys_total: data.keys_total || 0,
-        keys_used: data.keys_used || 0,
-        // Hamyon ma'lumotlari (yangi ustunlar)
-        connected_wallet: data.connected_wallet || null, 
-        wallet_type: data.wallet_type || null
+        rank: data.rank || 'bronze',  // YANGI: Rank field
+        keys_total: data.keys_total || 0,  // YANGI: Keys fields
+        keys_used: data.keys_used || 0
       };
     }
 
     return res.status(200).json({ user: result || null });
   } catch (err) {
     console.error('Load API error:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message || 'Server error' });
   }
 }
