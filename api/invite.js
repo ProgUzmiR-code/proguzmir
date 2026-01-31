@@ -1,6 +1,6 @@
 // api/invite.js
 
-import { createClient } from '@supabase/supabase-js';
+import supabase from '../config/db';
 
 const supabase = createClient(
     process.env.SUPABASE_URL,

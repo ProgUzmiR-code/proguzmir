@@ -1,5 +1,5 @@
 // api/load.js
-import { createClient } from '@supabase/supabase-js';
+import supabase from '../config/db'; 
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -58,7 +58,9 @@ export default async function handler(req, res) {
         claim_date: data.claim_date || null,
         rank: data.rank || 'bronze',  // YANGI: Rank field
         keys_total: data.keys_total || 0,  // YANGI: Keys fields
-        keys_used: data.keys_used || 0
+        keys_used: data.keys_used || 0,
+        ton_wallet: data.ton_wallet || null,
+        crypto_wallet: data.crypto_wallet || null
       };
     }
 

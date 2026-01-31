@@ -127,10 +127,15 @@ function updateTonUI() {
 }
 
 
-// Yordamchi funksiyalar
 function saveTonData(address) {
     localStorage.setItem(TON_KEYS.WALLET, address);
     localStorage.setItem(TON_KEYS.TYPE, 'ton');
+
+    // Bazaga 'ton' deb yuboramiz
+    if (window.saveWalletToDb) {
+        window.saveWalletToDb(address, 'ton');
+    }
+
     updateTonUI();
 }
 
@@ -142,5 +147,4 @@ function clearTonData() {
     }
 }
 
-// Global qilish (index.js chaqirishi uchun)
 window.initTonWallet = initTonWallet;

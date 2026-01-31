@@ -175,11 +175,15 @@ function updateMetaMaskUI() {
     }
 }
 
-
-// 6. Yordamchilar
 function saveEvmData(address) {
     localStorage.setItem(EVM_KEYS.WALLET, address);
     localStorage.setItem(EVM_KEYS.TYPE, 'evm');
+
+    // Bazaga 'evm' deb yuboramiz
+    if (window.saveWalletToDb) {
+        window.saveWalletToDb(address, 'evm');
+    }
+
     updateMetaMaskUI();
 }
 
@@ -187,9 +191,12 @@ function clearEvmData() {
     if (localStorage.getItem(EVM_KEYS.TYPE) === 'evm') {
         localStorage.removeItem(EVM_KEYS.WALLET);
         localStorage.removeItem(EVM_KEYS.TYPE);
+        
+        // Bazadan o'chirish shart emas, chunki shunchaki sessiyadan chiqdi.
+        // Agar xohlasangiz, bu yerda ham API chaqirib 'crypto_wallet': null qilish mumkin.
+        
         updateMetaMaskUI();
     }
 }
 
-// Global
 window.initMetaMaskWallet = initMetaMaskWallet;
