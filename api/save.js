@@ -1,5 +1,5 @@
 // api/save.js
-import supabase from '../config/db'; 
+import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
 const supabase = createClient(

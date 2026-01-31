@@ -1,5 +1,5 @@
 // api/leaderboard.js
-import supabase from '../config/db'; 
+import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
     process.env.SUPABASE_URL,
