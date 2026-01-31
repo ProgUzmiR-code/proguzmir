@@ -75,8 +75,7 @@ function setupTonButton() {
 }
 
 
-
-// ton.js dagi updateTonUI funksiyasi
+// ton.js ichidagi updateTonUI funksiyasi
 
 function updateTonUI() {
     const btnTon = document.getElementById('btnTon');
@@ -87,35 +86,43 @@ function updateTonUI() {
 
     // Elementlarni topamiz
     const textSpan = btnTon.querySelector('.invite-info span');
-    const arrowDiv = btnTon.querySelector('.invite-arrow'); // Strelka turgan joy
-    
-    // Asl strelka kodi (qaytarish uchun)
-    const defaultArrow = `
-        <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon">
-            <img src="/image/arrow.svg" alt="">
-        </span>`;
+    const arrowDiv = btnTon.querySelector('.invite-arrow');
+    const iconImg = btnTon.querySelector('.invite-icon img'); // ❗ Rasm elementi
+
+    // Standart rasm
+    const defaultIcon = "https://cryptologos.cc/logos/toncoin-ton-logo.svg?v=040";
 
     if (walletType === 'ton' && address) {
-        // ULANGAN HOLAT
+        // --- ULANGAN HOLAT ---
         const shortAddr = address.slice(0, 4) + "..." + address.slice(-4);
         
-        btnTon.style.background = "rgba(40, 167, 69, 0.15)"; // Och yashil fon
-        btnTon.style.border = "1px solid #28a745"; // Yashil hoshiya
+        btnTon.style.background = "rgba(40, 167, 69, 0.15)";
+        btnTon.style.border = "1px solid #28a745";
         
-        if(textSpan) textSpan.innerHTML = `Ulandi: <b style="color:#fff">${shortAddr}</b>`;
+        if(textSpan) textSpan.innerHTML = `Connected: <b style="color:#fff">${shortAddr}</b>`;
         
-        // Strelka o'rniga "Uzish" tugmasini qo'yamiz
+        // 1. Rasmni o'zgartirish (Tonkeeper, MyTonWallet va h.k.)
+        if (tonConnectUI && tonConnectUI.wallet && tonConnectUI.wallet.imageUrl) {
+            iconImg.src = tonConnectUI.wallet.imageUrl;
+        }
+
+        // 2. O'ng tomon (Strelkani "Uzish" tugmasiga aylantirish)
+        // Agar siz TON da "Uzish" tugmasi turishini xohlasangiz:
         if(arrowDiv) arrowDiv.innerHTML = `<button class="disconnect-btn">Uzish</button>`;
         
     } else {
-        // UZILGAN (ODDIY) HOLAT
+        // --- ULANMAGAN HOLAT ---
         btnTon.style.background = "";
         btnTon.style.border = "";
         
         if(textSpan) textSpan.innerText = "Connect TON Wallet";
         
-        // Strelkani qaytarib joyiga qo'yamiz
-        if(arrowDiv) arrowDiv.innerHTML = defaultArrow;
+        // Rasmni va strelkani asl holiga qaytarish
+        if(iconImg) iconImg.src = defaultIcon;
+        if(arrowDiv) arrowDiv.innerHTML = `
+            <span class="scoped-svg-icon">
+                <img src="/image/arrow.svg" alt="">
+            </span>`;
     }
 }
 
