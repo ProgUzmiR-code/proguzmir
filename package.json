@@ -15,6 +15,7 @@
   "dependencies": {
     "@reown/appkit": "^1.8.17",
     "@reown/appkit-adapter-ethers": "^1.8.17",
+    "@reown/appkit-adapter-wagmi": "^1.8.17",
     "@supabase/supabase-js": "^2.90.1",
     "@telegram-apps/init-data-node": "^2.0.10",
     "@telegram-apps/sdk": "^3.11.8",
@@ -26,7 +27,9 @@
     "express": "^5.2.1",
     "node-telegram-bot-api": "^0.66.0",
     "postgres": "^3.4.8",
-    "telegraf": "^4.16.3"
+    "telegraf": "^4.16.3",
+    "viem": "^2.45.1",
+    "wagmi": "^3.4.1"
   },
   "repository": {
     "type": "git",

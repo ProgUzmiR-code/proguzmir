@@ -40,7 +40,7 @@ function initTonWallet() {
     updateTonUI();
 }
 
-// ton.js ichidagi setupTonButton funksiyasi
+// ton.js ichida
 
 function setupTonButton() {
     const btnTon = document.getElementById('btnTon');
@@ -51,21 +51,21 @@ function setupTonButton() {
     btnTon.parentNode.replaceChild(newBtn, btnTon);
 
     newBtn.addEventListener('click', async (e) => {
-        // Agar bosilgan element "Disconnect" tugmasi bo'lsa yoki umumiy div bo'lsa
         const currentType = localStorage.getItem(TON_KEYS.TYPE);
 
         if (currentType === 'ton') {
-            // ❗ YANGI QISM: Tasdiqlash oynasi (OK / Cancel)
-            const isConfirmed = confirm("Haqiqatan ham TON hamyonini uzmoqchimisiz?");
-            
-            if (isConfirmed) {
-                // Agar "OK" bossa, uzamiz
-                await tonConnectUI.disconnect();
-                clearTonData();
+            // ❗ MUHIM: Faqat "disconnect-btn" klassi bor element bosilsa ishlaydi
+            if (e.target.classList.contains('disconnect-btn')) {
+                const isConfirmed = confirm("Haqiqatan ham TON hamyonini uzmoqchimisiz?");
+                if (isConfirmed) {
+                    await tonConnectUI.disconnect();
+                    clearTonData();
+                }
             }
-            // Agar "Cancel" bossa, hech narsa qilmaymiz
+            // Boshqa joy bosilsa, hech narsa bo'lmaydi (jim turadi)
         } 
         else if (!currentType) {
+            // Ulanmagan bo'lsa, butun tugma ishlayveradi
             try { await tonConnectUI.openModal(); } catch (e) { console.error(e); }
         } 
         else {
@@ -73,6 +73,7 @@ function setupTonButton() {
         }
     });
 }
+
 
 
 // ton.js dagi updateTonUI funksiyasi
