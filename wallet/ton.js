@@ -1,7 +1,7 @@
 // ton.js - Faqat TON Wallet uchun javobgar
 
 const TON_KEYS = {
-    WALLET: "proguzmir_crypto_wallet",
+    WALLET: "proguzmir_ton_wallet",
     TYPE: "proguzmir_wallet_type"
 };
 
