@@ -130,51 +130,32 @@ function setupMetaMaskButton() {
     });
 }
 
-// cripto.js ichidagi updateMetaMaskUI funksiyasi
-
+// 5. UI Yangilash
 function updateMetaMaskUI() {
     const btnMeta = document.getElementById('btnMetaMask');
     if (!btnMeta) return;
 
     const walletType = localStorage.getItem(EVM_KEYS.TYPE);
     const address = localStorage.getItem(EVM_KEYS.WALLET);
-    
-    // Elementlarni topamiz
     const textSpan = btnMeta.querySelector('.invite-info span');
-    const arrowDiv = btnMeta.querySelector('.invite-arrow'); // O'ng tomondagi tugma joyi
-    const iconImg = btnMeta.querySelector('.invite-icon img'); // ❗ Rasm elementi
-
-    // Standart rasm (Ulanmaganda chiqadigan)
-    const defaultIcon = "https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg";
 
     if (walletType === 'evm' && address) {
-        // --- ULANGAN HOLAT ---
+        // ULANGAN HOLAT
         const shortAddr = address.slice(0, 4) + "..." + address.slice(-4);
         
-        btnMeta.style.background = "rgba(40, 167, 69, 0.15)";
+        btnMeta.style.background = "rgba(40, 167, 69, 0.15)"; // Yashil fon
         btnMeta.style.border = "1px solid #28a745";
         
+        // Bu yerda manzilni ko'rsatamiz
         if(textSpan) textSpan.innerHTML = `Connected: <b style="color:#fff">${shortAddr}</b>`;
         
-        // 1. Rasmni o'zgartirish (AppKitdan ma'lumot olamiz)
-        if (evmModal) {
-            const walletInfo = evmModal.getWalletInfo(); // Hamyon info
-            if (walletInfo && walletInfo.icon) {
-                iconImg.src = walletInfo.icon; // Masalan, Trust Wallet logosi
-            }
-        } 
     } else {
-        // --- ULANMAGAN HOLAT ---
+        // ULANMAGAN HOLAT
         btnMeta.style.background = "";
         btnMeta.style.border = "";
-        
         if(textSpan) textSpan.innerText = "Connect MetaMask / EVM";
-        
-        // Rasmni asl holiga qaytarish
-        if(iconImg) iconImg.src = defaultIcon;
     }
 }
-
 
 // 6. Yordamchilar
 function saveEvmData(address) {
