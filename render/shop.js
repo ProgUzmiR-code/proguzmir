@@ -3,12 +3,12 @@ const SHOP = [
   { id: 'energyPack', name: 'Energy +1000', img: './image/boost.png', type: 'energy', amount: INCREASE_BLOCK, costWei: BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI }
 ];
 const SHOP_ITEMS = [
-  { id: 'gem1', name: '500', bonus: '+500', cost: '1,19 US$', img: './image/gem1.png' },
-  { id: 'gem2', name: '2,500', bonus: '+2,500', cost: '5,99 US$', img: './image/gem1.png' },
-  { id: 'gem3', name: '5,000', bonus: '+5,000', cost: '11,99 US$', img: './image/gem2.png' },
-  { id: 'gem4', name: '10,000', bonus: '+10,000', cost: '23,99 US$', img: './image/gem3.png' },
-  { id: 'gem5', name: '25,000', bonus: '+25,000', cost: '54,99 US$', img: './image/gem3.png' },
-  { id: 'gem6', name: '50,000', bonus: '+50,000', cost: '109,99 US$', img: './image/gem3.png' },
+  { id: 'gem1', name: '500', bonus: '+500', cost: '1,19 US$', img: './image/bagdiamonds.jpg' },
+  { id: 'gem2', name: '2,500', bonus: '+2,500', cost: '5,99 US$', img: './image/gem1.jpg' },
+  { id: 'gem3', name: '5,000', bonus: '+5,000', cost: '11,99 US$', img: './image/gem2.jpg' },
+  { id: 'gem4', name: '10,000', bonus: '+10,000', cost: '23,99 US$', img: './image/gem3.jpg' },
+  { id: 'gem5', name: '25,000', bonus: '+25,000', cost: '54,99 US$', img: './image/gem4.jpg' },
+  { id: 'gem6', name: '50,000', bonus: '+50,000', cost: '109,99 US$', img: './image/gem5.jpg' },
 ];
 
 
@@ -52,24 +52,25 @@ function renderShop() {
                 
                 <div id="shopCol" style="display:none; padding: 10px;">
                     <div style="background: linear-gradient(180deg, #4a90e2 0%, #1a56a0 100%); border-radius: 15px; padding: 15px; margin-bottom: 20px; color: white; position: relative; overflow: hidden;">
-                        <h2 style="margin: 0; font-size: 22px; font-style: italic;">2X Gem Bonus</h2>
-                        <p style="margin: 8px 0 0; font-size: 13px; opacity: 0.9; line-height: 1.4;">Any first purchase of any tier earns 2x Rebate rewards.</p>
-                        <img src="./image/gems_pile.png" style="position: absolute; right: -10px; top: -10px; width: 100px; opacity: 0.8;">
+                        <h2 style="margin: 0; font-size: 22px; font-style: italic; position: relative; z-index: 50;">2X Gem Bonus</h2>
+                        <p style="margin: 8px 0 0; font-size: 13px; opacity: 0.9; line-height: 1.4; position: relative;  z-index: 50;">Any first purchase of any <br>
+                         tier earns 2x Rebate rewards.</p>
+                        <img src="./image/gems_pile.jpg" style="position: absolute; right: 0px; top: -10px; width: 100%; opacity: 0.8; z-index:1;">
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         ${SHOP_ITEMS.map(it => `
                             <div class="shop-card" style="background: #f3c178; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; align-items: center; border: 2px solid #e2a04a; position: relative;">
 
-                                <div style="position: absolute; top: 5px; left: 5px; background: #ff4d4d; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; border: 1px solid white; font-weight: bold; display: flex; align-items: center; gap: 3px;">
+                                <div style="position: absolute; top: 5px; left: 5px; background: #ff4d4d; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; border: 1px solid white; font-weight: bold; display: flex; align-items: center; gap: 3px; z-index: 50;">
                                     <span style="font-size: 8px;">First</span> 💎 ${it.bonus}
                                 </div>
                         
-                                <img src="${it.img}" style="width: 70%; margin-top: 30px; margin-bottom: 10px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));">
+                                <img src="${it.img}" style="width: 100%; margin-top: 0px; margin-bottom: -60px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); z-index: 1;">
 
-                                <div style="font-weight: 900; color: #3a7994; font-size: 18px; margin-bottom: 5px;">${it.name}</div>
+                                <div style="font-weight: 900; color: #3a7994; font-size: 18px; margin-bottom: 5px; z-index: 50;">${it.name}</div>
 
-                                <div style="background: #e69a30; width: 100%; text-align: center; padding: 8px 0; color: white; font-weight: bold; border-top: 2px solid #d48a20; cursor: pointer;">
+                                <div style="background: #e69a30; width: 100%; text-align: center; padding: 8px 0; color: white; font-weight: bold; border-top: 2px solid #d48a20; cursor: pointer; z-index: 50;">
                                     ${it.cost}
                                 </div>
                             </div>
