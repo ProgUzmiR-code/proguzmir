@@ -127,7 +127,7 @@
 
         .q-mt-sm {
             display: flex;
-            align-items: center;
+            margin-top: 65px;
             justify-content: center;
             height: 300px;
         }
@@ -212,6 +212,129 @@
         }
     </style>
 
+    <style>
+        /* Asosiy konteyner */
+        #shopCol {
+            display: block;
+            padding: 10px;
+        }
+
+        /* Banner qismi */
+        .promo-banner {
+            background: linear-gradient(180deg, #4a90e2 0%, #1a56a0 100%);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            height: 80px;
+        }
+
+        .promo-banner h2 {
+            margin: 0;
+            font-size: 22px;
+            font-style: italic;
+            position: relative;
+            z-index: 50;
+        }
+
+        .promo-banner p {
+            margin: 8px 0 0;
+            font-size: 13px;
+            opacity: 0.9;
+            line-height: 1.4;
+            position: relative;
+            z-index: 50;
+        }
+
+        .promo-banner img {
+            position: absolute;
+            right: 0px;
+            top: -10px;
+            width: 100%;
+            opacity: 0.8;
+            z-index: 1;
+        }
+
+        /* Grid (Setka) qismi */
+        .shop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Kartochka (Card) */
+        .shop-card {
+            background: #f3c178;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid #e2a04a;
+            position: relative;
+        }
+
+        /* "First" bonus belgisi */
+        .bonus-badge {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #ff4d4d;
+            color: white;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            border: 1px solid white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            z-index: 50;
+        }
+
+        .bonus-badge span {
+            font-size: 8px;
+        }
+
+        /* Kartochka rasmi */
+        .card-img {
+            width: 100%;
+            margin-top: 0px;
+            margin-bottom: -60px;
+            filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.2));
+            z-index: 1;
+        }
+
+        /* Kartochka nomi/qiymati */
+        .card-title {
+            font-weight: 900;
+            color: #3a7994;
+            font-size: 18px;
+            margin-bottom: 5px;
+            z-index: 50;
+        }
+
+        /* Sotib olish tugmasi */
+        .buy-btn {
+            background: #e69a30;
+            width: 100%;
+            text-align: center;
+            padding: 8px 0;
+            color: white;
+            font-weight: bold;
+            border-top: 2px solid #d48a20;
+            cursor: pointer;
+            z-index: 50;
+            transition: background 0.2s;
+        }
+
+        .buy-btn:active {
+            background: #d48a20;
+        }
+    </style>
+
     <title>Document</title>
 </head>
 
@@ -229,69 +352,94 @@
     <div class="invitem">
         <div class="tab_mainm">
             <ul>
-                <li class="tab_itemm " data-target="completed2">Withdraw</li>
-                <li class="tab_itemm " data-target="completed">Recharge</li>
-                <li class="tab_itemm " data-target="inactive">Records</li>
-                <li class="tab_itemm checked" data-target="active">Connect</li>
+                <li class="tab_itemm " data-target="completed">Withdraw</li>
+                <li class="tab_itemm " data-target="inactive">Recharge</li>
+                <li class="tab_itemm checked" data-target="active">Records</li>
             </ul>
         </div>
 
 
+
+
+        <div class="invite-listm" style="display: none;">
+            <div id="shopCol">
+
+                <div class="promo-banner">
+                    <h2>2X Gem Bonus</h2>
+                    <p>
+                        Any first purchase of any <br> tier earns 2x Rebate rewards.
+                    </p>
+                    <img src="./image/gems_pile.jpg" alt="Gems">
+                </div>
+
+                <div class="shop-grid">
+
+                    <div class="shop-card">
+                        <div class="bonus-badge">
+                            <span>First</span> 💎 +500
+                        </div>
+                        <img src="./image/bagdiamonds.jpg" class="card-img">
+                        <div class="card-title">500</div>
+                        <div class="buy-btn" onclick="buyItem('gem1')">1,19 US$</div>
+                    </div>
+
+                    <div class="shop-card">
+                        <div class="bonus-badge">
+                            <span>First</span> 💎 +2,500
+                        </div>
+                        <img src="./image/gem1.jpg" class="card-img">
+                        <div class="card-title">2,500</div>
+                        <div class="buy-btn" onclick="buyItem('gem2')">5,99 US$</div>
+                    </div>
+
+                    <div class="shop-card">
+                        <div class="bonus-badge">
+                            <span>First</span> 💎 +5,000
+                        </div>
+                        <img src="./image/gem2.jpg" class="card-img">
+                        <div class="card-title">5,000</div>
+                        <div class="buy-btn" onclick="buyItem('gem3')">11,99 US$</div>
+                    </div>
+
+                    <div class="shop-card">
+                        <div class="bonus-badge">
+                            <span>First</span> 💎 +10,000
+                        </div>
+                        <img src="./image/gem3.jpg" class="card-img">
+                        <div class="card-title">10,000</div>
+                        <div class="buy-btn" onclick="buyItem('gem4')">23,99 US$</div>
+                    </div>
+
+                    <div class="shop-card">
+                        <div class="bonus-badge">
+                            <span>First</span> 💎 +25,000
+                        </div>
+                        <img src="./image/gem4.jpg" class="card-img">
+                        <div class="card-title">25,000</div>
+                        <div class="buy-btn" onclick="buyItem('gem5')">54,99 US$</div>
+                    </div>
+
+                    <div class="shop-card">
+                        <div class="bonus-badge">
+                            <span>First</span> 💎 +50,000
+                        </div>
+                        <img src="./image/gem5.jpg" class="card-img">
+                        <div class="card-title">50,000</div>
+                        <div class="buy-btn" onclick="buyItem('gem6')">109,99 US$</div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+
+
+
+
+
         <div class="der">
-
-            <div class="invite-listm3" style="display: none;">
-                <span>Withdraw</span>
-                <span>soon</span>
-            </div>
-
-
-            <div class="invite-listm" style="display: none;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="shop-card"
-                        style="background: #f3c178; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; align-items: center; border: 2px solid #e2a04a; position: relative;">
-
-                        <div
-                            style="position: absolute; top: 5px; left: 5px; background: #ff4d4d; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; border: 1px solid white; font-weight: bold; display: flex; align-items: center; gap: 3px;">
-                            <span style="font-size: 8px;">First</span> 💎 N/A
-                        </div>
-
-                        <img src="./image/loading.svg"
-                            style="width: 70%; margin-top: 30px; margin-bottom: 10px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));">
-
-                        <div style="font-weight: 900; color: #3a7994; font-size: 18px; margin-bottom: 5px;">Item
-                        </div>
-
-                        <div
-                            style="background: #e69a30; width: 100%; text-align: center; padding: 8px 0; color: white; font-weight: bold; border-top: 2px solid #d48a20; cursor: pointer;">
-                            0
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="invite-listm2" style="display: none;">
-                <div>
-
-                    <div class="ds2">
-                        <span>Recharge Record</span>
-                        <div class="tab_mainm1 w1">
-                            <div class="Recharge tab_itemm1 w2 Active" data-target="recharge" style="font-size: 14px;">
-                                Recharge</div>
-                            <div class="Withdraw tab_itemm1 w2" data-target="withdraw" style="font-size: 14px;">Withdraw
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="invite-listm5">
-                        <span class="q-mt-sm">No transaction records</span>
-                    </div>
-                    <div class="invite-listm6" style="display: none;">
-                        <span class="q-mt-sm">No transaction records</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="invite-listm4" style="display: block;">
+            <div class="invite-listm2" style="display: block;">
                 <div id="btnTon" class="invite-item bton">
                     <div class="invite-icon">
                         <img src="https://cryptologos.cc/logos/toncoin-ton-logo.svg?v=040" alt="">
@@ -318,13 +466,49 @@
                         </span>
                     </div>
                 </div>
+                <div>
+                    <div class="ds2">
+                        <span>Recharge Record</span>
+                        <div class="tab_mainm1 w1">
+                            <div class="Recharge tab_itemm1 w2 Active" data-target="recharge" style="font-size: 14px;">
+                                Recharge</div>
+                            <div class="Withdraw tab_itemm1 w2" data-target="withdraw" style="font-size: 14px;">Withdraw
+                            </div>
+                        </div>
 
+                    </div>
+                    <div class="invite-listm4">
+                        <span class="q-mt-sm">No transaction records</span>
+                    </div>
+                    <div class="invite-listm5" style="display: none;">
+                        <span class="q-mt-sm">No transaction records</span>
+                    </div>
+                </div>
             </div>
         </div>
 
+        <div class="invite-listm3" style="display: none;">
+            <span>Withdraw</span>
+            <span>soon</span>
+        </div>
     </div>
-    
 
+    </div>
+
+    <script>
+        // Bu yerda endi HTML render qilinmaydi.
+        // Faqat tugma bosilganda ishlaydigan funksiyalar turadi.
+
+        const SHOP = [
+            { id: 'energyPack', name: 'Energy +1000', img: './image/boost.png', type: 'energy', amount: 1000 }
+        ];
+
+        // Tugma bosilganda ishlaydigan funksiya
+        function buyItem(itemId) {
+            console.log("Sotib olishga bosildi: " + itemId);
+            // Bu yerda to'lov logikasi bo'ladi
+        }
+    </script>
 
 
 
@@ -380,17 +564,16 @@
                 document.querySelectorAll('.invitem').forEach(inviteBlock => {
 
                     const lists = {
-                        inactive: inviteBlock.querySelector('.invite-listm2'),
-                        active: inviteBlock.querySelector('.invite-listm4'),
-                        completed: inviteBlock.querySelector('.invite-listm'),
-                        completed1: inviteBlock.querySelector('.invite-listm3'),
+                        inactive: inviteBlock.querySelector('.invite-listm'),
+                        active: inviteBlock.querySelector('.invite-listm2'),
+                        completed: inviteBlock.querySelector('.invite-listm3'),
                     };
 
                     Object.values(lists).forEach(l => l && (l.style.display = 'none'));
 
                     if (lists[status]) {
                         lists[status].style.display =
-                            status === 'completed1' ? 'flex' : 'block';
+                            status === 'completed' ? 'flex' : 'block';
                     }
                 });
 
@@ -409,8 +592,8 @@
                 document.querySelectorAll('.der').forEach(derBlock => {
 
                     const lists = {
-                        recharge: derBlock.querySelector('.invite-listm5'),
-                        withdraw: derBlock.querySelector('.invite-listm6'),
+                        recharge: derBlock.querySelector('.invite-listm4'),
+                        withdraw: derBlock.querySelector('.invite-listm5'),
                     };
 
                     Object.values(lists).forEach(l => l && (l.style.display = 'none'));
