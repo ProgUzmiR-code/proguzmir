@@ -1,4 +1,4 @@
-// cripto.js (metamask.js)
+//  /wallet/cripto.js (metamask.js)
 
 const EVM_KEYS = {
     WALLET: "proguzmir_crypto_wallet",

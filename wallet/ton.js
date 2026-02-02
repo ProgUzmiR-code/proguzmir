@@ -1,4 +1,4 @@
-// ton.js - Faqat TON Wallet uchun javobgar
+// /wallet/ton.js - Faqat TON Wallet uchun javobgar
 
 const TON_KEYS = {
     WALLET: "proguzmir_ton_wallet",
