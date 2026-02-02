@@ -3,12 +3,12 @@ const SHOP = [
   { id: 'energyPack', name: 'Energy +1000', img: './image/boost.png', type: 'energy', amount: INCREASE_BLOCK, costWei: BigInt(INCREASE_BLOCK) * DIAMOND_TO_WEI }
 ];
 const SHOP_ITEMS = [
-  { id: 'gem1', name: '500', bonus: '+500', cost: '1,19 US$', img: './image/bagdiamonds.jpg' },
-  { id: 'gem2', name: '2,500', bonus: '+2,500', cost: '5,99 US$', img: './image/gem1.jpg' },
-  { id: 'gem3', name: '5,000', bonus: '+5,000', cost: '11,99 US$', img: './image/gem2.jpg' },
-  { id: 'gem4', name: '10,000', bonus: '+10,000', cost: '23,99 US$', img: './image/gem3.jpg' },
-  { id: 'gem5', name: '25,000', bonus: '+25,000', cost: '54,99 US$', img: './image/gem4.jpg' },
-  { id: 'gem6', name: '50,000', bonus: '+50,000', cost: '109,99 US$', img: './image/gem5.jpg' },
+  { id: 'diamond1', name: '500', bonus: '+500', cost: '1,19 US$', img: './image/bagdiamonds.jpg' },
+  { id: 'diamond2', name: '2,500', bonus: '+2,500', cost: '5,99 US$', img: './image/gem1.jpg' },
+  { id: 'diamond3', name: '5,000', bonus: '+5,000', cost: '11,99 US$', img: './image/gem2.jpg' },
+  { id: 'diamond4', name: '10,000', bonus: '+10,000', cost: '23,99 US$', img: './image/gem3.jpg' },
+  { id: 'diamond5', name: '25,000', bonus: '+25,000', cost: '54,99 US$', img: './image/gem4.jpg' },
+  { id: 'diamond6', name: '50,000', bonus: '+50,000', cost: '109,99 US$', img: './image/gem5.jpg' },
 ];
 
 
