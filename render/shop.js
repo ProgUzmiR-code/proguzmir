@@ -17,7 +17,7 @@ function renderShop() {
   content.innerHTML = `
             <div style=" margin-top: 50px;">
               <div>
-                <h1 style="text-align:center; color:rgb(50, 214, 255); font-size: 24px; margin-bottom:20px;">Shop</h1>
+                <h1 style="text-align:center; color:rgb(50, 214, 255); font-size: 24px; margin-bottom:20px;">Store</h1>
               </div>
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
                     <div class="btn-group" style="margin:auto;">

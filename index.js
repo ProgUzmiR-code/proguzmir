@@ -340,7 +340,7 @@ function renderGame() {
           <div id="shopCardPreview" class=" bton" style="display: flex;  flex-direction: column; cursor:pointer; align-items: center;">
             <img src="./image/shop.png" alt="shop" class="shopImg">
             <div style="flex:1; text-align:left;">
-              <div style="font-weight:700;">Shop</div>
+              <div style="font-weight:700;">Store</div>
             </div>
           </div>
           <div id="gameCardPreview" class=" bton" style="display: flex;  flex-direction: column; cursor:pointer; align-items: center;">
