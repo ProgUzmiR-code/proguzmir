@@ -15,10 +15,13 @@ const SHOP_ITEMS = [
 function renderShop() {
   const s = loadState();
   content.innerHTML = `
-            <div style=" margin-top: 150px;">
+            <div style=" margin-top: 50px;">
+              <div>
+                <h1 style="text-align:center; color:rgb(50, 214, 255); font-size: 24px; margin-bottom:20px;">Shop</h1>
+              </div>
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
                     <div class="btn-group" style="margin:auto;">
-                        <div id="tabShop" class="btn">Shop</div>
+                        <div id="tabShop" class="btn">Diamonds</div>
                         <div id="tabEnergy" class="btn">Energy</div>
                         <div id="tabSkins" class="btn">Skins</div>
                     </div>
