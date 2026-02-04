@@ -599,6 +599,7 @@
                 if (window.initMetaMaskWallet) {
                     try {
                         await window.initMetaMaskWallet();
+                        await new Promise(r => setTimeout(r, 1000));
                     } catch (e) {
                         console.error("Init Error:", e);
                     }
@@ -606,35 +607,45 @@
 
                 // Ikkinchi marta tekshiramiz
                 if (!window.evmModal) {
-                    alert("Tizim hali yuklanmadi. Iltimos, sahifani yangilab (Reload) qayta urinib ko'ring.");
+                    showNotification("Tizim hali yuklanmadi. Iltimos, sahifani yangilab qayta urinib ko'ring.", 'error');
                     return;
                 }
             }
 
-            // 2. Ulanish holatini tekshirish (YANGI USUL)
-            // getIsConnected() o'rniga getAccount().isConnected ishlatamiz
+            // 2. Ulanish holatini tekshirish (TO'G'RI USUL)
             let isConnected = false;
+            let myAddress = null;
+
             try {
                 const account = window.evmModal.getAccount();
-                isConnected = account.isConnected;
+                isConnected = account && account.isConnected;
+                myAddress = account ? account.address : null;
             } catch (e) {
                 console.warn("Account holatini olishda xatolik:", e);
+                isConnected = false;
             }
 
             if (!isConnected) {
                 console.log("Sessiya uzilgan. Qayta ulanish so'ralmoqda...");
-                await window.evmModal.open(); // Ulanish oynasini ochamiz
+                try {
+                    await window.evmModal.open();
+                } catch (e) {
+                    console.error(e);
+                }
                 return;
             }
 
-            // 3. To'lov jarayoni
+            // 3. Manzilni tekshirish
+            if (!myAddress) {
+                showNotification("Hamyon manzili aniqlanmadi. Qayta ulaning.", 'error');
+                return;
+            }
+
+            // 4. To'lov jarayoni
             try {
                 const provider = window.evmModal.getProvider();
-                const account = window.evmModal.getAccount();
-                const myAddress = account.address; // Manzilni to'g'ri joydan olamiz
-
-                if (!myAddress) {
-                    alert("Hamyon manzili aniqlanmadi. Qayta ulaning.");
+                if (!provider) {
+                    showNotification("Provider topilmadi.", 'error');
                     return;
                 }
 
@@ -661,7 +672,11 @@
             }
         }
 
-
+        // Notifikatsiya funksiyasi
+        function showNotification(message, type = 'info') {
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            // TODO: Yanada yaxshi UI bilan (toast/modal) almashtiramiz
+        }
     </script>
 
 

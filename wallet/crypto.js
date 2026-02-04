@@ -6,15 +6,15 @@ const EVM_KEYS = {
 };
 
 // Reown Project ID
-const projectId = "4d9838cef79b26992ff9102c92999f79"; 
+const projectId = "4d9838cef79b26992ff9102c92999f79";
 
 // Token ma'lumotlari
 const MY_TOKEN = {
-    address: '0x5212983A60Ba0Ab8EBB66353F351A61D1e64D71A', 
-    symbol: 'PRC', 
-    decimals: 18, 
-    image: 'https://proguzmir.vercel.app/image/logotiv.png?v=1', 
-    chainId: 137 
+    address: '0x5212983A60Ba0Ab8EBB66353F351A61D1e64D71A',
+    symbol: 'PRC',
+    decimals: 18,
+    image: 'https://proguzmir.vercel.app/image/logotiv.png?v=1',
+    chainId: 137
 };
 
 let evmModal;
@@ -32,7 +32,7 @@ async function initMetaMaskSystem() {
         return;
     }
 
-    if (evmModal) return; 
+    if (evmModal) return;
 
     const { createAppKit, EthersAdapter, networks } = window.AppKitLibrary;
 
@@ -52,11 +52,12 @@ async function initMetaMaskSystem() {
         // Hodisalarni tinglash
         evmModal.subscribeEvents(state => {
             if (state.data.event === 'CONNECT_SUCCESS') {
-                const address = evmModal.getAddress();
-                saveEvmData(address);
-                
-                // Ulanganda tokenni taklif qilish (ixtiyoriy)
-                setTimeout(() => addToken(), 1000);
+                const account = evmModal.getAccount();
+                if (account && account.address) {
+                    saveEvmData(account.address);
+                    // Ulanganda tokenni taklif qilish (ixtiyoriy)
+                    setTimeout(() => addToken(), 1000);
+                }
             }
             if (state.data.event === 'DISCONNECT_SUCCESS') {
                 clearEvmData();
@@ -64,23 +65,34 @@ async function initMetaMaskSystem() {
         });
 
         // Sahifa yangilanganda tekshirish
-        if (evmModal.getIsConnected()) {
-            const address = evmModal.getAddress();
-            saveEvmData(address);
+        try {
+            const account = evmModal.getAccount();
+            if (account && account.isConnected && account.address) {
+                saveEvmData(account.address);
+            }
+        } catch (e) {
+            console.log("Account tekshirishda xatolik:", e);
         }
+
         window.evmModal = evmModal; // Globalga qo'yamiz
-        setupMetaMaskButton(); 
+        setupMetaMaskButton();
         updateMetaMaskUI();
 
-    } catch (e) { console.error("AppKit Init Error:", e); }
+    } catch (e) {
+        console.error("AppKit Init Error:", e);
+    }
 }
 
 // 2. Token qo'shish
 async function addToken() {
     try {
-        if (!evmModal || !evmModal.getIsConnected()) return;
+        if (!evmModal) return;
+
+        const account = evmModal.getAccount();
+        if (!account || !account.isConnected) return;
+
         const provider = evmModal.getProvider();
-        if(!provider) return;
+        if (!provider) return;
 
         await provider.request({
             method: 'wallet_watchAsset',
@@ -104,7 +116,7 @@ function initMetaMaskWallet() {
     updateMetaMaskUI();
 }
 
-// 4. Tugmani sozlash (ENG MUHIM O'ZGARISH SHU YERDA)
+// 4. Tugmani sozlash
 function setupMetaMaskButton() {
     const btnMeta = document.getElementById('btnMetaMask');
     if (!btnMeta) return;
@@ -119,9 +131,8 @@ function setupMetaMaskButton() {
             return;
         }
 
-        // Qolgan barcha holatlarda (Ulangan bo'lsa ham, bo'lmasa ham)
-        // REOWN oynasini ochamiz. U o'zi hal qiladi (Connect yoki Account View)
-        if(evmModal) {
+        // Qolgan barcha holatlarda
+        if (evmModal) {
             evmModal.open();
         } else {
             alert("Tizim yuklanmoqda... kuting.");
@@ -130,48 +141,60 @@ function setupMetaMaskButton() {
     });
 }
 
-// cripto.js ichidagi updateMetaMaskUI funksiyasi
-
+// 5. UI ni yangilash
 function updateMetaMaskUI() {
     const btnMeta = document.getElementById('btnMetaMask');
     if (!btnMeta) return;
 
     const walletType = localStorage.getItem(EVM_KEYS.TYPE);
     const address = localStorage.getItem(EVM_KEYS.WALLET);
-    
-    // Elementlarni topamiz
-    const textSpan = btnMeta.querySelector('.invite-info span');
-    const arrowDiv = btnMeta.querySelector('.invite-arrow'); // O'ng tomondagi tugma joyi
-    const iconImg = btnMeta.querySelector('.invite-icon img'); // ❗ Rasm elementi
 
-    // Standart rasm (Ulanmaganda chiqadigan)
+    const textSpan = btnMeta.querySelector('.invite-info span');
+    const arrowDiv = btnMeta.querySelector('.invite-arrow');
+    const iconImg = btnMeta.querySelector('.invite-icon img');
+
     const defaultIcon = "https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg";
 
     if (walletType === 'evm' && address) {
         // --- ULANGAN HOLAT ---
         const shortAddr = address.slice(0, 4) + "..." + address.slice(-4);
-        
+
         btnMeta.style.background = "rgba(40, 167, 69, 0.15)";
         btnMeta.style.border = "1px solid #28a745";
-        
-        if(textSpan) textSpan.innerHTML = `Connected: <b style="color:#fff">${shortAddr}</b>`;
-        
-        // 1. Rasmni o'zgartirish (AppKitdan ma'lumot olamiz)
+
+        if (textSpan) textSpan.innerHTML = `Connected: <b style="color:#fff">${shortAddr}</b>`;
+
+        // Rasmni o'zgartirish
         if (evmModal) {
-            const walletInfo = evmModal.getWalletInfo(); // Hamyon info
-            if (walletInfo && walletInfo.icon) {
-                iconImg.src = walletInfo.icon; // Masalan, Trust Wallet logosi
+            try {
+                const provider = evmModal.getProvider();
+                // Agar provider mavjud bo'lsa, uni chiqaramiz
+                if (provider) {
+                    iconImg.src = defaultIcon;
+                }
+            } catch (e) {
+                console.log("Icon yangilashda xatolik:", e);
             }
-        } 
+        }
+
+        // O'ng tomonda strelka
+        if (arrowDiv) arrowDiv.innerHTML = `
+            <span class="scoped-svg-icon">
+                <img src="/image/arrow.svg" alt="">
+            </span>`;
     } else {
         // --- ULANMAGAN HOLAT ---
         btnMeta.style.background = "";
         btnMeta.style.border = "";
-        
-        if(textSpan) textSpan.innerText = "Connect MetaMask / EVM";
-        
-        // Rasmni asl holiga qaytarish
-        if(iconImg) iconImg.src = defaultIcon;
+
+        if (textSpan) textSpan.innerText = "Connect MetaMask / EVM";
+
+        if (iconImg) iconImg.src = defaultIcon;
+
+        if (arrowDiv) arrowDiv.innerHTML = `
+            <span class="scoped-svg-icon">
+                <img src="/image/arrow.svg" alt="">
+            </span>`;
     }
 }
 
@@ -191,10 +214,6 @@ function clearEvmData() {
     if (localStorage.getItem(EVM_KEYS.TYPE) === 'evm') {
         localStorage.removeItem(EVM_KEYS.WALLET);
         localStorage.removeItem(EVM_KEYS.TYPE);
-        
-        // Bazadan o'chirish shart emas, chunki shunchaki sessiyadan chiqdi.
-        // Agar xohlasangiz, bu yerda ham API chaqirib 'crypto_wallet': null qilish mumkin.
-        
         updateMetaMaskUI();
     }
 }
