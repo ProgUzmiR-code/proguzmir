@@ -48,7 +48,7 @@ function renderShop() {
                         <button class="playGameBtn buySkinBtn" data-skin="${sk.id}">Buy</button>
                       </div>
                     </div>
-                  `).join('')}}
+                  `).join('')}
                 </div>
                 </div>
 
