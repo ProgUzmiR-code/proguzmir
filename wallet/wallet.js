@@ -1,11 +1,5 @@
 // /wallet/wallet.js
-// --- 1. TON CONNECT INTEGRATION ---
-const TON_KEYS = {
-    WALLET: "proguzmir_ton_wallet",
-    TYPE: "proguzmir_wallet_type"
-};
 
-let tonConnectUI;
 let MERCHANT_TON = null;
 let MERCHANT_EVM = null;
 
