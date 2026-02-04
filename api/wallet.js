@@ -1,3 +1,4 @@
+//api/wallet.js
 import { createAppKit } from "@reown/appkit";
 import { EthersAdapter } from "@reown/appkit-adapter-ethers";
 import { mainnet, arbitrum } from "@reown/appkit/networks";
@@ -23,3 +24,12 @@ const modal = createAppKit({
     analytics: true, // Optional - defaults to your Cloud configuration
   },
 });
+
+export default function handler(req, res) {
+  // Bu funksiya Vercel serverida ishlaydi va .env ni o'qiy oladi
+  res.status(200).json({
+    ton_address: process.env.MERCHANT_TON,
+    evm_address: process.env.MERCHANT_EVM,
+  });
+}
+
