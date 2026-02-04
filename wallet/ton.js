@@ -7,27 +7,28 @@ const TON_KEYS = {
 
 let tonConnectUI;
 
-// Asosiy ishga tushirish funksiyasi (buni index.js chaqiradi)
+
+// ✅ YANGI: Biz window.tonConnectUI dan foydalanamiz
+
 function initTonWallet() {
     console.log("TON Wallet moduli ishga tushdi");
 
-    // 1. TonConnectni sozlash
-    if (!tonConnectUI) {
-        tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            // Manifest manzili (To'liq URL bo'lishi shart)
+    // 1. TonConnectni sozlash va GLOBAL window obyektiga yuklash
+    if (!window.tonConnectUI) {
+        window.tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://proguzmir.vercel.app/tonconnect-manifest.json', 
             buttonRootId: null
         });
 
         // Ulanish holatini kuzatish
-        tonConnectUI.onStatusChange(wallet => {
+        window.tonConnectUI.onStatusChange(wallet => {
             if (wallet) {
                 const rawAddress = wallet.account.address;
                 const userFriendly = TON_CONNECT_UI.toUserFriendlyAddress(rawAddress);
                 saveTonData(userFriendly);
                 updateTonUI();
             } else {
-                // Agar TON o'chirilgan bo'lsa va hozirgi rejim TON bo'lsa
+                // Agar TON o'chirilgan bo'lsa
                 if (localStorage.getItem(TON_KEYS.TYPE) === 'ton') {
                     clearTonData();
                 }
@@ -58,7 +59,7 @@ function setupTonButton() {
             if (e.target.classList.contains('disconnect-btn')) {
                 const isConfirmed = confirm("Haqiqatan ham TON hamyonini uzmoqchimisiz?");
                 if (isConfirmed) {
-                    await tonConnectUI.disconnect();
+                    window.tonConnectUI.disconnect();
                     clearTonData();
                 }
             }
@@ -66,7 +67,7 @@ function setupTonButton() {
         } 
         else if (!currentType) {
             // Ulanmagan bo'lsa, butun tugma ishlayveradi
-            try { await tonConnectUI.openModal(); } catch (e) { console.error(e); }
+            try { await window.tonConnectUI.openModal(); } catch (e) { console.error(e); }
         } 
         else {
             alert("Avval MetaMask hamyonni uzing!");

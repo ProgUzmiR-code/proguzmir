@@ -71,31 +71,61 @@ async function buyItem(itemId) {
 }
 
 // --- 3. TON TO'LOV FUNKSIYASI ---
+
 async function payWithTon(amountNano) {
-    if (!window.tonConnectUI || !window.tonConnectUI.connected) {
-        alert("TON hamyon ulanmagan yoki uzilib qolgan!");
+    
+    // 1. Obyekt va ulanishni tekshirish
+    if (!window.tonConnectUI) {
+        alert("Xatolik: TON kutubxonasi yuklanmagan. Sahifani yangilang.");
+        return;
+    }
+
+    // Ulanish holatini tekshirish
+    if (!window.tonConnectUI.connected) {
+        // Agar localStorage da "ulangan" deb tursa-yu, lekin aslida uzilgan bo'lsa
+        alert("TON hamyon aloqasi uzilgan. Iltimos, qayta ulang.");
+        
+        // Majburiy qayta ulanish oynasini ochish
+        try {
+            await window.tonConnectUI.openModal();
+        } catch (e) {
+            console.error(e);
+        }
         return;
     }
 
     const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 600,
+        validUntil: Math.floor(Date.now() / 1000) + 600, // 10 daqiqa vaqt
         messages: [
             {
-                address: MERCHANT_TON, // Endi bu yerda serverdan kelgan manzil bo'ladi
+                address: MERCHANT_TON, 
                 amount: amountNano
             }
         ]
     };
 
     try {
+        // Tranzaksiya yuborish
         const result = await window.tonConnectUI.sendTransaction(transaction);
+        
         console.log("TON To'lov muvaffaqiyatli:", result);
-        alert("To'lov qabul qilindi! Hisobingiz tez orada to'ldiriladi.");
+        alert("To'lov muvaffaqiyatli amalga oshirildi! ✅");
+        
+        // Bu yerda backendga natijani yuborishingiz mumkin
+        // sendToBackend(result);
+
     } catch (e) {
-        console.error(e);
-        alert("To'lov bekor qilindi.");
+        console.error("To'lov xatosi:", e);
+        
+        // Agar foydalanuvchi o'zi bekor qilsa (UserRejected)
+        if (e.message && e.message.includes("User rejected")) {
+            alert("Siz to'lovni bekor qildingiz.");
+        } else {
+            alert("To'lovda xatolik yuz berdi. Tafsilotlar konsolda.");
+        }
     }
 }
+
 
 // --- 4. EVM (METAMASK) TO'LOV FUNKSIYASI ---
 async function payWithEvm(amountEth, itemName) {
