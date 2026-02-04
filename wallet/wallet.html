@@ -498,7 +498,7 @@
         // Sahifa yuklanishi bilan Vercel API dan manzillarni olib kelamiz
         async function loadWalletConfig() {
             try {
-                const response = await fetch('/api/wallet');
+                const response = await fetch('/api/wallet-data');
                 const data = await response.json();
                 
                 if (data.ton_address && data.evm_address) {
