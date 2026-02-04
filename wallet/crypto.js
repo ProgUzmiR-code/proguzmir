@@ -68,7 +68,7 @@ async function initMetaMaskSystem() {
             const address = evmModal.getAddress();
             saveEvmData(address);
         }
-        
+        window.evmModal = evmModal; // Globalga qo'yamiz
         setupMetaMaskButton(); 
         updateMetaMaskUI();
 
