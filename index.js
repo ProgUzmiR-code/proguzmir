@@ -31,7 +31,7 @@ const DEFAULT_TAP_CAP = 1000;
 const INCREASE_BLOCK = 1000; // qancha tapped limitni oshiramiz har xaridda
 
 // Skinlar ro'yxati
-const SKIN_COST_WEI = 500000000000000n; // 0.0005 PRC = 5e14 wei
+const SKIN_COST_WEI = 500000n; // 0.0005 PRC = 5e14 wei
 const SKINS = [
     { id: "bronza.png", name: "Bronza", file: "./image/bronza.png" },
     { id: "silver.png", name: "Silver", file: "./image/silver.png" },
