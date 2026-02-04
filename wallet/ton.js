@@ -16,7 +16,7 @@ function initTonWallet() {
     // 1. TonConnectni sozlash va GLOBAL window obyektiga yuklash
     if (!window.tonConnectUI) {
         window.tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: 'https://proguzmir.vercel.app/tonconnect-manifest.json', 
+            manifestUrl: 'https://proguzmir.vercel.app/tonconnect-manifest.json',
             buttonRootId: null
         });
 
@@ -64,11 +64,11 @@ function setupTonButton() {
                 }
             }
             // Boshqa joy bosilsa, hech narsa bo'lmaydi (jim turadi)
-        } 
+        }
         else if (!currentType) {
             // Ulanmagan bo'lsa, butun tugma ishlayveradi
             try { await window.tonConnectUI.openModal(); } catch (e) { console.error(e); }
-        } 
+        }
         else {
             alert("Avval MetaMask hamyonni uzing!");
         }
@@ -96,12 +96,12 @@ function updateTonUI() {
     if (walletType === 'ton' && address) {
         // --- ULANGAN HOLAT ---
         const shortAddr = address.slice(0, 4) + "..." + address.slice(-4);
-        
+
         btnTon.style.background = "rgba(40, 167, 69, 0.15)";
         btnTon.style.border = "1px solid #28a745";
-        
-        if(textSpan) textSpan.innerHTML = `Connected: <b style="color:#fff">${shortAddr}</b>`;
-        
+
+        if (textSpan) textSpan.innerHTML = `Connected: <b style="color:#fff">${shortAddr}</b>`;
+
         // 1. Rasmni o'zgartirish (Tonkeeper, MyTonWallet va h.k.)
         if (tonConnectUI && tonConnectUI.wallet && tonConnectUI.wallet.imageUrl) {
             iconImg.src = tonConnectUI.wallet.imageUrl;
@@ -109,18 +109,18 @@ function updateTonUI() {
 
         // 2. O'ng tomon (Strelkani "Uzish" tugmasiga aylantirish)
         // Agar siz TON da "Uzish" tugmasi turishini xohlasangiz:
-        if(arrowDiv) arrowDiv.innerHTML = `<button class="disconnect-btn">Uzish</button>`;
-        
+        if (arrowDiv) arrowDiv.innerHTML = `<button class="disconnect-btn">Uzish</button>`;
+
     } else {
         // --- ULANMAGAN HOLAT ---
         btnTon.style.background = "";
         btnTon.style.border = "";
-        
-        if(textSpan) textSpan.innerText = "Connect TON Wallet";
-        
+
+        if (textSpan) textSpan.innerText = "Connect TON Wallet";
+
         // Rasmni va strelkani asl holiga qaytarish
-        if(iconImg) iconImg.src = defaultIcon;
-        if(arrowDiv) arrowDiv.innerHTML = `
+        if (iconImg) iconImg.src = defaultIcon;
+        if (arrowDiv) arrowDiv.innerHTML = `
             <span class="scoped-svg-icon">
                 <img src="/image/arrow.svg" alt="">
             </span>`;
@@ -149,3 +149,12 @@ function clearTonData() {
 }
 
 window.initTonWallet = initTonWallet;
+
+// Sahifa to'liq yuklangandan so'ng darhol ishga tushadi
+document.addEventListener('DOMContentLoaded', () => {
+    // Agar hali ishga tushmagan bo'lsa, ishga tushirsin
+    if (!window.tonConnectUI) {
+        initTonWallet();
+    }
+});
+

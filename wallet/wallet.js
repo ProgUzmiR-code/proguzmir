@@ -71,60 +71,91 @@ async function buyItem(itemId) {
 }
 
 // --- 3. TON TO'LOV FUNKSIYASI ---
+// --- YORDAMCHI KUTISH FUNKSIYASI ---
+function waitForTonLib(retries = 20) {
+    return new Promise((resolve, reject) => {
+        // Agar allaqachon bor bo'lsa
+        if (window.tonConnectUI) {
+            return resolve(window.tonConnectUI);
+        }
+
+        // Agar yo'q bo'lsa, tekshirishni boshlaymiz
+        let count = 0;
+        const interval = setInterval(() => {
+            count++;
+            if (window.tonConnectUI) {
+                clearInterval(interval);
+                resolve(window.tonConnectUI);
+            } else if (count >= retries) {
+                clearInterval(interval);
+                reject("TON kutubxonasi vaqtida yuklanmadi");
+            }
+        }, 100); // Har 100ms da tekshiradi (jami 2 soniya kutadi)
+    });
+}
+
+// --- 3. TON TO'LOV FUNKSIYASI (YANGILANGAN) ---
 
 async function payWithTon(amountNano) {
-    
-    // 1. Obyekt va ulanishni tekshirish
-    if (!window.tonConnectUI) {
-        alert("Xatolik: TON kutubxonasi yuklanmagan. Sahifani yangilang.");
-        return;
-    }
 
-    // Ulanish holatini tekshirish
-    if (!window.tonConnectUI.connected) {
-        // Agar localStorage da "ulangan" deb tursa-yu, lekin aslida uzilgan bo'lsa
-        alert("TON hamyon aloqasi uzilgan. Iltimos, qayta ulang.");
-        
-        // Majburiy qayta ulanish oynasini ochish
-        try {
-            await window.tonConnectUI.openModal();
-        } catch (e) {
-            console.error(e);
+    try {
+        // 1. Kutubxona yuklanishini kutamiz (maksimal 2 soniya)
+        await waitForTonLib();
+    } catch (error) {
+        // Agar 2 soniya kutilganda ham yuklanmasa:
+        console.error(error);
+
+        // Ehtimol initTonWallet chaqirilmagandir, majburan chaqirib ko'ramiz
+        if (window.initTonWallet) {
+            window.initTonWallet();
+            alert("Tizim ishga tushirilmoqda... Iltimos, yana bir marta bosing.");
+        } else {
+            alert("Internet past yoki TON tizimi yuklanmadi. Sahifani yangilang.");
         }
         return;
     }
 
+    // 2. Endi aniq window.tonConnectUI mavjud
+    if (!window.tonConnectUI.connected) {
+        // Agar ulangan deb ko'rinsa ham, aslida uzilgan bo'lishi mumkin
+        // Shuning uchun xatolik chiqsa modalni ochamiz
+        try {
+            await window.tonConnectUI.openModal();
+        } catch (e) {
+            console.error("Modal ochishda xato:", e);
+        }
+        return; // Modal ochilgandan keyin funksiya to'xtaydi, user ulanib qayta bosishi kerak
+    }
+
     const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 600, // 10 daqiqa vaqt
+        validUntil: Math.floor(Date.now() / 1000) + 600,
         messages: [
             {
-                address: MERCHANT_TON, 
+                address: MERCHANT_TON,
                 amount: amountNano
             }
         ]
     };
 
     try {
-        // Tranzaksiya yuborish
         const result = await window.tonConnectUI.sendTransaction(transaction);
-        
         console.log("TON To'lov muvaffaqiyatli:", result);
         alert("To'lov muvaffaqiyatli amalga oshirildi! ✅");
-        
-        // Bu yerda backendga natijani yuborishingiz mumkin
-        // sendToBackend(result);
+
+        // Backendga xabar berish (ixtiyoriy)
+        // verifyPaymentOnServer(result);
 
     } catch (e) {
         console.error("To'lov xatosi:", e);
-        
-        // Agar foydalanuvchi o'zi bekor qilsa (UserRejected)
         if (e.message && e.message.includes("User rejected")) {
-            alert("Siz to'lovni bekor qildingiz.");
+            // User bekor qildi, hech narsa demasak ham bo'ladi yoki:
+            console.log("Foydalanuvchi bekor qildi");
         } else {
-            alert("To'lovda xatolik yuz berdi. Tafsilotlar konsolda.");
+            alert("To'lov amalga oshmadi. Qayta urinib ko'ring.");
         }
     }
 }
+
 
 
 // --- 4. EVM (METAMASK) TO'LOV FUNKSIYASI ---
