@@ -592,35 +592,51 @@
         // --- 4. EVM (METAMASK) TO'LOV FUNKSIYASI ---
         async function payWithEvm(amountEth, itemName) {
 
-            // 1. Agar MetaMask kutubxonasi umuman yuklanmagan bo'lsa
+            // 1. Agar MetaMask tizimi umuman yuklanmagan bo'lsa
             if (!window.evmModal) {
-                // Balki internet sekinlik qilib, cripto.js kech yuklangandir?
-                // Qayta ishga tushirib ko'ramiz
+                console.log("MetaMask tizimi topilmadi. Qayta ishga tushirilmoqda...");
+
                 if (window.initMetaMaskWallet) {
-                    console.log("MetaMask qayta yuklanmoqda...");
-                    await window.initMetaMaskWallet();
-                } else {
-                    alert("Tizim hali yuklanmadi. 3 soniya kutib qayta bosing.");
+                    try {
+                        await window.initMetaMaskWallet();
+                    } catch (e) {
+                        console.error("Init Error:", e);
+                    }
+                }
+
+                // Ikkinchi marta tekshiramiz
+                if (!window.evmModal) {
+                    alert("Tizim hali yuklanmadi. Iltimos, sahifani yangilab (Reload) qayta urinib ko'ring.");
                     return;
                 }
             }
 
-            // 2. Agar kutubxona bor, lekin "Ulanmagan" deb tursa
-            if (!window.evmModal.getIsConnected()) {
+            // 2. Ulanish holatini tekshirish (YANGI USUL)
+            // getIsConnected() o'rniga getAccount().isConnected ishlatamiz
+            let isConnected = false;
+            try {
+                const account = window.evmModal.getAccount();
+                isConnected = account.isConnected;
+            } catch (e) {
+                console.warn("Account holatini olishda xatolik:", e);
+            }
+
+            if (!isConnected) {
                 console.log("Sessiya uzilgan. Qayta ulanish so'ralmoqda...");
-
-                // Xato berish o'rniga, ulanish oynasini ochamiz!
-                await window.evmModal.open();
-
-                // Oyna ochilgandan keyin foydalanuvchi ulanishi kerak. 
-                // Shu joyda funksiyani to'xtatamiz. Foydalanuvchi ulab bo'lib, qayta "Buy" bosadi.
+                await window.evmModal.open(); // Ulanish oynasini ochamiz
                 return;
             }
 
-            // 3. To'lov jarayoni (Agar hammasi joyida bo'lsa)
+            // 3. To'lov jarayoni
             try {
                 const provider = window.evmModal.getProvider();
-                const myAddress = window.evmModal.getAddress();
+                const account = window.evmModal.getAccount();
+                const myAddress = account.address; // Manzilni to'g'ri joydan olamiz
+
+                if (!myAddress) {
+                    alert("Hamyon manzili aniqlanmadi. Qayta ulaning.");
+                    return;
+                }
 
                 // Matematik hisob (xavfsiz)
                 const weiValue = BigInt(Math.round(parseFloat(amountEth) * 1e18)).toString(16);
@@ -644,6 +660,7 @@
                 showNotification("Xatolik: " + (e.message || "Bekor qilindi"), 'error');
             }
         }
+
 
     </script>
 
