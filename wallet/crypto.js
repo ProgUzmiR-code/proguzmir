@@ -219,3 +219,5 @@ function clearEvmData() {
 }
 
 window.initMetaMaskWallet = initMetaMaskWallet;
+
+window.setupMetaMaskButton = setupMetaMaskButton; 
