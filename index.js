@@ -606,19 +606,45 @@ function renderGame() {
         });
     }
 
-    // energy auto-recharge (existing)
+    // energy auto-recharge
+
     if (window._energyInterval) { clearInterval(window._energyInterval); window._energyInterval = null; }
-    // Doimiy interval: har soniyada tekshiradi va faqat kerak bo'lsa oshiradi.
-    window._energyInterval = setInterval(() => {
+
+    // Doimiy interval: har soniyada tekshiradi
+    window._energyInterval = setInterval(async () => { 
+
         const st = loadState();
-        if (typeof st.energy !== 'number' || typeof st.maxEnergy !== 'number') return;
-        if (st.energy < st.maxEnergy) {
-            st.energy = Math.min(st.maxEnergy, st.energy + 1);
+
+       
+        // Agar birdaniga maxEnergy 0 yoki noto'g'ri bo'lib qolsa:
+        if (!st.maxEnergy || st.maxEnergy <= 0) {
+            console.warn("⚠️ Diqqat! Energiya 0 ga tushib qoldi. Avtomatik tuzatilmoqda...");
+
+            st.maxEnergy = 1000;
+            
+            if (st.energy <= 0) st.energy = 1000;
+
             saveState(st);
+
+            // 3. Ekranni darhol yangilaymiz (foydalanuvchi kutib qolmasligi uchun)
+            const el = document.getElementById('tapsCount');
+            if (el) el.textContent = `${st.energy} / ${st.maxEnergy}`;
+
+        }
+        
+        // Asosiy mantiq (Sizning kodingiz)
+        if (typeof st.energy !== 'number' || typeof st.maxEnergy !== 'number') return;
+
+        if (st.energy < st.maxEnergy) {
+            // Kichik o'zgarish: 1 ga oshirganda maxEnergy dan oshib ketmasligini ta'minlash
+            st.energy = Math.min(st.maxEnergy, st.energy + 1);
+
+            saveState(st);
+
             const el = document.getElementById('tapsCount');
             if (el) el.textContent = `${st.energy} / ${st.maxEnergy}`;
         }
-        // Eslatma: intervalni endi avtomatik clear qilmaymiz — shu bilan energiya pasayganda qayta tiklanadi.
+
     }, 1000);
 
     // replace modal behavior: clicking boostsBox opens Boosts "page" (renderBoosts)
