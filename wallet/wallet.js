@@ -137,7 +137,7 @@ async function payWithTon(amountNano) {
         ]
     };
 
-    
+
     try {
         const result = await window.tonConnectUI.sendTransaction(transaction);
         console.log("TON To'lov muvaffaqiyatli:", result);
@@ -185,7 +185,7 @@ async function payWithEvm(amountEth, itemName) {
     try {
         // MUHIM: EthersAdapter ishlatayotganingiz uchun providerni Ethers orqali olish kerak
         // yoki to'g'ridan-to'g'ri WalletConnect provideridan foydalanish kerak
-        const walletProvider = window.evmModal.getWalletProvider(); 
+        const walletProvider = window.evmModal.getWalletProvider();
         const myAddress = account.address;
 
         if (!myAddress || !walletProvider) {
@@ -204,6 +204,9 @@ async function payWithEvm(amountEth, itemName) {
             // Ba'zan chainId xatoligi bermasligi uchun uni ham qo'shgan ma'qul
             // data: "0x", // Oddiy o'tkazma uchun bo'sh
         };
+        // Mobil qurilmalarda foydalanuvchini hamyonga yo'naltirish uchun 
+        // tranzaksiya so'rovidan oldin kichik bildirishnoma ko'rsatish yaxshi amaliyot
+        console.log("Tranzaksiya so'ralmoqda...");
 
         // AppKit/WalletConnect orqali tranzaksiya so'rovi
         const txHash = await walletProvider.request({
@@ -219,6 +222,9 @@ async function payWithEvm(amountEth, itemName) {
         // Foydalanuvchi rad etgan bo'lsa
         if (e.code === 4001 || e.message.includes("rejected")) {
             alert("To'lov foydalanuvchi tomonidan bekor qilindi.");
+        }// Telegram Webview ichida Deep Link xatosi bo'lsa
+        else if (e.message.includes("connector") || e.code === -32000) {
+            alert("Hamyon bilan aloqa uzildi. Iltimos, hamyon ilovasiga kirib tranzaksiyani tasdiqlang yoki qayta ulaning.");
         } else {
             alert("Xatolik yuz berdi: " + (e.message || "Tranzaksiya amalga oshmadi"));
         }

@@ -41,6 +41,12 @@ async function initMetaMaskSystem() {
             adapters: [new EthersAdapter()],
             networks,
             projectId,
+            // MOBIL UCHUN MUHIM SOZLAMALAR:
+            allWallets: 'SHOW', // Barcha hamyonlarni ko'rsatish
+            includeWalletIds: [
+                'c533ad1515863355592a5329823f0010c7e159518205d6349386616091929312', // MetaMask ID
+                '4622a2b2d6ad1397af7665014e1329ff0a3fe6a6a9b9560f64c1860f4dd6d97c'  // Trust Wallet ID
+            ],
             metadata: {
                 name: 'ProgUzmiR',
                 description: 'Token Airdrop',
