@@ -160,72 +160,66 @@ async function payWithTon(amountNano) {
 
 // --- 4. EVM (METAMASK) TO'LOV FUNKSIYASI ---
 async function payWithEvm(amountEth, itemName) {
-
-    // 1. Agar MetaMask tizimi umuman yuklanmagan bo'lsa
+    // 1. AppKit modal yuklanganini tekshirish
     if (!window.evmModal) {
         console.log("MetaMask tizimi topilmadi. Qayta ishga tushirilmoqda...");
-
         if (window.initMetaMaskWallet) {
-            try {
-                await window.initMetaMaskWallet();
-            } catch (e) {
-                console.error("Init Error:", e);
-            }
+            await window.initMetaMaskWallet();
         }
-
-        // Ikkinchi marta tekshiramiz
         if (!window.evmModal) {
-            alert("Tizim hali yuklanmadi. Iltimos, sahifani yangilab (Reload) qayta urinib ko'ring.");
+            alert("Tizim yuklanmadi. Sahifani yangilab qayta urinib ko'ring.");
             return;
         }
     }
 
-    // 2. Ulanish holatini tekshirish (YANGI USUL)
-    // getIsConnected() o'rniga getAccount().isConnected ishlatamiz
-    let isConnected = false;
-    try {
-        const account = window.evmModal.getAccount();
-        isConnected = account.isConnected;
-    } catch (e) {
-        console.warn("Account holatini olishda xatolik:", e);
-    }
-
-    if (!isConnected) {
+    // 2. Ulanish holatini tekshirish
+    const account = window.evmModal.getAccount();
+    if (!account.isConnected) {
         console.log("Sessiya uzilgan. Qayta ulanish so'ralmoqda...");
-        await window.evmModal.open(); // Ulanish oynasini ochamiz
+        await window.evmModal.open();
         return;
     }
 
     // 3. To'lov jarayoni
     try {
-        const provider = window.evmModal.getProvider();
-        const account = window.evmModal.getAccount();
-        const myAddress = account.address; // Manzilni to'g'ri joydan olamiz
+        // MUHIM: EthersAdapter ishlatayotganingiz uchun providerni Ethers orqali olish kerak
+        // yoki to'g'ridan-to'g'ri WalletConnect provideridan foydalanish kerak
+        const walletProvider = window.evmModal.getWalletProvider(); 
+        const myAddress = account.address;
 
-        if (!myAddress) {
-            alert("Hamyon manzili aniqlanmadi. Qayta ulaning.");
+        if (!myAddress || !walletProvider) {
+            alert("Hamyon ma'lumotlari topilmadi. Qayta ulaning.");
             return;
         }
 
-        // Matematik hisob (xavfsiz)
-        const weiValue = BigInt(Math.round(parseFloat(amountEth) * 1e18)).toString(16);
+        // Qiymatni Wei ga o'tkazish (18 ta nol)
+        // 0.0004 ETH -> "0x16bcc41e90000" (hex formatda)
+        const weiValue = "0x" + (BigInt(Math.round(parseFloat(amountEth) * 1e18))).toString(16);
 
         const txParams = {
             from: myAddress,
             to: MERCHANT_EVM,
-            value: "0x" + weiValue,
+            value: weiValue,
+            // Ba'zan chainId xatoligi bermasligi uchun uni ham qo'shgan ma'qul
+            // data: "0x", // Oddiy o'tkazma uchun bo'sh
         };
 
-        const txHash = await provider.request({
+        // AppKit/WalletConnect orqali tranzaksiya so'rovi
+        const txHash = await walletProvider.request({
             method: 'eth_sendTransaction',
             params: [txParams],
         });
 
         console.log("Tranzaksiya yuborildi. Hash:", txHash);
-        showNotification(`${itemName} to'lovi yuborildi! Hash: ${txHash}`, 'success');
+        alert(`To'lov yuborildi! Hash: ${txHash}`);
 
     } catch (e) {
-        console.error(e);
-        showNotification("Xatolik: " + (e.message || "Bekor qilindi"), 'error');
+        console.error("MetaMask to'lov xatosi:", e);
+        // Foydalanuvchi rad etgan bo'lsa
+        if (e.code === 4001 || e.message.includes("rejected")) {
+            alert("To'lov foydalanuvchi tomonidan bekor qilindi.");
+        } else {
+            alert("Xatolik yuz berdi: " + (e.message || "Tranzaksiya amalga oshmadi"));
+        }
     }
 }
