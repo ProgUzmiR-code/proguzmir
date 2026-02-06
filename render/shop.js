@@ -66,7 +66,7 @@ function renderShop() {
       <div id="shopCol" style="display:none; padding: 10px;">
           
           <div style="background: linear-gradient(180deg, #4a90e2 0%, #1a56a0 100%); border-radius: 15px; padding: 15px; margin-bottom: 20px; color: white; position: relative; overflow: hidden;">
-              <h2 style="margin: 0; font-size: 22px; font-style: italic; position: relative; z-index: 50;">2X Gem Bonus</h2>
+              <h2 style="margin: 0; font-size: 22px; font-style: italic; position: relative; z-index: 50;">2X Diamond Bonus</h2>
               <p style="margin: 8px 0 0; font-size: 13px; opacity: 0.9; line-height: 1.4; position: relative; z-index: 50;">Any first purchase of any <br> tier earns 2x Rebate rewards.</p>
               <img src="./image/gems_pile.jpg" style="position: absolute; right: 0px; top: -10px; width: 100%; opacity: 0.8; z-index:1;">
           </div>
