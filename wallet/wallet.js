@@ -24,9 +24,9 @@ async function loadWalletConfig() {
 // Konfiguratsiyani ishga tushiramiz
 loadWalletConfig();
 
-// Mahsulot narxlari (Bular o'zgarmas qolaveradi)
+// Mahsulot narxlari
 const PRICES = {
-    'gem1': { name: "500 diamond", ton: '200000000', usdt: '1.19' },   // usdt narxi qo'shildi
+    'gem1': { name: "500 diamond", ton: '200000000', usdt: '1.19' },
     'gem2': { name: "2,500 diamond", ton: '1000000000', usdt: '5.99' },
     'gem3': { name: "5,000 diamond", ton: '2000000000', usdt: '11.99' },
     'gem4': { name: "10,000 diamond", ton: '4000000000', usdt: '23.99' },
@@ -34,26 +34,25 @@ const PRICES = {
     'gem6': { name: "50,000 diamond", ton: '20000000000', usdt: '109.99' }
 };
 
+// USDT (BEP-20) Kontrakt manzili (BNB Smart Chain uchun)
+const USDT_BSC_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
+
 // --- 2. ASOSIY SOTIB OLISH FUNKSIYASI ---
 async function buyItem(itemId) {
     console.log("Tanlangan mahsulot: " + itemId);
 
-    // 0. Manzillar yuklanganini tekshirish (MUHIM)
     if (!MERCHANT_TON || !MERCHANT_EVM) {
         alert("Tizim ma'lumotlari yuklanmoqda... Iltimos, 2 soniya kutib qayta bosing.");
-        // Agar yuklanmagan bo'lsa, qayta urinib ko'ramiz
         loadWalletConfig();
         return;
     }
 
-    // 1. Mahsulot bazada borligini tekshiramiz
     const item = PRICES[itemId];
     if (!item) {
         alert("Xatolik: Bunday mahsulot topilmadi!");
         return;
     }
 
-    // 2. Qaysi hamyon ulanganini aniqlaymiz
     const walletType = localStorage.getItem("proguzmir_wallet_type");
 
     if (walletType === 'ton') {
@@ -61,12 +60,14 @@ async function buyItem(itemId) {
             await payWithTon(item.ton);
         }
     } else if (walletType === 'evm') {
-        if (confirm(`${item.name} ni USDT orqali (${item.usdt}$) sotib olasizmi?`)) {
-            await payWithEvm(item.usdt, item.name); 
+        // USDT narxini yuboramiz
+        if (confirm(`${item.name} ni USDT (BNB Chain) orqali ${item.usdt}$ ga sotib olasizmi?`)) {
+            await payWithEvm(item.usdt);
         }
     } else {
         alert("Sotib olish uchun avval hamyonni (TON yoki MetaMask) ulang!");
-        document.querySelector('.invite-listm2').scrollIntoView({ behavior: 'smooth' });
+        const list = document.querySelector('.invite-listm2');
+        if(list) list.scrollIntoView({ behavior: 'smooth' });
     }
 }
 
@@ -156,17 +157,18 @@ async function payWithTon(amountNano) {
     }
 }
 
-// --- 4. EVM (USDT) TO'LOV FUNKSIYASI ---
-async function payWithEvm(amountUsdt, itemName) {
+// --- 4. EVM (USDT - BSC) TO'LOV FUNKSIYASI ---
+async function payWithEvm(amountUsdt) {
 
+    // 1. AppKit tekshiruvi
     if (!window.evmModal) {
-        alert("MetaMask tizimi yuklanmadi.");
+        alert("MetaMask tizimi yuklanmadi. Sahifani yangilang.");
         return;
     }
 
     const account = window.evmModal.getAccount();
-    if (!account || !account.isConnected) {
-        alert("Hamyon uzilgan. Qayta ulang.");
+    if (!account.isConnected) {
+        alert("Hamyon uzilgan. Qayta ulaning.");
         window.evmModal.open();
         return;
     }
@@ -175,88 +177,68 @@ async function payWithEvm(amountUsdt, itemName) {
         const walletProvider = window.evmModal.getWalletProvider();
         const myAddress = account.address;
 
-        // 1. TARMOG'NI ANIQLASH
-        // Chain ID ni olamiz (decimal formatda, masalan 56 yoki 1)
+        // --- A. TARMOG'NI TEKSHIRISH (BNB Smart Chain - 56) ---
+        // USDT (BEP-20) faqat BSC tarmog'ida mavjud.
         const chainId = await walletProvider.request({ method: 'eth_chainId' });
-        const chainIdDec = parseInt(chainId, 16);
-
-        let contractAddress = "";
-        let decimals = 18; // Default
-
-        // BSC Mainnet (ID: 56 yoki 0x38)
-        if (chainIdDec === 56) {
-            contractAddress = USDT_CONTRACTS.BSC;
-            decimals = 18; // BSC da USDT odatda 18 decimal
-        } 
-        // Ethereum Mainnet (ID: 1 yoki 0x1)
-        else if (chainIdDec === 1) {
-            contractAddress = USDT_CONTRACTS.ETH;
-            decimals = 6;  // ETH da USDT 6 decimal (DIQQAT!)
-        } 
-        // Polygon (ID: 137) - Agar kerak bo'lsa
-        else if (chainIdDec === 137) {
-            contractAddress = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"; // Polygon USDT
-            decimals = 6;
-        }
-        else {
-            alert("Iltimos, MetaMaskda 'BNB Smart Chain' yoki 'Ethereum' tarmog'ini tanlang!");
-            // Tarmoqni o'zgartirishni so'rash (BSC ga o'tkazishga harakat qilamiz)
-             try {
-                 await walletProvider.request({
+        
+        // 0x38 bu 56 (BNB Chain)
+        if (chainId !== '0x38' && parseInt(chainId) !== 56) {
+            try {
+                await walletProvider.request({
                     method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: '0x38' }], // 0x38 = 56 (BSC)
+                    params: [{ chainId: '0x38' }],
                 });
-                // Qayta chaqiramiz
-                return payWithEvm(amountUsdt, itemName);
-            } catch (e) {
-                console.error(e);
+            } catch (switchError) {
+                alert("Iltimos, MetaMaskda 'BNB Smart Chain' tarmog'ini tanlang!");
                 return;
             }
         }
 
-        console.log(`Tarmoq: ${chainIdDec}, Kontrakt: ${contractAddress}, Decimals: ${decimals}`);
+        // --- B. USDT DATA YASASH ---
+        // Bizga merchant manzili kerak
+        if (!MERCHANT_EVM) {
+            alert("Sotuvchi hamyoni topilmadi.");
+            return;
+        }
 
-        // 2. DATA (PAYLOAD) YASASH
-        // ERC-20 Transfer funksiyasi kodi: 0xa9059cbb
-        // Parametr 1: Merchant Address (32 baytga to'ldirilgan)
-        // Parametr 2: Summa (32 baytga to'ldirilgan)
+        // 1. Transfer funksiyasi kodi: 0xa9059cbb
+        const methodId = "0xa9059cbb";
 
-        // Summani hisoblash
-        const amountFloat = parseFloat(amountUsdt);
-        // BigInt bilan aniq hisoblash: amount * (10 ^ decimals)
-        const amountBigInt = BigInt(Math.round(amountFloat * (10 ** decimals)));
-        
-        // Merchant manzilini tozalash (0x ni olib tashlash)
+        // 2. Manzilni 64 talik formatga keltirish (padding)
         const cleanAddress = MERCHANT_EVM.replace('0x', '');
-        
-        // 1-parametr: Manzilni oldiga 0 qo'shib 64 ta belgiga yetkazish
         const paddedAddress = cleanAddress.padStart(64, '0');
-        
-        // 2-parametr: Summani hex qilib, oldiga 0 qo'shib 64 ta belgiga yetkazish
+
+        // 3. Summani hisoblash (BSC da USDT 18 xona)
+        // 1.19 USDT -> 1.19 * 10^18
+        const amountFloat = parseFloat(amountUsdt);
+        const amountBigInt = BigInt(Math.round(amountFloat * 1e18));
         const paddedAmount = amountBigInt.toString(16).padStart(64, '0');
 
-        // Yakuniy DATA
-        const dataPayload = `0xa9059cbb${paddedAddress}${paddedAmount}`;
+        // Yakuniy Data
+        const dataPayload = methodId + paddedAddress + paddedAmount;
 
         const txParams = {
             from: myAddress,
-            to: contractAddress, // E'tibor bering: Pul KONTRAKTGA yuborilmaydi, bu yerda kontrakt manzili turadi
-            value: "0x0",        // BNB/ETH yubormayapmiz, shuning uchun 0
-            data: dataPayload    // Hamma gap shunda
+            to: USDT_BSC_ADDRESS, // Diqqat: Pul USDT kontraktiga boradi
+            value: "0x0",         // BNB yubormayapmiz, shuning uchun 0
+            data: dataPayload     // Hamma gap shunda
         };
 
-        // 3. TRANZAKSIYA YUBORISH
+        console.log("USDT so'rovi yuborilmoqda...");
+
+        // --- C. TRANZAKSIYA YUBORISH ---
         const txPromise = walletProvider.request({
             method: 'eth_sendTransaction',
             params: [txParams],
         });
 
-        // 4. TELEGRAM UCHUN DEEP LINK (Sizda ishlagan variant)
+        // --- D. TELEGRAM UCHUN MAXSUS PUSH ---
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         if (isMobile) {
             setTimeout(() => {
+                // Xavfsiz usulda MetaMaskni ochamiz
                 const link = document.createElement('a');
-                link.href = "metamask://"; 
+                link.href = "metamask://";
                 link.target = "_blank";
                 link.rel = "noopener noreferrer";
                 document.body.appendChild(link);
@@ -266,11 +248,16 @@ async function payWithEvm(amountUsdt, itemName) {
         }
 
         const txHash = await txPromise;
-        console.log("USDT Transaction Success:", txHash);
+        console.log("Success:", txHash);
         alert(`USDT To'lov yuborildi! ✅\nHash: ${txHash}`);
 
     } catch (e) {
         console.error("USDT Error:", e);
-        alert("Xatolik: " + (e.message || "To'lov bekor qilindi. Hisobingizda USDT va Gaz uchun ozgina BNB/ETH borligini tekshiring."));
+        // User rad etganda chiroyli xabar
+        if (e.message && e.message.includes("rejected")) {
+            console.log("User rejected");
+        } else {
+            alert("Xatolik: " + e.message + "\n\nEslatma: Hisobingizda Gaz uchun ozgina BNB bo'lishi shart!");
+        }
     }
 }
