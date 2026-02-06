@@ -185,7 +185,7 @@ async function payWithEvm(amountBnb, itemName) {
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
              setTimeout(() => {
                 const link = document.createElement('a');
-                link.href = "metamask://"; 
+                link.href = "wc://"; 
                 link.target = "_blank";
                 link.rel = "noopener noreferrer";
                 document.body.appendChild(link);
