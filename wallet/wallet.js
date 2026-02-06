@@ -182,8 +182,6 @@ async function payWithEvm(amountEth, itemName) {
 
     // 3. To'lov jarayoni
     try {
-        // MUHIM: EthersAdapter ishlatayotganingiz uchun providerni Ethers orqali olish kerak
-        // yoki to'g'ridan-to'g'ri WalletConnect provideridan foydalanish kerak
         const walletProvider = window.evmModal.getWalletProvider(); 
         const myAddress = account.address;
 
@@ -203,6 +201,11 @@ async function payWithEvm(amountEth, itemName) {
             // Ba'zan chainId xatoligi bermasligi uchun uni ham qo'shgan ma'qul
             // data: "0x", // Oddiy o'tkazma uchun bo'sh
         };
+        // MUHIM: Mobil brauzerlarda hamyonni ochishga urinish
+        console.log("Tranzaksiya so'ralmoqda...");
+        
+        // Agar foydalanuvchi mobil telefonda bo'lsa, 
+        // ba'zi kutubxonalar hamyonni ochishni kutadi.
 
         // AppKit/WalletConnect orqali tranzaksiya so'rovi
         const txHash = await walletProvider.request({
@@ -215,11 +218,13 @@ async function payWithEvm(amountEth, itemName) {
 
     } catch (e) {
         console.error("MetaMask to'lov xatosi:", e);
-        // Foydalanuvchi rad etgan bo'lsa
-        if (e.code === 4001 || e.message.includes("rejected")) {
-            alert("To'lov foydalanuvchi tomonidan bekor qilindi.");
+        // AGAR ILI VA O'TMASA, FOYDALANUVCHIGA QO'LDA O'TISHNI AYTAMIZ (Zaxira varianti)
+        if (e.message && e.message.toLowerCase().includes("user rejected")) {
+            alert("To'lov bekor qilindi.");
         } else {
-            alert("Xatolik yuz berdi: " + (e.message || "Tranzaksiya amalga oshmadi"));
+            alert("Iltimos, MetaMask ilovasiga kiring va tranzaksiyani tasdiqlang!");
+            // Mana shu yerda qo'lda ochish uchun havola berish mumkin (ixtiyoriy)
+            // window.location.href = "https://metamask.app.link/dapp/proguzmir.vercel.app";
         }
     }
 }
