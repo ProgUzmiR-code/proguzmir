@@ -205,9 +205,11 @@ async function payWithEvm(amountEth, itemName) {
         };
 
         // Mobil qurilmalarda hamyonni uyg'otish uchun Deep Link yuboramiz
-        if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
-            // MetaMask ilovasini ochish havolasi
-            window.location.href = "metamask://"; // Bu faqat MetaMask ilovasini ochadi, lekin foydalanuvchi o'zidan to'lovni boshlashi kerak bo'ladi
+       if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+            setTimeout(() => {
+                // Bu havola MetaMask ilovasini shunchaki "uyg'otadi" (Brauzerini ochmaydi)
+                window.location.href = "wc://"; 
+            }, 500); // 0.5 soniya kechikish
         }
 
         // AppKit/WalletConnect orqali tranzaksiya so'rovi
