@@ -176,27 +176,48 @@ async function payWithEvm(amountBnb, itemName) {
             data: "0x" // Oddiy coin o'tkazmasi
         };
 
+                // ... (Tepadagi kodlar o'zgarishsiz) ...
+
         const txPromise = walletProvider.request({
             method: 'eth_sendTransaction',
-            params: [txParams],
+            params: [txParams]
         });
 
-         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        
-        if (isMobile) {
+               // ... tranzaksiya yuborilgandan keyin ...
+
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
             setTimeout(() => {
-                
                 const link = document.createElement('a');
-                link.href = "wc://"; 
-                link.target = "_blank"; // Yangi oynada ochish buyrug'i
-                link.rel = "noopener noreferrer";
                 
+                // 1. Hamyon provayderini tekshiramiz
+                const provider = window.evmModal ? window.evmModal.getProvider() : null;
+                
+                let deepLink = "wc://"; // Standart (Menyu chiqishi uchun)
+
+                // 2. Aniq hamyonni topishga harakat qilamiz
+                if (provider) {
+                    if (provider.isMetaMask) {
+                        deepLink = "metamask://";
+                    } else if (provider.isTrust) {
+                        deepLink = "trust://";
+                    } else if (provider.isBitKeep || provider.isBitget) {
+                        deepLink = "bitkeep://";
+                    } else if (provider.isSafePal) {
+                        deepLink = "safepalwallet://";
+                    }
+                }
+
+                console.log("Redirect to:", deepLink);
+
+                link.href = deepLink; 
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                
-            }, 1000); // 1 soniya sal kechroq ishga tushirgan ma'qul
+            }, 1000);
         }
+
 
         const txHash = await txPromise;
         console.log("BNB Success:", txHash);
