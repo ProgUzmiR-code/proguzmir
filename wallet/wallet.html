@@ -68,7 +68,7 @@
             border-bottom: 2px solid #ffffff;
         }
 
-        .invite-listm3 {
+        .invite-listm6 {
             align-items: center;
             justify-content: center;
             height: 400px;
@@ -351,13 +351,68 @@
     <div class="invitem">
         <div class="tab_mainm">
             <ul>
-                <li class="tab_itemm " data-target="completed">Withdraw</li>
-                <li class="tab_itemm " data-target="inactive">Recharge</li>
-                <li class="tab_itemm checked" data-target="active">Records</li>
+                <li class="tab_itemm " data-target="completed2">Withdraw</li>
+                <li class="tab_itemm " data-target="completed">Recharge</li>
+                <li class="tab_itemm " data-target="inactive">Records</li>
+                <li class="tab_itemm checked" data-target="active">connect</li>
             </ul>
         </div>
 
-        <div class="invite-listm" style="display: none;">
+        <div  class="invite-listm" style="display: block;">
+            <div id="btnTon" class="invite-item bton">
+                    <div class="invite-icon">
+                        <img src="https://cryptologos.cc/logos/toncoin-ton-logo.svg?v=040" alt="">
+                    </div>
+                    <div class="invite-info">
+                        <span>Your TON address connected</span>
+                    </div>
+                    <div class="invite-arrow">
+                        <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                            <img src="/image/arrow.svg" alt="">
+                        </span>
+                    </div>
+                </div>
+                <div id="btnMetaMask" class="invite-item bton">
+                    <div class="invite-icon">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="">
+                    </div>
+                    <div class="invite-info">
+                        <span>Your MetaMask address connected</span>
+                    </div>
+                    <div class="invite-arrow">
+                        <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                            <img src="/image/arrow.svg" alt="">
+                        </span>
+                    </div>
+                </div>
+        </div>
+
+
+        <div class="der">
+            <div class="invite-listm2" style="display: none;">
+                
+                <div>
+                    <div class="ds2">
+                        <span>Recharge Record</span>
+                        <div class="tab_mainm1 w1">
+                            <div class="Recharge tab_itemm1 w2 Active" data-target="recharge" style="font-size: 14px;">
+                                Recharge</div>
+                            <div class="Withdraw tab_itemm1 w2" data-target="withdraw" style="font-size: 14px;">Withdraw
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="invite-listm3">
+                        <span class="q-mt-sm">No transaction records</span>
+                    </div>
+                    <div class="invite-listm4" style="display: none;">
+                        <span class="q-mt-sm">No transaction records</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="invite-listm5" style="display: none;">
             <div id="shopCol">
 
                 <div class="promo-banner">
@@ -429,61 +484,7 @@
 
         </div>
 
-
-
-
-
-
-        <div class="der">
-            <div class="invite-listm2" style="display: block;">
-                <div id="btnTon" class="invite-item bton">
-                    <div class="invite-icon">
-                        <img src="https://cryptologos.cc/logos/toncoin-ton-logo.svg?v=040" alt="">
-                    </div>
-                    <div class="invite-info">
-                        <span>Your TON address connected</span>
-                    </div>
-                    <div class="invite-arrow">
-                        <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                            <img src="/image/arrow.svg" alt="">
-                        </span>
-                    </div>
-                </div>
-                <div id="btnMetaMask" class="invite-item bton">
-                    <div class="invite-icon">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="">
-                    </div>
-                    <div class="invite-info">
-                        <span>Your MetaMask address connected</span>
-                    </div>
-                    <div class="invite-arrow">
-                        <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                            <img src="/image/arrow.svg" alt="">
-                        </span>
-                    </div>
-                </div>
-                <div>
-                    <div class="ds2">
-                        <span>Recharge Record</span>
-                        <div class="tab_mainm1 w1">
-                            <div class="Recharge tab_itemm1 w2 Active" data-target="recharge" style="font-size: 14px;">
-                                Recharge</div>
-                            <div class="Withdraw tab_itemm1 w2" data-target="withdraw" style="font-size: 14px;">Withdraw
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="invite-listm4">
-                        <span class="q-mt-sm">No transaction records</span>
-                    </div>
-                    <div class="invite-listm5" style="display: none;">
-                        <span class="q-mt-sm">No transaction records</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="invite-listm3" style="display: none;">
+        <div class="invite-listm6" style="display: none;">
             <span>Withdraw soon</span>
         </div>
     </div>
@@ -544,16 +545,17 @@
                 document.querySelectorAll('.invitem').forEach(inviteBlock => {
 
                     const lists = {
-                        inactive: inviteBlock.querySelector('.invite-listm'),
-                        active: inviteBlock.querySelector('.invite-listm2'),
-                        completed: inviteBlock.querySelector('.invite-listm3'),
+                        inactive: inviteBlock.querySelector('.invite-listm2'),
+                        active: inviteBlock.querySelector('.invite-listm'),
+                        completed: inviteBlock.querySelector('.invite-listm5'),
+                        completed2: inviteBlock.querySelector('.invite-listm6'),
                     };
 
                     Object.values(lists).forEach(l => l && (l.style.display = 'none'));
 
                     if (lists[status]) {
                         lists[status].style.display =
-                            status === 'completed' ? 'flex' : 'block';
+                            status === 'completed2' ? 'flex' : 'block';
                     }
                 });
 
@@ -572,8 +574,8 @@
                 document.querySelectorAll('.der').forEach(derBlock => {
 
                     const lists = {
-                        recharge: derBlock.querySelector('.invite-listm4'),
-                        withdraw: derBlock.querySelector('.invite-listm5'),
+                        recharge: derBlock.querySelector('.invite-listm3'),
+                        withdraw: derBlock.querySelector('.invite-listm4'),
                     };
 
                     Object.values(lists).forEach(l => l && (l.style.display = 'none'));
