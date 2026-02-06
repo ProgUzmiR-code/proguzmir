@@ -203,49 +203,23 @@ async function payWithEvm(amountEth, itemName) {
             // Ba'zan chainId xatoligi bermasligi uchun uni ham qo'shgan ma'qul
             // data: "0x", // Oddiy o'tkazma uchun bo'sh
         };
- console.log("Tranzaksiya so'rovi yuborilmoqda...");
 
-        // --- DEEP LINK LOGIKASI (MUHIM QISM) ---
-        // Biz tranzaksiya so'rovini yuboramiz, lekin 'await' qilishdan oldin
-        // foydalanuvchini majburan MetaMaskga yo'naltiramiz.
-        
-        // 1. So'rovni Promise shaklida yaratamiz (kutib turmaslik uchun)
-        const txPromise = walletProvider.request({
+        // AppKit/WalletConnect orqali tranzaksiya so'rovi
+        const txHash = await walletProvider.request({
             method: 'eth_sendTransaction',
             params: [txParams],
         });
 
-        // 2. Mobil qurilma ekanligini tekshiramiz (oddiy tekshiruv)
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-        if (isMobile) {
-            // MetaMask Deep Link (Universal Link)
-            // Dapp manzilingizni to'liq yozing (httpssiz)
-            const dappUrl = "proguzmir.vercel.app"; 
-            const deepLink = `https://metamask.app.link/dapp/${dappUrl}`;
-            
-            // Yoki oddiyroq: "metamask://" (ba'zan ishlamaydi, universal link yaxshiroq)
-            
-            console.log("MetaMaskga yo'naltirilmoqda...");
-            
-            // 1 soniyadan keyin ilovani ochishga harakat qilamiz
-            setTimeout(() => {
-                window.location.href = deepLink;
-            }, 500);
-        }
-
-        // 3. Endi natijani kutamiz (User MetaMaskda tasdiqlab qaytishini kutadi)
-        const txHash = await txPromise;
-
-        console.log("Tranzaksiya muvaffaqiyatli:", txHash);
-        alert(`To'lov yuborildi! \nHash: ${txHash}\nTasdiqlanishini kuting.`);
+        console.log("Tranzaksiya yuborildi. Hash:", txHash);
+        alert(`To'lov yuborildi! Hash: ${txHash}`);
 
     } catch (e) {
-        console.error("EVM To'lov xatosi:", e);
-        if (e.message && e.message.includes("rejected")) {
-            alert("To'lov bekor qilindi.");
+        console.error("MetaMask to'lov xatosi:", e);
+        // Foydalanuvchi rad etgan bo'lsa
+        if (e.code === 4001 || e.message.includes("rejected")) {
+            alert("To'lov foydalanuvchi tomonidan bekor qilindi.");
         } else {
-            alert("Xatolik: " + (e.message || "Tranzaksiya amalga oshmadi"));
+            alert("Xatolik yuz berdi: " + (e.message || "Tranzaksiya amalga oshmadi"));
         }
     }
 }
