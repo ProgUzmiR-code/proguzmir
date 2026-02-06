@@ -181,17 +181,21 @@ async function payWithEvm(amountBnb, itemName) {
             params: [txParams],
         });
 
-        // Mobil redirect
-        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-             setTimeout(() => {
+         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            setTimeout(() => {
+                
                 const link = document.createElement('a');
                 link.href = "wc://"; 
-                link.target = "_blank";
+                link.target = "_blank"; // Yangi oynada ochish buyrug'i
                 link.rel = "noopener noreferrer";
+                
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-            }, 1000);
+                
+            }, 1000); // 1 soniya sal kechroq ishga tushirgan ma'qul
         }
 
         const txHash = await txPromise;
