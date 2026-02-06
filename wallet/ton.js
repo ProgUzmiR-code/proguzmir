@@ -9,26 +9,35 @@ let tonConnectUI;
 
 
 // ✅ YANGI: Biz window.tonConnectUI dan foydalanamiz
+// --- ton.js ---
 
 function initTonWallet() {
     console.log("TON Wallet moduli ishga tushdi");
 
-    // 1. TonConnectni sozlash va GLOBAL window obyektiga yuklash
     if (!window.tonConnectUI) {
         window.tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://proguzmir.vercel.app/tonconnect-manifest.json',
             buttonRootId: null
         });
 
-        // Ulanish holatini kuzatish
         window.tonConnectUI.onStatusChange(wallet => {
             if (wallet) {
                 const rawAddress = wallet.account.address;
                 const userFriendly = TON_CONNECT_UI.toUserFriendlyAddress(rawAddress);
-                saveTonData(userFriendly);
-                updateTonUI();
+                
+                // --- YANGI: Rasmni olish va saqlash ---
+                let walletImage = null;
+                if (wallet.imageUrl) {
+                    walletImage = wallet.imageUrl;
+                } else if (wallet.device && wallet.device.appName === 'telegram-wallet') {
+                    // Telegram Wallet uchun maxsus rasm (agar avtomat chiqmasa)
+                    walletImage = "https://wallet.tg/images/logo-288.png";
+                }
+
+                saveTonData(userFriendly, walletImage); // Rasmni ham saqlaymiz
+                // -------------------------------------
+
             } else {
-                // Agar TON o'chirilgan bo'lsa
                 if (localStorage.getItem(TON_KEYS.TYPE) === 'ton') {
                     clearTonData();
                 }
@@ -36,7 +45,6 @@ function initTonWallet() {
         });
     }
 
-    // 2. Tugmani sozlash va UI ni yangilash
     setupTonButton();
     updateTonUI();
 }
@@ -76,67 +84,64 @@ function setupTonButton() {
 }
 
 
-// ton.js ichidagi updateTonUI funksiyasi
-
+// UI yangilash funksiyasi
 function updateTonUI() {
     const btnTon = document.getElementById('btnTon');
     if (!btnTon) return;
 
     const walletType = localStorage.getItem(TON_KEYS.TYPE);
     const address = localStorage.getItem(TON_KEYS.WALLET);
+    // Saqlangan rasmni olamiz
+    const savedImage = localStorage.getItem("proguzmir_ton_image");
 
-    // Elementlarni topamiz
     const textSpan = btnTon.querySelector('.invite-info span');
     const arrowDiv = btnTon.querySelector('.invite-arrow');
-    const iconImg = btnTon.querySelector('.invite-icon img'); // ❗ Rasm elementi
+    const iconImg = btnTon.querySelector('.invite-icon img');
 
-    // Standart rasm
     const defaultIcon = "https://cryptologos.cc/logos/toncoin-ton-logo.svg?v=040";
 
     if (walletType === 'ton' && address) {
-        // --- ULANGAN HOLAT ---
+        // --- ULANGAN ---
         const shortAddr = address.slice(0, 4) + "..." + address.slice(-4);
-
         btnTon.style.background = "rgba(40, 167, 69, 0.15)";
         btnTon.style.border = "1px solid #28a745";
-
         if (textSpan) textSpan.innerHTML = `Connected: <b style="color:#fff">${shortAddr}</b>`;
 
-        // 1. Rasmni o'zgartirish (Tonkeeper, MyTonWallet va h.k.)
-        if (tonConnectUI && tonConnectUI.wallet && tonConnectUI.wallet.imageUrl) {
-            iconImg.src = tonConnectUI.wallet.imageUrl;
+        // 1. Rasmni qo'yish
+        // Avval saqlangan rasmni tekshiramiz, keyin TonConnect jonli obyektini
+        if (savedImage) {
+            iconImg.src = savedImage;
+        } else if (window.tonConnectUI && window.tonConnectUI.wallet && window.tonConnectUI.wallet.imageUrl) {
+            iconImg.src = window.tonConnectUI.wallet.imageUrl;
         }
 
-        // 2. O'ng tomon (Strelkani "Uzish" tugmasiga aylantirish)
-        // Agar siz TON da "Uzish" tugmasi turishini xohlasangiz:
         if (arrowDiv) arrowDiv.innerHTML = `<button class="disconnect-btn">Uzish</button>`;
-
     } else {
-        // --- ULANMAGAN HOLAT ---
+        // --- ULANMAGAN ---
         btnTon.style.background = "";
         btnTon.style.border = "";
-
         if (textSpan) textSpan.innerText = "Connect TON Wallet";
-
-        // Rasmni va strelkani asl holiga qaytarish
         if (iconImg) iconImg.src = defaultIcon;
-        if (arrowDiv) arrowDiv.innerHTML = `
-            <span class="scoped-svg-icon">
-                <img src="/image/arrow.svg" alt="">
-            </span>`;
+        if (arrowDiv) arrowDiv.innerHTML = `<span class="scoped-svg-icon"><img src="/image/arrow.svg" alt=""></span>`;
     }
 }
 
 
-function saveTonData(address) {
+
+
+// saveTonData ni o'zgartiramiz: rasm qabul qiladigan qilamiz
+function saveTonData(address, imageUrl) {
     localStorage.setItem(TON_KEYS.WALLET, address);
     localStorage.setItem(TON_KEYS.TYPE, 'ton');
+    
+    // Agar rasm kelsa, saqlaymiz
+    if (imageUrl) {
+        localStorage.setItem("proguzmir_ton_image", imageUrl);
+    }
 
-    // Bazaga 'ton' deb yuboramiz
     if (window.saveWalletToDb) {
         window.saveWalletToDb(address, 'ton');
     }
-
     updateTonUI();
 }
 
@@ -144,9 +149,12 @@ function clearTonData() {
     if (localStorage.getItem(TON_KEYS.TYPE) === 'ton') {
         localStorage.removeItem(TON_KEYS.WALLET);
         localStorage.removeItem(TON_KEYS.TYPE);
+        localStorage.removeItem("proguzmir_ton_image"); // Rasmni ham o'chiramiz
         updateTonUI();
     }
 }
+
+
 
 window.initTonWallet = initTonWallet;
 

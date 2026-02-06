@@ -152,6 +152,8 @@ function setupMetaMaskButton() {
 window.setupMetaMaskButton = setupMetaMaskButton; 
 
 // 5. UI ni yangilash
+// --- wallet.js / cripto.js ---
+
 function updateMetaMaskUI() {
     const btnMeta = document.getElementById('btnMetaMask');
     if (!btnMeta) return;
@@ -166,47 +168,58 @@ function updateMetaMaskUI() {
     const defaultIcon = "https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg";
 
     if (walletType === 'evm' && address) {
-        // --- ULANGAN HOLAT ---
+        // --- ULANGAN ---
         const shortAddr = address.slice(0, 4) + "..." + address.slice(-4);
-
         btnMeta.style.background = "rgba(40, 167, 69, 0.15)";
         btnMeta.style.border = "1px solid #28a745";
-
         if (textSpan) textSpan.innerHTML = `Connected: <b style="color:#fff">${shortAddr}</b>`;
 
-        // Rasmni o'zgartirish
-        if (evmModal) {
+        // --- YANGI: Hamyon rasmini aniqlash ---
+        let walletIconUrl = defaultIcon;
+
+        if (window.evmModal) {
             try {
-                const provider = evmModal.getProvider();
-                // Agar provider mavjud bo'lsa, uni chiqaramiz
-                if (provider) {
-                    iconImg.src = defaultIcon;
+                // 1-usul: AppKitdan rasmiy ma'lumotni olish
+                const walletInfo = window.evmModal.getWalletInfo();
+                if (walletInfo && walletInfo.icon) {
+                    walletIconUrl = walletInfo.icon;
+                } 
+                else {
+                    // 2-usul: Agar rasm kelmasa, Provayderni tekshiramiz
+                    const provider = window.evmModal.getProvider();
+                    if (provider) {
+                        if (provider.isTrust) {
+                            walletIconUrl = "https://cryptologos.cc/logos/trust-wallet-token-twt-logo.svg?v=026";
+                        } else if (provider.isBitKeep || provider.isBitget) {
+                            walletIconUrl = "https://raw.githubusercontent.com/bitkeepwallet/download/main/logo/png/bitkeep_logo_square.png";
+                        } else if (provider.isSafePal) {
+                            walletIconUrl = "https://pbs.twimg.com/profile_images/1676907573033500672/L3z-Y-3__400x400.jpg"; // SafePal
+                        } else if (provider.isMetaMask) {
+                            walletIconUrl = defaultIcon;
+                        } else if (provider.isOkxWallet || provider.isOKExWallet) {
+                            walletIconUrl = "https://cryptologos.cc/logos/okb-okb-logo.svg?v=029";
+                        }
+                    }
                 }
             } catch (e) {
-                console.log("Icon yangilashda xatolik:", e);
+                console.log("Icon aniqlashda xato:", e);
             }
         }
+        
+        // Rasmni o'rnatamiz
+        if (iconImg) iconImg.src = walletIconUrl;
 
-        // O'ng tomonda strelka
-        if (arrowDiv) arrowDiv.innerHTML = `
-            <span class="scoped-svg-icon">
-                <img src="/image/arrow.svg" alt="">
-            </span>`;
+        if (arrowDiv) arrowDiv.innerHTML = `<span class="scoped-svg-icon"><img src="/image/arrow.svg" alt=""></span>`;
     } else {
-        // --- ULANMAGAN HOLAT ---
+        // --- ULANMAGAN ---
         btnMeta.style.background = "";
         btnMeta.style.border = "";
-
         if (textSpan) textSpan.innerText = "Connect MetaMask / EVM";
-
         if (iconImg) iconImg.src = defaultIcon;
-
-        if (arrowDiv) arrowDiv.innerHTML = `
-            <span class="scoped-svg-icon">
-                <img src="/image/arrow.svg" alt="">
-            </span>`;
+        if (arrowDiv) arrowDiv.innerHTML = `<span class="scoped-svg-icon"><img src="/image/arrow.svg" alt=""></span>`;
     }
 }
+
 
 function saveEvmData(address) {
     localStorage.setItem(EVM_KEYS.WALLET, address);
