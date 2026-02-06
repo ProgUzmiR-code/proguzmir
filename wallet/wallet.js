@@ -137,6 +137,7 @@ async function payWithTon(amountNano) {
         ]
     };
 
+    
     try {
         const result = await window.tonConnectUI.sendTransaction(transaction);
         console.log("TON To'lov muvaffaqiyatli:", result);
