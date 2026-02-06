@@ -207,7 +207,7 @@ async function payWithEvm(amountEth, itemName) {
         // Mobil qurilmalarda hamyonni uyg'otish uchun Deep Link yuboramiz
         if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
             // MetaMask ilovasini ochish havolasi
-            window.location.href = "https://metamask.app.link/dapp/proguzmir.vercel.app";
+            window.location.href = "metamask://"; // Bu faqat MetaMask ilovasini ochadi, lekin foydalanuvchi o'zidan to'lovni boshlashi kerak bo'ladi
         }
 
         // AppKit/WalletConnect orqali tranzaksiya so'rovi
