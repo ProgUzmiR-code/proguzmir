@@ -180,7 +180,7 @@ async function payWithEvm(amountEth, itemName) {
         // --- MUHIM: TARMOG'NI TEKSHIRISH (POLYGON - 137) ---
         // Agar foydalanuvchi boshqa tarmoqda bo'lsa, tranzaksiya chiqmaydi.
         // Cripto.js da siz chainId: 137 (Polygon) deb yozgansiz.
-        const TARGET_CHAIN_ID = '0x89'; // 137 hex formatda (Polygon)
+        const TARGET_CHAIN_ID = '0x38'; // 137 hex formatda (Polygon)
         // Agar BNB bo'lsa: '0x38' (56), Ethereum bo'lsa: '0x1' (1)
         
         try {
