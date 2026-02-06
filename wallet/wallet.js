@@ -24,51 +24,42 @@ async function loadWalletConfig() {
 // Konfiguratsiyani ishga tushiramiz
 loadWalletConfig();
 
-// Mahsulot narxlari (Bular o'zgarmas qolaveradi)
+// USDT dagi narxlar (O'zgarmas)
 const PRICES = {
-    'gem1': { name: "500 diamond", ton: '200000000', eth: '0.0004' },
-    'gem2': { name: "2,500 diamond", ton: '1000000000', eth: '0.002' },
-    'gem3': { name: "5,000 diamond", ton: '2000000000', eth: '0.004' },
-    'gem4': { name: "10,000 diamond", ton: '4000000000', eth: '0.008' },
-    'gem5': { name: "25,000 diamond", ton: '10000000000', eth: '0.018' },
-    'gem6': { name: "50,000 diamond", ton: '20000000000', eth: '0.036' }
+    'gem1': { name: "500 diamond", usd: 1.19 },
+    'gem2': { name: "2,500 diamond", usd: 5.99 },
+    'gem3': { name: "5,000 diamond", usd: 11.99 },
+    'gem4': { name: "10,000 diamond", usd: 23.99 },
+    'gem5': { name: "25,000 diamond", usd: 54.99 },
+    'gem6': { name: "50,000 diamond", usd: 109.99 }
 };
+
+// Kontrakt manzillari
+const USDT_TON_MASTER = "EQCxE6mUtQJKFnGfaROT9AEpxuca6u3rn7wY63989H9-0B8X"; // TON USDT
+const USDT_BSC_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // BSC USDT (BEP-20)
+
 
 // --- 2. ASOSIY SOTIB OLISH FUNKSIYASI ---
 async function buyItem(itemId) {
-    console.log("Tanlangan mahsulot: " + itemId);
-
-    // 0. Manzillar yuklanganini tekshirish (MUHIM)
-    if (!MERCHANT_TON || !MERCHANT_EVM) {
-        alert("Tizim ma'lumotlari yuklanmoqda... Iltimos, 2 soniya kutib qayta bosing.");
-        // Agar yuklanmagan bo'lsa, qayta urinib ko'ramiz
-        loadWalletConfig();
-        return;
-    }
-
-    // 1. Mahsulot bazada borligini tekshiramiz
     const item = PRICES[itemId];
-    if (!item) {
-        alert("Xatolik: Bunday mahsulot topilmadi!");
-        return;
-    }
+    if (!item) return;
 
-    // 2. Qaysi hamyon ulanganini aniqlaymiz
     const walletType = localStorage.getItem("proguzmir_wallet_type");
 
     if (walletType === 'ton') {
-        if (confirm(`${item.name} ni TON orqali sotib olasizmi?`)) {
-            await payWithTon(item.ton);
+        if (confirm(`${item.name} uchun ${item.usd} USDT to'laysizmi?`)) {
+            await payWithTonUsdt(item.usd);
         }
     } else if (walletType === 'evm') {
-        if (confirm(`${item.name} ni MetaMask (BNB/ETH) orqali sotib olasizmi?`)) {
-            await payWithEvm(item.eth);
+        if (confirm(`${item.name} uchun ${item.usd} USDT (BSC) to'laysizmi?`)) {
+            await payWithEvmUsdt(item.usd);
         }
     } else {
-        alert("Sotib olish uchun avval hamyonni (TON yoki MetaMask) ulang!");
+        alert("Sotib olish uchun avval hamyonni ulang!");
         document.querySelector('.invite-listm2').scrollIntoView({ behavior: 'smooth' });
     }
 }
+
 
 // --- 3. TON TO'LOV FUNKSIYASI ---
 // --- YORDAMCHI KUTISH FUNKSIYASI ---
@@ -95,161 +86,84 @@ function waitForTonLib(retries = 20) {
 }
 
 // --- 3. TON TO'LOV FUNKSIYASI (YANGILANGAN) ---
-
-async function payWithTon(amountNano) {
-
+async function payWithTonUsdt(usdAmount) {
     try {
-        // 1. Kutubxona yuklanishini kutamiz (maksimal 2 soniya)
         await waitForTonLib();
-    } catch (error) {
-        // Agar 2 soniya kutilganda ham yuklanmasa:
-        console.error(error);
-
-        // Ehtimol initTonWallet chaqirilmagandir, majburan chaqirib ko'ramiz
-        if (window.initTonWallet) {
-            window.initTonWallet();
-            alert("Tizim ishga tushirilmoqda... Iltimos, yana bir marta bosing.");
-        } else {
-            alert("Internet past yoki TON tizimi yuklanmadi. Sahifani yangilang.");
-        }
-        return;
-    }
-
-    // 2. Endi aniq window.tonConnectUI mavjud
-    if (!window.tonConnectUI.connected) {
-        // Agar ulangan deb ko'rinsa ham, aslida uzilgan bo'lishi mumkin
-        // Shuning uchun xatolik chiqsa modalni ochamiz
-        try {
+        if (!window.tonConnectUI.connected) {
             await window.tonConnectUI.openModal();
-        } catch (e) {
-            console.error("Modal ochishda xato:", e);
+            return;
         }
-        return; // Modal ochilgandan keyin funksiya to'xtaydi, user ulanib qayta bosishi kerak
-    }
 
-    const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 600,
-        messages: [
-            {
-                address: MERCHANT_TON,
-                amount: amountNano
-            }
-        ]
-    };
+        const tonweb = new TonWeb();
+        const amountUnits = Math.round(usdAmount * 1000000); // 6 decimals
+        const userAddress = window.tonConnectUI.account.address;
 
-    try {
-        const result = await window.tonConnectUI.sendTransaction(transaction);
-        console.log("TON To'lov muvaffaqiyatli:", result);
-        alert("To'lov muvaffaqiyatli amalga oshirildi! ✅");
+        // Jetton transfer payload yaratish
+        const cell = new TonWeb.boc.Cell();
+        cell.bits.writeUint(0xf8a7ea5, 32); 
+        cell.bits.writeUint(0, 64);         
+        cell.bits.writeCoins(new TonWeb.utils.BN(amountUnits));
+        cell.bits.writeAddress(new TonWeb.utils.Address(MERCHANT_TON)); 
+        cell.bits.writeAddress(new TonWeb.utils.Address(userAddress)); 
+        cell.bits.writeBit(false);          
+        cell.bits.writeCoins(new TonWeb.utils.BN(1)); 
+        cell.bits.writeBit(false);          
 
-        // Backendga xabar berish (ixtiyoriy)
-        // verifyPaymentOnServer(result);
+        const bocString = TonWeb.utils.bytesToBase64(await cell.toBoc());
 
-    } catch (e) {
-        console.error("To'lov xatosi:", e);
-        if (e.message && e.message.includes("User rejected")) {
-            // User bekor qildi, hech narsa demasak ham bo'ladi yoki:
-            console.log("Foydalanuvchi bekor qildi");
-        } else {
-            alert("To'lov amalga oshmadi. Qayta urinib ko'ring.");
-        }
-    }
+        const tx = {
+            validUntil: Math.floor(Date.now() / 1000) + 600,
+            messages: [{
+                address: USDT_TON_MASTER,
+                amount: "60000000", // 0.06 TON gaz uchun
+                payload: bocString
+            }]
+        };
+
+        await window.tonConnectUI.sendTransaction(tx);
+        alert("To'lov yuborildi! ✅");
+    } catch (e) { console.error(e); }
 }
 
 // --- 4. EVM (METAMASK) TO'LOV FUNKSIYASI (TUZATILGAN) ---
-async function payWithEvm(amountEth, itemName) {
-
-    // 1. Tizim yuklanganini tekshirish
-    if (!window.evmModal) {
-        alert("MetaMask tizimi hali yuklanmadi. Iltimos kuting.");
-        return;
-    }
-
-    // 2. Accountni tekshirish
-    const account = window.evmModal.getAccount();
-    if (!account || !account.isConnected) {
-        alert("Hamyon uzilib qolgan. Iltimos, qayta ulang.");
-        window.evmModal.open();
-        return;
-    }
-
+async function payWithEvmUsdt(usdAmount) {
     try {
-        const walletProvider = window.evmModal.getWalletProvider();
-        const myAddress = account.address;
-
-        // --- MUHIM: TARMOG'NI TEKSHIRISH (POLYGON - 137) ---
-        // Agar foydalanuvchi boshqa tarmoqda bo'lsa, tranzaksiya chiqmaydi.
-        // Cripto.js da siz chainId: 137 (Polygon) deb yozgansiz.
-        const TARGET_CHAIN_ID = '0x38'; // 137 hex formatda (Polygon)
-        // Agar BNB bo'lsa: '0x38' (56), Ethereum bo'lsa: '0x1' (1)
-        
-        try {
-             await walletProvider.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: TARGET_CHAIN_ID }],
-            });
-        } catch (switchError) {
-            // Agar tarmoq qo'shilmagan bo'lsa, xatolik berishi mumkin,
-            // lekin ko'pincha "Switch" so'rovi ishlaydi.
-            console.log("Tarmoqni o'zgartirishda muammo:", switchError);
+        const account = window.evmModal.getAccount();
+        if (!account.isConnected) {
+            window.evmModal.open();
+            return;
         }
 
-        // --- TO'LOV PARAMETRLARI ---
-        const ethValue = parseFloat(amountEth);
-        const weiString = (ethValue * 1e18).toLocaleString('fullwide', { useGrouping: false }).split('.')[0];
-        const hexValue = "0x" + BigInt(weiString).toString(16);
+        const walletProvider = window.evmModal.getProvider();
+        
+        // 18 decimals hisoblash
+        const amountUnits = BigInt(Math.round(usdAmount * 1e18));
+        const data = "0xa9059cbb" + 
+                     MERCHANT_EVM.replace('0x', '').padStart(64, '0') + 
+                     amountUnits.toString(16).padStart(64, '0');
 
         const txParams = {
-            from: myAddress,
-            to: MERCHANT_EVM,
-            value: hexValue,
-            data: "0x"
+            from: account.address,
+            to: USDT_BSC_ADDRESS,
+            value: "0x0",
+            data: data
         };
 
-        console.log("Tranzaksiya yuborilmoqda...");
-
-        // --- TRANZAKSIYA VA REDIRECT ---
-        
-        // 1. So'rovni yuboramiz (await qilmay turamiz)
         const txPromise = walletProvider.request({
             method: 'eth_sendTransaction',
-            params: [txParams],
+            params: [txParams]
         });
 
-        // 2. TELEGRAM UCHUN MAXSUS "PUSH" (Turtki)
-        // Biz "dapp/" havolasini emas, to'g'ridan-to'g'ri "metamask://" sxemasini ishlatamiz.
-        // Bu saytni yangilamaydi, faqat ilovani ochadi.
-        
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        
-        if (isMobile) {
+        // Mobil qurilmalarda MetaMaskni ochish
+        if (/Android|iPhone/i.test(navigator.userAgent)) {
             setTimeout(() => {
-                
-                const link = document.createElement('a');
-                link.href = "wc://"; 
-                link.target = "_blank"; // Yangi oynada ochish buyrug'i
-                link.rel = "noopener noreferrer";
-                
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-            }, 1000); // 1 soniya sal kechroq ishga tushirgan ma'qul
+                const a = document.createElement('a');
+                a.href = "metamask://"; a.target = "_blank";
+                a.click();
+            }, 500);
         }
 
-        // 3. Endi javobni kutamiz
-        const txHash = await txPromise;
-
-        console.log("Tranzaksiya muvaffaqiyatli:", txHash);
-        alert(`To'lov yuborildi! ✅\nHash: ${txHash}`);
-
-    } catch (e) {
-        console.error("Xatolik:", e);
-        if (e.message && e.message.includes("rejected")) {
-            // User bekor qildi, hech narsa demaymiz yoki:
-            console.log("User bekor qildi");
-        } else {
-            alert("Xatolik: " + e.message);
-        }
-    }
+        await txPromise;
+        alert("To'lov tasdiqlandi! ✅");
+    } catch (e) { console.error(e); }
 }
