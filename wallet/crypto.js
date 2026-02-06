@@ -41,11 +41,19 @@ async function initMetaMaskSystem() {
             adapters: [new EthersAdapter()],
             networks,
             projectId,
+            // MOBIL QURILMALAR UCHUN QO'SHILADI:
+            allWallets: 'SHOW', // Hamyonlar ro'yxatini ko'rsatish
+            enableInjected: true, // Mavjud hamyonlarni aniqlash
             metadata: {
                 name: 'ProgUzmiR',
                 description: 'Token Airdrop',
                 url: 'https://proguzmir.vercel.app',
-                icons: ['https://proguzmir.vercel.app/image/logotiv.png?v=1']
+                icons: ['https://proguzmir.vercel.app/image/logotiv.png?v=1'],
+                // AVTOMATIK QAYTISH VA DEEP LINK UCHUN:
+                redirect: {
+                    native: 'https://t.me/prouztestbot/app', // O'z bot manzilingizni yozing
+                    universal: 'https://proguzmir.vercel.app'
+                }
             }
         });
 
