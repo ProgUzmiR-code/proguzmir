@@ -204,14 +204,6 @@ async function payWithEvm(amountEth, itemName) {
             // data: "0x", // Oddiy o'tkazma uchun bo'sh
         };
 
-        // Mobil qurilmalarda hamyonni uyg'otish uchun Deep Link yuboramiz
-       if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
-            setTimeout(() => {
-                // Bu havola MetaMask ilovasini shunchaki "uyg'otadi" (Brauzerini ochmaydi)
-                window.location.href = "wc://"; 
-            }, 500); // 0.5 soniya kechikish
-        }
-
         // AppKit/WalletConnect orqali tranzaksiya so'rovi
         const txHash = await walletProvider.request({
             method: 'eth_sendTransaction',
