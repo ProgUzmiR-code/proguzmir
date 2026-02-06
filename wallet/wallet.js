@@ -238,7 +238,7 @@ async function payWithEvm(amountUsdt) {
             setTimeout(() => {
                 // Xavfsiz usulda MetaMaskni ochamiz
                 const link = document.createElement('a');
-                link.href = "metamask://";
+                link.href = "wc://";
                 link.target = "_blank";
                 link.rel = "noopener noreferrer";
                 document.body.appendChild(link);
