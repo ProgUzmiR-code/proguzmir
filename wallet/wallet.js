@@ -224,9 +224,17 @@ async function payWithEvm(amountEth, itemName) {
         
         if (isMobile) {
             setTimeout(() => {
-                // Bu havola shunchaki MetaMaskni "uyg'otadi"
-                window.location.href = "wc://"; 
-            }, 500);
+                
+                const link = document.createElement('a');
+                link.href = "metamask://"; 
+                link.target = "_blank"; // Yangi oynada ochish buyrug'i
+                link.rel = "noopener noreferrer";
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+            }, 1000); // 1 soniya sal kechroq ishga tushirgan ma'qul
         }
 
         // 3. Endi javobni kutamiz
