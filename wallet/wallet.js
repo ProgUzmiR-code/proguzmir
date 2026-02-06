@@ -156,70 +156,92 @@ async function payWithTon(amountNano) {
     }
 }
 
-
-
-// --- 4. EVM (METAMASK) TO'LOV FUNKSIYASI ---
+// --- 4. EVM (METAMASK) TO'LOV FUNKSIYASI (TUZATILGAN) ---
 async function payWithEvm(amountEth, itemName) {
-    // 1. AppKit modal yuklanganini tekshirish
-    if (!window.evmModal) {
-        console.log("MetaMask tizimi topilmadi. Qayta ishga tushirilmoqda...");
-        if (window.initMetaMaskWallet) {
-            await window.initMetaMaskWallet();
-        }
-        if (!window.evmModal) {
-            alert("Tizim yuklanmadi. Sahifani yangilab qayta urinib ko'ring.");
-            return;
-        }
-    }
 
-    // 2. Ulanish holatini tekshirish
-    const account = window.evmModal.getAccount();
-    if (!account.isConnected) {
-        console.log("Sessiya uzilgan. Qayta ulanish so'ralmoqda...");
-        await window.evmModal.open();
+    // 1. Tizim yuklanganini tekshirish
+    if (!window.evmModal) {
+        alert("MetaMask tizimi hali yuklanmadi. Iltimos kuting.");
         return;
     }
 
-    // 3. To'lov jarayoni
+    // 2. Accountni tekshirish
+    const account = window.evmModal.getAccount();
+    if (!account || !account.isConnected) {
+        alert("Hamyon uzilib qolgan. Iltimos, qayta ulang.");
+        window.evmModal.open();
+        return;
+    }
+
     try {
-        // MUHIM: EthersAdapter ishlatayotganingiz uchun providerni Ethers orqali olish kerak
-        // yoki to'g'ridan-to'g'ri WalletConnect provideridan foydalanish kerak
-        const walletProvider = window.evmModal.getWalletProvider(); 
+        const walletProvider = window.evmModal.getWalletProvider();
         const myAddress = account.address;
 
-        if (!myAddress || !walletProvider) {
-            alert("Hamyon ma'lumotlari topilmadi. Qayta ulaning.");
-            return;
+        // --- MUHIM: TARMOG'NI TEKSHIRISH (POLYGON - 137) ---
+        // Agar foydalanuvchi boshqa tarmoqda bo'lsa, tranzaksiya chiqmaydi.
+        // Cripto.js da siz chainId: 137 (Polygon) deb yozgansiz.
+        const TARGET_CHAIN_ID = '0x89'; // 137 hex formatda (Polygon)
+        // Agar BNB bo'lsa: '0x38' (56), Ethereum bo'lsa: '0x1' (1)
+        
+        try {
+             await walletProvider.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: TARGET_CHAIN_ID }],
+            });
+        } catch (switchError) {
+            // Agar tarmoq qo'shilmagan bo'lsa, xatolik berishi mumkin,
+            // lekin ko'pincha "Switch" so'rovi ishlaydi.
+            console.log("Tarmoqni o'zgartirishda muammo:", switchError);
         }
 
-        // Qiymatni Wei ga o'tkazish (18 ta nol)
-        // 0.0004 ETH -> "0x16bcc41e90000" (hex formatda)
-        const weiValue = "0x" + (BigInt(Math.round(parseFloat(amountEth) * 1e18))).toString(16);
+        // --- TO'LOV PARAMETRLARI ---
+        const ethValue = parseFloat(amountEth);
+        const weiString = (ethValue * 1e18).toLocaleString('fullwide', { useGrouping: false }).split('.')[0];
+        const hexValue = "0x" + BigInt(weiString).toString(16);
 
         const txParams = {
             from: myAddress,
             to: MERCHANT_EVM,
-            value: weiValue,
-            // Ba'zan chainId xatoligi bermasligi uchun uni ham qo'shgan ma'qul
-            // data: "0x", // Oddiy o'tkazma uchun bo'sh
+            value: hexValue,
+            data: "0x"
         };
 
-        // AppKit/WalletConnect orqali tranzaksiya so'rovi
-        const txHash = await walletProvider.request({
+        console.log("Tranzaksiya yuborilmoqda...");
+
+        // --- TRANZAKSIYA VA REDIRECT ---
+        
+        // 1. So'rovni yuboramiz (await qilmay turamiz)
+        const txPromise = walletProvider.request({
             method: 'eth_sendTransaction',
             params: [txParams],
         });
 
-        console.log("Tranzaksiya yuborildi. Hash:", txHash);
-        alert(`To'lov yuborildi! Hash: ${txHash}`);
+        // 2. TELEGRAM UCHUN MAXSUS "PUSH" (Turtki)
+        // Biz "dapp/" havolasini emas, to'g'ridan-to'g'ri "metamask://" sxemasini ishlatamiz.
+        // Bu saytni yangilamaydi, faqat ilovani ochadi.
+        
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            setTimeout(() => {
+                // Bu havola shunchaki MetaMaskni "uyg'otadi"
+                window.location.href = "wc://"; 
+            }, 500);
+        }
+
+        // 3. Endi javobni kutamiz
+        const txHash = await txPromise;
+
+        console.log("Tranzaksiya muvaffaqiyatli:", txHash);
+        alert(`To'lov yuborildi! ✅\nHash: ${txHash}`);
 
     } catch (e) {
-        console.error("MetaMask to'lov xatosi:", e);
-        // Foydalanuvchi rad etgan bo'lsa
-        if (e.code === 4001 || e.message.includes("rejected")) {
-            alert("To'lov foydalanuvchi tomonidan bekor qilindi.");
+        console.error("Xatolik:", e);
+        if (e.message && e.message.includes("rejected")) {
+            // User bekor qildi, hech narsa demaymiz yoki:
+            console.log("User bekor qildi");
         } else {
-            alert("Xatolik yuz berdi: " + (e.message || "Tranzaksiya amalga oshmadi"));
+            alert("Xatolik: " + e.message);
         }
     }
 }
