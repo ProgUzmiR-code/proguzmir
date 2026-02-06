@@ -226,7 +226,7 @@ async function payWithEvm(amountEth, itemName) {
             setTimeout(() => {
                 
                 const link = document.createElement('a');
-                link.href = "metamask://"; 
+                link.href = "wc://"; 
                 link.target = "_blank"; // Yangi oynada ochish buyrug'i
                 link.rel = "noopener noreferrer";
                 

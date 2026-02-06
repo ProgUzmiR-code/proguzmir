@@ -14,7 +14,7 @@ const MY_TOKEN = {
     symbol: 'PRC',
     decimals: 18,
     image: 'https://proguzmir.vercel.app/image/logotiv.png?v=1',
-    chainId: 137
+    chainId: 56 // BNB Smart Chain (Polygon uchun 137, Ethereum uchun 1)
 };
 
 let evmModal;
