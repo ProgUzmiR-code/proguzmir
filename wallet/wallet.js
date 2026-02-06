@@ -183,15 +183,33 @@ async function payWithEvm(amountBnb, itemName) {
             params: [txParams]
         });
 
-        // --- MOBIL REDIRECT (HAMYON TANLASH) ---
+                // ... tranzaksiya yuborilgandan keyin ...
+
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
             setTimeout(() => {
                 const link = document.createElement('a');
                 
-                // "wc://" bu umumiy protokol.
-                // Ko'p telefonlarda bu "Qaysi hamyonni ochay?" degan menyuni chaqiradi.
-                link.href = "wc://"; 
+                // 1. Hamyon provayderini tekshiramiz
+                const provider = window.evmModal ? window.evmModal.getProvider() : null;
                 
+                let deepLink = "wc://"; // Standart (Menyu chiqishi uchun)
+
+                // 2. Aniq hamyonni topishga harakat qilamiz
+                if (provider) {
+                    if (provider.isMetaMask) {
+                        deepLink = "metamask://";
+                    } else if (provider.isTrust) {
+                        deepLink = "trust://";
+                    } else if (provider.isBitKeep || provider.isBitget) {
+                        deepLink = "bitkeep://";
+                    } else if (provider.isSafePal) {
+                        deepLink = "safepalwallet://";
+                    }
+                }
+
+                console.log("Redirect to:", deepLink);
+
+                link.href = deepLink; 
                 link.target = "_blank";
                 link.rel = "noopener noreferrer";
                 document.body.appendChild(link);
