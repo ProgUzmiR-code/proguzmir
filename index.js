@@ -1558,35 +1558,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // --- REFERALNI ALOHIDA SAQLASH ---
-
 async function processReferral() {
-    // 1. Parametrlarni olish
     const urlParams = new URLSearchParams(window.location.search);
     let startParam = urlParams.get('start_param') || window.Telegram?.WebApp?.initDataUnsafe?.start_param;
 
-    // Agar referal bo'lmasa, to'xtaymiz
     if (!startParam) return;
 
-    // 2. User ID ni olish
     const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
     const userId = localStorage.getItem('proguzmir_wallet') || (tgUser ? String(tgUser.id) : null);
+    
+    // --- YANGI: Premium ekanligini aniqlash ---
+    const isPremium = tgUser?.is_premium || false; 
 
     if (!userId) return;
 
-    // 3. Alohida API ga yuborish
     try {
         const res = await fetch('/api/referral_save', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 userId: userId,
-                startParam: startParam
+                startParam: startParam,
+                isPremium: isPremium // <-- Serverga yuboramiz
             })
         });
 
         const json = await res.json();
-        console.log("Referral API Response:", json);
-        
         if (json.success) {
             showToast("You were invited by a friend!");
         }
