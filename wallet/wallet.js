@@ -49,29 +49,33 @@ async function getCryptoPrice(symbol) {
 async function buyItem(itemId) {
     console.log("Tanlangan: " + itemId);
 
-    // 1. Manzillar bormi?
+    // 0. Tizim yuklanmagan bo'lsa, uni majburan yuklaymiz
     if (!MERCHANT_TON || !MERCHANT_EVM) {
-        alert("Tizim yuklanmoqda... 2 soniyadan keyin qayta bosing.");
+        // Agar config yuklanmagan bo'lsa
         loadWalletConfig();
-        return;
     }
 
-    // 2. Mahsulot bormi?
+    // --- MUHIM TUZATISH: AppKitni tekshirish ---
+    // Agar MetaMask tizimi hali yuklanmagan bo'lsa, uni ishga tushiramiz
+    if (!window.evmModal && window.initMetaMaskWallet) {
+        console.log("Tizim topilmadi, ishga tushirilmoqda...");
+        window.initMetaMaskWallet(); // Tizimni uyg'otamiz
+    }
+    // -------------------------------------------
+
+    // 1. Mahsulot bormi?
     const item = PRICES[itemId];
     if (!item) {
         alert("Xatolik: Mahsulot topilmadi!");
         return;
     }
 
-    // 3. Hamyon turi?
+    // 2. Hamyon turi?
     const walletType = localStorage.getItem("proguzmir_wallet_type");
 
     if (walletType === 'ton') {
-        // TON narxini hisoblash
-        const tonPrice = await getCryptoPrice("TONUSDT"); // Hozirgi TON kursi (masalan 5.2$)
+        const tonPrice = await getCryptoPrice("TONUSDT"); 
         if (!tonPrice) return;
-
-        // 1.19 / 5.2 = 0.228 TON
         const amountTon = (item.usd / tonPrice).toFixed(4); 
 
         if (confirm(`${item.name} uchun ${amountTon} TON (${item.usd}$) to'laysizmi?`)) {
@@ -79,20 +83,27 @@ async function buyItem(itemId) {
         }
 
     } else if (walletType === 'evm') {
-        // BNB narxini hisoblash
-        const bnbPrice = await getCryptoPrice("BNBUSDT"); // Hozirgi BNB kursi (masalan 600$)
+        const bnbPrice = await getCryptoPrice("BNBUSDT");
         if (!bnbPrice) return;
-
-        // 1.19 / 600 = 0.00198 BNB
         const amountBnb = (item.usd / bnbPrice).toFixed(6);
 
         if (confirm(`${item.name} uchun ${amountBnb} BNB (${item.usd}$) to'laysizmi?`)) {
-            await payWithEvm(amountBnb, item.name);
+            // Tizim yuklanishi uchun ozgina vaqt kerak bo'lishi mumkin, shuning uchun tekshiramiz
+            if (!window.evmModal) {
+                alert("Tizim yuklanmoqda... Iltimos, 3 soniya kutib, qayta bosing.");
+                // Yana bir bor urinib ko'ramiz
+                if(window.initMetaMaskWallet) window.initMetaMaskWallet();
+            } else {
+                await payWithEvm(amountBnb, item.name);
+            }
         }
 
     } else {
         alert("Iltimos, avval hamyonni ulang!");
-        document.querySelector('.invite-listm2').scrollIntoView({ behavior: 'smooth' });
+        // Agar iloji bo'lsa, wallet bo'limiga o'tkazish
+        if(document.querySelector('.invite-listm2')) {
+            document.querySelector('.invite-listm2').scrollIntoView({ behavior: 'smooth' });
+        }
     }
 }
 
@@ -135,16 +146,31 @@ async function payWithTon(amountTon) {
     }
 }
 
-// --- 5. EVM / METAMASK TIZIMI (REAL BNB COIN YUBORISH) ---
+// --- 5. EVM / METAMASK TIZIMI ---
 async function payWithEvm(amountBnb, itemName) {
+
+    // 1. Tizimni tekshirish va YUKLASH
     if (!window.evmModal) {
-        alert("MetaMask tizimi topilmadi.");
-        return;
+        console.log("MetaMask tizimi topilmadi. Qayta ishga tushirilmoqda...");
+        
+        if (window.initMetaMaskWallet) {
+            await window.initMetaMaskWallet(); // Kutamiz
+        }
+
+        // Agar shunda ham bo'lmasa:
+        if (!window.evmModal) {
+            alert("Tizim yuklanmoqda... Iltimos, bir necha soniya kutib qayta urinib ko'ring.");
+            // Qayta ishga tushirishga urinish (fon rejimida)
+            if (typeof initMetaMaskSystem === 'function') initMetaMaskSystem();
+            return;
+        }
     }
 
+    // 2. Account tekshirish
     const account = window.evmModal.getAccount();
     if (!account.isConnected) {
-        window.evmModal.open();
+        // Agar ulanmagan bo'lsa, ulanish oynasini ochamiz
+        await window.evmModal.open();
         return;
     }
 
@@ -166,49 +192,35 @@ async function payWithEvm(amountBnb, itemName) {
             }
         }
 
-        // BNB ni Wei ga o'tkazish (1 BNB = 10^18 Wei)
         const weiValue = "0x" + BigInt(Math.floor(parseFloat(amountBnb) * 1e18)).toString(16);
 
         const txParams = {
             from: myAddress,
             to: MERCHANT_EVM,
             value: weiValue,
-            data: "0x" // Oddiy coin o'tkazmasi
+            data: "0x"
         };
-
-                // ... (Tepadagi kodlar o'zgarishsiz) ...
 
         const txPromise = walletProvider.request({
             method: 'eth_sendTransaction',
             params: [txParams]
         });
 
-                // ... tranzaksiya yuborilgandan keyin ...
-
+        // --- AQLLI REDIRECT ---
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
             setTimeout(() => {
                 const link = document.createElement('a');
-                
-                // 1. Hamyon provayderini tekshiramiz
-                const provider = window.evmModal ? window.evmModal.getProvider() : null;
-                
-                let deepLink = "wc://"; // Standart (Menyu chiqishi uchun)
+                let deepLink = "wc://"; 
 
-                // 2. Aniq hamyonni topishga harakat qilamiz
-                if (provider) {
-                    if (provider.isMetaMask) {
-                        deepLink = "metamask://";
-                    } else if (provider.isTrust) {
-                        deepLink = "trust://";
-                    } else if (provider.isBitKeep || provider.isBitget) {
-                        deepLink = "bitkeep://";
-                    } else if (provider.isSafePal) {
-                        deepLink = "safepalwallet://";
-                    }
+                // Provayderni aniqlash
+                if (walletProvider) {
+                    if (walletProvider.isTrust) deepLink = "trust://";
+                    else if (walletProvider.isMetaMask) deepLink = "metamask://";
+                    else if (walletProvider.isBitKeep || walletProvider.isBitget) deepLink = "bitkeep://";
+                    else if (walletProvider.isSafePal) deepLink = "safepalwallet://";
+                    else if (walletProvider.isTokenPocket) deepLink = "tpoutside://";
                 }
-
-                console.log("Redirect to:", deepLink);
-
+                
                 link.href = deepLink; 
                 link.target = "_blank";
                 link.rel = "noopener noreferrer";
