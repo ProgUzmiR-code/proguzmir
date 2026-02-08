@@ -79,9 +79,9 @@ function shareReferralLink() {
         encodedRef = refRaw;
     }
 
-    const botUsername = 'prouztestbot'; // O'zingizning botingiz username'ini yozing
+    const botUsername = 'proguzmir_bot'; // O'zingizning botingiz username'ini yozing
     const inviteLink = `https://t.me/${botUsername}?startapp=ref_${encodedRef}`;
-    const shareText = `🚀 Men bilan PROGUZ o'yinida qatnashing va PRC tokenlariga ega bo'ling!`;
+    const shareText = `🚀 Participate in the PROGUZMIR game with me and win PRC tokens!`;
 
     const fullUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
 

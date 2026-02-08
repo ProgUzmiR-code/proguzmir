@@ -51,7 +51,7 @@ async function initMetaMaskSystem() {
                 icons: ['https://proguzmir.vercel.app/image/logotiv.png?v=1'],
                 // AVTOMATIK QAYTISH VA DEEP LINK UCHUN:
                 redirect: {
-                    native: 'https://t.me/prouztestbot/app', // O'z bot manzilingizni yozing
+                    native: 'https://t.me/proguzmir_bot/app', // O'z bot manzilingizni yozing
                     universal: 'https://proguzmir.vercel.app'
                 }
             }
