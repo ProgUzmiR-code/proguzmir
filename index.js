@@ -385,63 +385,66 @@ function renderGame() {
         }
 
         // oddiy click handler: share -> show claim button (do NOT re-render whole page)
+                // ... (oldingi qatorlar)
         rek.addEventListener('click', () => {
 
             if (isClaimedToday()) { showToast('Wait for the time to expire.'); return; }
 
-            const siteUrl = (location.protocol === 'file:' ? 'https://proguzmir.vercel.app' : window.location.origin);
-            // Sayt linkiga rasm yo'lini qo'shamiz
-            const imageUrl = siteUrl + '/image/background1.jpg';
+            // 1. O'zgaruvchilarni aniq matn (string) ko'rinishida yozamiz
+            // Bu yerda window.location ishlatmaslik xatolarni oldini oladi
+            const mySiteUrl = 'https://proguzmir.vercel.app'; 
+            const myImageUrl = 'https://proguzmir.vercel.app/image/background1.jpg';
 
             const args = {
-                link: siteUrl,       // <--- O'ZGARISH: Bu yerga endi .jpg'siz toza sayt linki ketadi
+                // DIQQAT: Ko'p wrapperlarda 'link' yoki 'currentUrl' Rasm bo'lishi shart.
+                // Biz har ehtimolga qarshi ikkalasini ham to'g'ri joylaymiz.
+                
+                link: mySiteUrl,          // Bu foydalanuvchi bosganda kiradigan manzil
+                currentUrl: myImageUrl,   // Bu Story orqasidagi fon rasmi
+                
+                // Qo'shimcha parametrlar (agar 'p' funksiya qo'llasa):
+                url: mySiteUrl,           // Ba'zi wrapperlar 'url' deb qidiradi
+                background_url: myImageUrl, // Ba'zilar 'background_url' deb qidiradi
+                
                 text: 'I have successfully withdrawn 0.01 TON from ProgUzmiR, you can also play!',
-                btnName: 'Play ProgUzmiR',
-                currentUrl: imageUrl // <--- Bu yerga fon rasmi linki ketadi (API talabiga ko'ra)
+                btnName: 'Play ProgUzmiR'
             };
 
-            p(window.Telegram || window, args, (success) => {
+            // Debug uchun konsolga chiqaramiz (xato qayerdaligini ko'rish uchun)
+            console.log('Sending to Story:', args);
 
-                if (!success) {
+            p(window.Telegram || window, args, (success) => {
+                 if (!success) {
                     showToast('Share failed.');
                     return;
                 }
-                // show CLAIM button inside reklanma only
+                // ... (Claim tugmasini chiqarish kodi davom etadi)
                 rek.innerHTML = `
                     <div style="display:flex; align-items:center; gap:8px;">
                       <div style="font-weight:700; color:#fff;">Story sent!</div>
                       <button id="claimBtn" class="btn" style="margin-left:6px;">CLAIM</button>
                     </div>
                 `;
+                
+                // ... (Claim button listener kodi)
                 const claimBtn = document.getElementById('claimBtn');
                 if (claimBtn) {
-                    claimBtn.addEventListener('click', () => {
+                     claimBtn.addEventListener('click', () => {
+                        // Claim logikasi shu yerda...
                         const todayStr = new Date().toISOString().slice(0, 10);
                         setClaimDateForCurrentUser(todayStr);
-
                         const st = loadState();
                         st.prcWei = BigInt(st.prcWei) + BASE_WEI;
-
-                        // YANGI: Also save the claim date to Supabase via saveUserState
                         saveState(st);
-
-                        // YANGI: Ensure claim date is synced to Supabase
-                        try {
-                            if (typeof saveUserState === 'function') {
-                                saveUserState(st);
-                            }
-                        } catch (e) {
-                            console.warn('Failed to sync claim date to Supabase:', e);
-                        }
-
+                        try { if (typeof saveUserState === 'function') saveUserState(st); } catch (e) {}
                         animateAddPRC('+' + fmtPRC(BASE_WEI));
                         showToast('🎉 +1000PRC');
-                        // faqat reklanma elementini countdown ga o'tkazamiz, sahifani qayta render qilmaymiz
                         showReklanmaCountdown(rek);
-                    });
+                     });
                 }
             });
         });
+
     }, 300);
 
     // --- Helper: show countdown on reklanma element ---
@@ -616,17 +619,17 @@ function renderGame() {
     if (window._energyInterval) { clearInterval(window._energyInterval); window._energyInterval = null; }
 
     // Doimiy interval: har soniyada tekshiradi
-    window._energyInterval = setInterval(async () => {
+    window._energyInterval = setInterval(async () => { 
 
         const st = loadState();
 
-
+       
         // Agar birdaniga maxEnergy 0 yoki noto'g'ri bo'lib qolsa:
         if (!st.maxEnergy || st.maxEnergy <= 0) {
             console.warn("⚠️ Diqqat! Energiya 0 ga tushib qoldi. Avtomatik tuzatilmoqda...");
 
             st.maxEnergy = 1000;
-
+            
             if (st.energy <= 0) st.energy = 1000;
 
             saveState(st);
@@ -636,7 +639,7 @@ function renderGame() {
             if (el) el.textContent = `${st.energy} / ${st.maxEnergy}`;
 
         }
-
+        
         // Asosiy mantiq (Sizning kodingiz)
         if (typeof st.energy !== 'number' || typeof st.maxEnergy !== 'number') return;
 
@@ -1207,15 +1210,15 @@ document.querySelectorAll('.nav .tab').forEach(el => {
         }
         // index.js ichida
 
-        else if (tab === 'wallet') {
-            await loadHtmlIntoContent('./wallet/wallet.html');
+else if (tab === 'wallet') {
+    await loadHtmlIntoContent('./wallet/wallet.html');
+    
+    // Eski initWalletPage() o'rniga yangilarini chaqiramiz:
+    if (window.initTonWallet) window.initTonWallet();
+    if (window.initMetaMaskWallet) window.initMetaMaskWallet();
 
-            // Eski initWalletPage() o'rniga yangilarini chaqiramiz:
-            if (window.initTonWallet) window.initTonWallet();
-            if (window.initMetaMaskWallet) window.initMetaMaskWallet();
-
-            handleHeaderByPage('wallet');
-        }
+    handleHeaderByPage('wallet');
+}
 
 
         else if (tab === 'invite') {
@@ -1349,7 +1352,7 @@ async function saveUserState(state) {
 
     // LocalStorage dan hamyon manzillarini olamiz (ton.js va cripto.js yozgan joydan)
     // Kalitlar ton.js va cripto.js dagi bilan bir xil bo'lishi kerak!
-    const localTonWallet = localStorage.getItem("proguzmir_ton_wallet");
+    const localTonWallet = localStorage.getItem("proguzmir_ton_wallet"); 
     const localCryptoWallet = localStorage.getItem("proguzmir_crypto_wallet");
 
     // ... boshqa o'qishlar ...
@@ -1476,14 +1479,14 @@ async function loadUserState() {
             tapsUsed: Number(result.user.taps_used || 0),
             selectedSkin: result.user.selected_skin || '',
             todayIndex: Number(result.user.today_index || 0),
-
+            
             dailyWeekStart: result.user.daily_week_start || null,
             dailyClaims: safeParse(result.user.daily_claims),
             cardsLvl: safeParse(result.user.cards_lvl),
             boosts: safeParse(result.user.boosts),
             claimDate: result.user.claim_date || null,
             wallet: result.user.wallet || "", // Bu tg_id
-
+            
             keysTotal: Number(result.user.keys_total || 0),
             keysUsed: Number(result.user.keys_used || 0),
 
@@ -1515,14 +1518,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     selectedSkin: saved.selectedSkin,
                     todayIndex: saved.todayIndex,
                     wallet: saved.wallet, // tg_id
-
+                    
                     dailyWeekStart: saved.dailyWeekStart,
                     dailyClaims: saved.dailyClaims,
                     cardsLvl: saved.cardsLvl,
                     boosts: saved.boosts,
                     keysTotal: saved.keysTotal,
                     keysUsed: saved.keysUsed,
-
+                    
                     // ❗ YANGI: Hamyonlar
                     tonWallet: saved.tonWallet,
                     cryptoWallet: saved.cryptoWallet
@@ -1556,5 +1559,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (e) { console.warn('startup load error', e); }
 
-    setupAutoSave();
+    setupAutoSave(); 
 });
