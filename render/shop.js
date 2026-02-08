@@ -141,7 +141,7 @@ function renderShop() {
 
       const state = loadState();
       if (!chargeCost(state, item.costWei)) { 
-          alert('Yetarli PRC yo‘q.'); 
+          alert('Not enough PRC.'); 
           return; 
       }
 
@@ -151,7 +151,7 @@ function renderShop() {
       }
       
       saveState(state);
-      alert(`${item.name} sotib olindi.`);
+      alert(`${item.name} purchased!`);
       renderShop(); // Ekranni yangilash
     });
   });
@@ -163,7 +163,7 @@ function renderShop() {
       const state = loadState();
       
       if (!chargeCost(state, SKIN_COST_WEI)) { 
-          alert('Yetarli PRC yo‘q skin sotib olish uchun.'); 
+          alert('Not enough PRC.'); 
           return; 
       }
       
@@ -171,7 +171,7 @@ function renderShop() {
       saveState(state);
       
       const skinName = SKINS.find(s => s.id === skinId)?.name || "Skin";
-      alert(`${skinName} sotib olindi!`);
+      alert(`${skinName} purchased!`);
       renderShop();
     });
   });

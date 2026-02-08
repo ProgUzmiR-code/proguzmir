@@ -58,7 +58,7 @@ function useKeys(amount) {
         try { syncKeysToSupabase(); } catch (e) { console.warn('syncKeysToSupabase failed', e); }
         return true;
     } else {
-        alert("Kalitlar yetarli emas!");
+        alert("Not enough keys!");
         return false;
     }
 }
@@ -154,7 +154,7 @@ document.addEventListener('click', async function (ev) {
             window.open(href, '_blank');
         }
     } catch (e) {
-        console.error("Linkni ochishda xato:", e);
+        console.error("Error opening link:", e);
         window.open(href, '_blank');
     }
 
@@ -357,11 +357,11 @@ document.addEventListener('click', function (e) {
     if (target === 'active') {
         mainContainer.classList.add('tab_active_view');
         mainContainer.classList.remove('tab_inactive_view');
-        console.log("Hozir Active vazifalar ko'rinmoqda");
+        console.log("Showing active tasks");
     } else {
         mainContainer.classList.add('tab_inactive_view');
         mainContainer.classList.remove('tab_active_view');
-        console.log("Hozir Inactive (bajarilgan) vazifalar ko'rinmoqda");
+        console.log("Showing inactive (completed) tasks");
     }
 });
 

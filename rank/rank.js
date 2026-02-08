@@ -39,14 +39,14 @@
 
             // YANGI: Haqiqiy ma'lumotlarni Supabase'dan olish
             async function loadLeaderboard() {
-                rankListContainer.innerHTML = '<div class="loading">Yuklanmoqda...</div>';
+                rankListContainer.innerHTML = '<div class="loading">Loading...</div>';
 
                 try {
                     // Supabase o'rniga o'zimizning API dan olamiz
                     const response = await fetch('/api/leaderboard');
                     const result = await response.json();
 
-                    if (!result.leaderboard) throw new Error("Ma'lumot topilmadi");
+                    if (!result.leaderboard) throw new Error("No data found");
 
                     const data = result.leaderboard;
 
@@ -72,7 +72,7 @@
                     rankListContainer.innerHTML = '';
 
                     if (filteredUsers.length === 0) {
-                        rankListContainer.innerHTML = `<div class="empty-state">${rankName} ligasida hech kim yo'q</div>`;
+                        rankListContainer.innerHTML = `<div class="empty-state">${rankName} No players in this league</div>`;
                         return;
                     }
 
@@ -105,8 +105,8 @@
 
 
                 } catch (e) {
-                    console.error('API xatosi:', e);
-                    rankListContainer.innerHTML = '<div class="error">Reytingni yuklashda xatolik yuz berdi.</div>';
+                    console.error('API error:', e);
+                    rankListContainer.innerHTML = '<div class="error">Failed to load leaderboard.</div>';
                 }
             }
 

@@ -28,7 +28,7 @@ async function initMetaMaskSystem() {
             setTimeout(initMetaMaskSystem, 500);
             return;
         }
-        console.error("AppKit Library topilmadi");
+        console.error("AppKit Library not found");
         return;
     }
 
@@ -79,7 +79,7 @@ async function initMetaMaskSystem() {
                 saveEvmData(account.address);
             }
         } catch (e) {
-            console.log("Account tekshirishda xatolik:", e);
+            console.log("Account verification error:", e);
         }
 
         window.evmModal = evmModal; // Globalga qo'yamiz
@@ -135,7 +135,7 @@ function setupMetaMaskButton() {
     newBtn.addEventListener('click', () => {
         // TON ulangan bo'lsa ogohlantiramiz
         if (localStorage.getItem("proguzmir_wallet_type") === 'ton') {
-            alert("Avval TON hamyonni uzing!");
+            alert("First disconnect the TON wallet!");
             return;
         }
 
@@ -143,7 +143,7 @@ function setupMetaMaskButton() {
         if (evmModal) {
             evmModal.open();
         } else {
-            alert("Tizim yuklanmoqda... kuting.");
+            alert("system is loading... please wait.");
             initMetaMaskSystem();
         }
     });
@@ -202,7 +202,7 @@ function updateMetaMaskUI() {
                     }
                 }
             } catch (e) {
-                console.log("Icon aniqlashda xato:", e);
+                console.log("Error in determining icon:", e);
             }
         }
         

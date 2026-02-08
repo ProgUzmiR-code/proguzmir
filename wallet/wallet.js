@@ -22,10 +22,10 @@ async function loadWalletConfig() {
         if (data.ton_address && data.evm_address) {
             MERCHANT_TON = data.ton_address;
             MERCHANT_EVM = data.evm_address;
-            console.log("Hamyon manzillari yuklandi ✅");
+            console.log("Wallet addresses loaded ✅");
         }
     } catch (error) {
-        console.error("Config yuklashda xato:", error);
+        console.error("Error loading config:", error);
     }
 }
 loadWalletConfig();
@@ -39,15 +39,15 @@ async function getCryptoPrice(symbol) {
         const data = await response.json();
         return parseFloat(data.price);
     } catch (e) {
-        console.error(`${symbol} narxini olishda xatolik:`, e);
-        alert("Internet bilan aloqa yo'q yoki Kursni olib bo'lmadi. Qayta urinib ko'ring.");
+        console.error(`${symbol} Error getting price:`, e);
+        alert("No internet connection or Course failed. Please try again.");
         return null;
     }
 }
 
 // --- 3. ASOSIY SOTIB OLISH FUNKSIYASI ---
 async function buyItem(itemId) {
-    console.log("Tanlangan: " + itemId);
+    console.log("Selected: " + itemId);
 
     // 0. Tizim yuklanmagan bo'lsa, uni majburan yuklaymiz
     if (!MERCHANT_TON || !MERCHANT_EVM) {
@@ -58,7 +58,7 @@ async function buyItem(itemId) {
     // --- MUHIM TUZATISH: AppKitni tekshirish ---
     // Agar MetaMask tizimi hali yuklanmagan bo'lsa, uni ishga tushiramiz
     if (!window.evmModal && window.initMetaMaskWallet) {
-        console.log("Tizim topilmadi, ishga tushirilmoqda...");
+        console.log("System not found, starting up...");
         window.initMetaMaskWallet(); // Tizimni uyg'otamiz
     }
     // -------------------------------------------
@@ -66,7 +66,7 @@ async function buyItem(itemId) {
     // 1. Mahsulot bormi?
     const item = PRICES[itemId];
     if (!item) {
-        alert("Xatolik: Mahsulot topilmadi!");
+        alert("Error: Product not found!");
         return;
     }
 
@@ -78,7 +78,7 @@ async function buyItem(itemId) {
         if (!tonPrice) return;
         const amountTon = (item.usd / tonPrice).toFixed(4); 
 
-        if (confirm(`${item.name} uchun ${amountTon} TON (${item.usd}$) to'laysizmi?`)) {
+        if (confirm(`${item.name} for ${amountTon} TON (${item.usd}$) will you pay?`)) {
             await payWithTon(amountTon);
         }
 
@@ -87,10 +87,10 @@ async function buyItem(itemId) {
         if (!bnbPrice) return;
         const amountBnb = (item.usd / bnbPrice).toFixed(6);
 
-        if (confirm(`${item.name} uchun ${amountBnb} BNB (${item.usd}$) to'laysizmi?`)) {
+        if (confirm(`${item.name} for ${amountBnb} BNB (${item.usd}$) will you pay?`)) {
             // Tizim yuklanishi uchun ozgina vaqt kerak bo'lishi mumkin, shuning uchun tekshiramiz
             if (!window.evmModal) {
-                alert("Tizim yuklanmoqda... Iltimos, 3 soniya kutib, qayta bosing.");
+                alert("The system is loading... Please wait 3 seconds and press again.");
                 // Yana bir bor urinib ko'ramiz
                 if(window.initMetaMaskWallet) window.initMetaMaskWallet();
             } else {
@@ -99,7 +99,7 @@ async function buyItem(itemId) {
         }
 
     } else {
-        alert("Iltimos, avval hamyonni ulang!");
+        alert("Please connect your wallet first!");
         // Agar iloji bo'lsa, wallet bo'limiga o'tkazish
         if(document.querySelector('.invite-listm2')) {
             document.querySelector('.invite-listm2').scrollIntoView({ behavior: 'smooth' });
@@ -112,7 +112,7 @@ async function buyItem(itemId) {
 async function payWithTon(amountTon) {
     try {
         if (!window.tonConnectUI) {
-            alert("TON tizimi yuklanmadi.");
+            alert("The TON system did not load. Please try again.");
             return;
         }
 
@@ -135,13 +135,13 @@ async function payWithTon(amountTon) {
         };
 
         const result = await window.tonConnectUI.sendTransaction(transaction);
-        console.log("TON To'lov success:", result);
-        alert("To'lov muvaffaqiyatli! ✅");
+        console.log("TON Payment success:", result);
+        alert("Payment successful! ✅");
 
     } catch (e) {
         console.error(e);
         if (!e.message?.includes("User rejected")) {
-            alert("Xatolik: " + e.message);
+            alert("Error: " + e.message);
         }
     }
 }
@@ -151,7 +151,7 @@ async function payWithEvm(amountBnb, itemName) {
 
     // 1. Tizimni tekshirish va YUKLASH
     if (!window.evmModal) {
-        console.log("MetaMask tizimi topilmadi. Qayta ishga tushirilmoqda...");
+        console.log("MetaMask system not found. Restarting...");
         
         if (window.initMetaMaskWallet) {
             await window.initMetaMaskWallet(); // Kutamiz
@@ -159,7 +159,7 @@ async function payWithEvm(amountBnb, itemName) {
 
         // Agar shunda ham bo'lmasa:
         if (!window.evmModal) {
-            alert("Tizim yuklanmoqda... Iltimos, bir necha soniya kutib qayta urinib ko'ring.");
+            alert("System is loading... Please wait a few seconds and try again.");
             // Qayta ishga tushirishga urinish (fon rejimida)
             if (typeof initMetaMaskSystem === 'function') initMetaMaskSystem();
             return;
@@ -187,7 +187,7 @@ async function payWithEvm(amountBnb, itemName) {
                     params: [{ chainId: '0x38' }], // 56
                 });
             } catch (err) {
-                alert("Iltimos, MetaMaskda BNB Smart Chain tarmog'ini tanlang.");
+                alert("Please select the BNB Smart Chain network in MetaMask.");
                 return;
             }
         }
@@ -232,12 +232,12 @@ async function payWithEvm(amountBnb, itemName) {
 
         const txHash = await txPromise;
         console.log("BNB Success:", txHash);
-        alert(`To'lov yuborildi! ✅\nHash: ${txHash}`);
+        alert(`Payment sent! ✅\nHash: ${txHash}`);
 
     } catch (e) {
         console.error(e);
         if (!e.message?.includes("rejected")) {
-            alert("Xatolik: " + e.message);
+            alert("Error: " + e.message);
         }
     }
 }

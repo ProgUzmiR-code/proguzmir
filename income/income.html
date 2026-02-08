@@ -539,7 +539,7 @@
         // Koinlar haqida internetdan (CoinGecko API) ma'lumot olish funksiyasi
         async function getCoinDescription(coinId) {
             const subtitleElement = document.querySelector('.energy__subtitle');
-            subtitleElement.textContent = "Yuklanmoqda..."; // Yuklash jarayonida matn
+            subtitleElement.textContent = "Loading...";
 
             try {
                 // CoinGecko ochiq API - koin haqida ma'lumot olish
@@ -554,8 +554,8 @@
 
                 subtitleElement.textContent = description;
             } catch (error) {
-                console.error("Xato:", error);
-                subtitleElement.textContent = "Ma'lumotni yuklashda xato yuz berdi.";
+                console.error("Error:", error);
+                subtitleElement.textContent = "Failed to load data.";
             }
         }
 
@@ -566,7 +566,7 @@
 
                 // AGAR MAX BO'LSA OYNA OCHILMAYDI VA FUNKSIYA TO'XTAYDI
                 if (coinLvlText === "MAX") {
-                    console.log("Maksimal darajaga yetilgan!");
+                    console.log("Maximum level reached!");
                     return;
                 }
 
@@ -759,7 +759,7 @@
 
                     // AGAR NARX "MAX" BO'LSA, ISHNI TO'XTATISH (NaN OLDINI OLISH)
                     if (costRaw === "MAX") {
-                        alert("Bu karta maksimal darajada!");
+                        alert("This card is at maximum level!");
                         return;
                     }
 
@@ -767,13 +767,13 @@
 
                     // Endi NaN chiqmaydi, chunki cost raqam ekanligi aniqlandi
                     if (isNaN(diamondCost)) {
-                        console.error("Xato: Diamond narxi raqam emas!");
+                        console.error("Error: Diamond price is not a number!");
                         return;
                     }
                     let currentDiamonds = getDiamond();
 
                     if (currentDiamonds < diamondCost) {
-                        alert(`${diamondCost} diamond kerak!`);
+                        alert(`${diamondCost} diamonds required!`);
                         return;
                     }
 

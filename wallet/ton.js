@@ -65,7 +65,7 @@ function setupTonButton() {
         if (currentType === 'ton') {
             // ❗ MUHIM: Faqat "disconnect-btn" klassi bor element bosilsa ishlaydi
             if (e.target.classList.contains('disconnect-btn')) {
-                const isConfirmed = confirm("Haqiqatan ham TON hamyonini uzmoqchimisiz?");
+                const isConfirmed = confirm("Do you really want to disconnect the TON wallet?");
                 if (isConfirmed) {
                     window.tonConnectUI.disconnect();
                     clearTonData();
@@ -78,7 +78,7 @@ function setupTonButton() {
             try { await window.tonConnectUI.openModal(); } catch (e) { console.error(e); }
         }
         else {
-            alert("Avval MetaMask hamyonni uzing!");
+            alert("First, disconnect your MetaMask wallet!");
         }
     });
 }
@@ -115,7 +115,7 @@ function updateTonUI() {
             iconImg.src = window.tonConnectUI.wallet.imageUrl;
         }
 
-        if (arrowDiv) arrowDiv.innerHTML = `<button class="disconnect-btn">Uzish</button>`;
+        if (arrowDiv) arrowDiv.innerHTML = `<button class="disconnect-btn">Disconnect</button>`;
     } else {
         // --- ULANMAGAN ---
         btnTon.style.background = "";

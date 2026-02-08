@@ -114,11 +114,10 @@ function renderDaily() {
 
     for (let i = 0; i < 7; i++) {
         const dayNum = i + 1;
-
         const claimed = !!claims[i];
         const reward = DAILY_REWARDS[i];
         const isToday = (i === todayIndex);
-        console.log(dayNum + " kun: " + "isToday: " + isToday);
+        console.log(dayNum + " day: " + "isToday: " + isToday);
         const cls = claimed ? 'claimed' : isToday ? 'today' : '';
         const label = (i === 6) ? 'BIG DAY' : `Day ${dayNum}`;
         const labelD = (i === 6) ? `💎` : `💎`;
@@ -173,11 +172,10 @@ function renderDaily() {
                     }
                 }
                 if (missedDay) {
-                    // Reset to Day 1
                     const newStart = today.toISOString();
                     const newClaims = [false, false, false, false, false, false, false];
                     setDailyData(wallet, newStart, newClaims);
-                    showToast('Kunni o\'tkazdingiz — Day 1 dan boshladik');
+                    showToast('You missed a day — reset to Day 1');
                     renderDaily();
                     return;
                 }
@@ -204,7 +202,7 @@ function renderDaily() {
             st.diamond = (st.diamond || 0) + reward;
             saveState(st);
             animateAddPRC('+' + reward + ' 💎');
-            showToast(`Siz ${reward} diamond oldingiz!`);
+            showToast(`You received ${reward} diamonds!`);
 
             // update UI locally
             renderDaily();

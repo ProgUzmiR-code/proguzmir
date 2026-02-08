@@ -56,7 +56,7 @@ function shareReferralLink() {
     const refRaw = localStorage.getItem('proguzmir_wallet') || (user ? String(user.id) : '');
 
     if (!refRaw) {
-        alert("Referral link yaratish uchun hamyon ulanmagan!");
+        alert("Wallet not connected to create referral link!");
         return;
     }
 

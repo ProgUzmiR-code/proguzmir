@@ -73,7 +73,7 @@
                     let currentDiamonds = getDiamond();
 
                     if (currentDiamonds < diamondCost) {
-                        alert(`${diamondCost} diamond kerak!`);
+                        alert(`${diamondCost} diamonds required!`);
                         return;
                     }
 

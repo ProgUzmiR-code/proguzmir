@@ -386,7 +386,7 @@ function renderGame() {
 
         // oddiy click handler: share -> show claim button (do NOT re-render whole page)
         rek.addEventListener('click', () => {
-            if (isClaimedToday()) { showToast('Vaqt tugashini kuting'); return; }
+            if (isClaimedToday()) { showToast('Wait for the time to expire.'); return; }
 
             const currentUrl = (location.protocol === 'file:' ? 'https://proguzmir.vercel.app/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
             const args = {
@@ -398,7 +398,7 @@ function renderGame() {
 
             p(window.Telegram || window, args, (success) => {
                 if (!success) {
-                    showToast('Share bajarilmadi.');
+                    showToast('Share failed.');
                     return;
                 }
                 // show CLAIM button inside reklanma only
@@ -476,7 +476,7 @@ function renderGame() {
         e.preventDefault();
         e.stopPropagation();
         const state = loadState();
-        if (state.energy <= 0) { alert('Energiya tugadi — kuting to‘ldirishni.'); return; }
+        if (state.energy <= 0) { alert('Energy is running out - wait for it to be replenished.'); return; }
 
         // update model
         state.energy = Math.max(0, state.energy - 1);
@@ -564,7 +564,7 @@ function renderGame() {
                 }
             } catch (err) {
                 console.error('Error opening Daily screen:', err);
-                if (typeof showToast === 'function') showToast('Xatolik: Daily bo\'lim ochilmadi');
+                if (typeof showToast === 'function') showToast('Error: Daily section could not be opened.');
             }
         }
     });
