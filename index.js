@@ -390,9 +390,9 @@ function renderGame() {
 
             const currentUrl = (location.protocol === 'file:' ? 'https://proguzmir.vercel.app/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
             const args = {
+                link: currentUrl,
                 text: 'I have successfully withdrawn 0.01 TON from ProgUzmiR, you can also play!',
-                btnName: 'Play ProgUzmiR',
-                currentUrl: currentUrl
+                btnName: 'Play ProgUzmiR'
             };
 
             p(window.Telegram || window, args, (success) => {
