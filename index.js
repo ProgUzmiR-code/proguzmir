@@ -386,17 +386,22 @@ function renderGame() {
 
         // oddiy click handler: share -> show claim button (do NOT re-render whole page)
         rek.addEventListener('click', () => {
+
             if (isClaimedToday()) { showToast('Wait for the time to expire.'); return; }
 
-            const currentUrl = (location.protocol === 'file:' ? 'https://proguzmir.vercel.app/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
+            const siteUrl = (location.protocol === 'file:' ? 'https://proguzmir.vercel.app' : window.location.origin);
+            // Sayt linkiga rasm yo'lini qo'shamiz
+            const imageUrl = siteUrl + '/image/background1.jpg';
+
             const args = {
-                link: currentUrl,
+                link: siteUrl,       // <--- O'ZGARISH: Bu yerga endi .jpg'siz toza sayt linki ketadi
                 text: 'I have successfully withdrawn 0.01 TON from ProgUzmiR, you can also play!',
                 btnName: 'Play ProgUzmiR',
-                currentUrl: currentUrl
+                currentUrl: imageUrl // <--- Bu yerga fon rasmi linki ketadi (API talabiga ko'ra)
             };
 
             p(window.Telegram || window, args, (success) => {
+
                 if (!success) {
                     showToast('Share failed.');
                     return;
@@ -611,17 +616,17 @@ function renderGame() {
     if (window._energyInterval) { clearInterval(window._energyInterval); window._energyInterval = null; }
 
     // Doimiy interval: har soniyada tekshiradi
-    window._energyInterval = setInterval(async () => { 
+    window._energyInterval = setInterval(async () => {
 
         const st = loadState();
 
-       
+
         // Agar birdaniga maxEnergy 0 yoki noto'g'ri bo'lib qolsa:
         if (!st.maxEnergy || st.maxEnergy <= 0) {
             console.warn("⚠️ Diqqat! Energiya 0 ga tushib qoldi. Avtomatik tuzatilmoqda...");
 
             st.maxEnergy = 1000;
-            
+
             if (st.energy <= 0) st.energy = 1000;
 
             saveState(st);
@@ -631,7 +636,7 @@ function renderGame() {
             if (el) el.textContent = `${st.energy} / ${st.maxEnergy}`;
 
         }
-        
+
         // Asosiy mantiq (Sizning kodingiz)
         if (typeof st.energy !== 'number' || typeof st.maxEnergy !== 'number') return;
 
@@ -1202,15 +1207,15 @@ document.querySelectorAll('.nav .tab').forEach(el => {
         }
         // index.js ichida
 
-else if (tab === 'wallet') {
-    await loadHtmlIntoContent('./wallet/wallet.html');
-    
-    // Eski initWalletPage() o'rniga yangilarini chaqiramiz:
-    if (window.initTonWallet) window.initTonWallet();
-    if (window.initMetaMaskWallet) window.initMetaMaskWallet();
+        else if (tab === 'wallet') {
+            await loadHtmlIntoContent('./wallet/wallet.html');
 
-    handleHeaderByPage('wallet');
-}
+            // Eski initWalletPage() o'rniga yangilarini chaqiramiz:
+            if (window.initTonWallet) window.initTonWallet();
+            if (window.initMetaMaskWallet) window.initMetaMaskWallet();
+
+            handleHeaderByPage('wallet');
+        }
 
 
         else if (tab === 'invite') {
@@ -1344,7 +1349,7 @@ async function saveUserState(state) {
 
     // LocalStorage dan hamyon manzillarini olamiz (ton.js va cripto.js yozgan joydan)
     // Kalitlar ton.js va cripto.js dagi bilan bir xil bo'lishi kerak!
-    const localTonWallet = localStorage.getItem("proguzmir_ton_wallet"); 
+    const localTonWallet = localStorage.getItem("proguzmir_ton_wallet");
     const localCryptoWallet = localStorage.getItem("proguzmir_crypto_wallet");
 
     // ... boshqa o'qishlar ...
@@ -1471,14 +1476,14 @@ async function loadUserState() {
             tapsUsed: Number(result.user.taps_used || 0),
             selectedSkin: result.user.selected_skin || '',
             todayIndex: Number(result.user.today_index || 0),
-            
+
             dailyWeekStart: result.user.daily_week_start || null,
             dailyClaims: safeParse(result.user.daily_claims),
             cardsLvl: safeParse(result.user.cards_lvl),
             boosts: safeParse(result.user.boosts),
             claimDate: result.user.claim_date || null,
             wallet: result.user.wallet || "", // Bu tg_id
-            
+
             keysTotal: Number(result.user.keys_total || 0),
             keysUsed: Number(result.user.keys_used || 0),
 
@@ -1510,14 +1515,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     selectedSkin: saved.selectedSkin,
                     todayIndex: saved.todayIndex,
                     wallet: saved.wallet, // tg_id
-                    
+
                     dailyWeekStart: saved.dailyWeekStart,
                     dailyClaims: saved.dailyClaims,
                     cardsLvl: saved.cardsLvl,
                     boosts: saved.boosts,
                     keysTotal: saved.keysTotal,
                     keysUsed: saved.keysUsed,
-                    
+
                     // ❗ YANGI: Hamyonlar
                     tonWallet: saved.tonWallet,
                     cryptoWallet: saved.cryptoWallet
@@ -1551,5 +1556,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (e) { console.warn('startup load error', e); }
 
-    setupAutoSave(); 
+    setupAutoSave();
 });
