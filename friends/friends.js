@@ -75,7 +75,7 @@ function updateReferralLinkCache() {
     }
 
     const botUsername = 'proguzmir_bot'; 
-    const finalLink = `https://t.me/${botUsername}/?startapp=ref_${encodedRef}`;
+    const finalLink = `https://t.me/${botUsername}?start=ref_${encodedRef}`;
 
     // MUHIM: Tayyor linkni xotiraga yozib qo'yamiz
     localStorage.setItem('proguzmir_my_ref_link', finalLink);
