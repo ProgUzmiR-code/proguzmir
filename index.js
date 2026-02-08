@@ -385,66 +385,58 @@ function renderGame() {
         }
 
         // oddiy click handler: share -> show claim button (do NOT re-render whole page)
-                // ... (oldingi qatorlar)
         rek.addEventListener('click', () => {
-
             if (isClaimedToday()) { showToast('Wait for the time to expire.'); return; }
 
-            // 1. O'zgaruvchilarni aniq matn (string) ko'rinishida yozamiz
-            // Bu yerda window.location ishlatmaslik xatolarni oldini oladi
-            const mySiteUrl = 'https://proguzmir.vercel.app'; 
-            const myImageUrl = 'https://proguzmir.vercel.app/image/background1.jpg';
-
+            const currentUrl = (location.protocol === window.location.origin + '/image/background1.jpg');
             const args = {
-                // DIQQAT: Ko'p wrapperlarda 'link' yoki 'currentUrl' Rasm bo'lishi shart.
-                // Biz har ehtimolga qarshi ikkalasini ham to'g'ri joylaymiz.
-                
-                link: mySiteUrl,          // Bu foydalanuvchi bosganda kiradigan manzil
-                currentUrl: myImageUrl,   // Bu Story orqasidagi fon rasmi
-                
-                // Qo'shimcha parametrlar (agar 'p' funksiya qo'llasa):
-                url: mySiteUrl,           // Ba'zi wrapperlar 'url' deb qidiradi
-                background_url: myImageUrl, // Ba'zilar 'background_url' deb qidiradi
-                
+                link: currentUrl,
                 text: 'I have successfully withdrawn 0.01 TON from ProgUzmiR, you can also play!',
-                btnName: 'Play ProgUzmiR'
+                btnName: 'Play ProgUzmiR',
+                currentUrl: currentUrl
             };
 
-            // Debug uchun konsolga chiqaramiz (xato qayerdaligini ko'rish uchun)
-            console.log('Sending to Story:', args);
-
             p(window.Telegram || window, args, (success) => {
-                 if (!success) {
+                if (!success) {
                     showToast('Share failed.');
                     return;
                 }
-                // ... (Claim tugmasini chiqarish kodi davom etadi)
+                // show CLAIM button inside reklanma only
                 rek.innerHTML = `
                     <div style="display:flex; align-items:center; gap:8px;">
                       <div style="font-weight:700; color:#fff;">Story sent!</div>
                       <button id="claimBtn" class="btn" style="margin-left:6px;">CLAIM</button>
                     </div>
                 `;
-                
-                // ... (Claim button listener kodi)
                 const claimBtn = document.getElementById('claimBtn');
                 if (claimBtn) {
-                     claimBtn.addEventListener('click', () => {
-                        // Claim logikasi shu yerda...
+                    claimBtn.addEventListener('click', () => {
                         const todayStr = new Date().toISOString().slice(0, 10);
                         setClaimDateForCurrentUser(todayStr);
+
                         const st = loadState();
                         st.prcWei = BigInt(st.prcWei) + BASE_WEI;
+
+                        // YANGI: Also save the claim date to Supabase via saveUserState
                         saveState(st);
-                        try { if (typeof saveUserState === 'function') saveUserState(st); } catch (e) {}
+
+                        // YANGI: Ensure claim date is synced to Supabase
+                        try {
+                            if (typeof saveUserState === 'function') {
+                                saveUserState(st);
+                            }
+                        } catch (e) {
+                            console.warn('Failed to sync claim date to Supabase:', e);
+                        }
+
                         animateAddPRC('+' + fmtPRC(BASE_WEI));
                         showToast('🎉 +1000PRC');
+                        // faqat reklanma elementini countdown ga o'tkazamiz, sahifani qayta render qilmaymiz
                         showReklanmaCountdown(rek);
-                     });
+                    });
                 }
             });
         });
-
     }, 300);
 
     // --- Helper: show countdown on reklanma element ---
