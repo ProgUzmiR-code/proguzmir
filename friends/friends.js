@@ -1,4 +1,4 @@
-// friends.js
+// friends/friends.js
 // Global export
 window.initInvite = initInvite;
 let _friendsLocalCache = null;
@@ -48,49 +48,65 @@ function initInvite() {
 }
 
 // Yangi taklif qilish funksiyasi
-function shareReferralLink() {
+// --- friends.js ---
+
+// 1. Linkni yasab, localStorage ga saqlaydigan yordamchi funksiya
+function updateReferralLinkCache() {
     const tg = window.Telegram?.WebApp;
     const user = tg?.initDataUnsafe?.user;
-
-    // raw ref id (wallet or telegram id)
+    
+    // Wallet yoki ID ni olish
     const refRaw = localStorage.getItem('proguzmir_wallet') || (user ? String(user.id) : '');
+    
+    // Agar ID bo'lmasa, oddiy saytni qaytaradi
+    if (!refRaw) return 'https://proguzmir.vercel.app';
 
-    if (!refRaw) {
-        alert("Wallet not connected to create referral link!");
-        return;
-    }
-
-    // Encode ref for privacy: prefer Base62 for numeric ids, fallback to URL-safe base64-like string
+    // Kodlash (Base62 logic)
     let encodedRef;
     try {
         if (/^\d+$/.test(refRaw)) {
             encodedRef = Base62.encode(refRaw);
         } else {
             const digits = (refRaw.match(/\d+/) || [null])[0];
-            if (digits) {
-                encodedRef = Base62.encode(digits);
-            } else {
-                // compact base64 fallback (URL-safe, no padding)
-                encodedRef = btoa(unescape(encodeURIComponent(refRaw))).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
-            }
+            encodedRef = digits ? Base62.encode(digits) : refRaw; // Fallback
         }
     } catch (e) {
-        console.warn('ref encode failed, using raw', e);
         encodedRef = refRaw;
     }
 
-    const botUsername = 'proguzmir_bot'; // O'zingizning botingiz username'ini yozing
-    const inviteLink = `https://t.me/${botUsername}?startapp=ref_${encodedRef}`;
-    const shareText = `🚀 Participate in the ProgUzmiR game with me and win PRC tokens!`;
+    const botUsername = 'proguzmir_bot'; 
+    const finalLink = `https://t.me/${botUsername}?startapp=ref_${encodedRef}`;
 
+    // MUHIM: Tayyor linkni xotiraga yozib qo'yamiz
+    localStorage.setItem('proguzmir_my_ref_link', finalLink);
+    
+    return finalLink;
+}
+
+// 2. Sahifa yuklanganda (yoki friends.js yuklanganda) darhol hisoblab qo'yamiz
+updateReferralLinkCache();
+
+// 3. Eski shareReferralLink funksiyasini soddalashtiramiz (endi u xotiradan oladi)
+function shareReferralLink() {
+    // Xotiradan olamiz, agar yo'q bo'lsa yangitdan yasaymiz
+    const inviteLink = localStorage.getItem('proguzmir_my_ref_link') || updateReferralLinkCache();
+
+    if (!inviteLink || inviteLink === 'https://proguzmir.vercel.app') {
+        alert("Wallet not connected!");
+        return;
+    }
+
+    const shareText = `🚀 Participate in the ProgUzmiR game with me and win PRC tokens!`;
     const fullUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
 
+    const tg = window.Telegram?.WebApp;
     if (tg && tg.openTelegramLink) {
         tg.openTelegramLink(fullUrl);
     } else {
         window.open(fullUrl, '_blank');
     }
 }
+
 
 
 async function loadFriendsList() {

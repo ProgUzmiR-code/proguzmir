@@ -388,10 +388,12 @@ function renderGame() {
         rek.addEventListener('click', () => {
             if (isClaimedToday()) { showToast('Wait for the time to expire.'); return; }
 
-            const currentUrl = ( window.location.origin + '/image/background1.jpg');
+            const currentUrl = (location.protocol === 'file:' ? 'https://proguzmir.vercel.app/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
             const args = {
                 link: currentUrl,
-                text: 'I have successfully withdrawn 0.01 TON from ProgUzmiR, you can also play!'
+                text: 'I have successfully withdrawn 0.01 TON from ProgUzmiR, you can also play!',
+                btnName: 'Play ProgUzmiR',
+                currentUrl: currentUrl
             };
 
             p(window.Telegram || window, args, (success) => {
@@ -788,9 +790,12 @@ function showToast(message) {
 // Yangi: Telegram shareToStory wrapper (p)
 function p(e, t, n) {
     try {
+        // --- LOCALSTORAGE DAN OLISH ---
+            // 'proguzmir_my_ref_link' kaliti friends.js da saqlangan edi
+            const myRefLink = localStorage.getItem('proguzmir_my_ref_link') || 'https://proguzmir.vercel.app';
         const isPremium = !!(e?.WebApp?.initDataUnsafe?.user && e.WebApp.initDataUnsafe.user.is_premium);
-        const payload = { text: `${t.text} ${t.currentUrl}` };
-        if (isPremium) payload.widget_link = { name: t.btnName, url: t.currentUrl };
+        const payload = { text: `${t.text} ${myRefLink}` };
+        if (isPremium) payload.widget_link = { name: t.btnName, url: myRefLink };
 
         // 1) prefer shareToStory if available
         if (e?.WebApp && typeof e.WebApp.shareToStory === 'function') {
