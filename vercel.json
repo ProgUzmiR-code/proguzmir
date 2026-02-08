@@ -15,7 +15,7 @@
     { "src": "/config/db", "dest": "/config/db.js" },
     { "src": "/api/wallet-data", "dest": "/api/wallet-data.js" },
     { "src": "/api/leaderboard", "dest": "/api/leaderboard.js" },
-    { "src": "/api/referral-save", "dest": "/api/referral_save.js" },
+    { "src": "/api/referral_save", "dest": "/api/referral_save.js" },
     { "src": "/api/invite", "dest": "/api/invite.js" },
     { "src": "/api/wallet", "dest": "/api/wallet.js" },
     { "src": "/api/save", "dest": "/api/save.js" },
