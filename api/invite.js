@@ -50,7 +50,7 @@ export default async function handler(req, res) {
         for (const candidate of candidates) {
             const q = await supabase
                 .from('user_states')
-                .select('wallet, prc_wei, diamond, first_name')
+                .select('wallet, prc_wei, diamond, first_name, is_premium')
                 .eq('referrer_id', candidate);
 
             if (q.error) {
@@ -80,7 +80,8 @@ export default async function handler(req, res) {
             wallet: f.wallet || null,
             first_name: f.first_name || (f.wallet ? f.wallet : 'Unknown'),
             prc_wei: f.prc_wei ? String(f.prc_wei) : '0',
-            diamond: typeof f.diamond === 'number' ? f.diamond : Number(f.diamond || 0)
+            diamond: typeof f.diamond === 'number' ? f.diamond : Number(f.diamond || 0),
+            is_premium: !!f.is_premium // <-- Boolean qilib jo'natamiz
         }));
 
         return res.json({ friends });

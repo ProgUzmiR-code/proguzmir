@@ -112,16 +112,20 @@ function shareReferralLink() {
 async function loadFriendsList() {
     const container = document.querySelector('.fs-list');
     const countEl = document.getElementById('friendsCount');
-    if (countEl) countEl.textContent = '(...)';
+    // Tepadagi labelni topamiz ("Invite Friend" yozilgan joy)
+    const totalLabel = document.querySelector('.invite__label'); 
 
+    if (countEl) countEl.textContent = '(...)';
     if (!container) return;
-    // loading indicator
+
+    // Loading...
     container.innerHTML = '<div class="box"><div>Loading...</div></div>';
 
     const wallet = localStorage.getItem('proguzmir_wallet') || '';
     if (!wallet) {
         renderNoData(container);
         if (countEl) countEl.textContent = '(0)';
+        if (totalLabel) totalLabel.textContent = '0 💎';
         return;
     }
 
@@ -131,79 +135,119 @@ async function loadFriendsList() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ wallet })
         });
+
         if (!res.ok) {
             renderNoData(container);
             if (countEl) countEl.textContent = '(0)';
             return;
         }
+
         const json = await res.json();
         const friends = json?.friends || [];
+
         if (!friends.length) {
             renderNoData(container);
             if (countEl) countEl.textContent = '(0)';
+            if (totalLabel) totalLabel.textContent = '0 💎';
             return;
         }
 
+        // --- HISOB-KITOB QISMI ---
+        let totalBonus = 0;
+        const BONUS_REGULAR = 25000;
+        const BONUS_PREMIUM = 50000;
+
         // Render list
         container.innerHTML = '';
+
         friends.forEach(f => {
+            // 1. Bonusni aniqlash
+            const bonus = f.is_premium ? BONUS_PREMIUM : BONUS_REGULAR;
+            totalBonus += bonus;
+
+            // 2. Element yaratish
             const item = document.createElement('div');
             item.className = 'invite-item';
-            item.style.display = 'flex';
-            item.style.justifyContent = 'space-between';
-            item.style.alignItems = 'center';
-            item.style.padding = '8px';
-            item.style.marginBottom = '8px';
-            item.style.background = 'rgba(0, 0, 0, 0.5)';
-            item.style.borderRadius = '8px';
+            // Stylelar (Siz bergan kod asosida)
+            item.style.cssText = `
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center; 
+                padding: 8px; 
+                margin-bottom: 8px; 
+                background: rgba(0, 0, 0, 0.5); 
+                border-radius: 8px;
+            `;
 
+            // CHAP TARAF (Avatar + Ism + PRC)
             const left = document.createElement('div');
-            left.style.display = 'flex';
-            left.style.gap = '10px';
-            left.style.alignItems = 'center';
+            left.style.cssText = "display: flex; gap: 10px; align-items: center;";
 
             const avatar = document.createElement('div');
-            avatar.style.width = '44px';
-            avatar.style.height = '44px';
-            avatar.style.borderRadius = '8px';
-            avatar.style.background = 'rgba(255,255,255,0.03)';
-            avatar.style.display = 'flex';
-            avatar.style.alignItems = 'center';
-            avatar.style.justifyContent = 'center';
-            avatar.style.fontWeight = '700';
-            avatar.style.color = '#fff';
+            avatar.style.cssText = "width: 44px; height: 44px; border-radius: 8px; background: rgba(255, 255, 255, 0.03); display: flex; align-items: center; justify-content: center; font-weight: 700; color: rgb(255, 255, 255);";
             avatar.textContent = (f.first_name || 'U').slice(0, 2).toUpperCase();
 
             const info = document.createElement('div');
+            
             const name = document.createElement('div');
             name.style.fontWeight = '700';
             name.textContent = f.first_name || 'Unknown';
+
             const prc = document.createElement('div');
             prc.style.opacity = '0.8';
+            prc.style.fontSize = '12px';
             try {
                 prc.textContent = (typeof fmtPRC === 'function') ? fmtPRC(BigInt(f.prc_wei || '0')) : (f.prc_wei || '0');
             } catch (e) {
                 prc.textContent = (f.prc_wei || '0');
             }
+
             info.appendChild(name);
             info.appendChild(prc);
-
             left.appendChild(avatar);
             left.appendChild(info);
 
+            // O'NG TARAF (Bonus ko'rsatish)
+            const right = document.createElement('div');
+            right.style.cssText = "text-align: right;";
+            
+            const bonusDiv = document.createElement('div');
+            bonusDiv.style.cssText = "color: #ffd700; font-weight: 700; font-size: 14px;";
+            // K formatda chiqarish (25K yoki 50K)
+            bonusDiv.textContent = `+${bonus / 1000}K 💎`;
+            
+            // Agar premium bo'lsa, kichik belgi qo'yish (ixtiyoriy)
+            if (f.is_premium) {
+                 bonusDiv.innerHTML += ' <span style="font-size:10px">🌟</span>';
+            }
 
+            right.appendChild(bonusDiv);
 
+            // Yig'ish
             item.appendChild(left);
+            item.appendChild(right); // O'ng tarafni qo'shamiz
             container.appendChild(item);
         });
 
+        // --- YAKUNIY NATIJALAR ---
+        
+        // 1. Do'stlar soni
         if (countEl) countEl.textContent = `(${friends.length})`;
+
+        // 2. TEPADAGI LABELNI YANGILASH (Jami bonuslar)
+        if (totalLabel) {
+            // Raqamni chiroyli formatlash (masalan: 75,000)
+            totalLabel.innerHTML = `<span style="color: #ffd700; font-size: 18px; font-weight: bold;">${totalBonus.toLocaleString()} 💎</span>`;
+        }
+
     } catch (err) {
         console.warn('fetch friends failed', err);
         renderNoData(container);
         if (countEl) countEl.textContent = '(0)';
+        if (totalLabel) totalLabel.textContent = '0 💎';
     }
 }
+
 
 
 
