@@ -81,7 +81,7 @@ function shareReferralLink() {
 
     const botUsername = 'proguzmir_bot'; // O'zingizning botingiz username'ini yozing
     const inviteLink = `https://t.me/${botUsername}?startapp=ref_${encodedRef}`;
-    const shareText = `🚀 Participate in the PROGUZMIR game with me and win PRC tokens!`;
+    const shareText = `🚀 Participate in the ProgUzmiR game with me and win PRC tokens!`;
 
     const fullUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareText)}`;
 

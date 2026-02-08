@@ -391,8 +391,8 @@ function renderGame() {
             const currentUrl = (location.protocol === 'file:' ? 'https://proguzmir.vercel.app/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
             const args = {
                 link: currentUrl,
-                text: 'I have successfully withdrawn 0.01 TON from PROGUZ, you can also play!',
-                btnName: 'Play PROGUZ',
+                text: 'I have successfully withdrawn 0.01 TON from ProgUzmiR, you can also play!',
+                btnName: 'Play ProgUzmiR',
                 currentUrl: currentUrl
             };
 
@@ -404,7 +404,7 @@ function renderGame() {
                 // show CLAIM button inside reklanma only
                 rek.innerHTML = `
                     <div style="display:flex; align-items:center; gap:8px;">
-                      <div style="font-weight:700; color:#fff;">Story jo'natildi!</div>
+                      <div style="font-weight:700; color:#fff;">Story sent!</div>
                       <button id="claimBtn" class="btn" style="margin-left:6px;">CLAIM</button>
                     </div>
                 `;
@@ -820,7 +820,7 @@ function p(e, t, n) {
 
         // 3) Web Share API (browser)
         if (navigator.share) {
-            navigator.share({ title: t.btnName || 'PROGUZ', text: payload.text, url: t.currentUrl })
+            navigator.share({ title: t.btnName || 'ProgUzmiR', text: payload.text, url: t.currentUrl })
                 .then(() => { if (n) n(true); })
                 .catch((err) => { console.warn('navigator.share error', err); if (n) n(false); });
             return;
