@@ -5,7 +5,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// Base62 Decoder (friends.js dagi bilan bir xil)
 const Base62 = {
   chars: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
   decode(str) {
@@ -25,7 +24,6 @@ const Base62 = {
 };
 
 export default async function handler(req, res) {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -34,72 +32,85 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { userId, startParam } = req.body;
+    // Frontenddan kelayotgan ma'lumotlar:
+    // isPremium - bu yangi kirgan odam Premiummi yoki yo'q?
+    const { userId, startParam, isPremium } = req.body;
 
     if (!userId || !startParam) {
       return res.status(400).json({ error: 'Missing userId or startParam' });
     }
 
-    console.log(`🔗 Referral check for user: ${userId} with param: ${startParam}`);
+    console.log(`🔗 Referral check: ${userId} -> ${startParam} (Premium: ${isPremium})`);
 
-    // 1. Referal ID ni aniqlash (Decode)
+    // 1. Referrer ID ni aniqlash
     let referrerId = null;
-    
     if (startParam.startsWith('ref_')) {
       const rawCode = startParam.replace('ref_', '');
-      
-      // Avval Base62 decode qilib ko'ramiz
       let decoded = Base62.decode(rawCode);
-      
-      // Agar decode bo'lmasa (raqamni o'zi bo'lsa), rawCode ni olamiz
       referrerId = decoded || rawCode;
     } else {
-      // Agar "ref_" bo'lmasa, shunchaki o'zini olamiz
       referrerId = startParam;
     }
 
-    // 2. O'zini o'zi taklif qilishdan himoya
+    // O'zini o'zi taklif qilish yo'q
     if (!referrerId || referrerId === userId) {
       return res.json({ message: "Self-referral ignored" });
     }
 
-    // 3. Bazada user borligini va referali bor-yo'qligini tekshirish
-    // Biz userning 'wallet' ustuniga qarab qidiramiz
-    const { data: userRecord, error: fetchError } = await supabase
+    // 2. User allaqachon taklif qilinganmi?
+    const { data: userRecord } = await supabase
       .from('user_states')
       .select('referrer_id')
       .eq('wallet', userId)
       .single();
 
-    if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 - bu "row not found" xatosi
-      console.error('Fetch error:', fetchError);
-      return res.status(500).json({ error: fetchError.message });
-    }
-
-    // Agar user allaqachon referalga ega bo'lsa, hech narsa qilmaymiz
+    // Agar allaqachon referali bo'lsa, bonus bermaymiz, shunchaki qaytamiz
     if (userRecord && userRecord.referrer_id) {
-      return res.json({ success: false, message: "User already has a referrer" });
+      return res.json({ success: false, message: "Already invited" });
     }
 
-    // 4. Referalni yozish (UPDATE)
-    // Agar user hali bazada bo'lmasa, biz uni yaratishimiz kerak (UPSERT)
-    // Yoki save.js allaqachon yaratgan bo'lsa, shunchaki UPDATE qilamiz.
-    // Eng ishonchli yo'l: UPSERT, lekin faqat referrer_id va wallet bilan.
-    
+    // 3. DO'STNI SAQLASH (Link qilish)
+    // Shu bilan birga yangi userning "is_premium" statusini ham yozib ketamiz
     const { error: updateError } = await supabase
       .from('user_states')
       .upsert({
         wallet: userId,
         referrer_id: referrerId,
+        is_premium: !!isPremium, // <--- BAZAGA YOZAMIZ
         updated_at: new Date().toISOString()
-      }, { onConflict: 'wallet' }); // Faqat mavjud bo'lsa yangilaydi yoki yangi yaratadi
+      }, { onConflict: 'wallet' });
 
     if (updateError) {
-      console.error('Referral save error:', updateError);
+      console.error('Referral link error:', updateError);
       return res.status(500).json({ error: updateError.message });
     }
 
-    return res.json({ success: true, referrerId: referrerId });
+    // --- 4. BONUS BERISH QISMI (ENG MUHIMI) ---
+    
+    // Bonus miqdori: Agar yangi user Premium bo'lsa 50k, yo'qsa 25k
+    const BONUS_AMOUNT = isPremium ? 50000 : 25000;
+
+    // Referrer (taklif qilgan odam) ni topamiz va balansini oshiramiz
+    // Supabase RPC funksiyasi bo'lmasa, oldin o'qib, keyin yozamiz:
+    
+    const { data: referrerData } = await supabase
+        .from('user_states')
+        .select('diamond, wallet')
+        .eq('wallet', referrerId)
+        .single();
+
+    if (referrerData) {
+        const newBalance = (referrerData.diamond || 0) + BONUS_AMOUNT;
+
+        await supabase
+            .from('user_states')
+            .update({ diamond: newBalance })
+            .eq('wallet', referrerId);
+            
+        console.log(`💰 Bonus added! ${referrerId} got +${BONUS_AMOUNT} diamonds.`);
+    }
+
+    return res.json({ success: true, referrerId, bonusAdded: BONUS_AMOUNT });
 
   } catch (err) {
     console.error('API Referral Save Error:', err);
