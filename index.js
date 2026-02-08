@@ -354,7 +354,7 @@ function renderGame() {
         <img id="tapBtn" src="${displayImg}" alt="tap" draggable="false">
       </div>
 
-      <div style="margin-top:14px;">
+      <div style="margin-top:14px; margin-bottom:100px;">
         <div class="row" style="display:flex; justify-content: space-between; gap:10px; align-items:center;">
           <div id="tapsBox" style="display:flex; align-items:center; gap:8px; background: rgba(0,0,0,0.35); border-radius:10px; padding:6px 12px;">
             ⚡️<span id="tapsCount">${s.energy} / ${s.maxEnergy}</span>

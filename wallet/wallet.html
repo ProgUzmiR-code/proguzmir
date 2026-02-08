@@ -334,6 +334,233 @@
         }
     </style>
 
+    <style>
+        /* Umumiy quti stili */
+        .warning-container {
+            background-color: #fff3cd;
+            /* Sariq ogohlantirish foni */
+            border: 1px solid #ffeeba;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: sans-serif;
+            color: #856404;
+        }
+
+        /* Bosh qismi (sarlavha va o'q) */
+        .warning-header {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-weight: bold;
+            user-select: none;
+            /* Matn belgilanishini oldini olish */
+        }
+
+        /* O'q belgisi */
+        .arrow {
+            margin-right: 8px;
+            transition: transform 0.3s ease;
+            /* Aylanish animatsiyasi */
+            display: inline-block;
+        }
+
+        /* O'q pastga qaraganda (yopiq holat) */
+        .arrow.down {
+            transform: rotate(0deg);
+        }
+
+        /* O'q tepaga qaraganda (ochiq holat) */
+        .arrow.up {
+            transform: rotate(180deg);
+        }
+
+        /* Ichidagi matn qismi */
+        .warning-content {
+            display: none;
+            /* Boshlanishida yashirin */
+            margin-top: 10px;
+            padding-left: 20px;
+            color: #333;
+            font-size: 0.9em;
+            border-left: 2px solid #856404;
+        }
+
+        /* Ochiq bo'lganda ko'rsatish klassi */
+        .warning-content.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* DONATE SECTION STYLES */
+        .donate-section {
+            margin-top: 25px;
+            padding-bottom: 100px;
+        }
+
+        .donate-header {
+            text-align: center;
+            color: #5d7a96;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            position: relative;
+        }
+
+        .donate-header::before,
+        .donate-header::after {
+            content: "";
+            display: inline-block;
+            width: 30px;
+            height: 1px;
+            background: #5d7a96;
+            vertical-align: middle;
+            margin: 0 10px;
+            opacity: 0.5;
+        }
+
+        .donate-grid {
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+        }
+
+        .donate-card {
+            flex: 1;
+            background: linear-gradient(145deg, #0b1a26, #08141e);
+            border-radius: 16px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .donate-card:active {
+            transform: scale(0.98);
+        }
+
+        /* TON mavzusi */
+        .ton-theme {
+            border-top: 2px solid #0098EA;
+            box-shadow: 0 0 10px rgba(0, 152, 234, 0.1);
+        }
+
+        /* Stars mavzusi */
+        .stars-theme {
+            border-top: 2px solid #FFD700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
+        }
+
+        .d-icon-bg {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .d-icon-bg img {
+            width: 28px;
+            height: 28px;
+        }
+
+        .d-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #e0e6ed;
+            margin-bottom: 10px;
+        }
+
+        /* Input dizayni */
+        .d-input-group {
+            position: relative;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .d-input-group input {
+            width: 100%;
+            background: #06121a;
+            /* Sayt foni bilan bir xil */
+            border: 1px solid #2c3e50;
+            border-radius: 8px;
+            padding: 8px 30px 8px 10px;
+            /* O'ngdan joy qoldiramiz */
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            outline: none;
+            box-sizing: border-box;
+            /* Input sig'ishi uchun */
+        }
+
+        .d-input-group input:focus {
+            border-color: #ffd700;
+        }
+
+        .d-input-group span {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #5d7a96;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Tugmalar */
+        .d-btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            color: white;
+            margin-top: auto;
+            text-transform: uppercase;
+        }
+
+        .btn-ton {
+            background: linear-gradient(90deg, #0098EA, #0077b6);
+            box-shadow: 0 4px 10px rgba(0, 152, 234, 0.3);
+        }
+
+        .btn-stars {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            color: #3e2723;
+            /* Tilla rang ustida qora yozuv o'qilishi oson */
+            box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Inputdagi strelkalarni yo'qotish */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+
     <title>Document</title>
 </head>
 
@@ -358,33 +585,77 @@
             </ul>
         </div>
 
-        <div  class="invite-listm" style="display: block;">
+        <div class="invite-listm" style="display: block;">
             <div id="btnTon" class="invite-item bton">
-                    <div class="invite-icon">
-                        <img src="https://cryptologos.cc/logos/toncoin-ton-logo.svg?v=040" alt="">
+                <div class="invite-icon">
+                    <img src="https://cryptologos.cc/logos/toncoin-ton-logo.svg?v=040" alt="">
+                </div>
+                <div class="invite-info">
+                    <span>Your TON address connected</span>
+                </div>
+                <div class="invite-arrow">
+                    <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                        <img src="/image/arrow.svg" alt="">
+                    </span>
+                </div>
+            </div>
+            <div id="btnMetaMask" class="invite-item bton">
+                <div class="invite-icon">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="">
+                </div>
+                <div class="invite-info">
+                    <span>Your MetaMask address connected</span>
+                </div>
+                <div class="invite-arrow">
+                    <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
+                        <img src="/image/arrow.svg" alt="">
+                    </span>
+                </div>
+            </div>
+            <div>
+                <div class="warning-container">
+                    <div class="warning-header" onclick="toggleWarning()">
+                        <span id="arrowIcon" class="arrow down">▼</span>
+                        <span>Attention ProgUzmiR warns</span>
                     </div>
-                    <div class="invite-info">
-                        <span>Your TON address connected</span>
-                    </div>
-                    <div class="invite-arrow">
-                        <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                            <img src="/image/arrow.svg" alt="">
-                        </span>
+
+                    <div id="warningText" class="warning-content">
+                        EVM wallets are limited in their connectivity. If the connection does not work, connect a Ton
+                        wallet.
                     </div>
                 </div>
-                <div id="btnMetaMask" class="invite-item bton">
-                    <div class="invite-icon">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="">
+            </div>
+            <div class="donate-section">
+                <h3 class="donate-header">Support Project</h3>
+
+                <div class="donate-grid">
+                    <div class="donate-card ton-theme">
+                        <div class="d-icon-bg">
+                            <img src="https://cryptologos.cc/logos/toncoin-ton-logo.svg?v=040" alt="TON">
+                        </div>
+                        <div class="d-title">Donate TON</div>
+                        <div class="d-input-group">
+                            <input type="number" id="donateTonAmount" placeholder="0.1" step="0.1">
+                            <span>TON</span>
+                        </div>
+                        <button class="d-btn btn-ton" onclick="donateTonFunc()">Send TON</button>
                     </div>
-                    <div class="invite-info">
-                        <span>Your MetaMask address connected</span>
-                    </div>
-                    <div class="invite-arrow">
-                        <span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon ">
-                            <img src="/image/arrow.svg" alt="">
-                        </span>
+
+                    <div class="donate-card stars-theme">
+                        <div class="d-icon-bg">
+                            <img src="https://raw.githubusercontent.com/TelegramBots/book/master/src/docs/stars.png"
+                                alt="Stars" style="filter: drop-shadow(0 0 5px gold);">
+                        </div>
+                        <div class="d-title">Donate Stars</div>
+                        <div class="d-input-group">
+                            <input type="number" id="donateStarsAmount" placeholder="50" step="1">
+                            <span>★</span>
+                        </div>
+                        <button class="d-btn btn-stars" onclick="donateStarsFunc()">Send Stars</button>
                     </div>
                 </div>
+            </div>
+
         </div>
 
 
@@ -462,7 +733,7 @@
 
         <div class="der">
             <div class="invite-listm3" style="display: none;">
-                
+
                 <div>
                     <div class="ds2">
                         <span>Recharge Record</span>
@@ -490,7 +761,26 @@
     </div>
 
     </div>
+    <script src="/wallet/donate.js"></script>
 
+    <script>
+        function toggleWarning() {
+            var content = document.getElementById("warningText");
+            var arrow = document.getElementById("arrowIcon");
+
+            if (content.classList.contains("show")) {
+                // Yopish
+                content.classList.remove("show");
+                arrow.classList.remove("up");
+                arrow.classList.add("down");
+            } else {
+                // Ochish
+                content.classList.add("show");
+                arrow.classList.remove("down");
+                arrow.classList.add("up");
+            }
+        }
+    </script>
     <script>
         // Update diamond display
         function updateDiamondDisplay() {

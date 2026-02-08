@@ -74,9 +74,9 @@ async function buyItem(itemId) {
     const walletType = localStorage.getItem("proguzmir_wallet_type");
 
     if (walletType === 'ton') {
-        const tonPrice = await getCryptoPrice("TONUSDT"); 
+        const tonPrice = await getCryptoPrice("TONUSDT");
         if (!tonPrice) return;
-        const amountTon = (item.usd / tonPrice).toFixed(4); 
+        const amountTon = (item.usd / tonPrice).toFixed(4);
 
         if (confirm(`${item.name} for ${amountTon} TON (${item.usd}$) will you pay?`)) {
             await payWithTon(amountTon);
@@ -92,7 +92,7 @@ async function buyItem(itemId) {
             if (!window.evmModal) {
                 alert("The system is loading... Please wait 3 seconds and press again.");
                 // Yana bir bor urinib ko'ramiz
-                if(window.initMetaMaskWallet) window.initMetaMaskWallet();
+                if (window.initMetaMaskWallet) window.initMetaMaskWallet();
             } else {
                 await payWithEvm(amountBnb, item.name);
             }
@@ -101,7 +101,7 @@ async function buyItem(itemId) {
     } else {
         alert("Please connect your wallet first!");
         // Agar iloji bo'lsa, wallet bo'limiga o'tkazish
-        if(document.querySelector('.invite-listm2')) {
+        if (document.querySelector('.invite-listm2')) {
             document.querySelector('.invite-listm2').scrollIntoView({ behavior: 'smooth' });
         }
     }
@@ -152,7 +152,7 @@ async function payWithEvm(amountBnb, itemName) {
     // 1. Tizimni tekshirish va YUKLASH
     if (!window.evmModal) {
         console.log("MetaMask system not found. Restarting...");
-        
+
         if (window.initMetaMaskWallet) {
             await window.initMetaMaskWallet(); // Kutamiz
         }
@@ -181,7 +181,7 @@ async function payWithEvm(amountBnb, itemName) {
         // Tarmog'ni tekshirish (BNB Smart Chain - 56)
         const chainId = await walletProvider.request({ method: 'eth_chainId' });
         if (chainId !== '0x38' && parseInt(chainId) !== 56) {
-             try {
+            try {
                 await walletProvider.request({
                     method: 'wallet_switchEthereumChain',
                     params: [{ chainId: '0x38' }], // 56
@@ -210,7 +210,7 @@ async function payWithEvm(amountBnb, itemName) {
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
             setTimeout(() => {
                 const link = document.createElement('a');
-                let deepLink = "wc://"; 
+                let deepLink = "wc://";
 
                 // Provayderni aniqlash
                 if (walletProvider) {
@@ -220,8 +220,8 @@ async function payWithEvm(amountBnb, itemName) {
                     else if (walletProvider.isSafePal) deepLink = "safepalwallet://";
                     else if (walletProvider.isTokenPocket) deepLink = "tpoutside://";
                 }
-                
-                link.href = deepLink; 
+
+                link.href = deepLink;
                 link.target = "_blank";
                 link.rel = "noopener noreferrer";
                 document.body.appendChild(link);

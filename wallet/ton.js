@@ -24,7 +24,7 @@ function initTonWallet() {
             if (wallet) {
                 const rawAddress = wallet.account.address;
                 const userFriendly = TON_CONNECT_UI.toUserFriendlyAddress(rawAddress);
-                
+
                 // --- YANGI: Rasmni olish va saqlash ---
                 let walletImage = null;
                 if (wallet.imageUrl) {
@@ -133,7 +133,7 @@ function updateTonUI() {
 function saveTonData(address, imageUrl) {
     localStorage.setItem(TON_KEYS.WALLET, address);
     localStorage.setItem(TON_KEYS.TYPE, 'ton');
-    
+
     // Agar rasm kelsa, saqlaymiz
     if (imageUrl) {
         localStorage.setItem("proguzmir_ton_image", imageUrl);

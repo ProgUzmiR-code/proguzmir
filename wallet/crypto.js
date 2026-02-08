@@ -149,7 +149,7 @@ function setupMetaMaskButton() {
     });
 }
 
-window.setupMetaMaskButton = setupMetaMaskButton; 
+window.setupMetaMaskButton = setupMetaMaskButton;
 
 // 5. UI ni yangilash
 // --- wallet.js / cripto.js ---
@@ -183,7 +183,7 @@ function updateMetaMaskUI() {
                 const walletInfo = window.evmModal.getWalletInfo();
                 if (walletInfo && walletInfo.icon) {
                     walletIconUrl = walletInfo.icon;
-                } 
+                }
                 else {
                     // 2-usul: Agar rasm kelmasa, Provayderni tekshiramiz
                     const provider = window.evmModal.getProvider();
@@ -205,7 +205,7 @@ function updateMetaMaskUI() {
                 console.log("Error in determining icon:", e);
             }
         }
-        
+
         // Rasmni o'rnatamiz
         if (iconImg) iconImg.src = walletIconUrl;
 
