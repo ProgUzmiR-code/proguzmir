@@ -3,7 +3,7 @@
   "builds": [
     { "src": "config/db.js", "use": "@vercel/node" },
       { "src": "api/wallet-data.js", "use": "@vercel/node" },
-    { "src": "api/referral-bonus.js", "use": "@vercel/node" },
+    { "src": "api/referral_save.js", "use": "@vercel/node" },
     { "src": "api/invite.js", "use": "@vercel/node" },
     { "src": "api/leaderboard.js", "use": "@vercel/node" },
     { "src": "api/wallet.js", "use": "@vercel/node" },
@@ -15,7 +15,7 @@
     { "src": "/config/db", "dest": "/config/db.js" },
     { "src": "/api/wallet-data", "dest": "/api/wallet-data.js" },
     { "src": "/api/leaderboard", "dest": "/api/leaderboard.js" },
-    { "src": "/api/referral-bonus", "dest": "/api/referral-bonus.js" },
+    { "src": "/api/referral-save", "dest": "/api/referral_save.js" },
     { "src": "/api/invite", "dest": "/api/invite.js" },
     { "src": "/api/wallet", "dest": "/api/wallet.js" },
     { "src": "/api/save", "dest": "/api/save.js" },
