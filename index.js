@@ -388,7 +388,7 @@ function renderGame() {
         rek.addEventListener('click', () => {
             if (isClaimedToday()) { showToast('Wait for the time to expire.'); return; }
 
-            const currentUrl = (location.protocol === window.location.origin + '/image/background1.jpg');
+            const currentUrl = (location.protocol === 'file:' ? 'https://proguzmir.vercel.app/image/background1.jpg' : window.location.origin + '/image/background1.jpg');
             const args = {
                 link: currentUrl,
                 text: 'I have successfully withdrawn 0.01 TON from ProgUzmiR, you can also play!',
