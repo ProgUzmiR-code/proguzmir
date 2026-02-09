@@ -1,43 +1,45 @@
 // supabase/functions/stars-invoice/index.ts
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-
-// Vercel (frontend) Supabasega ulanishi uchun ruxsatlar (CORS)
+// 1. CORS sozlamalari (Frontenddan murojaat qilish uchun ruxsat)
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-serve(async (req) => {
-  // 1. Agar brauzer shunchaki "tekshiruv" (OPTIONS) yuborsa, darhol "OK" deymiz
+// 2. Serverni ishga tushirish (Deno.serve - zamonaviy usul, import shart emas)
+Deno.serve(async (req) => {
+  
+  // A. Agar brauzer "tekshiruv" (OPTIONS) so'rovini yuborsa, darhol ruxsat beramiz
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    // 2. Frontenddan (index.html) kelgan ma'lumotni o'qiymiz
+    // B. Frontenddan kelgan ma'lumotlarni o'qiymiz
     const { amount, title, description, payload } = await req.json()
 
-    // Bot tokenini xavfsiz joydan olamiz
+    // C. Bot Tokenini olish (Supabase Secrets dan)
     const botToken = Deno.env.get('BOT_TOKEN')
     if (!botToken) {
-      throw new Error('BOT_TOKEN topilmadi!')
+      throw new Error('BOT_TOKEN topilmadi! (Supabase secrets ni tekshiring)')
     }
 
-    // 3. Telegram API ga "Invoice Link" so'rab murojaat qilamiz
+    // D. Telegram API ga "Invoice Link" so'rab murojaat qilamiz
+    const telegramPayload = {
+      title: title || "Telegram Stars",
+      description: description || "Xizmat uchun to'lov",
+      payload: payload || "{}", 
+      provider_token: "", // ❗ DIQQAT: Stars uchun bu BO'SH bo'lishi SHART!
+      currency: "XTR",    // ❗ Telegram Stars valyutasi
+      prices: [
+        { label: "Stars", amount: parseInt(amount) } // Narxi
+      ]
+    }
+
     const response = await fetch(`https://api.telegram.org/bot${botToken}/createInvoiceLink`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: title || "Telegram Stars", // Mahsulot nomi
-        description: description || "Xizmat uchun to'lov", // Tavsif
-        payload: payload || "{}", // O'zingizga kerakli ichki ma'lumot
-        provider_token: "", // DIQQAT: Stars uchun bu bo'sh bo'lishi SHART!
-        currency: "XTR", // Telegram Stars valyutasi
-        prices: [
-          { label: "Stars", amount: parseInt(amount) } // Narxi (masalan, 100)
-        ]
-      })
+      body: JSON.stringify(telegramPayload)
     })
 
     const data = await response.json()
@@ -46,17 +48,23 @@ serve(async (req) => {
       throw new Error(data.description || 'Telegram API xatosi')
     }
 
-    // 4. Natijani (linkni) Frontendga qaytaramiz
+    // E. Natijani (linkni) Frontendga qaytaramiz
     return new Response(
       JSON.stringify({ invoiceLink: data.result }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200 
+      }
     )
 
   } catch (error) {
-    // Xatolik bo'lsa
+    // F. Xatolik bo'lsa
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400 
+      }
     )
   }
 })
