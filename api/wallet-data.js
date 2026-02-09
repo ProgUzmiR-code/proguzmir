@@ -1,4 +1,4 @@
-
+// api/wallet-data.js
 export default function handler(req, res) {
   // Bu funksiya Vercel serverida ishlaydi va .env ni o'qiy oladi
   res.status(200).json({

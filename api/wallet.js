@@ -1,3 +1,4 @@
+// api/wallet.js
 import { createAppKit } from "@reown/appkit";
 import { EthersAdapter } from "@reown/appkit-adapter-ethers";
 import { mainnet, arbitrum } from "@reown/appkit/networks";
