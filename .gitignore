@@ -9,6 +9,7 @@ Pipfile.lock
 lusck_code
 
 # Env
+.env
 .env.local
 
 # PyCharm / IDE
@@ -17,8 +18,6 @@ lusck_code
 .vscode/
 .venv
 .vercel
-.env
-.env.local
 
 # OS
 .DS_Store
