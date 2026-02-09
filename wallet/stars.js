@@ -1,59 +1,55 @@
-// wallet.html ichidagi skript
+// wallet/stars.js
 
-async function donateStarsFunc() {
-    const input = document.getElementById('donateStarsAmount');
-    let amount = parseInt(input.value);
+async function initStarsPayment(amount) {
+    console.log("Stars to'lovi boshlanmoqda: " + amount);
 
-    if (!amount || amount <= 0) {
-        alert("Iltimos, to'g'ri miqdor kiriting!");
+    // 1. Telegram WebApp borligini tekshirish
+    if (!window.Telegram || !window.Telegram.WebApp) {
+        alert("Bu funksiya faqat Telegram ichida ishlaydi!");
         return;
     }
 
-    // Tugmani bosilmas qilib turamiz (yuklanayotganda)
-    const btn = document.querySelector('.btn-stars');
-    const originalText = btn.innerText;
-    btn.innerText = "Yuklanmoqda...";
-    btn.disabled = true;
+    const tg = window.Telegram.WebApp;
 
     try {
-        // 1. Bizning yangi API ga so'rov yuboramiz
-        const response = await fetch('/api/stars', {
+        // 2. Serverdan Invoice Link olish
+        // Sizning Render yoki Vercel dagi backend manzilingiz
+        const response = await fetch('/api/stars', { 
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ amount: amount })
+            body: JSON.stringify({ 
+                amount: amount,
+                userId: tg.initDataUnsafe?.user?.id || 0 // Foydalanuvchi IDsi
+            })
         });
 
         const data = await response.json();
 
-        if (!response.ok) {
-            throw new Error(data.error || "Xatolik yuz berdi");
+        if (!data.ok || !data.invoiceLink) {
+            throw new Error(data.message || "Invoice yaratishda xatolik");
         }
 
-        // 2. Telegram WebApp oynasida Invoice ni ochamiz
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.openInvoice(data.url, (status) => {
-                if (status === 'paid') {
-                    alert("Katta rahmat! Yulduzlar qabul qilindi ⭐️");
-                    input.value = ""; // Tozalash
-                } else if (status === 'cancelled') {
-                    console.log("To'lov bekor qilindi");
-                } else if (status === 'failed') {
-                    alert("To'lov amalga oshmadi.");
-                }
-            });
-        } else {
-            // Agar WebApp ichida bo'lmasa (masalan oddiy brauzerda)
-            window.open(data.url, '_blank');
-        }
+        console.log("Invoice olindi:", data.invoiceLink);
 
-    } catch (e) {
-        console.error(e);
-        alert("Xatolik: " + e.message);
-    } finally {
-        // Tugmani joyiga qaytaramiz
-        btn.innerText = originalText;
-        btn.disabled = false;
+        // 3. Telegram orqali to'lov oynasini ochish
+        tg.openInvoice(data.invoiceLink, (status) => {
+            if (status === 'paid') {
+                console.log("To'lov muvaffaqiyatli!");
+                alert(`Muvaffaqiyatli! ${amount} Stars yuborildi ⭐️`);
+                
+                // Ixtiyoriy: Sahifani yangilash yoki balansni o'zgartirish
+                tg.close();
+            } else if (status === 'cancelled') {
+                console.log("To'lov bekor qilindi");
+            } else {
+                console.log("To'lov holati:", status);
+            }
+        });
+
+    } catch (error) {
+        console.error("Stars Error:", error);
+        alert("Xatolik: " + error.message);
     }
 }

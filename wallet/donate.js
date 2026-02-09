@@ -50,7 +50,8 @@ async function donateTonFunc() {
     }
 }
 
-// 2. Stars Donate (Bot orqali invoice kerak)
+// wallet/donate.js ichidagi donateStarsFunc ni quyidagicha o'zgartiring:
+
 function donateStarsFunc() {
     const input = document.getElementById('donateStarsAmount');
     let amount = parseInt(input.value);
@@ -60,17 +61,11 @@ function donateStarsFunc() {
         return;
     }
 
-    // Stars odatda Telegram Bot Invoice orqali to'lanadi.
-    // WebAppda invoice ochish uchun: Telegram.WebApp.openInvoice(invoiceUrl)
-    
-    // Hozircha bu yerga shunchaki ogohlantirish yoki 
-    // agar sizda invoice link yasaydigan API bo'lsa, o'shani ulaymiz.
-    
-    // Misol uchun:
-    // const invoiceLink = `https://t.me/SizningBotingiz?start=donate_${amount}`;
-    // window.open(invoiceLink, '_blank');
-
-    alert(`Siz ${amount} Stars yubormoqchisiz. \nBu funksiya tez orada bot orqali ishga tushadi!`);
-    
-    // Agar backend tayyor bo'lsa, shu yerda invoice API chaqiriladi.
+    // wallet/stars.js dagi funksiyani chaqiramiz
+    if (typeof initStarsPayment === 'function') {
+        initStarsPayment(amount);
+    } else {
+        alert("Stars tizimi hali to'liq yuklanmadi. Sahifani yangilang.");
+    }
 }
+
