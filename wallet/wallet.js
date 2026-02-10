@@ -423,6 +423,9 @@ async function payWithEvm(amountBnb, itemName, itemId) {
                 else if (walletProvider.isBitKeep || walletProvider.isBitget || walletName.includes("bitkeep") || walletName.includes("bitget")) {
                     deepLink = "bitkeep://";
                 } 
+                else if (walletName.includes("binance")) {
+                    deepLink = "binance://";
+                }
                 else if (walletProvider.isSafePal || walletName.includes("safepal")) {
                     deepLink = "safepalwallet://";
                 } 
