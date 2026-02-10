@@ -81,7 +81,7 @@ function buyItem(itemId) {
     // 3. Stars tugmasi (HTML kodi) - Narxi bilan chiqadi
     const starsBtnHTML = `
         <button class="pay-option-btn btn-stars-pay" onclick="processPayment('${itemId}', 'stars')">
-            <img src="/image/ton-stars.png"> Pay with Stars (${item.stars} ★)
+            <img src="/image/ton-stars.png"> Pay with Stars <span style="color: #ffd700;">(${item.stars} ★)</span>
         </button>`;
 
 
