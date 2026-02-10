@@ -559,9 +559,75 @@
             -webkit-appearance: none;
             margin: 0;
         }
+
+        /* Tranzaksiya qatori */
+        .trans-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            border-left: 3px solid #28a745;
+            /* Yashil chiziq */
+        }
+
+        /* Chap taraf (Icon va Nomi) */
+        .trans-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .trans-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .trans-icon img {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Matnlar */
+        .trans-info h4 {
+            margin: 0;
+            font-size: 14px;
+            color: white;
+        }
+
+        .trans-info p {
+            margin: 0;
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        /* O'ng taraf (Narx va Vaqt) */
+        .trans-right {
+            text-align: right;
+        }
+
+        .trans-amount {
+            display: block;
+            font-weight: bold;
+            color: #28a745;
+            /* Yashil rang */
+            font-size: 14px;
+        }
+
+        .trans-date {
+            font-size: 10px;
+            color: #777;
+        }
     </style>
 
-    
+
 
     <title>Document</title>
 </head>
@@ -746,9 +812,12 @@
                         </div>
 
                     </div>
-                    <div class="invite-listm4">
-                        <span class="q-mt-sm">No transaction records</span>
+                    <div class="invite-listm4" id="transactionList">
+                        <span id="noTransMsg" class="q-mt-sm">No transaction records</span>
+
+                        <div id="historyContainer"></div>
                     </div>
+
                     <div class="invite-listm5" style="display: none;">
                         <span class="q-mt-sm">No transaction records</span>
                     </div>
@@ -763,7 +832,7 @@
 
     </div>
 
-    
+
 
     <script src="/wallet/donate.js"></script>
     <script src="/wallet/stars.js"></script>

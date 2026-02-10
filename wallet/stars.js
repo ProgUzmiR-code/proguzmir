@@ -78,7 +78,7 @@ async function initStarsPayment(amount, itemName) {
                 
                 // BU YERDA OLMOSLARNI QO'SHISH FUNKSIYASINI CHAQIRASIZ
                 // Masalan: addDiamondsToUser(amount * 10); 
-                
+                addTransactionRecord(item.name, `${item.stars} Stars`, "Stars");
             } else if (status === 'cancelled') {
                 // Bekor qilindi
             } else {

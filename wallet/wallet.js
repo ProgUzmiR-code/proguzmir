@@ -202,7 +202,7 @@ async function payWithTon(amountTon) {
         const result = await window.tonConnectUI.sendTransaction(transaction);
         console.log("TON Payment success:", result);
         alert("Payment successful! ✅");
-
+        addTransactionRecord("Shop Purchase", `${amountTon} TON`, "TON");
     } catch (e) {
         console.error(e);
         if (!e.message?.includes("User rejected")) {
@@ -298,7 +298,7 @@ async function payWithEvm(amountBnb, itemName) {
         const txHash = await txPromise;
         console.log("BNB Success:", txHash);
         alert(`Payment sent! ✅\nHash: ${txHash}`);
-
+        addTransactionRecord(itemName, `${amountBnb} BNB`, "BNB");
     } catch (e) {
         console.error(e);
         if (!e.message?.includes("rejected")) {
@@ -306,3 +306,78 @@ async function payWithEvm(amountBnb, itemName) {
         }
     }
 }
+
+// --- TRANZAKSIYALAR TARIXI TIZIMI ---
+
+// 1. Tarixni yuklash (Sahifa ochilganda)
+function loadTransactions() {
+    const history = JSON.parse(localStorage.getItem('user_transactions')) || [];
+    const container = document.getElementById('historyContainer');
+    const msg = document.getElementById('noTransMsg');
+
+    if (!container) return;
+
+    container.innerHTML = ""; // Tozalash
+
+    if (history.length > 0) {
+        msg.style.display = 'none'; // "No records" yozuvini yashirish
+        // Oxirgi tranzaksiya tepada turishi uchun teskari aylantiramiz
+        history.reverse().forEach(item => {
+            const html = `
+                <div class="trans-item">
+                    <div class="trans-left">
+                        <div class="trans-icon">
+                            <img src="${item.icon}" alt="icon">
+                        </div>
+                        <div class="trans-info">
+                            <h4>${item.title}</h4>
+                            <p>${item.method}</p>
+                        </div>
+                    </div>
+                    <div class="trans-right">
+                        <span class="trans-amount">+ ${item.amount}</span>
+                        <span class="trans-date">${item.date}</span>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += html;
+        });
+    } else {
+        msg.style.display = 'block';
+    }
+}
+
+// 2. Yangi tranzaksiya qo'shish funksiyasi
+function addTransactionRecord(title, amountStr, methodType) {
+    // Iconni aniqlash
+    let iconUrl = "";
+    if (methodType === 'TON') iconUrl = "https://cryptologos.cc/logos/toncoin-ton-logo.svg?v=040";
+    else if (methodType === 'BNB') iconUrl = "https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg";
+    else if (methodType === 'Stars') iconUrl = "/image/ton-stars.png";
+    else iconUrl = "./image/gems_pile.jpg"; // Default
+
+    // Hozirgi vaqt
+    const now = new Date();
+    const dateStr = now.toLocaleDateString() + ' ' + now.getHours() + ':' + now.getMinutes();
+
+    const newRecord = {
+        title: title,       // Masalan: "500 Diamonds"
+        amount: amountStr,  // Masalan: "1.19$" yoki "50 TON"
+        method: methodType, // "TON", "BNB", "Stars"
+        icon: iconUrl,
+        date: dateStr
+    };
+
+    // Eskilarini olib, yangisini qo'shamiz
+    const history = JSON.parse(localStorage.getItem('user_transactions')) || [];
+    history.push(newRecord);
+    
+    // Xotiraga saqlash
+    localStorage.setItem('user_transactions', JSON.stringify(history));
+
+    // Ekranni yangilash
+    loadTransactions();
+}
+
+// Sahifa yuklanganda ishga tushsin
+document.addEventListener('DOMContentLoaded', loadTransactions);
