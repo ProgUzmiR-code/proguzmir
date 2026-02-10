@@ -343,48 +343,41 @@ async function payWithTon(amountTon, itemId) {
     }
 }
 
-// --- 5. EVM / METAMASK TIZIMI ---
+// --- 8. EVM (BNB) TO'LOV TIZIMI ---
 async function payWithEvm(amountBnb, itemName, itemId) {
 
-    // 1. Tizimni tekshirish va YUKLASH
+    // 1. Tizimni tekshirish
     if (!window.evmModal) {
-        console.log("MetaMask system not found. Restarting...");
-
-        if (window.initMetaMaskWallet) {
-            await window.initMetaMaskWallet(); // Kutamiz
-        }
-        // Agar shunda ham bo'lmasa:
+        if (window.initMetaMaskWallet) await window.initMetaMaskWallet();
         if (!window.evmModal) {
-            alert("System is loading... Please wait a few seconds and try again.");
-            // Qayta ishga tushirishga urinish (fon rejimida)
-            if (typeof initMetaMaskSystem === 'function') initMetaMaskSystem();
+            alert("System is loading... Please wait a few seconds and try again");
             return;
         }
     }
 
-    // 2. Account tekshirish
     const account = window.evmModal.getAccount();
     if (!account.isConnected) {
-        // Agar ulanmagan bo'lsa, ulanish oynasini ochamiz
         await window.evmModal.open();
         return;
     }
-    // 🔥 MUHIM: Manzil borligini tekshirish
+
+    // Manzil borligini tekshirish
     if (!MERCHANT_EVM) {
         alert("Merchant EVM manzili yuklanmadi. Iltimos sahifani yangilang.");
         return;
     }
+
     try {
         const walletProvider = window.evmModal.getWalletProvider();
         const myAddress = account.address;
 
-        // Tarmog'ni tekshirish (BNB Smart Chain - 56)
+        // Tarmoqni tekshirish (BNB Smart Chain - 56)
         const chainId = await walletProvider.request({ method: 'eth_chainId' });
         if (chainId !== '0x38' && parseInt(chainId) !== 56) {
             try {
                 await walletProvider.request({
                     method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: '0x38' }], // 56
+                    params: [{ chainId: '0x38' }],
                 });
             } catch (err) {
                 alert("Please select the BNB Smart Chain network in MetaMask.");
@@ -393,7 +386,7 @@ async function payWithEvm(amountBnb, itemName, itemId) {
         }
 
         const weiValue = "0x" + BigInt(Math.floor(parseFloat(amountBnb) * 1e18)).toString(16);
-
+        
         const txParams = {
             from: myAddress,
             to: MERCHANT_EVM,
@@ -401,58 +394,70 @@ async function payWithEvm(amountBnb, itemName, itemId) {
             data: "0x"
         };
 
-        // 🔥 MUHIM O'ZGARISH: 
-        // So'rovni yuboramiz, lekin darhol 'await' qilib to'xtatib qo'ymaymiz.
-        // Biz uni Promise (vada) sifatida saqlab turamiz.
+        // 🔥 1. So'rovni yuboramiz (kutib turmasdan)
         const txPromise = walletProvider.request({
             method: 'eth_sendTransaction',
             params: [txParams]
         });
 
-        // 🔥 MOBIL QURILMALAR UCHUN MAJBURIY REDIRECT
-        // Promise ishga tushishi bilan darhol hamyonni ochishga harakat qilamiz
+        // 🔥 2. AQLLI REDIRECT (Siz aytgan mantiq asosida)
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-            // Ozgina kechikish bilan, so'rov yetib borishi uchun
             setTimeout(() => {
                 const link = document.createElement('a');
-                let deepLink = "wc://"; // Default
+                let deepLink = "wc://"; // Agar hech qaysi aniqlanmasa, shu ishlaydi (Default)
 
-                // Qaysi hamyonligini aniqlaymiz
-                if (walletProvider.isTrust) deepLink = "trust://";
-                else if (walletProvider.isMetaMask) deepLink = "metamask://";
-                else if (walletProvider.isBitKeep || walletProvider.isBitget) deepLink = "bitkeep://";
-                else if (walletProvider.isSafePal) deepLink = "safepalwallet://";
-                else if (walletProvider.isTokenPocket) deepLink = "tpoutside://";
-                
-                // Telegram ichida bo'lsa Universal Link yaxshiroq ishlashi mumkin
-                // Lekin hozircha sxema (scheme) bilan sinab ko'ramiz
-                
+                // A) AppKit orqali nomini aniqlashga urinamiz (Yangi usul)
+                let walletName = "";
+                try {
+                    const info = window.evmModal.getWalletInfo();
+                    if (info && info.name) walletName = info.name.toLowerCase();
+                } catch (e) { console.log(e); }
+
+                // B) Provider yoki Nom orqali aniq link qo'yamiz
+                if (walletProvider.isMetaMask || walletName.includes("metamask")) {
+                    deepLink = "metamask://";
+                } 
+                else if (walletProvider.isTrust || walletName.includes("trust")) {
+                    deepLink = "trust://";
+                } 
+                else if (walletProvider.isBitKeep || walletProvider.isBitget || walletName.includes("bitkeep") || walletName.includes("bitget")) {
+                    deepLink = "bitkeep://";
+                } 
+                else if (walletProvider.isSafePal || walletName.includes("safepal")) {
+                    deepLink = "safepalwallet://";
+                } 
+                else if (walletProvider.isTokenPocket || walletName.includes("tokenpocket")) {
+                    deepLink = "tpoutside://";
+                } 
+                else if (walletName.includes("okx")) {
+                    deepLink = "okx://";
+                }
+
+                console.log("Redirecting to: " + deepLink); // Konsolda ko'rish uchun
+
                 link.href = deepLink;
-                link.target = "_blank"; // Yoki "_top" qilib ko'ring agar ishlamasa
+                link.target = "_top"; 
                 link.rel = "noopener noreferrer";
+                
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-            }, 500); // 0.5 sekunddan keyin ochadi
+            }, 1000); // 1 soniyadan keyin ochadi
         }
 
-        // Endi tranzaksiya tasdiqlanishini kutamiz
-        // Foydalanuvchi hamyonga borib, "Tasdiqlash" ni bosib qaytib keladi
+        // 🔥 3. Natijani kutamiz
         const txHash = await txPromise;
 
         console.log("BNB Success:", txHash);
 
-        // Muvaffaqiyatli bo'lsa:
+        // Muvaffaqiyatli:
         const reward = getRewardAmount(itemId);
         addTransactionRecord(reward.desc, `${amountBnb} BNB`, "BNB");
-        
-        // addDiamondsToUser(reward.amount); 
 
         alert(`To'lov yuborildi! ✅\nSizga ${reward.desc} berildi.`);
 
     } catch (e) {
         console.error(e);
-        // "User rejected" xatosini foydalanuvchiga ko'rsatmaslik yaxshi
         if (!e.message?.includes("rejected")) {
             alert("Xatolik: " + e.message);
         }
