@@ -428,8 +428,8 @@ async function payWithEvm(amountBnb, itemName, itemId) {
                 // Lekin hozircha sxema (scheme) bilan sinab ko'ramiz
                 
                 link.href = deepLink;
-                link.target = "_top"; // Telegram ichidan chiqib ketish uchun
-                
+                link.target = "_blank"; // Yoki "_top" qilib ko'ring agar ishlamasa
+                link.rel = "noopener noreferrer";
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
