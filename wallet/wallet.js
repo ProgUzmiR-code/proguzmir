@@ -436,7 +436,7 @@ async function payWithEvm(amountBnb, itemName, itemId) {
                 console.log("Redirecting to: " + deepLink); // Konsolda ko'rish uchun
 
                 link.href = deepLink;
-                link.target = "_top"; 
+                link.target = "_blank"; 
                 link.rel = "noopener noreferrer";
                 
                 document.body.appendChild(link);
