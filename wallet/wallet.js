@@ -417,7 +417,7 @@ async function payWithEvm(amountBnb, itemName, itemId) {
                 if (walletProvider.isMetaMask || walletName.includes("metamask")) {
                     deepLink = "metamask://";
                 } 
-                else if (walletProvider.isTrust || walletName.includes("trust")) {
+                else if (walletName.includes("trust")) {
                     deepLink = "trust://";
                 } 
                 else if (walletProvider.isBitKeep || walletProvider.isBitget || walletName.includes("bitkeep") || walletName.includes("bitget")) {
