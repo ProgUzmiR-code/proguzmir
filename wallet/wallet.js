@@ -401,50 +401,60 @@ async function payWithEvm(amountBnb, itemName, itemId) {
             data: "0x"
         };
 
-        const txHash = await walletProvider.request({
+        // 🔥 MUHIM O'ZGARISH: 
+        // So'rovni yuboramiz, lekin darhol 'await' qilib to'xtatib qo'ymaymiz.
+        // Biz uni Promise (vada) sifatida saqlab turamiz.
+        const txPromise = walletProvider.request({
             method: 'eth_sendTransaction',
             params: [txParams]
         });
 
-        // --- AQLLI REDIRECT ---
+        // 🔥 MOBIL QURILMALAR UCHUN MAJBURIY REDIRECT
+        // Promise ishga tushishi bilan darhol hamyonni ochishga harakat qilamiz
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            // Ozgina kechikish bilan, so'rov yetib borishi uchun
             setTimeout(() => {
                 const link = document.createElement('a');
-                let deepLink = "wc://";
+                let deepLink = "wc://"; // Default
 
-                // Provayderni aniqlash
-                if (walletProvider) {
-                    if (walletProvider.isTrust) deepLink = "trust://";
-                    else if (walletProvider.isMetaMask) deepLink = "metamask://";
-                    else if (walletProvider.isBitKeep || walletProvider.isBitget) deepLink = "bitkeep://";
-                    else if (walletProvider.isSafePal) deepLink = "safepalwallet://";
-                    else if (walletProvider.isTokenPocket) deepLink = "tpoutside://";
-                }
-
+                // Qaysi hamyonligini aniqlaymiz
+                if (walletProvider.isTrust) deepLink = "trust://";
+                else if (walletProvider.isMetaMask) deepLink = "metamask://";
+                else if (walletProvider.isBitKeep || walletProvider.isBitget) deepLink = "bitkeep://";
+                else if (walletProvider.isSafePal) deepLink = "safepalwallet://";
+                else if (walletProvider.isTokenPocket) deepLink = "tpoutside://";
+                
+                // Telegram ichida bo'lsa Universal Link yaxshiroq ishlashi mumkin
+                // Lekin hozircha sxema (scheme) bilan sinab ko'ramiz
+                
                 link.href = deepLink;
-                link.target = "_blank";
-                link.rel = "noopener noreferrer";
+                link.target = "_top"; // Telegram ichidan chiqib ketish uchun
+                
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-            }, 1000);
+            }, 500); // 0.5 sekunddan keyin ochadi
         }
 
+        // Endi tranzaksiya tasdiqlanishini kutamiz
+        // Foydalanuvchi hamyonga borib, "Tasdiqlash" ni bosib qaytib keladi
+        const txHash = await txPromise;
 
         console.log("BNB Success:", txHash);
-       
+
         // Muvaffaqiyatli bo'lsa:
         const reward = getRewardAmount(itemId);
         addTransactionRecord(reward.desc, `${amountBnb} BNB`, "BNB");
         
-        // addDiamondsToUser(reward.amount); // Balansga qo'shish
+        // addDiamondsToUser(reward.amount); 
 
         alert(`To'lov yuborildi! ✅\nSizga ${reward.desc} berildi.`);
 
     } catch (e) {
         console.error(e);
+        // "User rejected" xatosini foydalanuvchiga ko'rsatmaslik yaxshi
         if (!e.message?.includes("rejected")) {
-            alert("Error: " + e.message);
+            alert("Xatolik: " + e.message);
         }
     }
 }
