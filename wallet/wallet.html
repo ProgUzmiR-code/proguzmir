@@ -561,95 +561,7 @@
         }
     </style>
 
-    <style>
-        /* Modal orqa foni */
-        .payment-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-
-        /* Modal qutisi */
-        .payment-content {
-            background: linear-gradient(145deg, #0b1a26, #08141e);
-            padding: 25px;
-            border-radius: 20px;
-            /* border: 2px solid #ffd700; */
-            text-align: center;
-            width: 90%;
-            max-width: 350px;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-            animation: popIn 0.3s ease;
-        }
-
-        /* Tugmalar joylashuvi */
-        .payment-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        /* To'lov tugmalari */
-        .pay-option-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 12px;
-            border: none;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 16px;
-            color: white;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .pay-option-btn:active {
-            transform: scale(0.96);
-        }
-
-        .pay-option-btn img {
-            width: 24px;
-            height: 24px;
-        }
-
-        /* Ranglar */
-        .btn-ton-pay, .btn-evm-pay, .btn-stars-pay {
-            background: linear-gradient(90deg, #0098EA, #0077b6);
-        }
-
-        /* Yopish tugmasi */
-        .close-modal-btn {
-            background: transparent;
-            border: 1px solid #5d7a96;
-            color: #5d7a96;
-            padding: 8px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        @keyframes popIn {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-    </style>
+    
 
     <title>Document</title>
 </head>
@@ -851,17 +763,7 @@
 
     </div>
 
-    <div id="paymentModal" class="payment-modal" style="display: none;">
-        <div class="payment-content">
-            <h3 id="paymentTitle">To'lov turini tanlang</h3>
-            <p id="paymentItemName" style="color: #ffd700; margin-bottom: 20px;"></p>
-
-            <div id="paymentOptions" class="payment-grid">
-            </div>
-
-            <button class="close-modal-btn" onclick="closePaymentModal()">Bekor qilish</button>
-        </div>
-    </div>
+    
 
     <script src="/wallet/donate.js"></script>
     <script src="/wallet/stars.js"></script>
