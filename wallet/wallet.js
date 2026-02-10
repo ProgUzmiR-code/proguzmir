@@ -7,11 +7,11 @@ let MERCHANT_EVM = null;
 // Mahsulotlar (Faqat USD narxi yoziladi)
 const PRICES = {
     'gem1': { name: "500 diamond", usd: 1.19 },
-    'gem2': { name: "2,500 diamond", usd: 5.99 },
-    'gem3': { name: "5,000 diamond", usd: 11.99 },
-    'gem4': { name: "10,000 diamond", usd: 23.99 },
-    'gem5': { name: "25,000 diamond", usd: 54.99 },
-    'gem6': { name: "50,000 diamond", usd: 109.99 }
+    'gem2': { name: "2,500 diamond", usd: 4.99 },
+    'gem3': { name: "5,000 diamond", usd: 9.98 },
+    'gem4': { name: "10,000 diamond", usd: 19.96 },
+    'gem5': { name: "25,000 diamond", usd: 49.99 },
+    'gem6': { name: "50,000 diamond", usd: 99.98 }
 };
 
 // --- 1. SOZLAMALARNI YUKLASH ---

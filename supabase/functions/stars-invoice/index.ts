@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
     // D. Telegram API ga "Invoice Link" so'rab murojaat qilamiz
     const telegramPayload = {
       title: title || "Telegram Stars",
-      description: description || "Xizmat uchun to'lov",
+      description: description || "Service fee",
       payload: payload || "{}", 
       provider_token: "", // ❗ DIQQAT: Stars uchun bu BO'SH bo'lishi SHART!
       currency: "XTR",    // ❗ Telegram Stars valyutasi
@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
     const data = await response.json()
 
     if (!data.ok) {
-      throw new Error(data.description || 'Telegram API xatosi')
+      throw new Error(data.description || 'Telegram API error')
     }
 
     // E. Natijani (linkni) Frontendga qaytaramiz

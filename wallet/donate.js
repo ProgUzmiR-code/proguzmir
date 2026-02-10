@@ -8,12 +8,12 @@ async function donateTonFunc() {
 
     // Agar bo'sh bo'lsa yoki noto'g'ri raqam bo'lsa
     if (!amount || amount <= 0) {
-        alert("Iltimos, to'g'ri miqdor kiriting!");
+        alert("Please enter the correct amount!");
         return;
     }
 
     if (!window.tonConnectUI || !window.tonConnectUI.connected) {
-        alert("Avval TON hamyonni ulang!");
+        alert("Please connect your TON wallet first!");
         // Sahifani tepaga hamyon ulash joyiga olib chiqamiz
         document.getElementById('btnTon').scrollIntoView({ behavior: 'smooth' });
         return;
@@ -22,7 +22,7 @@ async function donateTonFunc() {
     // MERCHANT_TON - bu wallet.js da aniqlangan sizning hamyoningiz
     // Agar u yo'q bo'lsa, xatolik chiqmasligi uchun tekshiramiz
     if (!MERCHANT_TON) {
-        alert("Tizim yuklanmoqda, kuting...");
+        alert("System is loading, please wait...");
         return;
     }
 
@@ -40,12 +40,12 @@ async function donateTonFunc() {
 
     try {
         await window.tonConnectUI.sendTransaction(transaction);
-        alert(`Katta rahmat! ${amount} TON qabul qilindi 💎`);
+        alert(`Thank you very much! ${amount} TON received 💎`);
         input.value = ""; // Inputni tozalash
     } catch (e) {
         console.error(e);
         if (!e.message.includes("User rejected")) {
-            alert("Xatolik yuz berdi.");
+            alert("An error occurred.");
         }
     }
 }
@@ -57,7 +57,7 @@ function donateStarsFunc() {
     let amount = parseInt(input.value);
 
     if (!amount || amount <= 0) {
-        alert("Iltimos, to'g'ri miqdor kiriting!");
+        alert("Please enter the correct amount!");
         return;
     }
 
@@ -65,7 +65,7 @@ function donateStarsFunc() {
     if (typeof initStarsPayment === 'function') {
         initStarsPayment(amount);
     } else {
-        alert("Stars tizimi hali to'liq yuklanmadi. Sahifani yangilang.");
+        alert("The Stars system is not fully loaded yet. Please refresh the page.");
     }
 }
 

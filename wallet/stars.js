@@ -34,13 +34,13 @@ async function initStarsPayment(amount) {
     if (!STARS_CONFIG.url || !STARS_CONFIG.key) {
         await loadStarsConfig(); // Agar yuklanmagan bo'lsa, qayta urinib ko'ramiz
         if (!STARS_CONFIG.url) {
-            alert("Tizim sozlamalari yuklanmadi. Iltimos, sahifani yangilang.");
+            alert("System settings could not be loaded. Please refresh the page.");
             return false;
         }
     }
 
     if (!window.Telegram || !window.Telegram.WebApp) {
-        alert("Faqat Telegram ichida ishlaydi!");
+        alert("Works only within Telegram!");
         return false;
     }
 
@@ -58,7 +58,7 @@ async function initStarsPayment(amount) {
             body: JSON.stringify({
                 amount: amount,
                 title: "Support Project",
-                description: `ProgUzmiR loyihasiga ${amount} Stars xayriya`,
+                description: `To the ProgUzmiR project ${amount} Stars charity`,
                 payload: `donate_${userId}_${Date.now()}`
             })
         });
@@ -66,7 +66,7 @@ async function initStarsPayment(amount) {
         const data = await response.json();
 
         if (data.error || !data.invoiceLink) {
-            throw new Error(data.error || "Invoice havolasi olinmadi");
+            throw new Error(data.error || "Invoice link not received");
         }
 
         console.log("Invoice olindi:", data.invoiceLink);
@@ -89,7 +89,7 @@ async function initStarsPayment(amount) {
 
     } catch (err) {
         console.error("Supabase Error:", err);
-        alert("Xatolik: " + err.message);
+        alert("Error: " + err.message);
         return false;
     }
 }
