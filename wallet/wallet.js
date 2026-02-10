@@ -4,14 +4,14 @@
 let MERCHANT_TON = null;
 let MERCHANT_EVM = null;
 
-// Mahsulotlar (Faqat USD narxi yoziladi)
+// Mahsulotlar (USD va STARS narxlari bilan)
 const PRICES = {
-    'gem1': { name: "500 diamond", usd: 1.19 },
-    'gem2': { name: "2,500 diamond", usd: 4.99 },
-    'gem3': { name: "5,000 diamond", usd: 9.98 },
-    'gem4': { name: "10,000 diamond", usd: 19.96 },
-    'gem5': { name: "25,000 diamond", usd: 49.99 },
-    'gem6': { name: "50,000 diamond", usd: 99.98 }
+    'gem1': { name: "500 diamond", usd: 1.19, stars: 50 },
+    'gem2': { name: "2,500 diamond", usd: 4.99, stars: 250 },
+    'gem3': { name: "5,000 diamond", usd: 9.98, stars: 500 },
+    'gem4': { name: "10,000 diamond", usd: 19.96, stars: 1000 },
+    'gem5': { name: "25,000 diamond", usd: 49.99, stars: 2500 },
+    'gem6': { name: "50,000 diamond", usd: 99.98, stars: 5000 }
 };
 
 // --- 1. SOZLAMALARNI YUKLASH ---
@@ -46,66 +46,131 @@ async function getCryptoPrice(symbol) {
 }
 
 // --- 3. ASOSIY SOTIB OLISH FUNKSIYASI ---
-async function buyItem(itemId) {
-    console.log("Selected: " + itemId);
 
-    // 0. Tizim yuklanmagan bo'lsa, uni majburan yuklaymiz
-    if (!MERCHANT_TON || !MERCHANT_EVM) {
-        // Agar config yuklanmagan bo'lsa
-        loadWalletConfig();
-    }
-
-    // --- MUHIM TUZATISH: AppKitni tekshirish ---
-    // Agar MetaMask tizimi hali yuklanmagan bo'lsa, uni ishga tushiramiz
-    if (!window.evmModal && window.initMetaMaskWallet) {
-        console.log("System not found, starting up...");
-        window.initMetaMaskWallet(); // Tizimni uyg'otamiz
-    }
-    // -------------------------------------------
-
-    // 1. Mahsulot bormi?
+function buyItem(itemId) {
     const item = PRICES[itemId];
     if (!item) {
-        alert("Error: Product not found!");
+        alert("Mahsulot topilmadi!");
         return;
     }
 
-    // 2. Hamyon turi?
+    // Modal elementlarini olish
+    const modal = document.getElementById('paymentModal');
+    const title = document.getElementById('paymentItemName');
+    const container = document.getElementById('paymentOptions');
+
+    // Sarlavhani o'rnatish
+    title.innerText = `${item.name} (${item.usd}$)`;
+    container.innerHTML = ""; // Oldingi tugmalarni tozalash
+
+    // Hamyon holatini tekshirish
     const walletType = localStorage.getItem("proguzmir_wallet_type");
 
+    // 1. TON tugmasi (HTML kodi)
+    const tonBtnHTML = `
+        <button class="pay-option-btn btn-ton-pay" onclick="processPayment('${itemId}', 'ton')">
+            <img src="https://cryptologos.cc/logos/toncoin-ton-logo.svg?v=040"> Pay with TON
+        </button>`;
+
+    // 2. EVM (BNB) tugmasi (HTML kodi)
+    const evmBtnHTML = `
+        <button class="pay-option-btn btn-evm-pay" onclick="processPayment('${itemId}', 'evm')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg"> Pay with BNB
+        </button>`;
+
+    // 3. Stars tugmasi (HTML kodi) - Narxi bilan chiqadi
+    const starsBtnHTML = `
+        <button class="pay-option-btn btn-stars-pay" onclick="processPayment('${itemId}', 'stars')">
+            <img src="/image/ton-stars.png"> Pay with Stars (${item.stars} ★)
+        </button>`;
+
+
+    // --- MANTIQ (Siz so'ragan qism) ---
+
     if (walletType === 'ton') {
+        // Agar TON ulangan bo'lsa: TON + Stars
+        container.innerHTML += tonBtnHTML;
+        container.innerHTML += starsBtnHTML;
+    } 
+    else if (walletType === 'evm') {
+        // Agar EVM ulangan bo'lsa: EVM + Stars
+        container.innerHTML += evmBtnHTML;
+        container.innerHTML += starsBtnHTML;
+    } 
+    else {
+        // Agar hech narsa ulanmagan bo'lsa: TON + EVM + Stars
+        container.innerHTML += tonBtnHTML;
+        container.innerHTML += evmBtnHTML;
+        container.innerHTML += starsBtnHTML;
+    }
+
+    // Modalni ko'rsatish
+    modal.style.display = "flex";
+}
+
+// Modalni yopish
+function closePaymentModal() {
+    document.getElementById('paymentModal').style.display = "none";
+}
+
+// --- TANLANGAN TO'LOVNI BOSHLASH ---
+async function processPayment(itemId, method) {
+    closePaymentModal(); // Modalni yopamiz
+
+    const item = PRICES[itemId];
+    
+    // 1. STARS orqali to'lov
+    if (method === 'stars') {
+        if(typeof initStarsPayment === 'function') {
+            // Supabase funksiyasiga yuborish
+            await initStarsPayment(item.stars, item.name); 
+        } else {
+            alert("Stars tizimi yuklanmagan!");
+        }
+        return;
+    }
+
+    // 2. TON orqali to'lov
+    if (method === 'ton') {
+        // Agar TON ulanmagan bo'lsa, ulatamiz
+        if (localStorage.getItem("proguzmir_wallet_type") !== 'ton') {
+            await window.tonConnectUI.openModal();
+            // Ulangandan keyin qayta urinib ko'rish mumkin
+            return;
+        }
+
         const tonPrice = await getCryptoPrice("TONUSDT");
         if (!tonPrice) return;
+        
         const amountTon = (item.usd / tonPrice).toFixed(4);
-
-        if (confirm(`${item.name} for ${amountTon} TON (${item.usd}$) will you pay?`)) {
+        
+        if (confirm(`${item.name} uchun ${amountTon} TON to'laysizmi?`)) {
             await payWithTon(amountTon);
         }
+        return;
+    }
 
-    } else if (walletType === 'evm') {
+    // 3. EVM (BNB) orqali to'lov
+    if (method === 'evm') {
+        // Agar EVM ulanmagan bo'lsa
+        if (localStorage.getItem("proguzmir_wallet_type") !== 'evm') {
+             if (window.initMetaMaskWallet) window.initMetaMaskWallet();
+             alert("Iltimos, MetaMask hamyonni ulang!");
+             return;
+        }
+
         const bnbPrice = await getCryptoPrice("BNBUSDT");
         if (!bnbPrice) return;
+
         const amountBnb = (item.usd / bnbPrice).toFixed(6);
 
-        if (confirm(`${item.name} for ${amountBnb} BNB (${item.usd}$) will you pay?`)) {
-            // Tizim yuklanishi uchun ozgina vaqt kerak bo'lishi mumkin, shuning uchun tekshiramiz
-            if (!window.evmModal) {
-                alert("The system is loading... Please wait 3 seconds and press again.");
-                // Yana bir bor urinib ko'ramiz
-                if (window.initMetaMaskWallet) window.initMetaMaskWallet();
-            } else {
-                await payWithEvm(amountBnb, item.name);
-            }
+        if (confirm(`${item.name} uchun ${amountBnb} BNB to'laysizmi?`)) {
+            await payWithEvm(amountBnb, item.name);
         }
-
-    } else {
-        alert("Please connect your wallet first!");
-        // Agar iloji bo'lsa, wallet bo'limiga o'tkazish
-        if (document.querySelector('.invite-listm2')) {
-            document.querySelector('.invite-listm2').scrollIntoView({ behavior: 'smooth' });
-        }
+        return;
     }
 }
+
 
 // --- 4. TON TIZIMI (REAL TON COIN YUBORISH) ---
 // Eslatma: Bu yerda endi USDT emas, haqiqiy TON so'raladi (kurs bo'yicha hisoblangan)
