@@ -90,6 +90,18 @@
             padding: 0px 0px 10px 0px;
         }
 
+        .lock-icon img {
+            opacity: 0.8;
+        }
+
+        .lock-icon {
+            height: 60px;
+            display: flex;
+            vertical-align: middle;
+            margin: 20px auto;
+            position: absolute;
+        }
+
         .boo-icon {
             width: 80px;
             height: 80px;
@@ -135,6 +147,7 @@
             margin-left: 10px;
             width: 140px;
             border-top: 1px solid rgba(255, 255, 255, 0.15);
+            align-items: center;
         }
 
         .boo__num__lvl {
@@ -146,6 +159,15 @@
         }
 
         .boo__num__coin {
+            text-align: center;
+            vertical-align: middle;
+            display: flex;
+            -webkit-box-align: center;
+            align-items: center;
+            padding-left: 10px;
+        }
+
+        .boo__num__key {
             text-align: center;
             vertical-align: middle;
             display: flex;
@@ -415,6 +437,9 @@
             <div class="invite-list1">
                 <div class="flexc">
                     <div data-target="Bitcoin" class="boo-item"><!----><!---->
+                        <div class="lock-icon" style="display: flex;">
+                            <img src="/image/lock.png" alt="">
+                        </div>
                         <div class="boo-icon">
                             <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="">
                         </div>
@@ -428,13 +453,20 @@
                                 <div class="boo__num__lvl">
                                     <div class="boo__num_coin_text"> lvl 0 </div>
                                 </div>
-                                <div class="boo__num__coin">
+                                <div class="boo__num__key" style="display: flex;">
+                                    <img width="20" src="/image/key.png" alt="">
+                                    1 Key
+                                </div>
+                                <div class="boo__num__coin" style="display: none;">
                                     💎100
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div data-target="Binanse" class="boo-item"><!----><!---->
+                        <div class="lock-icon" style="display: flex;">
+                            <img src="/image/lock.png" alt="">
+                        </div>
                         <div class="boo-icon">
                             <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png" alt="">
                         </div>
@@ -448,7 +480,11 @@
                                 <div class="boo__num__lvl">
                                     <div class="boo__num_coin_text"> lvl 0 </div>
                                 </div>
-                                <div class="boo__num__coin">
+                                <div class="boo__num__key" style="display: flex;">
+                                    <img width="20" src="/image/key.png" alt="">
+                                    15 Key
+                                </div>
+                                <div class="boo__num__coin" style="display: none;">
                                     💎150
                                 </div>
                             </div>
@@ -461,6 +497,9 @@
             <div class="invite-list_2">
                 <div class="flexc">
                     <div data-target="" class="boo-item"><!----><!---->
+                        <div class="lock-icon" style="display: flex;">
+                            <img src="/image/lock.png" alt="">
+                        </div>
                         <div class="boo-icon">
                             <img src="/image/logotiv.png" alt="">
                         </div>
@@ -474,7 +513,11 @@
                                 <div class="boo__num__lvl">
                                     <div class="boo__num_coin_text"> lvl 0 </div>
                                 </div>
-                                <div class="boo__num__coin">
+                                <div class="boo__num__key" style="display: flex;">
+                                    <img width="20" src="/image/key.png" alt="">
+                                    10 Key
+                                </div>
+                                <div class="boo__num__coin" style="display: none;">
                                     💎100
                                 </div>
                             </div>
@@ -535,97 +578,7 @@
             });
         });
     </script>
-    <script>
-        // Koinlar haqida internetdan (CoinGecko API) ma'lumot olish funksiyasi
-        async function getCoinDescription(coinId) {
-            const subtitleElement = document.querySelector('.energy__subtitle');
-            subtitleElement.textContent = "Loading...";
 
-            try {
-                // CoinGecko ochiq API - koin haqida ma'lumot olish
-                // Eslatma: coinId kichik harflarda bo'lishi kerak (bitcoin, binancecoin)
-                const response = await fetch(`https://api.coingecko.com/api/v3/coins/${coinId.toLowerCase()}`);
-                const data = await response.json();
-
-                // Agar tavsif topilsa, uni o'rnatamiz, bo'lmasa standart matn
-                const description = data.description?.en
-                    ? data.description.en.split('.')[0] + '.' // Faqat birinchi gapni olish
-                    : "Blockchain network for digital assets and smart contracts.";
-
-                subtitleElement.textContent = description;
-            } catch (error) {
-                console.error("Error:", error);
-                subtitleElement.textContent = "Failed to load data.";
-            }
-        }
-
-        document.querySelectorAll('.boo-item').forEach(item => {
-            item.addEventListener('click', function () {
-                // 1. Levelni tekshirish
-                const coinLvlText = this.querySelector('.boo__num_coin_text').textContent.trim();
-
-                // AGAR MAX BO'LSA OYNA OCHILMAYDI VA FUNKSIYA TO'XTAYDI
-                if (coinLvlText === "MAX") {
-                    console.log("Maximum level reached!");
-                    return;
-                }
-
-                const coinTarget = this.getAttribute('data-target');
-                const coinTitle = this.querySelector('.boo-title').textContent;
-                const coinImg = this.querySelector('.boo-icon img').src;
-                const currentPrcIncome = this.querySelector('.boo__cost span').textContent; // Get current PRC income
-                const diamondUpgradeCost = this.querySelector('.boo__num__coin').textContent.replace('💎', '').trim(); // Get diamond cost for upgrade
-
-
-                let apiId = coinTarget.toLowerCase();
-                if (apiId === 'binanse') apiId = 'binancecoin';
-
-                // 2. Popupni yangilash
-                document.querySelector('.energy__title').textContent = coinTitle;
-                document.querySelector('.energy__img img').src = coinImg;
-                document.querySelector('.energy__lv .n').textContent = coinLvlText;
-
-                // Keyingi levelni hisoblash (MAX ehtimolini hisobga olgan holda)
-                const currentLvlNum = parseInt((coinLvlText.match(/\d+/) || [0])[0], 10);
-                const nextLvlNum = currentLvlNum + 1;
-
-                // MAX_LVL ni 50 deb hisoblasak
-                const MAX_LVL = 50;
-                document.querySelector('.energy__lv .t').textContent = nextLvlNum >= MAX_LVL ? 'MAX' : 'lvl ' + nextLvlNum;
-
-                // Update the PRC increase value in energy__threetitle
-                const prcIncreaseElement = document.getElementById('prcIncreaseValue');
-                if (prcIncreaseElement) {
-                    prcIncreaseElement.textContent = `+${currentPrcIncome}`;
-                }
-
-                // Narxni yozish (Diamond upgrade cost)
-                document.querySelector('.btns .btn.active .btn-num div').textContent = diamondUpgradeCost;
-
-                // 3. Internetdan tavsif olish
-                if (typeof getCoinDescription === 'function') getCoinDescription(apiId);
-
-                // 4. Popupni ko'rsatish
-                document.getElementById('pop').style.display = 'flex';
-            });
-        });
-
-        // Popupni yopish (X tugmasi bosilganda)
-        document.querySelector('.btn-close').addEventListener('click', () => {
-            document.getElementById('pop').style.display = 'none';
-        });
-
-
-        document.addEventListener('click', function (e) {
-            const tab = e.target.closest('.btn');
-            if (!tab) return;
-
-            console.log("Tab bosildi!");
-            const tabs = document.querySelectorAll('.btns .btn');
-            tabs.forEach(item => item.classList.remove('active'));
-            tab.classList.add('active');
-        });
-    </script>
     <script>
         // Update diamond display
         function updateDiamondDisplay() {
@@ -674,182 +627,7 @@
 
 
     </script>
-    <script>
-        (function () {
-            const BASE_WEI = 1000n;
-            const MAX_LVL = 50; // Eng yuqori daraja
-            const KEY_DIAMOND = "proguzmir_diamond";
-            const KEY_PRC = "proguzmir_prc_wei";
-            const KEY_WALLET = "proguzmir_wallet";
-            const KEY_CARD_DATA = "proguzmir_cards_lvl";
-
-            function makeUserKey(baseKey, wallet) { return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest"; }
-            function getWallet() { return localStorage.getItem(KEY_WALLET) || ""; }
-            function getDiamond() { return parseInt(localStorage.getItem(makeUserKey(KEY_DIAMOND, getWallet())) || "0", 10); }
-            function setDiamond(v) { localStorage.setItem(makeUserKey(KEY_DIAMOND, getWallet()), String(v)); }
-            function getPRCWei() { try { return BigInt(localStorage.getItem(makeUserKey(KEY_PRC, getWallet())) || "0"); } catch (e) { return 0n; } }
-            function setPRCWei(v) { localStorage.setItem(makeUserKey(KEY_PRC, getWallet()), v.toString()); }
-
-            const upgradeBtn = document.querySelector('.update-btn');
-            const pop = document.getElementById('pop');
-            let lastClickedBooItem = null;
-
-            function saveCardState(id, lvl, cost) {
-                const wallet = getWallet();
-                const data = JSON.parse(localStorage.getItem(makeUserKey(KEY_CARD_DATA, wallet)) || "{}");
-                data[id] = { lvl, cost };
-                localStorage.setItem(makeUserKey(KEY_CARD_DATA, wallet), JSON.stringify(data));
-            }
-
-            function loadCardsState() {
-                const wallet = getWallet();
-                const data = JSON.parse(localStorage.getItem(makeUserKey(KEY_CARD_DATA, wallet)) || "{}");
-
-                document.querySelectorAll('.boo-item').forEach(item => {
-                    const id = item.getAttribute('data-target');
-                    if (data[id]) {
-                        const isMax = data[id].lvl >= MAX_LVL;
-                        item.querySelector('.boo__num_coin_text').textContent = isMax ? "MAX" : `lvl ${data[id].lvl}`;
-                        item.querySelector('.boo__num__coin').textContent = isMax ? "MAX" : `💎${data[id].cost}`;
-                        const spanCost = item.querySelector('.boo__cost span');
-                        if (spanCost) spanCost.textContent = isMax ? "MAX" : data[id].cost;
-
-                        if (isMax) item.classList.add('max-reached');
-                    }
-                });
-            }
-
-            loadCardsState();
-
-            // 1. BOO-ITEM BOSILGANDA
-            document.querySelectorAll('.boo-item').forEach(item => {
-                item.addEventListener('click', function () {
-                    const lvlText = this.querySelector('.boo__num_coin_text').textContent;
-
-                    // AGAR MAX BO'LSA OYNA OCHILMAYDI
-                    if (lvlText === "MAX") return;
-
-                    lastClickedBooItem = this;
-                    const title = this.querySelector('.boo-title').textContent;
-                    const img = this.querySelector('.boo-icon img').src;
-                    const diamondCost = this.querySelector('.boo__num__coin').textContent.replace('💎', '').trim();
-
-                    pop.querySelector('.energy__title').textContent = title;
-                    pop.querySelector('.energy__img img').src = img;
-                    pop.querySelector('.energy__lv .n').textContent = lvlText;
-
-                    let currentLvlNum = parseInt(lvlText.replace('lvl', '').trim()) || 0;
-                    let nextLvlNum = currentLvlNum + 1;
-
-                    pop.querySelector('.energy__lv .t').textContent = nextLvlNum >= MAX_LVL ? "MAX" : `lvl ${nextLvlNum}`;
-                    pop.querySelector('.btns .btn.active .btn-num div').textContent = diamondCost;
-
-                    pop.style.display = 'flex';
-                });
-            });
-
-            // 2. UPGRADE TUGMASI BOSILGANDA
-            if (upgradeBtn) {
-                upgradeBtn.addEventListener('click', function () {
-                    if (upgradeBtn.classList.contains('disabled') || upgradeBtn.dataset.busy === '1') return;
-
-                    // Upgrade tugmasi mantiqi ichida:
-                    const diamondNumDiv = document.querySelector('.btns .btn.active .btn-num div');
-                    const costRaw = diamondNumDiv.textContent.trim();
-
-                    // AGAR NARX "MAX" BO'LSA, ISHNI TO'XTATISH (NaN OLDINI OLISH)
-                    if (costRaw === "MAX") {
-                        alert("This card is at maximum level!");
-                        return;
-                    }
-
-                    const diamondCost = parseInt(costRaw, 10);
-
-                    // Endi NaN chiqmaydi, chunki cost raqam ekanligi aniqlandi
-                    if (isNaN(diamondCost)) {
-                        console.error("Error: Diamond price is not a number!");
-                        return;
-                    }
-                    let currentDiamonds = getDiamond();
-
-                    if (currentDiamonds < diamondCost) {
-                        alert(`${diamondCost} diamonds required!`);
-                        return;
-                    }
-
-                    upgradeBtn.dataset.busy = '1';
-
-                    if (lastClickedBooItem) {
-                        const id = lastClickedBooItem.getAttribute('data-target');
-                        const cardLvlDiv = lastClickedBooItem.querySelector('.boo__num_coin_text');
-                        const cardDiamondDiv = lastClickedBooItem.querySelector('.boo__num__coin');
-                        const cardPrcSpan = lastClickedBooItem.querySelector('.boo__cost span'); // Get the PRC income span
-
-                        let currentLvl = parseInt(cardLvlDiv.textContent.replace('lvl', '').trim()) || 0;
-                        let newLvl = currentLvl + 1;
-                        let newTotalCostValue = diamondCost + 100; // This value is used for both new diamond cost and new PRC income
-
-                        // BALANSNI YANGILASH (Faqat daraja oshsa pul yechiladi)
-                        currentDiamonds -= diamondCost;
-                        setDiamond(currentDiamonds);
-                        // Assuming getPRCWei() + (BASE_WEI * BigInt(newTotalCostValue)) makes sense for PRC accumulation
-                        // The original code was `BASE_WEI * BigInt(diamondCost)`. Let's stick with that for consistency if the user didn't request a change in calculation logic.
-                        // If `diamondCost` here refers to the actual PRC value being added for the *current* level before upgrade, it might be correct.
-                        // Given the prompt, let's keep the existing `setPRCWei` line as is and focus on display.
-                        setPRCWei(getPRCWei() + (BASE_WEI * BigInt(diamondCost)));
-                        document.getElementById('diamondCount').textContent = currentDiamonds;
-
-                        if (newLvl >= MAX_LVL) {
-                            cardLvlDiv.textContent = "MAX";
-                            cardDiamondDiv.textContent = "MAX";
-                            if (cardPrcSpan) cardPrcSpan.textContent = "MAX"; // Update PRC income span in boo-item
-
-                            saveCardState(id, MAX_LVL, newTotalCostValue);
-                            pop.style.display = 'none'; // Max bo'lganda oyna yopiladi
-                        } else {
-                            cardLvlDiv.textContent = `lvl ${newLvl}`;
-                            cardDiamondDiv.textContent = `💎${newTotalCostValue}`;
-                            if (cardPrcSpan) cardPrcSpan.textContent = newTotalCostValue; // Update PRC income span in boo-item
-
-                            pop.querySelector('.energy__lv .n').textContent = `lvl ${newLvl}`;
-                            pop.querySelector('.energy__lv .t').textContent = (newLvl + 1 >= MAX_LVL) ? "MAX" : `lvl ${newLvl + 1}`;
-                            diamondNumDiv.textContent = newTotalCostValue; // Update diamond cost in popup upgrade button
-
-                            // Also update the PRC increase value in the popup after upgrade
-                            const prcIncreaseElement = document.getElementById('prcIncreaseValue');
-                            if (prcIncreaseElement) {
-                                prcIncreaseElement.textContent = `+${newTotalCostValue}`;
-                            }
-
-                            saveCardState(id, newLvl, newTotalCostValue);
-                        }
-                    }
-
-
-                    startCooldown(upgradeBtn, 1);
-                    delete upgradeBtn.dataset.busy;
-                });
-            }
-
-            function startCooldown(btn, seconds) {
-                const origHTML = btn.innerHTML;
-                btn.classList.add('disabled');
-                let rem = seconds;
-                const iv = setInterval(() => {
-                    btn.textContent = `Wait (${rem}s)`;
-                    rem--;
-                    if (rem < 0) {
-                        clearInterval(iv);
-                        btn.classList.remove('disabled');
-                        btn.innerHTML = origHTML;
-                    }
-                }, 10);
-            }
-        })();
-
-
-
-    </script>
+    <script src="/income/income.js"></script>
 </body>
 
 </html>
