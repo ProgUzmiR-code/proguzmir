@@ -369,7 +369,11 @@ async function payWithEvm(amountBnb, itemName, itemId) {
         await window.evmModal.open();
         return;
     }
-
+    // 🔥 MUHIM: Manzil borligini tekshirish
+    if (!MERCHANT_EVM) {
+        alert("Merchant EVM manzili yuklanmadi. Iltimos sahifani yangilang.");
+        return;
+    }
     try {
         const walletProvider = window.evmModal.getWalletProvider();
         const myAddress = account.address;
