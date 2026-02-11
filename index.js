@@ -988,7 +988,7 @@ function updateInterface(pageName) {
 
     // 1. Header va Navni yashirish
     const hideNavPages = ['shop', 'key', 'daily', 'income', 'gamelist']; 
-    const hideheaderPages = ['shop', 'key', 'daily', 'gamelist', 'rank', 'wallet', 'invite', 'earn', 'income']; 
+    const hideheaderPages = ['shop', 'key', 'daily', 'gamelist', 'rank', 'wallet', 'invite', 'earn']; 
 
     const ishideheader = hideheaderPages.includes(pageName);
     const ishidenav = hideNavPages.includes(pageName);
