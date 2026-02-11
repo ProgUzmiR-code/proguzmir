@@ -394,66 +394,25 @@ async function payWithEvm(amountBnb, itemName, itemId) {
             data: "0x"
         };
 
-        // 1. So'rovni yuboramiz
+        // 1. So'rovni yuboramiz (Promise holatida, kutmasdan)
         const txPromise = walletProvider.request({
             method: 'eth_sendTransaction',
             params: [txParams]
         });
 
-        // 2. MAJBURIY REDIRECT (Tuzatilgan Mantiq)
+        // 2. MAJBURIY REDIRECT (Universal wc://)
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
             setTimeout(() => {
                 const link = document.createElement('a');
-                let deepLink = "wc://"; // Default (Agar hech qaysi tushmasa)
-
-                // Hamyon nomini aniqlash
-                let walletName = "";
-                try {
-                    const info = window.evmModal.getWalletInfo();
-                    if (info && info.name) {
-                        walletName = info.name.toLowerCase();
-                    }
-                } catch (e) { console.log(e); }
-
-                console.log("Wallet Name Detected:", walletName);
-
-                // 🔥 O'ZGARISH: Avval NOMIGA qaraymiz, keyin provayderga!
-                // 1. MetaMask (Eng birinchi tekshiramiz!)
-                if (walletName.includes("metamask") || walletProvider.isMetaMask) {
-                    deepLink = "metamask://";
-                }
+                link.href = "wc://"; 
                 
-                // 2. Trust Wallet (Agar nomida 'trust' bo'lsa YOKI provayder isTrust bo'lsa)
-                else if (walletName.includes("trust") || walletProvider.isTrust) {
-                    deepLink = "trust://"; 
-                } 
-                // 3. Binance Wallet (Agar nomida 'binance' bo'lsa YOKI provayder isBinance bo'lsa)
-                else if (walletName.includes("binance")) {
-                    deepLink = "binance://"; 
-                }
-                // 4. Bitget / BitKeep
-                else if (walletName.includes("bitkeep") || walletName.includes("bitget")) {
-                    deepLink = "bitkeep://";
-                }
-                // 5. SafePal
-                else if (walletName.includes("safepal")) {
-                    deepLink = "safepalwallet://";
-                }
-                // 6. OKX
-                else if (walletName.includes("okx")) {
-                    deepLink = "okx://";
-                }
-
-                console.log("Redirecting to:", deepLink);
-
-                link.href = deepLink;
-                link.target = "_blank"; // Qora ekran bo'lmasligi uchun
+                link.target = "_blank"; 
                 link.rel = "noopener noreferrer";
                 
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-            }, 1000); 
+            }, 500); // 1 soniya kutib ochamiz
         }
 
         // 3. Natijani kutamiz
@@ -461,6 +420,7 @@ async function payWithEvm(amountBnb, itemName, itemId) {
 
         console.log("BNB Success:", txHash);
 
+        // Muvaffaqiyatli:
         const reward = getRewardAmount(itemId);
         addTransactionRecord(reward.desc, `${amountBnb} BNB`, "BNB");
 
@@ -470,7 +430,7 @@ async function payWithEvm(amountBnb, itemName, itemId) {
         console.error(e);
         if (!e.message?.includes("rejected")) {
             if (e.message?.includes("insufficient funds") || e.message?.includes("gas")) {
-                alert("Xatolik: Balansingizda BNB yetarli emas.");
+                alert("Xatolik: Balansingizda BNB yetarli emas (Gas fee uchun ham kerak).");
             } else {
                 alert("Xatolik: " + e.message);
             }
