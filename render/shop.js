@@ -18,7 +18,7 @@ function renderShop() {
   const s = loadState();
   
   // Asosiy oyna strukturasini chizamiz
-  content.innerHTML = `
+  shopcontent.innerHTML = `
     <div style="margin-top: 50px;">
       
       <div>
@@ -33,7 +33,7 @@ function renderShop() {
           </div>
       </div>
 
-      <button id="incomeBack" class="btn">Back</button>
+      <button id="shopBack" class="btn">Back</button>
 
       <div style="display:flex; gap:12px; margin-top:6px;">
           
@@ -176,25 +176,4 @@ function renderShop() {
     });
   });
 
-  // --- NAVIGATION BOSHQARUVI ---
-  hideNav();
-  hideheader();
-  
-  // Orqaga qaytish logikasi
-  const goBack = () => {
-      document.body.style.background = ""; 
-      hideTelegramBack(); 
-      showNav(); 
-      showheader(); 
-      renderGame();
-  };
-
-  showTelegramBack(goBack);
-  document.getElementById('incomeBack').addEventListener('click', goBack);
-
-  // Helper funksiyalar (agar render.js da bo'lmasa shu yerda tursin)
-  function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
-  function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
-  function hideheader() { const header = document.querySelector('.header'); if (header) header.style.display = 'none'; }
-  function showheader() { const header = document.querySelector('.header'); if (header) header.style.display = ''; }
 }

@@ -1,0 +1,350 @@
+body {
+    padding: 0;
+    font-family: Arial, sans-serif;
+    /* background-image: url('/image/inset.jpg'); */
+    background-image: url(#06121a);
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+}
+
+.diamond {
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    right: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 20px;
+    margin-top: 150px;
+}
+
+
+.tab_main1 {
+    margin-top: 10px;
+}
+
+.tab_main1 ul {
+    display: flex;
+    justify-content: center;
+    background-color: rgba(41, 87, 157, .7);
+    border-radius: 20px;
+    padding: 8px;
+}
+
+li {
+    list-style: none;
+}
+
+.tab_item1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: hsla(0, 0%, 100%, .5);
+    font-size: 15px;
+    border-radius: 7px;
+    padding: 5px 11px;
+    text-align: center;
+    font-weight: 100;
+    -ms-flex: 1;
+    flex: 1;
+    cursor: pointer;
+}
+
+.checked1 {
+    background-color: rgb(55, 177, 214);
+    font-weight: 700;
+    height: 24px;
+    color: rgb(218, 221, 54);
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.boo-item {
+    padding: 10px;
+}
+
+.boo-icon img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+}
+
+.boo-item {
+    width: 48%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+    position: relative;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 0px 0px 10px 0px;
+}
+
+.lock-icon img {
+    opacity: 0.8;
+}
+
+.lock-icon {
+    height: 60px;
+    display: flex;
+    vertical-align: middle;
+    margin: 20px auto;
+    position: absolute;
+}
+
+.boo-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    text-align: center;
+    vertical-align: middle;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    margin: 15px auto;
+}
+
+.boo-title {
+    color: rgb(255, 255, 255);
+    font-weight: bolder;
+    text-overflow: ellipsis;
+    overflow-wrap: break-word;
+    line-height: 30px;
+    height: 30px;
+    overflow: hidden;
+    text-align: center;
+}
+
+.boo__cost {
+    font-size: 15px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0px 0px 20px;
+}
+
+.boo__num {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    color: rgb(255, 255, 255);
+    font-weight: 300;
+    font-size: 15px;
+    vertical-align: middle;
+    padding-top: 15px;
+    height: 40px;
+    margin-left: 10px;
+    width: 140px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    align-items: center;
+}
+
+.boo__num__lvl {
+    text-align: center;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.boo__num__coin {
+    text-align: center;
+    vertical-align: middle;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    padding-left: 10px;
+}
+
+.boo__num__key {
+    text-align: center;
+    vertical-align: middle;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    padding-left: 10px;
+}
+
+.boo__num_coin_text {
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 5px 10px 5px 0px;
+}
+
+
+
+.boo__cost img {
+    width: 17px;
+    height: 17px;
+    padding-left: 10px;
+    padding-right: 5px;
+}
+
+
+
+.invite-list1 {
+    overflow-x: hidden;
+    -webkit-overflow-scroling: touch;
+    display: block;
+    flex-wrap: wrap;
+}
+
+.invite-list_2 {
+    overflow-x: hidden;
+    -webkit-overflow-scroling: touch;
+    display: none;
+}
+
+.flexc {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+
+#pop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 1000;
+    font-family: 'Arial', sans-serif;
+}
+
+.dialog-main {
+    background: #1c1f2e;
+    /* To'q ko'k-qora fon */
+    border-radius: 10px 10px 0px 0px;
+    padding: 24px;
+    position: relative;
+    color: white;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.btn-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.energy__img img {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 15px;
+}
+
+.energy__title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.energy__subtitle {
+    font-size: 14px;
+    color: #a1a1a1;
+    line-height: 1.4;
+    margin-bottom: 20px;
+}
+
+.energy__lv .box {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 25px;
+    gap: 10px;
+}
+
+.energy__lv .n,
+.energy__lv .t {
+    font-weight: bold;
+}
+
+.energy__threetitle {
+    margin: 20px 0;
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    color: #a1a1a1;
+}
+
+.energy__threetitle i {
+    color: white;
+    font-style: normal;
+    font-weight: bold;
+}
+
+.btns {
+    gap: 5px;
+    display: flex;
+    justify-content: center;
+}
+
+.btns .btn {
+    background-color: #2d56899e;
+    border: 2px solid #3b82f6;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    min-width: 100px;
+    margin-bottom: 20px;
+    justify-content: center;
+    /* width: 100%; */
+    height: 100%;
+    background-size: cover;
+    background-position: 0 0;
+    padding: 17px 0 2px 0;
+}
+
+.btn-num {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+}
+
+.update-btn {
+    background: #3b82f6;
+    /* Moviy tugma */
+    color: white;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 18px;
+    transition: 0.3s;
+}
+
+.btns .btn.active {
+    border: 2px solid #c6c92e;
+}
+
+.update-btn:active {
+    transform: scale(0.98);
+}
+
+/* new: disabled / countdown look for upgrade button */
+.update-btn.disabled {
+    background: #9ca3af;
+    /* grey */
+    color: #f3f4f6;
+    cursor: default;
+    opacity: 0.8;
+    pointer-events: none;
+}

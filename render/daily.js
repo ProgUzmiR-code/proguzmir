@@ -40,12 +40,7 @@ function getDailyIndexForToday(weekStartISO) {
     return diffDays;
 }
 
-// helpers to hide/show bottom header
-function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
-function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
-function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
-// helpers to hide/show bottom nav
-function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
+
 // rewards: days 0..5 -> 1 diamond, day6 (7th day) -> bigday 5 diamonds
 
 function formatReward(num) {
@@ -133,7 +128,7 @@ function renderDaily() {
 		`);
     }
 
-    content.innerHTML = `
+    dailycontent.innerHTML = `
 		<div style="padding: 66px 2px 18px;"">
 			<div style="display:flex;align-items:center;justify-content:center;margin-bottom:12px;margin-top: 90px;">
 				<div style="font-weight:800;font-size:18px;position: absolute;">Daily Rewards</div>
@@ -146,16 +141,9 @@ function renderDaily() {
 			<div style="margin-top:12px;color:#bbb;font-size:13px;">Collect today's reward. 7th day is BIGDAY. Miss a day = reset to Day 1.</div>
 		</div>
 	    `;
-    // hide bottom nav and enable Telegram Back to return to game
-    hideNav();
-    showTelegramBack(() => { hideTelegramBack(); showNav(); renderGame(); });
-    // hide bottom nav and enable Telegram Back to return to game
-    hideheader();
-    showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
-    // back handler
-    document.getElementById('dailyBack').addEventListener('click', () => { hideTelegramBack(); showNav(); showheader(); renderGame(); });
+    
     // claim handler (only today's button)
-    const btn = content.querySelector('.claimTodayBtn');
+    const btn = dailycontent.querySelector('.claimTodayBtn');
     if (btn) {
         btn.addEventListener('click', () => {
             // re-load to avoid race

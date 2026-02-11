@@ -5,7 +5,7 @@ const GAMES = [
 
 function renderGames() {
     const s = loadState();
-    content.innerHTML = `
+    gamelistcontent.innerHTML = `
             <div style=" margin-top: 53px;">
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:42px;">
                   <div style="flex:1; color:#ffe600; text-align:center; font-weight:800;">🎮 GAMES</div>
@@ -38,54 +38,12 @@ function renderGames() {
         btn.addEventListener('click', () => {
             const id = btn.dataset.id;
             // inject iframe (no full reload)
-            content.innerHTML = `
+            gamelistcontent.innerHTML = `
                   <div style="display:flex; flex-direction:column; height:100%;">
                     <iframe id="gameIframe" src="./game/${id}.html" style="border:0; width:100%; height:calc(100vh);" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
                   </div>
                 `;
         });
     });
-
-    // show Telegram BackButton and set it to return to main renderGame
-    showTelegramBack(() => { showheader(); renderGame(); });
-    // hide bottom nav and enable Telegram Back to return to game
-    hideheader();
-    showTelegramBack(() => { hideTelegramBack(); showheader(); renderGame(); });
-
-    // show Telegram BackButton and set it to return to main renderGame
-    showTelegramBack(() => { showNav(); renderGame(); });
-    // hide bottom nav and enable Telegram Back to return to game
-    hideNav();
-    showTelegramBack(() => {
-      // Klasslarni olib tashlaymiz, shunda panel 90% holatiga qaytadi
-        const panel = document.querySelector('.panel');
-        document.body.classList.remove('is-gaming');
-        if (panel) {
-            panel.classList.remove('is-gaming');
-        }
-      hideTelegramBack(); showNav(); renderGame(); });
-
-    // back handler
-    document.getElementById('backFromGame').addEventListener('click', () => {
-        // Klasslarni olib tashlaymiz, shunda panel 90% holatiga qaytadi
-        const panel = document.querySelector('.panel');
-        document.body.classList.remove('is-gaming');
-        if (panel) {
-            panel.classList.remove('is-gaming');
-        }
-
-        hideTelegramBack();
-        showNav();
-        showheader();
-        renderGame();
-    });
-
-    
-
-    // helpers to hide/show bottom header
-    function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
-    function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
-    function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
-    function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
 
 }

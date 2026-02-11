@@ -1,0 +1,322 @@
+#earncontent body {
+    background-image: url(/image/background1.jpg);
+}
+
+#earncontent .earn .earn-main {
+    width: 100%;
+    padding-bottom: 120px;
+}
+
+#earncontent .earn .earn-main .head {
+    width: 90%;
+    margin: 15px auto;
+}
+
+#earncontent .earn .earn-main .head .head-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+    color: #ffd700;
+}
+
+#earncontent .earn .earn-main .head .head-img img {
+    width: 40px;
+}
+
+#earncontent .earn .earn-main .head .head__title {
+    margin-top: 10px;
+    color: #ffd700;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+}
+
+#earncontent .earn .earn-main .invite {
+    margin: 0 auto;
+    margin-top: 20px;
+}
+
+#earncontent .earn .earn-main .invite .invite-list {
+    margin-top: 7px;
+    overflow-x: hidden;
+    -webkit-overflow-scroling: touch;
+    display: block;
+}
+
+#earncontent .earn .earn-main .invite .invite-list2 {
+    margin-top: 7px;
+    overflow-x: hidden;
+    -webkit-overflow-scroling: touch;
+    display: none;
+}
+
+#earncontent .earn .earn-main .invite .invite-list .invite-item {
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 7px;
+    background: hsla(0, 0%, 0%, 0.5);
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+#earncontent .earn .earn-main .invite .invite-list .invite-item .invite-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 9px;
+    background: hsla(0, 0%, 100%, .15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+#earncontent .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__title {
+    font-size: 15px;
+    font-weight: 300;
+    color: #ffd700;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+}
+
+#earncontent .earn .earn-main .invite .invite-list .invite-item .invite-info {
+    flex: 1;
+    margin-left: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#earncontent .earn .earn-main .invite .invite-list .invite-item .invite-icon img {
+    margin: auto;
+    width: 100%;
+    height: 100%;
+}
+
+#earncontent .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num {
+    font-size: 13px;
+    margin-top: 4px;
+    position: relative;
+    z-index: 1;
+    text-align: left;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+}
+
+#earncontent .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num>img {
+    width: 2px;
+    height: 2px;
+}
+
+#earncontent .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num {
+    font-size: 13px;
+    margin-top: 4px;
+    position: relative;
+    z-index: 1;
+    text-align: left;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+}
+
+#earncontent .earn .earn-main .invite .invite-list .invite-item .invite-arrow {
+    display: flex;
+    align-items: center;
+}
+
+#earncontent .scoped-svg-icon {
+    display: flex;
+    align-items: center;
+}
+
+#earncontent .earn .earn-main .tab_main {
+    margin: 10px 15px;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 90px;
+    z-index: 10;
+}
+
+#earncontent .earn .earn-main .tab_main ul {
+    display: -ms-flexbox;
+    display: flex;
+    justify-content: center;
+    background-color: rgba(41, 87, 157, .7);
+    border-radius: 7px;
+    padding: 4px;
+}
+
+#earncontent .earn .earn-main .tab_main li,
+#earncontent .earn .earn-main .tab_main ul {
+    list-style: none;
+}
+
+#earncontent .earn .earn-main .tab_main li.checked {
+    background: #4178ff;
+    font-weight: 700;
+    color: #fff;
+}
+
+#earncontent .earn .earn-main .tab_main li {
+    color: hsla(0, 0%, 100%, .5);
+    font-size: 15px;
+    border-radius: 7px;
+    padding: 5px 11px;
+    text-align: center;
+    font-weight: 100;
+    -ms-flex: 1;
+    flex: 1;
+}
+
+#earncontent .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num .invite__keys {
+    display: flex;
+    align-items: center;
+    height: 2px;
+    line-height: 2px;
+}
+
+#earncontent .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num .invite__keys img {
+    width: 14px;
+    height: 14px;
+    margin-left: 30px !important;
+}
+
+/* Media queries: telefonlar va planshetlar */
+@media (max-width: 350px) {
+    #earncontent .earn .earn-main .invite .invite-list .invite-item {
+        padding: 10px;
+    }
+
+    #earncontent .earn .earn-main .invite .invite-list .invite-item .invite-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+}
+
+#earncontent .invite-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    /* Tugma sig'ishi uchun */
+}
+
+#earncontent .claim-inline-btn {
+    background: #007bff;
+    /* Ko'k rang yoki o'yiningiz rangida */
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    animation: pulse 1.5s infinite;
+    /* E'tibor tortish uchun effekt */
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Yuklanish nuqtalari uchun dizayn */
+#earncontent .loading-dots {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+}
+
+#earncontent .loading-dots::after {
+    content: '.';
+    animation: dots 1.5s steps(5, end) infinite;
+}
+
+@keyframes dots {
+
+    0%,
+    20% {
+        content: '•';
+    }
+
+    40% {
+        content: '• •';
+    }
+
+    60% {
+        content: '• • •';
+    }
+
+    80%,
+    100% {
+        content: '• • • •';
+    }
+}
+
+/* Claim tugmasi bosilganda qimirlab turishi uchun */
+#earncontent .claim-inline-btn.processing {
+    background: #555 !important;
+    pointer-events: none;
+    /* Qayta bosishni cheklaydi */
+    opacity: 0.8;
+}
+
+
+
+#earncontent .tab_item {
+    cursor: pointer;
+}
+
+#earncontent #dailyBtn {
+    cursor: pointer;
+}
+
+#earncontent .earn-header {
+    text-align: center;
+    color: #ffd700;
+}
+
+/* Barcha ro'yxatlarni dastlab yashiramiz */
+/* 1. Odatiy holatda hamma vazifalar ko'rinadi */
+#earncontent .invite-item {
+    display: flex;
+}
+
+/* 2. AKTIV TABDA: Bajarilgan vazifalarni yashiramiz */
+#earncontent .tab_active_view .invite-item.is-completed {
+    display: none !important;
+
+}
+
+/* 3. INAKTIV TABDA: Faqat bajarilgan vazifalarni ko'rsatamiz, qolganini yashiramiz */
+#earncontent .tab_inactive_view .invite-item {
+    display: none !important;
+}
+
+#earncontent .tab_inactive_view .invite-item.is-completed {
+    display: flex !important;
+    pointer-events: none !important;
+    /* Butun blokni bosishni yopadi */
+    cursor: default !important;
+}
+
+#earncontent button.btn {
+    margin-left: 8% !important;
+}

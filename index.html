@@ -965,8 +965,16 @@
       }
     }
   </style>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.main.css" rel="stylesheet">
-
+  <link href="earn/earn.css" rel="stylesheet">
+  <link href="rank/rank.css" rel="stylesheet">
+  <link href="friends/invite.css" rel="stylesheet">
+  <link href="wallet/wallet.css" rel="stylesheet">
+  <link href="key/key.css" rel="stylesheet">
+  <link href="income/income.css" rel="stylesheet">
+  
 
   <title>ProgUzmiR</title>
 </head>
@@ -1001,10 +1009,20 @@
 
   <!-- panel: content rendered by JS -->
   <div class="panel" id="content">
+    <div class="game" style="display: block;" id="gameContent"></div>
 
-    <!-- bo'limlar JavaScript orqali yuklanadi -->
+    <div class="rank" style="display: none;" id="rankcontent"></div>
+    <div class="wallet" style="display: none;" id="walletcontent"></div>
+    <div class="invite" style="display: none;" id="invitecontent"></div>
+    <div class="earn" style="display: none;" id="earncontent"></div>
 
+    <div class="shop" style="display: none;" id="shopcontent"></div>   
+    <div class="daily" style="display: none;" id="dailycontent"></div>
+    <div class="games" style="display: none;" id="gamelistcontent"></div>
+    <div class="income" style="display: none;" id="incomecontent"></div>
+    <div class="key" style="display: none;" id="keycontent"></div>
   </div>
+
 
   <!-- single nav (keep only one instance) -->
   <div class="nav" role="tablist" aria-label="Navigation">

@@ -1,3 +1,4 @@
+let lastActiveTab = 'game';
 const DECIMALS = 18n;
 const UNIT = 10n ** DECIMALS;
 
@@ -280,7 +281,7 @@ function rankImage(rank) {
 
 
 // UI rendering per tab (Game updated with taps logic)
-const content = document.getElementById('content');
+const gameContent = document.getElementById('gameContent');
 function renderGame() {
     hideTelegramBack();
     const s = loadState();
@@ -307,7 +308,7 @@ function renderGame() {
     const skinObj = SKINS.find(x => x.id === selectedSkin);
     const displayImg = skinObj ? skinObj.file : defaultTapImg;
     // top quick access: Skin (left), Shop (center), Game (right) — diamond THEN previews THEN tap
-    content.innerHTML = `
+    gameContent.innerHTML = `
         
       <div class="tap-area">
         <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10px;">
@@ -510,118 +511,31 @@ function renderGame() {
     if (skinPreview) skinPreview.addEventListener('click', (ev) => { ev.stopPropagation(); renderShop(); });
 
     // --- Shop Preview handler ---
-    const shopPreview = document.getElementById('shopCardPreview');
-    if (shopPreview) {
-        shopPreview.addEventListener('click', (ev) => {
-            ev.stopPropagation();
-            document.body.style.background = "#06121a"; // Shopga o'tganda ham fonni tozalaymiz
-            renderShop();
-        });
-    }
+    
 
 
-    const gamePreview = document.getElementById('gameCardPreview');
-
-    if (gamePreview) {
-        gamePreview.addEventListener('click', (ev) => {
-            ev.stopPropagation();
-
-            // 1. Panel elementini klass orqali topamiz
-            const panel = document.querySelector('.panel');
-
-            // 2. Body va Panelga "is-gaming" klassini qo'shamiz
-            document.body.classList.add('is-gaming');
-            if (panel) {
-                panel.classList.add('is-gaming');
-            }
-
-            // 3. O'yinni yuklaymiz
-            renderGames();
-        });
-    }
-
-    const incomePreview = document.getElementById('incomeCardPreview');
-    if (incomePreview) incomePreview.addEventListener('click', (ev) => { ev.stopPropagation(); window.location.href = './income/income.html'; });
-
+    
 
     // Har qanday joydagi Daily tugmasini tutib olish uchun global listener
-    document.addEventListener('click', (ev) => {
-        // Tugmani ID yoki Klass orqali qidiramiz
-        const target = ev.target.closest('#dailyBtn');
+    
 
-        if (target) {
-            ev.preventDefault();
-            ev.stopPropagation();
-
-            console.log('Daily tugmasi bosildi (Global listener)');
-
-            try {
-                // renderDaily funksiyasi global doirada bo'lishi kerak
-                if (typeof renderDaily === 'function') {
-                    renderDaily();
-                } else {
-                    console.error('renderDaily funksiyasi topilmadi!');
-                }
-            } catch (err) {
-                console.error('Error opening Daily screen:', err);
-                if (typeof showToast === 'function') showToast('Error: Daily section could not be opened.');
-            }
-        }
-    });
-
-    // --- NEW: key.html button handler ---
-    const luckyBtn = document.getElementById('luckyKeyBtn');
-    if (luckyBtn) {
-        luckyBtn.style.cursor = 'pointer';
-        luckyBtn.addEventListener('click', (ev) => {
-            ev.preventDefault();
-            ev.stopPropagation();
-            // prefer single-page load helper if available
-            try {
-                if (typeof loadHtmlIntoContent === 'function') {
-                    loadHtmlIntoContent('./key/key.html');
-                    return;
-                }
-            } catch (e) { /* ignore and fallback */ }
-            // fallback: open in new tab
-            try { window.open('./key/key.html', '_blank'); } catch (e) { console.error('open lusck_code error', e); }
-        });
-    }
-    // --- NEW: key.html button handler ---
-    const incomeBtn = document.getElementById('incomeBtn');
-    if (incomeBtn) {
-        incomeBtn.style.cursor = 'pointer';
-        incomeBtn.addEventListener('click', (ev) => {
-            ev.preventDefault();
-            ev.stopPropagation();
-            // prefer single-page load helper if available
-            try {
-                if (typeof loadHtmlIntoContent === 'function') {
-                    loadHtmlIntoContent('./income/income.html');
-                    return;
-                }
-            } catch (e) { /* ignore and fallback */ }
-            // fallback: open in new tab
-            try { window.open('./income/income.html', '_blank'); } catch (e) { console.error('open income error', e); }
-        });
-    }
 
     // energy auto-recharge
 
     if (window._energyInterval) { clearInterval(window._energyInterval); window._energyInterval = null; }
 
     // Doimiy interval: har soniyada tekshiradi
-    window._energyInterval = setInterval(async () => { 
+    window._energyInterval = setInterval(async () => {
 
         const st = loadState();
 
-       
+
         // Agar birdaniga maxEnergy 0 yoki noto'g'ri bo'lib qolsa:
         if (!st.maxEnergy || st.maxEnergy <= 0) {
             console.warn("⚠️ Diqqat! Energiya 0 ga tushib qoldi. Avtomatik tuzatilmoqda...");
 
             st.maxEnergy = 1000;
-            
+
             if (st.energy <= 0) st.energy = 1000;
 
             saveState(st);
@@ -631,7 +545,7 @@ function renderGame() {
             if (el) el.textContent = `${st.energy} / ${st.maxEnergy}`;
 
         }
-        
+
         // Asosiy mantiq (Sizning kodingiz)
         if (typeof st.energy !== 'number' || typeof st.maxEnergy !== 'number') return;
 
@@ -719,19 +633,7 @@ setInterval(() => {
     updateHeaderDiamond();
 }, 1000);
 
-// Tab switching (nav fixed at bottom visually)
-document.querySelectorAll('.nav .tab').forEach(el => {
-    el.addEventListener('click', () => {
-        document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
-        el.classList.add('active');
-        const tab = el.dataset.tab;
-        if (tab === 'game') renderGame();
-        if (tab === 'rank');
-        if (tab === 'wallet');
-        if (tab === 'invite');
-        if (tab === 'earn');
-    });
-});
+
 
 // default: start loader then render UI and stop loader after content settles
 window.startLoader && window.startLoader();
@@ -791,8 +693,8 @@ function showToast(message) {
 function p(e, t, n) {
     try {
         // --- LOCALSTORAGE DAN OLISH ---
-            // 'proguzmir_my_ref_link' kaliti friends.js da saqlangan edi
-            const myRefLink = localStorage.getItem('proguzmir_my_ref_link') || 'https://proguzmir.vercel.app';
+        // 'proguzmir_my_ref_link' kaliti friends.js da saqlangan edi
+        const myRefLink = localStorage.getItem('proguzmir_my_ref_link') || 'https://proguzmir.vercel.app';
         const isPremium = !!(e?.WebApp?.initDataUnsafe?.user && e.WebApp.initDataUnsafe.user.is_premium);
         const payload = { text: `${t.text} ${myRefLink}` };
         if (isPremium) payload.widget_link = { name: t.btnName, url: myRefLink };
@@ -1051,40 +953,47 @@ function saveSnapshotToLocal(state) {
     });
 })();
 
-// add helper to load HTML fragment and execute scripts
-async function loadHtmlIntoContent(url) {
+async function loadHtmlIntoContent(url, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    // OPTIMIZATSIYA: Agar quti ichida narsa bo'lsa, qayta yuklamasin!
+    if (container.innerHTML.trim().length > 0) {
+        console.log(`${containerId} allaqachon yuklangan, internet sarflamaymiz.`);
+        return; 
+    }
+
     try {
         const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) {
-            content.innerHTML = `<div style="padding:20px;color:#fff;">Xato: ${res.status} ${res.statusText}</div>`;
+            container.innerHTML = `<div style="padding:20px;color:red;">Xato: ${res.status}</div>`;
             return;
         }
+
         const html = await res.text();
-        // set content
-        content.innerHTML = html;
-        // execute <script> tags found in html
+        container.innerHTML = html;
+
+        // Scriptlarni ishga tushirish (Sizdagi eski kod logikasi)
         const tmp = document.createElement('div');
         tmp.innerHTML = html;
         const scripts = tmp.querySelectorAll('script');
+
         scripts.forEach(s => {
             const ns = document.createElement('script');
             if (s.src) {
-                // preserve relative src
                 ns.src = s.getAttribute('src');
                 ns.async = false;
             } else {
                 ns.textContent = s.textContent;
             }
             document.body.appendChild(ns);
-            // optional: remove after load (keeps DOM clean)
-            // ns.parentNode && ns.parentNode.removeChild(ns);
         });
+
     } catch (err) {
-        console.error('loadHtmlIntoContent error', err);
-        content.innerHTML = `<div style="padding:20px;color:#fff;">Yuklashda xato: ${String(err)}</div>`;
+        console.error('Yuklashda xato:', err);
+        container.innerHTML = `<div style="padding:20px;color:red;">Internet xatosi!</div>`;
     }
 }
-
 // --- NEW: header visibility control per page ---
 function handleHeaderByPage(pageName) {
     const header = document.querySelector('.header');
@@ -1099,6 +1008,294 @@ function handleHeaderByPage(pageName) {
         header.style.display = '';
     }
 }
+
+
+// --- 1. Yordamchi: Bo'limlarni almashtirish ---
+function switchSection(activeId) {
+    // Barcha mavjud bo'limlar ro'yxati
+    const allSections = [
+        'gameContent', 'rankcontent', 'walletcontent', 'invitecontent', 'earncontent', // Tablar
+        'incomecontent', 'keycontent', 'shopcontent', 'dailycontent', 'gameContent', 'gamelistcontent' // Ichki bo'limlar
+    ];
+    
+    allSections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = (id === activeId) ? 'block' : 'none';
+    });
+}
+
+// --- 1. Interface (Ko'rinish) Boshqaruvchisi ---
+function updateInterface(pageName) {
+    const header = document.querySelector('.header');
+    const nav = document.querySelector('.nav'); // Navigatsiyani ham ushlaymiz
+
+    // Qaysi sahifalarda Header va Nav yo'qolishi kerak?
+    const fullScreenPages = ['shop', 'income', 'key', 'daily', 'gamelist']; 
+    // Rank, Wallet, Invite larda Nav turishi kerak, shuning uchun ularni qo'shmadim.
+    // Agar Rankda ham Nav yo'qolsin desangiz, uniyam shu ro'yxatga qo'shing.
+
+    const isFullScreen = fullScreenPages.includes(pageName);
+
+    // Header va Navni boshqarish
+    if (header) header.style.display = isFullScreen ? 'none' : 'flex';
+    if (nav) nav.style.display = isFullScreen ? 'none' : 'flex';
+
+    // --- TELEGRAM BACK BUTTON ---
+    if (pageName === 'game') {
+        // O'yin sahifasida: Orqaga tugmasi YO'Q
+        Telegram.WebApp.BackButton.hide();
+        
+        // Game.js dagi effektlarni tozalash
+        document.body.classList.remove('is-gaming');
+        document.querySelector('.panel')?.classList.remove('is-gaming');
+        document.body.style.background = ""; // Fonni tozalash
+    } else {
+        // Boshqa sahifalarda: Orqaga tugmasi BOR
+        Telegram.WebApp.BackButton.show();
+        
+        // Bosilganda nima bo'lishini aytamiz
+        Telegram.WebApp.BackButton.offClick(goHome); // Eski eventlarni o'chirish (muhim!)
+        Telegram.WebApp.BackButton.onClick(goHome);  // Yangisini ulash
+    }
+}
+
+// --- 2. Uyga qaytish funksiyasi ---
+function goHome() {
+    handleGlobalNavigation('game');
+}
+
+// --- 3. Global Navigatsiya (Router) ---
+async function handleGlobalNavigation(targetPage) {
+    console.log("O'tilmoqda:", targetPage);
+
+    // 2. Agar foydalanuvchi asosiy tabga o'tayotgan bo'lsa, uni eslab qolamiz
+    if (mainTabs.includes(targetPage)) {
+        lastActiveTab = targetPage; 
+    }
+
+    // --- INTERFEYSNI YANGILASH ---
+    updateInterface(targetPage);
+    
+    //
+
+    // Bo'limlarni almashtirish
+    switchSection(targetPage + 'content'); // gameContent, shopcontent...
+
+    // Sahifa logikasi
+    if (targetPage === 'game') {
+        document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
+        document.querySelector('.nav .tab[data-tab="game"]')?.classList.add('active');
+    }
+    else if (targetPage === 'shop') {
+        if (typeof renderShop === 'function') renderShop();
+    }
+    else if (targetPage === 'daily') {
+        if (typeof renderDaily === 'function') renderDaily();
+    }
+    else if (targetPage === 'income') {
+        await loadHtmlIntoContent('./income/income.html', 'incomecontent');
+    }
+    else if (targetPage === 'key') {
+        await loadHtmlIntoContent('./key/key.html', 'keycontent');
+    }
+    // ... boshqa sahifalar (rank, wallet) ...
+    
+    // QO'SHIMCHA: Agar Gamelist ochilsa
+    else if (targetPage === 'gamelist') {
+         // O'yin effekti
+         document.body.classList.add('is-gaming');
+         document.querySelector('.panel')?.classList.add('is-gaming');
+         if (typeof renderGames === 'function') renderGames();
+    }
+}
+
+
+// --- 4. GLOBAL EVENT LISTENER (Barcha tugmalarni eshitish) ---
+document.addEventListener('click', (ev) => {
+    const target = ev.target;
+
+    // 1. Ilova ichidagi "Back" tugmalari (incomeBack, shopBack va h.k.)
+    // Agar tugma ID si "Back" so'zi bilan tugasa yoki aniq ID bo'lsa:
+    const backIds = ['incomeBack', 'keyBack', 'shopBack', 'dailyBack', 'backFromGame'];
+    
+    if (backIds.includes(target.id) || target.closest('#backFromGame')) {
+        ev.preventDefault();
+        goHome(); // Uyga qaytaradi
+        return;
+    }
+
+    // 2. Shop, Daily va boshqa menyu tugmalari
+    if (target.closest('#shopCardPreview')) return handleGlobalNavigation('shop');
+    if (target.closest('#dailyBtn')) return handleGlobalNavigation('daily');
+    if (target.closest('#gameCardPreview')) return handleGlobalNavigation('gamelist');
+    
+    // Income va Key (ID orqali)
+    if (target.closest('#incomeCardPreview') || target.closest('#incomeBtn')) {
+        ev.preventDefault(); // href ga o'tib ketmasligi uchun
+        return handleGlobalNavigation('income');
+    }
+    if (target.closest('#luckyKeyBtn')) return handleGlobalNavigation('key');
+
+    // 3. Tablar
+    const tabEl = target.closest('.nav .tab');
+    if (tabEl) {
+        document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
+        tabEl.classList.add('active');
+        handleGlobalNavigation(tabEl.dataset.tab);
+    }
+});
+
+
+// --- 3. GLOBAL NAVIGATSIYA FUNKSIYASI (ROUTER) ---
+async function handleGlobalNavigation(targetPage) {
+    console.log("O'tilmoqda:", targetPage);
+
+    // A) GAME (Bosh sahifa)
+    if (targetPage === 'game') {
+        switchSection('gameContent');
+        updateInterface('game');
+        
+        // Tabni aktivlashtirish
+        document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
+        document.querySelector('.nav .tab[data-tab="game"]')?.classList.add('active');
+    }
+
+    // B) RANK
+    else if (targetPage === 'rank') {
+        switchSection('rankcontent');
+        updateInterface('rank');
+        await loadHtmlIntoContent('./rank/rank.html', 'rankcontent');
+        if (typeof initRankPage === 'function') initRankPage();
+    }
+
+    // C) WALLET
+    else if (targetPage === 'wallet') {
+        switchSection('walletcontent');
+        updateInterface('wallet');
+        await loadHtmlIntoContent('./wallet/wallet.html', 'walletcontent');
+        if (window.initTonWallet) window.initTonWallet();
+        if (window.initMetaMaskWallet) window.initMetaMaskWallet();
+    }
+
+    // D) INVITE
+    else if (targetPage === 'invite') {
+        switchSection('invitecontent');
+        updateInterface('invite');
+        await loadHtmlIntoContent('./friends/friends.html', 'invitecontent');
+        if (typeof initInvite === 'function') initInvite();
+    }
+
+    // E) EARN
+    else if (targetPage === 'earn') {
+        switchSection('earncontent');
+        updateInterface('earn');
+        await loadHtmlIntoContent('./earn/earn.html', 'earncontent');
+    }
+
+    // --- ICHKI TUGMALAR ---
+
+    // F) INCOME (Daromad)
+    else if (targetPage === 'income') {
+        switchSection('incomecontent');
+        updateInterface('income');
+        await loadHtmlIntoContent('./income/income.html', 'incomecontent');
+    }
+
+    // G) KEY (Omadli kalit)
+    else if (targetPage === 'key') {
+        switchSection('keycontent');
+        updateInterface('key');
+        await loadHtmlIntoContent('./key/key.html', 'keycontent');
+    }
+
+    else if (targetPage === 'shop') {
+        switchSection('shopcontent'); // 1. Qutini ochamiz
+        updateInterface('shop');      // 2. Headerni yashiramiz (agar kerak bo'lsa)
+        
+        // 3. Render funksiyasini chaqiramiz
+        if (typeof renderShop === 'function') {
+            renderShop(); 
+        } else {
+            console.error("renderShop funksiyasi topilmadi! shop.js ulanganmi?");
+        }
+    }
+
+    // H) DAILY (Kunlik)
+   // G) DAILY (Kunlik mukofot)
+    else if (targetPage === 'daily') {
+        switchSection('dailycontent');
+        updateInterface('daily');
+
+        if (typeof renderDaily === 'function') {
+            renderDaily();
+        }
+    }
+
+    // I) GAMELIST (O'yinlar ro'yxati)
+    else if (targetPage === 'gamelist') {
+        // Eski kodingizdagi maxsus effektlar
+        document.body.classList.add('is-gaming');
+        const panel = document.querySelector('.panel');
+        if (panel) panel.classList.add('is-gaming');
+
+        switchSection('gamelistcontent'); // Yoki o'yinlar qayerda chiqishini xohlasangiz
+        updateInterface('gamelist');
+        
+        if (typeof renderGames === 'function') renderGames(); // renderGames endi gamelistcontent ga chizishi kerak
+    }
+
+}
+
+
+// --- 4. MASTER EVENT LISTENER (Hamma narsani eshituvchi quloq) ---
+document.addEventListener('click', (ev) => {
+    // 1. Agar TAB bosilsa
+    const tabEl = ev.target.closest('.nav .tab');
+    if (tabEl) {
+        // Tab vizual aktivligi
+        document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
+        tabEl.classList.add('active');
+        
+        handleGlobalNavigation(tabEl.dataset.tab);
+        return; // Bajarildi, to'xtatamiz
+    }
+
+    // 2. Agar INCOME tugmalari bosilsa (#incomeCardPreview yoki #incomeBtn)
+    if (ev.target.closest('#incomeCardPreview') || ev.target.closest('#incomeBtn')) {
+        ev.stopPropagation();
+        handleGlobalNavigation('income');
+        return;
+    }
+
+    // 3. Agar KEY (Lucky) tugmasi bosilsa
+    if (ev.target.closest('#luckyKeyBtn')) {
+        ev.stopPropagation();
+        handleGlobalNavigation('key');
+        return;
+    }
+
+    // 4. Agar DAILY tugmasi bosilsa
+    if (ev.target.closest('#dailyBtn')) {
+        ev.stopPropagation();
+        handleGlobalNavigation('daily');
+        return;
+    }
+
+    // 5. Agar GAME PREVIEW (O'yinlar) bosilsa
+    if (ev.target.closest('#gameCardPreview')) {
+        ev.stopPropagation();
+        handleGlobalNavigation('gamelist');
+        return;
+    }
+    // SHOP TUGMASI BOSILSA
+    if (ev.target.closest('#shopCardPreview')) {
+        ev.stopPropagation();
+        handleGlobalNavigation('shop'); // <-- Shopni och
+        return;
+    }
+});
+
+
 
 // Replace the Supabase sync invocation in saveState with a guarded version
 function saveState(state) {
@@ -1186,59 +1383,7 @@ function saveState(state) {
     }
 }
 
-// Tab switching (nav fixed at bottom visually)
-document.querySelectorAll('.nav .tab').forEach(el => {
-    el.addEventListener('click', async () => {
-        document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
-        el.classList.add('active');
-        const tab = el.dataset.tab;
-        if (tab === 'game') {
-            renderGame();
-            handleHeaderByPage('game');
-        }
-        else if (tab === 'rank') {
-            // load rank page smoothly without refresh (no history.pushState)
-            await loadHtmlIntoContent('./rank/rank.html');
-            // Ensure the rank page JS initializes (initRankPage exposed by rank.js)
-            try { if (typeof initRankPage === 'function') initRankPage(); } catch (e) { console.warn('initRankPage call error', e); }
-            handleHeaderByPage('rank');
-        }
-        // index.js ichida
 
-else if (tab === 'wallet') {
-    await loadHtmlIntoContent('./wallet/wallet.html');
-    
-    // Eski initWalletPage() o'rniga yangilarini chaqiramiz:
-    if (window.initTonWallet) window.initTonWallet();
-    if (window.initMetaMaskWallet) window.initMetaMaskWallet();
-
-    handleHeaderByPage('wallet');
-}
-
-
-        else if (tab === 'invite') {
-            // 1. HTML yuklash
-            await loadHtmlIntoContent('./friends/friends.html');
-
-            // 2. Element DOM-da paydo bo'lishi uchun juda qisqa tanaffus (micro-task)
-            setTimeout(() => {
-                if (typeof initInvite === 'function') {
-                    initInvite();
-                } else {
-                    console.warn('initInvite hali yuklanmagan!');
-                }
-            }, 50);
-
-            handleHeaderByPage('invite');
-        }
-
-
-        else if (tab === 'earn') {
-            await loadHtmlIntoContent('./earn/earn.html');
-            handleHeaderByPage('earn');
-        }
-    });
-});
 
 // YANGI: Helper function to load all state from Supabase
 async function loadAllStateFromSupabase(walletId) {
@@ -1347,7 +1492,7 @@ async function saveUserState(state) {
 
     // LocalStorage dan hamyon manzillarini olamiz (ton.js va cripto.js yozgan joydan)
     // Kalitlar ton.js va cripto.js dagi bilan bir xil bo'lishi kerak!
-    const localTonWallet = localStorage.getItem("proguzmir_ton_wallet"); 
+    const localTonWallet = localStorage.getItem("proguzmir_ton_wallet");
     const localCryptoWallet = localStorage.getItem("proguzmir_crypto_wallet");
 
     // ... boshqa o'qishlar ...
@@ -1474,14 +1619,14 @@ async function loadUserState() {
             tapsUsed: Number(result.user.taps_used || 0),
             selectedSkin: result.user.selected_skin || '',
             todayIndex: Number(result.user.today_index || 0),
-            
+
             dailyWeekStart: result.user.daily_week_start || null,
             dailyClaims: safeParse(result.user.daily_claims),
             cardsLvl: safeParse(result.user.cards_lvl),
             boosts: safeParse(result.user.boosts),
             claimDate: result.user.claim_date || null,
             wallet: result.user.wallet || "", // Bu tg_id
-            
+
             keysTotal: Number(result.user.keys_total || 0),
             keysUsed: Number(result.user.keys_used || 0),
 
@@ -1513,14 +1658,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     selectedSkin: saved.selectedSkin,
                     todayIndex: saved.todayIndex,
                     wallet: saved.wallet, // tg_id
-                    
+
                     dailyWeekStart: saved.dailyWeekStart,
                     dailyClaims: saved.dailyClaims,
                     cardsLvl: saved.cardsLvl,
                     boosts: saved.boosts,
                     keysTotal: saved.keysTotal,
                     keysUsed: saved.keysUsed,
-                    
+
                     // ❗ YANGI: Hamyonlar
                     tonWallet: saved.tonWallet,
                     cryptoWallet: saved.cryptoWallet
@@ -1554,7 +1699,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (e) { console.warn('startup load error', e); }
 
-    setupAutoSave(); 
+    setupAutoSave();
 });
 
 // --- REFERALNI ALOHIDA SAQLASH ---
@@ -1566,9 +1711,9 @@ async function processReferral() {
 
     const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
     const userId = localStorage.getItem('proguzmir_wallet') || (tgUser ? String(tgUser.id) : null);
-    
+
     // --- YANGI: Premium ekanligini aniqlash ---
-    const isPremium = tgUser?.is_premium || false; 
+    const isPremium = tgUser?.is_premium || false;
 
     if (!userId) return;
 
