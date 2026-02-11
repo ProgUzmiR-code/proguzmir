@@ -44,9 +44,48 @@ async function getCryptoPrice(symbol) {
         return null;
     }
 }
+// --- YORDAMCHI FUNKSIYA: Hamyon rasmini aniqlash ---
+function getEvmIcon() {
+    // Default: MetaMask rasmi
+    let defaultIcon = "https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg";
+
+    // Agar EVM hamyon ulanmagan bo'lsa, default qaytaradi
+    if (localStorage.getItem("proguzmir_wallet_type") !== 'evm') {
+        return defaultIcon;
+    }
+
+    if (window.evmModal) {
+        try {
+            // 1-usul: AppKit ma'lumotlaridan olish (Eng aniq)
+            const info = window.evmModal.getWalletInfo();
+            if (info && info.icon) return info.icon; // Hamyonning o'z rasmi
+
+            // 2-usul: Nomidan aniqlash
+            if (info && info.name) {
+                const name = info.name.toLowerCase();
+                if (name.includes("trust")) return "https://cryptologos.cc/logos/trust-wallet-token-twt-logo.svg?v=026";
+                if (name.includes("binance")) return "https://cryptologos.cc/logos/binance-coin-bnb-logo.svg?v=026";
+                if (name.includes("bitkeep") || name.includes("bitget")) return "https://raw.githubusercontent.com/bitkeepwallet/download/main/logo/png/bitkeep_logo_square.png";
+                if (name.includes("okx")) return "https://cryptologos.cc/logos/okb-okb-logo.svg?v=029";
+                if (name.includes("safepal")) return "https://pbs.twimg.com/profile_images/1676907573033500672/L3z-Y-3__400x400.jpg";
+            }
+
+            // 3-usul: Provayder flaglaridan aniqlash
+            const provider = window.evmModal.getWalletProvider();
+            if (provider) {
+                if (provider.isTrust) return "https://cryptologos.cc/logos/trust-wallet-token-twt-logo.svg?v=026";
+                if (provider.isBitKeep) return "https://raw.githubusercontent.com/bitkeepwallet/download/main/logo/png/bitkeep_logo_square.png";
+            }
+        } catch (e) {
+            console.log("Icon aniqlashda xatolik:", e);
+        }
+    }
+    
+    return defaultIcon;
+}
 
 // --- 3. ASOSIY SOTIB OLISH FUNKSIYASI ---
-
+// --- 3. ASOSIY SOTIB OLISH FUNKSIYASI (Yangilandi) ---
 function buyItem(itemId) {
     const item = PRICES[itemId];
     if (!item) {
@@ -54,59 +93,60 @@ function buyItem(itemId) {
         return;
     }
 
-    // Modal elementlarini olish
     const modal = document.getElementById('paymentModal');
     const title = document.getElementById('paymentItemName');
     const container = document.getElementById('paymentOptions');
 
-    // Sarlavhani o'rnatish
-    title.innerText = `${item.name} (${item.usd}$)`;
-    container.innerHTML = ""; // Oldingi tugmalarni tozalash
+    if (!modal) return;
 
-    // Hamyon holatini tekshirish
+    // Sarlavha
+    title.innerText = `${item.name} (${item.usd}$)`;
+    container.innerHTML = ""; 
+
     const walletType = localStorage.getItem("proguzmir_wallet_type");
 
-    // 1. TON tugmasi (HTML kodi)
+    // 🔥 YANGILIK: Hamyon rasmini va nomini aniqlaymiz
+    const evmIconUrl = getEvmIcon();
+    let evmButtonText = "Pay with BNB";
+
+    // Agar Trust yoki Binance bo'lsa, tugma nomini ham chiroyli qilish mumkin (ixtiyoriy)
+    if (evmIconUrl.includes("trust")) evmButtonText = "Pay with Trust Wallet";
+    else if (evmIconUrl.includes("binance")) evmButtonText = "Pay with Binance";
+
+    // 1. TON tugmasi
     const tonBtnHTML = `
         <button class="pay-option-btn btn-ton-pay" onclick="processPayment('${itemId}', 'ton')">
             <img src="https://cryptologos.cc/logos/toncoin-ton-logo.svg?v=040"> Pay with TON
         </button>`;
 
-    // 2. EVM (BNB) tugmasi (HTML kodi)
+    // 2. EVM (BNB) tugmasi - 🔥 Rasm o'zgaruvchi (evmIconUrl) ga almashtirildi
     const evmBtnHTML = `
         <button class="pay-option-btn btn-evm-pay" onclick="processPayment('${itemId}', 'evm')">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg"> Pay with BNB
+            <img src="${evmIconUrl}" style="border-radius: 50%;"> ${evmButtonText}
         </button>`;
 
-    // 3. Stars tugmasi (HTML kodi) - Narxi bilan chiqadi
+    // 3. Stars tugmasi
     const starsBtnHTML = `
         <button class="pay-option-btn btn-stars-pay" onclick="processPayment('${itemId}', 'stars')">
             <img src="/image/ton-stars.png"> Pay with Stars <span style="color: #ffd700;">(${item.stars} ★)</span>
         </button>`;
 
-
-    // --- MANTIQ (Siz so'ragan qism) ---
-
+    // Modal ichiga tugmalarni joylash
     if (walletType === 'ton') {
-        // Agar TON ulangan bo'lsa: TON + Stars
         container.innerHTML += tonBtnHTML;
         container.innerHTML += starsBtnHTML;
-    }
-    else if (walletType === 'evm') {
-        // Agar EVM ulangan bo'lsa: EVM + Stars
+    } else if (walletType === 'evm') {
         container.innerHTML += evmBtnHTML;
         container.innerHTML += starsBtnHTML;
-    }
-    else {
-        // Agar hech narsa ulanmagan bo'lsa: TON + EVM + Stars
+    } else {
         container.innerHTML += tonBtnHTML;
         container.innerHTML += evmBtnHTML;
         container.innerHTML += starsBtnHTML;
     }
 
-    // Modalni ko'rsatish
     modal.style.display = "flex";
 }
+
 
 // Modalni yopish
 function closePaymentModal() {
