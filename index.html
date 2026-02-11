@@ -208,51 +208,7 @@
       }
     })();
   </script>
-  <script>
-    function updateClipPath() {
-      const el = document.querySelector('.circle1');
-      if (!el) return;
-      const w = el.offsetWidth;
-      const h = el.offsetHeight;
 
-      const rightX = w - 15;
-      const bottomIn = -1;
-
-      const path = ` M 10 0 L 0 0 L 2 7 A 10 10 0 0 0 14 15 L 10 15 L ${rightX} 15 C ${w} 15 ${w - 3} 6 ${w - 9} 0 L ${w * .61} 0 L ${w * 0.60} 0 L ${w * 0.61} 15 A 1 10 0 0 0 0 15 L 0 ${h - bottomIn} C 0 ${h - 10} 10 ${h - 10} 14 ${h - 10} L ${w - 14} ${h - 10} C ${w - 1} ${h - 10} ${w} ${h} ${w} ${h - bottomIn}  L ${w} 0`;
-
-      el.style.clipPath = `path("${path}")`;
-    }
-
-    window.addEventListener("resize", updateClipPath);
-    window.addEventListener("load", updateClipPath);
-  </script>
-
-  <script>
-    // renamed second function to avoid override and target .circle2
-    function updateClipPath2() {
-      const el = document.querySelector('.circle2');
-      if (!el) return;
-      const w = el.offsetWidth;
-      const h = el.offsetHeight;
-
-      const rightX = w - 15;
-      const bottomIn = -1;
-
-      const path = ` M 10 0 L 0 0 L 2 7 A 10 10 0 0 0 14 15 L 10 15 L ${rightX} 15 C ${w} 15 ${w - 3} 6 ${w - 9} 0 L ${w * .61} 0 L ${w * 0.60} 0 L ${w * 0.61} 15 A 1 10 0 0 0 0 15 L 0 ${h - bottomIn} C 0 ${h - 10} 10 ${h - 10} 14 ${h - 10} L ${w - 14} ${h - 10} C ${w - 1} ${h - 10} ${w} ${h} ${w} ${h - bottomIn}  L ${w} 0`;
-
-      el.style.clipPath = `path("${path}")`;
-    }
-
-    window.addEventListener("resize", updateClipPath2);
-    window.addEventListener("load", updateClipPath2);
-
-    // Safe Telegram calls
-    if (window.Telegram && window.Telegram.WebApp) {
-      try { window.Telegram.WebApp.expand && window.Telegram.WebApp.expand(); } catch (e) { }
-      try { window.Telegram.WebApp.setHeaderColor && window.Telegram.WebApp.setHeaderColor("transparent"); } catch (e) { }
-      try { window.Telegram.WebApp.disableVerticalSwipes && window.Telegram.WebApp.disableVerticalSwipes(); } catch (e) { }
-    }
-  </script>
 
   <script>
     window.addEventListener("DOMContentLoaded", () => {
@@ -418,18 +374,28 @@
     /* Circle orqali kesish */
     .circle1 {
       display: flex;
-      position: fixed;
-      height: 100%;
+      position: absolute;
+      height: 101%;
       width: 100%;
-      background-position: center center;
+      /* background-position: center center;
       background-repeat: no-repeat;
       background-size: cover;
-      background-attachment: fixed;
+      background-attachment: fixed; */
       z-index: 1;
-      background-color: #1f2f3a;
+      /* background-color: #1f2f3a; */
       transform: rotate(180deg);
-      transform-origin: center;
+      /* transform-origin: center; */
 
+    }
+
+    .bg-shape {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      /* Yozuvlarning orqasiga o'tkazish */
     }
 
     .circle2 {
@@ -438,7 +404,7 @@
       height: 70px;
       width: 100%;
       margin-top: 20px;
-      background-color: #1f2f3a;
+      /* background-color: #1f2f3a; */
       background-position: center center;
       background-repeat: no-repeat;
       background-size: cover;
@@ -457,6 +423,7 @@
       align-items: center;
       z-index: 10;
       cursor: pointer;
+      background-color: #1f2f3a;
     }
 
     .diamond {
@@ -908,94 +875,96 @@
     }
   </style>
   <style>
-        /* Modal orqa foni */
-        .payment-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
+    /* Modal orqa foni */
+    .payment-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+    }
 
-        /* Modal qutisi */
-        .payment-content {
-            background: linear-gradient(145deg, #0b1a26, #08141e);
-            padding: 25px;
-            border-radius: 20px;
-            /* border: 2px solid #ffd700; */
-            text-align: center;
-            width: 90%;
-            max-width: 350px;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-            animation: popIn 0.3s ease;
-        }
+    /* Modal qutisi */
+    .payment-content {
+      background: linear-gradient(145deg, #0b1a26, #08141e);
+      padding: 25px;
+      border-radius: 20px;
+      /* border: 2px solid #ffd700; */
+      text-align: center;
+      width: 90%;
+      max-width: 350px;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+      animation: popIn 0.3s ease;
+    }
 
-        /* Tugmalar joylashuvi */
-        .payment-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
+    /* Tugmalar joylashuvi */
+    .payment-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
 
-        /* To'lov tugmalari */
-        .pay-option-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 12px;
-            border: none;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 16px;
-            color: white;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
+    /* To'lov tugmalari */
+    .pay-option-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 16px;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
 
-        .pay-option-btn:active {
-            transform: scale(0.96);
-        }
+    .pay-option-btn:active {
+      transform: scale(0.96);
+    }
 
-        .pay-option-btn img {
-            width: 24px;
-            height: 24px;
-        }
+    .pay-option-btn img {
+      width: 24px;
+      height: 24px;
+    }
 
-        /* Ranglar */
-        .btn-ton-pay, .btn-evm-pay, .btn-stars-pay {
-            background: linear-gradient(90deg, #0098EA, #0077b6);
-        }
+    /* Ranglar */
+    .btn-ton-pay,
+    .btn-evm-pay,
+    .btn-stars-pay {
+      background: linear-gradient(90deg, #0098EA, #0077b6);
+    }
 
-        /* Yopish tugmasi */
-        .close-modal-btn {
-            background: transparent;
-            border: 1px solid #5d7a96;
-            color: #5d7a96;
-            padding: 8px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+    /* Yopish tugmasi */
+    .close-modal-btn {
+      background: transparent;
+      border: 1px solid #5d7a96;
+      color: #5d7a96;
+      padding: 8px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
 
-        @keyframes popIn {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
-            }
+    @keyframes popIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
 
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-    </style>
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  </style>
   <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.main.css" rel="stylesheet">
 
 
@@ -1016,6 +985,11 @@
   <div class="header" aria-label="header">
     <div class="PRS font-effect-shadow-multiple">ProgUzmiR</div>
     <div class="circle2">
+      <svg class="bg-shape" viewBox="0 0 505 75" preserveAspectRatio="none">
+        <path d="M 0 0 L 505 0 L 505 88 C 505 70 504 60 491 60 L 14 60 C 1 60 0 70 0 88 L 0 0 Z" fill="#1f2f3a">
+        </path>
+      </svg>
+
       <div class="profile">
         <img style="margin-bottom: 10px; margin-left: 10px;" src="./image/loading.svg" alt="">
         <div class="username" style="font-size: 15px;">ProgUzmiR</div>
@@ -1029,12 +1003,17 @@
   <div class="panel" id="content">
 
     <!-- bo'limlar JavaScript orqali yuklanadi -->
-     
+
   </div>
 
   <!-- single nav (keep only one instance) -->
   <div class="nav" role="tablist" aria-label="Navigation">
-    <div class="circle1"></div>
+    <div class="circle1">
+      <svg class="bg-shape" viewBox="0 0 505 75" preserveAspectRatio="none">
+        <path d="M 0 0 L 505 0 L 505 88 C 505 70 504 60 491 60 L 14 60 C 1 60 0 70 0 88 L 0 0 Z" fill="#1f2f3a">
+        </path>
+      </svg>
+    </div>
     <span class="nav-indicator"></span>
     <div class="li">
       <div class="tab " data-tab="game">
@@ -1068,16 +1047,16 @@
     </div>
   </div>
   <div id="paymentModal" class="payment-modal" style="display: none;">
-        <div class="payment-content">
-            <h3 id="paymentTitle">To'lov turini tanlang</h3>
-            <p id="paymentItemName" style="color: #ffd700; margin-bottom: 20px;"></p>
+    <div class="payment-content">
+      <h3 id="paymentTitle">To'lov turini tanlang</h3>
+      <p id="paymentItemName" style="color: #ffd700; margin-bottom: 20px;"></p>
 
-            <div id="paymentOptions" class="payment-grid">
-            </div>
+      <div id="paymentOptions" class="payment-grid">
+      </div>
 
-            <button class="close-modal-btn" onclick="closePaymentModal()">Bekor qilish</button>
-        </div>
+      <button class="close-modal-btn" onclick="closePaymentModal()">Bekor qilish</button>
     </div>
+  </div>
   <!-- ADD: Supabase CDN (frontend publishable key ok to expose) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
