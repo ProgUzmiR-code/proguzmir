@@ -1042,88 +1042,45 @@ function updateInterface(pageName) {
 
     // --- TELEGRAM BACK BUTTON ---
     if (pageName === 'game') {
-        // O'yin sahifasida: Orqaga tugmasi YO'Q
         Telegram.WebApp.BackButton.hide();
-        
-        // Game.js dagi effektlarni tozalash
-        document.body.classList.remove('is-gaming');
-        document.querySelector('.panel')?.classList.remove('is-gaming');
-        document.body.style.background = ""; // Fonni tozalash
     } else {
-        // Boshqa sahifalarda: Orqaga tugmasi BOR
         Telegram.WebApp.BackButton.show();
-        
-        // Bosilganda nima bo'lishini aytamiz
-        Telegram.WebApp.BackButton.offClick(goHome); // Eski eventlarni o'chirish (muhim!)
-        Telegram.WebApp.BackButton.onClick(goHome);  // Yangisini ulash
+        Telegram.WebApp.BackButton.offClick(goBackSmart); // Eski eventni o'chiramiz
+        Telegram.WebApp.BackButton.onClick(goBackSmart);  // Yangi aqlli funksiyani ulaymiz
     }
 }
-
-// --- 2. Uyga qaytish funksiyasi ---
-function goHome() {
-    handleGlobalNavigation('game');
-}
-
-// --- 3. Global Navigatsiya (Router) ---
-async function handleGlobalNavigation(targetPage) {
-    console.log("O'tilmoqda:", targetPage);
-
-    // 2. Agar foydalanuvchi asosiy tabga o'tayotgan bo'lsa, uni eslab qolamiz
-    if (mainTabs.includes(targetPage)) {
-        lastActiveTab = targetPage; 
-    }
-
-    // --- INTERFEYSNI YANGILASH ---
-    updateInterface(targetPage);
-    
-    //
-
-    // Bo'limlarni almashtirish
-    switchSection(targetPage + 'content'); // gameContent, shopcontent...
-
-    // Sahifa logikasi
-    if (targetPage === 'game') {
-        document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
-        document.querySelector('.nav .tab[data-tab="game"]')?.classList.add('active');
-    }
-    else if (targetPage === 'shop') {
-        if (typeof renderShop === 'function') renderShop();
-    }
-    else if (targetPage === 'daily') {
-        if (typeof renderDaily === 'function') renderDaily();
-    }
-    else if (targetPage === 'income') {
-        await loadHtmlIntoContent('./income/income.html', 'incomecontent');
-    }
-    else if (targetPage === 'key') {
-        await loadHtmlIntoContent('./key/key.html', 'keycontent');
-    }
-    // ... boshqa sahifalar (rank, wallet) ...
-    
-    // QO'SHIMCHA: Agar Gamelist ochilsa
-    else if (targetPage === 'gamelist') {
-         // O'yin effekti
-         document.body.classList.add('is-gaming');
-         document.querySelector('.panel')?.classList.add('is-gaming');
-         if (typeof renderGames === 'function') renderGames();
-    }
-}
-
 
 // --- 4. GLOBAL EVENT LISTENER (Barcha tugmalarni eshitish) ---
+
+
+// --- 2. Uyga qaytish funksiyasi ---
+// Aqlli orqaga qaytish funksiyasi
+function goBackSmart() {
+    // Agar hozir Daily yoki Shop ochiq bo'lsa, qayerdan kelgan bo'lsak, o'sha yerga qaytamiz
+    handleGlobalNavigation(lastActiveTab);
+}
+
+// --- Event Listener ichida ---
 document.addEventListener('click', (ev) => {
     const target = ev.target;
 
-    // 1. Ilova ichidagi "Back" tugmalari (incomeBack, shopBack va h.k.)
-    // Agar tugma ID si "Back" so'zi bilan tugasa yoki aniq ID bo'lsa:
-    const backIds = ['incomeBack', 'keyBack', 'shopBack', 'dailyBack', 'backFromGame'];
-    
-    if (backIds.includes(target.id) || target.closest('#backFromGame')) {
+    // 1. "Back" tugmalari (dailyBack, shopBack va h.k.)
+    // Agar Daily'dagi back tugmasi bosilsa:
+    if (target.id === 'dailyBack') {
         ev.preventDefault();
-        goHome(); // Uyga qaytaradi
+        goBackSmart(); // <-- O'ZGARDI: goHome() o'rniga goBackSmart()
         return;
     }
 
+    // Boshqa "Back" tugmalari uchun (masalan Shop yoki Key)
+    // Ular ham qayerdan kelgan bo'lsa o'sha yerga qaytishini xohlasangiz:
+     const backIds = ['incomeBack', 'keyBack', 'shopBack', 'dailyBack', 'backFromGame'];
+    
+    if (backIds.includes(target.id) || target.closest('#backFromGame')) {
+        ev.preventDefault();
+        goBackSmart(); // Uyga qaytaradi
+        return;
+    }
     // 2. Shop, Daily va boshqa menyu tugmalari
     if (target.closest('#shopCardPreview')) return handleGlobalNavigation('shop');
     if (target.closest('#dailyBtn')) return handleGlobalNavigation('daily');
@@ -1149,6 +1106,17 @@ document.addEventListener('click', (ev) => {
 // --- 3. GLOBAL NAVIGATSIYA FUNKSIYASI (ROUTER) ---
 async function handleGlobalNavigation(targetPage) {
     console.log("O'tilmoqda:", targetPage);
+
+    // 1. Asosiy Tablarni aniqlaymiz
+    const mainTabs = ['game', 'earn', 'rank', 'wallet', 'invite'];
+
+    // 2. Agar foydalanuvchi asosiy tabga o'tayotgan bo'lsa, uni eslab qolamiz
+    if (mainTabs.includes(targetPage)) {
+        lastActiveTab = targetPage; 
+    }
+
+    // --- INTERFEYSNI YANGILASH ---
+    updateInterface(targetPage);
 
     // A) GAME (Bosh sahifa)
     if (targetPage === 'game') {

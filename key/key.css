@@ -1,11 +1,11 @@
-.radius,
-.verification-input,
-.btn-submit,
-.btn {
+#keycontent .radius,
+#keycontent .verification-input,
+#keycontent .btn-submit,
+#keycontent .btn {
     border-radius: 9px;
 }
 
-.youtubepaf {
+#keycontent .youtubepaf {
     margin: 10px;
     padding: 8px;
     background: white;
@@ -14,17 +14,17 @@
     align-items: center;
 }
 
-.fa-brands {
+#keycontent .fa-brands {
     font-size: 40px;
     color: red;
 
 }
 
-.lukcys h3 {
+#keycontent .lukcys h3 {
     position: absolute;
 }
 
-.shaffof {
+#keycontent .shaffof {
     display: flex;
     align-items: center;
     background: rgba(255, 255, 255, 0.2);
@@ -33,32 +33,32 @@
     color: white;
 }
 
-.key {
+#keycontent .key {
     width: 20px;
     height: 20px;
 }
 
-.dflex {
+#keycontent .dflex {
     display: flex;
     align-items: center;
     gap: 5px;
     padding: 5px;
 }
 
-.pop-dialog {
+#keycontent .pop-dialog {
     display: flex;
     justify-content: center;
 }
 
 
-.pop-main {
+#keycontent .pop-main {
     padding: 18px 18px 3px;
     background: #282735;
     border-radius: 18px;
     text-align: center;
 }
 
-.pop-main .energy__title {
+#keycontent .pop-main .energy__title {
     font-weight: 700;
     font-size: 18px;
     color: #fff;
@@ -66,7 +66,7 @@
     margin-bottom: 3px
 }
 
-.pop-main .invite-item {
+#keycontent .pop-main .invite-item {
     border-radius: .12rem;
     padding: .075rem .09rem;
     margin-bottom: .075rem;
@@ -81,11 +81,11 @@
     align-items: center
 }
 
-.pop-main .invite-item.active .invite-arrow {
+#keycontent .pop-main .invite-item.active .invite-arrow {
     color: #fff
 }
 
-.pop-main .invite-item .invite-icon {
+#keycontent .pop-main .invite-item .invite-icon {
     width: 20px;
     height: 20px;
     border-radius: .095rem;
@@ -107,13 +107,13 @@
     overflow: hidden
 }
 
-.pop-main .invite-item .invite-icon img {
+#keycontent .pop-main .invite-item .invite-icon img {
     margin: auto;
     width: 100%;
     height: 100%
 }
 
-.pop-main .invite-item .invite-info {
+#keycontent .pop-main .invite-item .invite-info {
     -webkit-box-flex: 1;
     -webkit-flex: 1;
     -ms-flex: 1;
@@ -121,14 +121,14 @@
     margin-left: 2px
 }
 
-.pop-main .invite-item .invite-info .invite__title {
+#keycontent .pop-main .invite-item .invite-info .invite__title {
     text-align: left;
     font-size: .115rem;
     font-weight: 300;
     color: hsla(0, 0%, 100%, .6)
 }
 
-.pop-main .invite-item .invite-info .invite__intro {
+#keycontent .pop-main .invite-item .invite-info .invite__intro {
     font-size: .12rem;
     line-height: 1.2;
     margin-top: .04rem;
@@ -140,13 +140,13 @@
     color: #fff
 }
 
-.pop-main .invite-item .invite-info .invite__intro span {
+#keycontent .pop-main .invite-item .invite-info .invite__intro span {
     color: hsla(0, 0%, 100%, .5);
     font-weight: 300;
     font-size: .12rem
 }
 
-.pop-main .invite-item .invite-info .invite__intro img {
+#keycontent .pop-main .invite-item .invite-info .invite__intro img {
     position: absolute;
     left: 0;
     top: 45%;
@@ -157,7 +157,7 @@
     height: .13rem
 }
 
-.pop-main .invite-item .invite-info .invite__num {
+#keycontent .pop-main .invite-item .invite-info .invite__num {
     font-size: .13rem;
     margin-top: .04rem;
     position: relative;
@@ -180,18 +180,18 @@
     justify-content: left
 }
 
-.pop-main .invite-item .invite-info .invite__num span {
+#keycontent .pop-main .invite-item .invite-info .invite__num span {
     color: hsla(0, 0%, 100%, .5);
     font-weight: 300;
     font-size: .12rem
 }
 
-.pop-main .invite-item .invite-info .invite__num>img {
+#keycontent .pop-main .invite-item .invite-info .invite__num>img {
     width: 3px;
     height: 3px
 }
 
-.pop-main .invite-item .invite-info .invite__num .invite__keys {
+#keycontent .pop-main .invite-item .invite-info .invite__num .invite__keys {
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -204,23 +204,23 @@
     line-height: 3px
 }
 
-.pop-main .invite-item .invite-info .invite__num .invite__keys img {
+#keycontent .pop-main .invite-item .invite-info .invite__num .invite__keys img {
     width: 18px;
     height: 18px;
     margin-left: 2px;
     margin-right: .025rem
 }
 
-.pop-main .invite-item .invite-time {
+#keycontent .pop-main .invite-item .invite-time {
     margin-left: .05rem
 }
 
-.pop-main .invite-item .invite-arrow {
+#keycontent .pop-main .invite-item .invite-arrow {
     font-size: 18px;
     color: hsla(0, 0%, 100%, .25)
 }
 
-.pop-main .invite-item .invite-arrow .btn {
+#keycontent .pop-main .invite-item .invite-arrow .btn {
     font-size: 2px;
     color: #fff;
     background: #2464f6;
@@ -228,7 +228,7 @@
     padding: 10px 6px;
 }
 
-.pop-main .invite-item .invite-arrow.refresh .scoped-svg-icon {
+#keycontent .pop-main .invite-item .invite-arrow.refresh .scoped-svg-icon {
     -webkit-animation: ref-4120186d 1s linear infinite;
     animation: ref-4120186d 1s linear infinite
 }
@@ -257,12 +257,12 @@
     }
 }
 
-.pop-main .btns {
+#keycontent .pop-main .btns {
     margin-top: 2px
 }
 
 
-.pop-main .btns {
+#keycontent .pop-main .btns {
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -277,7 +277,7 @@
     justify-content: center
 }
 
-.pop-main .btn {
+#keycontent .pop-main .btn {
     cursor: pointer;
     background: #2464f6;
     line-height: 50px;
@@ -288,20 +288,20 @@
     color: #fff;
 }
 
-.pop-main .btns .btn.dis {
+#keycontent .pop-main .btns .btn.dis {
     opacity: .5
 }
 
-.pop-main .number-box {
+#keycontent .pop-main .number-box {
     margin-bottom: 2px
 }
 
-.pop-main .number-box .number__title {
+#keycontent .pop-main .number-box .number__title {
     font-size: 10px;
     color: #fff
 }
 
-.pop-main .number-box .number__items {
+#keycontent .pop-main .number-box .number__items {
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -314,7 +314,7 @@
     gap: 2px
 }
 
-.pop-main .number-box .number__items .verification-input {
+#keycontent .pop-main .number-box .number__items .verification-input {
     width: 100%;
     height: 30px;
     text-align: center;
@@ -326,19 +326,19 @@
     margin-bottom: 10px;
 }
 
-.pop-main .number-box .number__items .verification-input:focus .verification-input:focus {
+#keycontent .pop-main .number-box .number__items .verification-input:focus .verification-input:focus {
     outline: none;
     box-shadow: 0 0 .025rem #007bff
 }
 
-.pop-main .tip {
+#keycontent .pop-main .tip {
     font-size: 2px;
     text-align: center;
     color: #fff;
     margin-bottom: 2px
 }
 
-.pop-main .btn-submit {
+#keycontent .pop-main .btn-submit {
     background: #2464f6;
     line-height: 50px;
     width: 100%;
@@ -349,13 +349,13 @@
     margin-bottom: 20px;
 }
 
-a {
+#keycontent a {
     text-decoration: none;
     color: inherit;
 }
 
 /* --- YANGI: Modal styling --- */
-#pop {
+#keycontent #pop {
     display: none;
     /* default hidden */
     position: fixed;
@@ -363,19 +363,19 @@ a {
     z-index: 10000;
 }
 
-#pop.show {
+#keycontent #pop.show {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-#pop .shadow {
+#keycontent #pop .shadow {
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.801);
 }
 
-#pop .dialog-main {
+#keycontent #pop .dialog-main {
     position: relative;
     z-index: 1;
     background: transparent;
@@ -383,7 +383,7 @@ a {
     overflow-y: auto;
 }
 
-#pop .btn-close {
+#keycontent #pop .btn-close {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -398,11 +398,11 @@ a {
     z-index: 2;
 }
 
-#pop .btn-close:hover {
+#keycontent #pop .btn-close:hover {
     background: rgba(0, 0, 0, 0.5);
 }
 
-#pop .btn-close svg {
+#keycontent #pop .btn-close svg {
     width: 24px;
     height: 24px;
     fill: white;
@@ -410,20 +410,20 @@ a {
 
 
 
-.pop-main .upsubmit .youtubetext p {
+#keycontent .pop-main .upsubmit .youtubetext p {
     font-size: 14px;
     text-align: left;
 }
 
-.pop-main .upsubmit .dflex span {
+#keycontent .pop-main .upsubmit .dflex span {
     font-size: 14px;
 }
 
-.material-icons-outlined {
+#keycontent .material-icons-outlined {
     color: #888888;
 }
 
-.lukcys {
+#keycontent .lukcys {
     align-items: center;
     display: flex;
     justify-content: center;

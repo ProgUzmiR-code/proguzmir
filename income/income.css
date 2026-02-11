@@ -1,4 +1,4 @@
-body {
+#incomecontent body {
     padding: 0;
     font-family: Arial, sans-serif;
     /* background-image: url('/image/inset.jpg'); */
@@ -8,7 +8,7 @@ body {
     background-attachment: fixed;
 }
 
-.diamond {
+#incomecontent .diamond {
     left: 0;
     display: flex;
     align-items: center;
@@ -21,11 +21,11 @@ body {
 }
 
 
-.tab_main1 {
+#incomecontent .tab_main1 {
     margin-top: 10px;
 }
 
-.tab_main1 ul {
+#incomecontent .tab_main1 ul {
     display: flex;
     justify-content: center;
     background-color: rgba(41, 87, 157, .7);
@@ -33,11 +33,11 @@ body {
     padding: 8px;
 }
 
-li {
+#incomecontent li {
     list-style: none;
 }
 
-.tab_item1 {
+#incomecontent .tab_item1 {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -52,7 +52,7 @@ li {
     cursor: pointer;
 }
 
-.checked1 {
+#incomecontent .checked1 {
     background-color: rgb(55, 177, 214);
     font-weight: 700;
     height: 24px;
@@ -61,17 +61,17 @@ li {
     cursor: pointer;
 }
 
-.boo-item {
+#incomecontent .boo-item {
     padding: 10px;
 }
 
-.boo-icon img {
+#incomecontent .boo-icon img {
     width: 80px;
     height: 80px;
     border-radius: 50%;
 }
 
-.boo-item {
+#incomecontent .boo-item {
     width: 48%;
     display: flex;
     flex-direction: column;
@@ -83,11 +83,11 @@ li {
     padding: 0px 0px 10px 0px;
 }
 
-.lock-icon img {
+#incomecontent .lock-icon img {
     opacity: 0.8;
 }
 
-.lock-icon {
+#incomecontent .lock-icon {
     height: 60px;
     display: flex;
     vertical-align: middle;
@@ -95,7 +95,7 @@ li {
     position: absolute;
 }
 
-.boo-icon {
+#incomecontent .boo-icon {
     width: 80px;
     height: 80px;
     display: flex;
@@ -106,7 +106,7 @@ li {
     margin: 15px auto;
 }
 
-.boo-title {
+#incomecontent .boo-title {
     color: rgb(255, 255, 255);
     font-weight: bolder;
     text-overflow: ellipsis;
@@ -117,7 +117,7 @@ li {
     text-align: center;
 }
 
-.boo__cost {
+#incomecontent .boo__cost {
     font-size: 15px;
     font-weight: 300;
     color: rgba(255, 255, 255, 0.6);
@@ -127,7 +127,7 @@ li {
     margin: 0px 0px 20px;
 }
 
-.boo__num {
+#incomecontent .boo__num {
     position: relative;
     z-index: 1;
     display: flex;
@@ -143,7 +143,7 @@ li {
     align-items: center;
 }
 
-.boo__num__lvl {
+#incomecontent .boo__num__lvl {
     text-align: center;
     display: flex;
     -webkit-box-align: center;
@@ -151,7 +151,7 @@ li {
     color: rgba(255, 255, 255, 0.7);
 }
 
-.boo__num__coin {
+#incomecontent .boo__num__coin {
     text-align: center;
     vertical-align: middle;
     display: flex;
@@ -160,7 +160,7 @@ li {
     padding-left: 10px;
 }
 
-.boo__num__key {
+#incomecontent .boo__num__key {
     text-align: center;
     vertical-align: middle;
     display: flex;
@@ -169,14 +169,14 @@ li {
     padding-left: 10px;
 }
 
-.boo__num_coin_text {
+#incomecontent .boo__num_coin_text {
     border-right: 1px solid rgba(255, 255, 255, 0.15);
     padding: 5px 10px 5px 0px;
 }
 
 
 
-.boo__cost img {
+#incomecontent .boo__cost img {
     width: 17px;
     height: 17px;
     padding-left: 10px;
@@ -185,20 +185,20 @@ li {
 
 
 
-.invite-list1 {
+#incomecontent .invite-list1 {
     overflow-x: hidden;
     -webkit-overflow-scroling: touch;
     display: block;
     flex-wrap: wrap;
 }
 
-.invite-list_2 {
+#incomecontent .invite-list_2 {
     overflow-x: hidden;
     -webkit-overflow-scroling: touch;
     display: none;
 }
 
-.flexc {
+#incomecontent .flexc {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -207,7 +207,7 @@ li {
 }
 
 
-#pop {
+#incomecontent #pop {
     position: fixed;
     top: 0;
     left: 0;
@@ -221,7 +221,7 @@ li {
     font-family: 'Arial', sans-serif;
 }
 
-.dialog-main {
+#incomecontent .dialog-main {
     background: #1c1f2e;
     /* To'q ko'k-qora fon */
     border-radius: 10px 10px 0px 0px;
@@ -232,7 +232,7 @@ li {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-.btn-close {
+#incomecontent .btn-close {
     position: absolute;
     top: 15px;
     right: 15px;
@@ -240,26 +240,26 @@ li {
     opacity: 0.6;
 }
 
-.energy__img img {
+#incomecontent .energy__img img {
     width: 100px;
     height: 100px;
     margin-bottom: 15px;
 }
 
-.energy__title {
+#incomecontent .energy__title {
     font-size: 20px;
     font-weight: bold;
     margin-bottom: 10px;
 }
 
-.energy__subtitle {
+#incomecontent .energy__subtitle {
     font-size: 14px;
     color: #a1a1a1;
     line-height: 1.4;
     margin-bottom: 20px;
 }
 
-.energy__lv .box {
+#incomecontent .energy__lv .box {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 50px;
     display: inline-flex;
@@ -268,12 +268,12 @@ li {
     gap: 10px;
 }
 
-.energy__lv .n,
-.energy__lv .t {
+#incomecontent .energy__lv .n,
+#incomecontent .energy__lv .t {
     font-weight: bold;
 }
 
-.energy__threetitle {
+#incomecontent .energy__threetitle {
     margin: 20px 0;
     font-size: 16px;
     display: flex;
@@ -283,19 +283,19 @@ li {
     color: #a1a1a1;
 }
 
-.energy__threetitle i {
+#incomecontent .energy__threetitle i {
     color: white;
     font-style: normal;
     font-weight: bold;
 }
 
-.btns {
+#incomecontent .btns {
     gap: 5px;
     display: flex;
     justify-content: center;
 }
 
-.btns .btn {
+#incomecontent .btns #incomecontent .btn {
     background-color: #2d56899e;
     border: 2px solid #3b82f6;
     border-radius: 12px;
@@ -311,7 +311,7 @@ li {
     padding: 17px 0 2px 0;
 }
 
-.btn-num {
+#incomecontent .btn-num {
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -319,7 +319,7 @@ li {
     gap: 8px;
 }
 
-.update-btn {
+#incomecontent .update-btn {
     background: #3b82f6;
     /* Moviy tugma */
     color: white;
@@ -331,16 +331,16 @@ li {
     transition: 0.3s;
 }
 
-.btns .btn.active {
+#incomecontent .btns #incomecontent .btn.active {
     border: 2px solid #c6c92e;
 }
 
-.update-btn:active {
+#incomecontent .update-btn:active {
     transform: scale(0.98);
 }
 
 /* new: disabled / countdown look for upgrade button */
-.update-btn.disabled {
+#incomecontent .update-btn.disabled {
     background: #9ca3af;
     /* grey */
     color: #f3f4f6;
