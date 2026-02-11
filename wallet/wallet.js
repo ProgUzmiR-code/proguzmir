@@ -350,7 +350,7 @@ async function payWithEvm(amountBnb, itemName, itemId) {
     if (!window.evmModal) {
         if (window.initMetaMaskWallet) await window.initMetaMaskWallet();
         if (!window.evmModal) {
-            alert("System is loading... Please wait a few seconds and try again");
+            alert("Tizim yuklanmoqda... Qayta urinib ko'ring.");
             return;
         }
     }
@@ -380,7 +380,7 @@ async function payWithEvm(amountBnb, itemName, itemId) {
                     params: [{ chainId: '0x38' }],
                 });
             } catch (err) {
-                alert("Please select the BNB Smart Chain network in MetaMask.");
+                alert("Iltimos, MetaMaskda BNB Smart Chain tarmog'ini tanlang.");
                 return;
             }
         }
@@ -394,66 +394,73 @@ async function payWithEvm(amountBnb, itemName, itemId) {
             data: "0x"
         };
 
-        // 🔥 1. So'rovni yuboramiz (kutib turmasdan)
+        // 1. So'rovni yuboramiz
         const txPromise = walletProvider.request({
             method: 'eth_sendTransaction',
             params: [txParams]
         });
 
-        // 🔥 2. AQLLI REDIRECT (Siz aytgan mantiq asosida)
+        // 2. MAJBURIY REDIRECT (Tuzatilgan Mantiq)
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
             setTimeout(() => {
                 const link = document.createElement('a');
-                let deepLink = "wc://"; // Agar hech qaysi aniqlanmasa, shu ishlaydi (Default)
+                let deepLink = "wc://"; // Default (Agar hech qaysi tushmasa)
 
-                // A) AppKit orqali nomini aniqlashga urinamiz (Yangi usul)
+                // Hamyon nomini aniqlash
                 let walletName = "";
                 try {
                     const info = window.evmModal.getWalletInfo();
-                    if (info && info.name) walletName = info.name.toLowerCase();
+                    if (info && info.name) {
+                        walletName = info.name.toLowerCase();
+                    }
                 } catch (e) { console.log(e); }
 
-                // B) Provider yoki Nom orqali aniq link qo'yamiz
-                if (walletProvider.isMetaMask || walletName.includes("metamask")) {
+                console.log("Wallet Name Detected:", walletName);
+
+                // 🔥 O'ZGARISH: Avval NOMIGA qaraymiz, keyin provayderga!
+                // 1. MetaMask (Eng birinchi tekshiramiz!)
+                if (walletName.includes("metamask") || walletProvider.isMetaMask) {
                     deepLink = "metamask://";
-                } 
-                else if (walletName.includes("trust")) {
-                    deepLink = "trust://";
-                } 
-                else if (walletProvider.isBitKeep || walletProvider.isBitget || walletName.includes("bitkeep") || walletName.includes("bitget")) {
-                    deepLink = "bitkeep://";
-                } 
-                else if (walletName.includes("binance")) {
-                    deepLink = "binance://";
                 }
-                else if (walletProvider.isSafePal || walletName.includes("safepal")) {
+                
+                // 2. Trust Wallet (Agar nomida 'trust' bo'lsa YOKI provayder isTrust bo'lsa)
+                else if (walletName.includes("trust") || walletProvider.isTrust) {
+                    deepLink = "trust://"; 
+                } 
+                // 3. Binance Wallet (Agar nomida 'binance' bo'lsa YOKI provayder isBinance bo'lsa)
+                else if (walletName.includes("binance")) {
+                    deepLink = "binance://"; 
+                }
+                // 4. Bitget / BitKeep
+                else if (walletName.includes("bitkeep") || walletName.includes("bitget")) {
+                    deepLink = "bitkeep://";
+                }
+                // 5. SafePal
+                else if (walletName.includes("safepal")) {
                     deepLink = "safepalwallet://";
-                } 
-                else if (walletProvider.isTokenPocket || walletName.includes("tokenpocket")) {
-                    deepLink = "tpoutside://";
-                } 
+                }
+                // 6. OKX
                 else if (walletName.includes("okx")) {
                     deepLink = "okx://";
                 }
 
-                console.log("Redirecting to: " + deepLink); // Konsolda ko'rish uchun
+                console.log("Redirecting to:", deepLink);
 
                 link.href = deepLink;
-                link.target = "_blank"; 
+                link.target = "_blank"; // Qora ekran bo'lmasligi uchun
                 link.rel = "noopener noreferrer";
                 
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-            }, 1000); // 1 soniyadan keyin ochadi
+            }, 1000); 
         }
 
-        // 🔥 3. Natijani kutamiz
+        // 3. Natijani kutamiz
         const txHash = await txPromise;
 
         console.log("BNB Success:", txHash);
 
-        // Muvaffaqiyatli:
         const reward = getRewardAmount(itemId);
         addTransactionRecord(reward.desc, `${amountBnb} BNB`, "BNB");
 
@@ -462,7 +469,11 @@ async function payWithEvm(amountBnb, itemName, itemId) {
     } catch (e) {
         console.error(e);
         if (!e.message?.includes("rejected")) {
-            alert("Xatolik: " + e.message);
+            if (e.message?.includes("insufficient funds") || e.message?.includes("gas")) {
+                alert("Xatolik: Balansingizda BNB yetarli emas.");
+            } else {
+                alert("Xatolik: " + e.message);
+            }
         }
     }
 }
