@@ -986,7 +986,7 @@ function updateInterface(pageName) {
     const header = document.querySelector('.header');
     const nav = document.querySelector('.nav');
 
-    // --- 1. Header va Navni yashirish/ko'rsatish ---
+    // 1. Header va Navni yashirish
     const hideNavPages = ['shop', 'key', 'daily', 'income', 'gamelist']; 
     const hideheaderPages = ['shop', 'key', 'daily', 'gamelist', 'rank', 'wallet', 'invite', 'earn', 'income']; 
 
@@ -996,27 +996,28 @@ function updateInterface(pageName) {
     if (header) header.style.display = ishideheader ? 'none' : 'flex';
     if (nav) nav.style.display = ishidenav ? 'none' : 'flex';
 
-    // --- 2. FON RANGINI O'ZGARTIRISH (YANGI QO'SHILDI) ---
-    // Qaysi sahifalarda qora fon bo'lishi kerak?
-    const darkBackgroundPages = ['rank', 'wallet', 'income'];
-
-    if (darkBackgroundPages.includes(pageName)) {
-        // 1. To'q rang beramiz
-        document.body.style.background = "#06121a";
-        // 2. Fon rasmini o'chiramiz (muhim, bo'lmasa rang ko'rinmaydi)
-        document.body.style.backgroundImage = "none";
-    } else {
-        // Boshqa sahifalar (Game, Earn, Shop...) uchun rasm qo'yamiz
-        document.body.style.background = ""; // Rangni tozalaymiz
-        document.body.style.backgroundImage = "url('./image/background1.jpg')";
-        
-        // Rasm chiroyli turishi uchun qo'shimcha stillar:
-        document.body.style.backgroundSize = "cover";       // Ekranni to'liq qopla
-        document.body.style.backgroundPosition = "center";  // Markazda tur
-        document.body.style.backgroundAttachment = "fixed"; // Scroll bo'lganda qimirlama
+    // --- 2. YANGI: O'YIN EFFEKTINI TOZALASH (MUHIM JOYI) ---
+    // Agar biz hozir 'gamelist' sahifasida bo'lmasak, effektni o'chiramiz
+    if (pageName !== 'gamelist') {
+        document.body.classList.remove('is-gaming');
+        const panel = document.querySelector('.panel');
+        if (panel) panel.classList.remove('is-gaming');
     }
 
-    // --- 3. TELEGRAM BACK BUTTON ---
+    // --- 3. FON RANGINI O'ZGARTIRISH ---
+    const darkBackgroundPages = ['rank', 'wallet', 'income'];
+    if (darkBackgroundPages.includes(pageName)) {
+        document.body.style.background = "#06121a";
+        document.body.style.backgroundImage = "none";
+    } else {
+        document.body.style.background = "";
+        document.body.style.backgroundImage = "url('./image/background1.jpg')";
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundPosition = "center";
+        document.body.style.backgroundAttachment = "fixed";
+    }
+
+    // --- 4. TELEGRAM BACK BUTTON ---
     if (pageName === 'game') {
         Telegram.WebApp.BackButton.hide();
     } else {
