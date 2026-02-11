@@ -63,7 +63,7 @@ function renderShop() {
       
       </div>
 
-      <div id="shopCol" style="display:none; padding: 10px;">
+      <div id="shopCol1" style="display:none; padding: 10px;">
           
           <div style="background: linear-gradient(180deg, #4a90e2 0%, #1a56a0 100%); border-radius: 15px; padding: 15px; margin-bottom: 20px; color: white; position: relative; overflow: hidden;">
               <h2 style="margin: 0; font-size: 22px; font-style: italic; position: relative; z-index: 50;">2X Diamond Bonus</h2>
@@ -100,12 +100,12 @@ function renderShop() {
   const tabShop = document.getElementById('tabShop');
   const tabEnergy = document.getElementById('tabEnergy');
   const tabSkins = document.getElementById('tabSkins');
-  const shopCol = document.getElementById('shopCol');
+  const shopCol1 = document.getElementById('shopCol1');
   const skinCol = document.getElementById('skinCol');
   const energyCol = document.getElementById('energyCol');
 
   function activateShop() { 
-      shopCol.style.display = 'block'; 
+      shopCol1.style.display = 'block'; 
       skinCol.style.display = 'none'; 
       energyCol.style.display = 'none'; 
       tabShop.classList.add('active-tab'); // Stil uchun klass qo'shish mumkin
@@ -114,12 +114,12 @@ function renderShop() {
 
   function activateEnergy() { 
       energyCol.style.display = 'flex'; 
-      shopCol.style.display = 'none'; 
+      shopCol1.style.display = 'none'; 
       skinCol.style.display = 'none'; 
   }
 
   function activateSkins() { 
-      shopCol.style.display = 'none'; 
+      shopCol1.style.display = 'none'; 
       energyCol.style.display = 'none'; 
       skinCol.style.display = 'flex'; 
   }

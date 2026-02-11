@@ -100,8 +100,6 @@ function renderDaily() {
         setDailyData(wallet, weekStartISO, claims);
     }
 
-    // show Telegram BackButton and set it to return to main renderGame
-    showTelegramBack(() => { showNav(); renderGame(); });
 
     // build calendar markup
     const items = [];

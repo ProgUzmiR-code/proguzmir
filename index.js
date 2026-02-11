@@ -283,7 +283,6 @@ function rankImage(rank) {
 // UI rendering per tab (Game updated with taps logic)
 const gameContent = document.getElementById('gameContent');
 function renderGame() {
-    hideTelegramBack();
     const s = loadState();
     console.log({
         prcWei: s.prcWei.toString(),
@@ -567,12 +566,6 @@ function renderGame() {
         boostsBox.addEventListener('click', (ev) => { ev.stopPropagation(); renderBoosts(); });
     }
 
-    // helpers to hide/show bottom header
-    function hideheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = 'none'; }
-    function showheader() { const nav = document.querySelector('.header'); if (nav) nav.style.display = ''; }
-    // helpers to hide/show bottom nav
-    function hideNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none'; }
-    function showNav() { const nav = document.querySelector('.nav'); if (nav) nav.style.display = ''; }
 
 
 } // end of function renderGame()
@@ -647,30 +640,6 @@ document.addEventListener('contextmenu', event => event.preventDefault());
 document.addEventListener('selectstart', event => event.preventDefault());
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('dragstart', e => e.preventDefault());
-
-
-// helper functions to control Telegram BackButton
-
-
-// --- Telegram BackButton boshqaruv funksiyalari ---
-function showTelegramBack(handler) {
-    if (window.Telegram?.WebApp?.BackButton) {
-        try {
-            window.Telegram.WebApp.BackButton.show();
-            window.Telegram.WebApp.BackButton.onClick(handler);
-        } catch (e) { /* ignore */ }
-    }
-}
-
-function hideTelegramBack() {
-    if (window.Telegram?.WebApp?.BackButton) {
-        try {
-            window.Telegram.WebApp.BackButton.hide();
-            // handlerni bekor qilamiz
-            window.Telegram.WebApp.BackButton.onClick(() => { });
-        } catch (e) { /* ignore */ }
-    }
-}
 
 // simple toast notification function
 function showToast(message) {
@@ -995,19 +964,7 @@ async function loadHtmlIntoContent(url, containerId) {
     }
 }
 // --- NEW: header visibility control per page ---
-function handleHeaderByPage(pageName) {
-    const header = document.querySelector('.header');
-    if (!header) return;
 
-    // pages that should HIDE header
-    const hideHeaderPages = ['rank', 'wallet', 'invite', 'earn'];
-
-    if (hideHeaderPages.includes(pageName)) {
-        header.style.display = 'none';
-    } else {
-        header.style.display = '';
-    }
-}
 
 
 // --- 1. Yordamchi: Bo'limlarni almashtirish ---
@@ -1027,31 +984,47 @@ function switchSection(activeId) {
 // --- 1. Interface (Ko'rinish) Boshqaruvchisi ---
 function updateInterface(pageName) {
     const header = document.querySelector('.header');
-    const nav = document.querySelector('.nav'); // Navigatsiyani ham ushlaymiz
+    const nav = document.querySelector('.nav');
 
-    // Qaysi sahifalarda Header va Nav yo'qolishi kerak?
-    const fullScreenPages = ['shop', 'income', 'key', 'daily', 'gamelist']; 
-    // Rank, Wallet, Invite larda Nav turishi kerak, shuning uchun ularni qo'shmadim.
-    // Agar Rankda ham Nav yo'qolsin desangiz, uniyam shu ro'yxatga qo'shing.
+    // --- 1. Header va Navni yashirish/ko'rsatish ---
+    const hideNavPages = ['shop', 'key', 'daily', 'income', 'gamelist']; 
+    const hideheaderPages = ['shop', 'key', 'daily', 'gamelist', 'rank', 'wallet', 'invite', 'earn', 'income']; 
 
-    const isFullScreen = fullScreenPages.includes(pageName);
+    const ishideheader = hideheaderPages.includes(pageName);
+    const ishidenav = hideNavPages.includes(pageName);
 
-    // Header va Navni boshqarish
-    if (header) header.style.display = isFullScreen ? 'none' : 'flex';
-    if (nav) nav.style.display = isFullScreen ? 'none' : 'flex';
+    if (header) header.style.display = ishideheader ? 'none' : 'flex';
+    if (nav) nav.style.display = ishidenav ? 'none' : 'flex';
 
-    // --- TELEGRAM BACK BUTTON ---
+    // --- 2. FON RANGINI O'ZGARTIRISH (YANGI QO'SHILDI) ---
+    // Qaysi sahifalarda qora fon bo'lishi kerak?
+    const darkBackgroundPages = ['rank', 'wallet', 'income'];
+
+    if (darkBackgroundPages.includes(pageName)) {
+        // 1. To'q rang beramiz
+        document.body.style.background = "#06121a";
+        // 2. Fon rasmini o'chiramiz (muhim, bo'lmasa rang ko'rinmaydi)
+        document.body.style.backgroundImage = "none";
+    } else {
+        // Boshqa sahifalar (Game, Earn, Shop...) uchun rasm qo'yamiz
+        document.body.style.background = ""; // Rangni tozalaymiz
+        document.body.style.backgroundImage = "url('./image/background1.jpg')";
+        
+        // Rasm chiroyli turishi uchun qo'shimcha stillar:
+        document.body.style.backgroundSize = "cover";       // Ekranni to'liq qopla
+        document.body.style.backgroundPosition = "center";  // Markazda tur
+        document.body.style.backgroundAttachment = "fixed"; // Scroll bo'lganda qimirlama
+    }
+
+    // --- 3. TELEGRAM BACK BUTTON ---
     if (pageName === 'game') {
         Telegram.WebApp.BackButton.hide();
     } else {
         Telegram.WebApp.BackButton.show();
-        Telegram.WebApp.BackButton.offClick(goBackSmart); // Eski eventni o'chiramiz
-        Telegram.WebApp.BackButton.onClick(goBackSmart);  // Yangi aqlli funksiyani ulaymiz
+        Telegram.WebApp.BackButton.offClick(goBackSmart);
+        Telegram.WebApp.BackButton.onClick(goBackSmart);
     }
 }
-
-// --- 4. GLOBAL EVENT LISTENER (Barcha tugmalarni eshitish) ---
-
 
 // --- 2. Uyga qaytish funksiyasi ---
 // Aqlli orqaga qaytish funksiyasi
