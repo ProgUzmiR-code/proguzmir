@@ -149,7 +149,7 @@
 #rankcontent .tab_main::scroll-button(right),
 #rankcontent .tab_main::scroll-button(left) {
     content: '›';
-    background-color: var(--brand-color);
+    background-color: #c7ca30;
     border: none;
     font-family: Consolas;
     color: white;
@@ -199,7 +199,7 @@
     height: 12em;
     padding: 1em;
     border-radius: 20px;
-    background-color: var(--primary-color);
+    background-color: #383838;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -217,7 +217,7 @@
 }
 
 #rankcontent .tab_item::scroll-marker:target-current {
-    background-color: var(--brand-color);
+    background-color: #c7ca30;
 }
 
 #rankcontent .checked {
