@@ -940,7 +940,7 @@ async function loadHtmlIntoContent(url, containerId) {
     try {
         const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) {
-            container.innerHTML = `<div style="padding:20px;color:red;">Xato: ${res.status}</div>`;
+            container.innerHTML = `<div style="padding:20px;color:red;">Error: ${res.status}</div>`;
             return;
         }
 
@@ -964,8 +964,8 @@ async function loadHtmlIntoContent(url, containerId) {
         });
 
     } catch (err) {
-        console.error('Yuklashda xato:', err);
-        container.innerHTML = `<div style="padding:20px;color:red;">Internet xatosi!</div>`;
+        console.error('Error loading:', err);
+        container.innerHTML = `<div style="padding:20px;color:red;">Internet error!</div>`;
     }
 }
 // --- NEW: header visibility control per page ---
