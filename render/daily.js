@@ -139,7 +139,7 @@ function renderDaily() {
 			<div style="margin-top:12px;color:#bbb;font-size:13px;">Collect today's reward. 7th day is BIGDAY. Miss a day = reset to Day 1.</div>
 		</div>
 	    `;
-    
+
     // claim handler (only today's button)
     const btn = dailycontent.querySelector('.claimTodayBtn');
     if (btn) {

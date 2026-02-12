@@ -80,16 +80,15 @@ function getEvmIcon() {
             console.log("Icon aniqlashda xatolik:", e);
         }
     }
-    
+
     return defaultIcon;
 }
 
 // --- 3. ASOSIY SOTIB OLISH FUNKSIYASI ---
-// --- 3. ASOSIY SOTIB OLISH FUNKSIYASI (Yangilandi) ---
 function buyItem(itemId) {
     const item = PRICES[itemId];
     if (!item) {
-        alert("Mahsulot topilmadi!");
+        alert("Product not found!");
         return;
     }
 
@@ -101,7 +100,7 @@ function buyItem(itemId) {
 
     // Sarlavha
     title.innerText = `${item.name} (${item.usd}$)`;
-    container.innerHTML = ""; 
+    container.innerHTML = "";
 
     const walletType = localStorage.getItem("proguzmir_wallet_type");
 
@@ -173,7 +172,7 @@ function getRewardAmount(itemId) {
 
         // Endi "sotib olindi" deb belgilab qo'yamiz
         localStorage.setItem(hasBoughtKey, "true");
-        
+
         // Agar kerak bo'lsa, vizual belgini yashirish funksiyasini shu yerga qo'shish mumkin
         // hideBonusBadge(itemId); 
     }
@@ -271,26 +270,26 @@ async function processPayment(itemId, method) {
     closePaymentModal(); // Modalni yopamiz
 
     const item = PRICES[itemId];
-    
+
     // --- 1. STARS ---
     if (method === 'stars') {
-        if(typeof initStarsPayment === 'function') {
+        if (typeof initStarsPayment === 'function') {
             // Stars to'lovini kutamiz
-            const isPaid = await initStarsPayment(item.stars, item.name); 
-            
+            const isPaid = await initStarsPayment(item.stars, item.name);
+
             if (isPaid) {
                 const reward = getRewardAmount(itemId);
-                
+
                 // Tranzaksiya tarixiga yozish
                 addTransactionRecord(reward.desc, `${item.stars} Stars`, "Stars");
-                
+
                 // Bu yerda foydalanuvchi balansiga olmos qo'shish funksiyasini chaqirasiz
                 // addDiamondsToUser(reward.amount);
 
-                alert(`Muvaffaqiyatli! Sizga ${reward.desc} berildi! 💎`);
+                alert(`Successful! You were given ${reward.desc} ! 💎`);
             }
         } else {
-            alert("Stars tizimi yuklanmagan!");
+            alert("Stars system not loaded!");
         }
         return;
     }
@@ -309,7 +308,7 @@ async function processPayment(itemId, method) {
 
         const amountTon = (item.usd / tonPrice).toFixed(4);
 
-        if (confirm(`${item.name} uchun ${amountTon} TON (${item.usd}$) to'laysizmi?`)) {
+        if (confirm(`Would you pay ${amountTon} TON (${item.usd}$) for ${item.name}?`)) {
             await payWithTon(amountTon, itemId);
         }
         return;
@@ -320,7 +319,7 @@ async function processPayment(itemId, method) {
         // Agar EVM ulanmagan bo'lsa
         if (localStorage.getItem("proguzmir_wallet_type") !== 'evm') {
             if (window.initMetaMaskWallet) window.initMetaMaskWallet();
-            alert("Iltimos, MetaMask hamyonni ulang!");
+            alert("Please connect your MetaMask wallet!");
             return;
         }
 
@@ -329,7 +328,7 @@ async function processPayment(itemId, method) {
 
         const amountBnb = (item.usd / bnbPrice).toFixed(6);
 
-        if (confirm(`${item.name} uchun ${amountBnb} BNB (${item.usd}$) to'laysizmi?`)) {
+        if (confirm(`Would you pay ${amountBnb} BNB (${item.usd}$) for ${item.name}?`)) {
             await payWithEvm(amountBnb, item.name, itemId);
         }
         return;
@@ -370,10 +369,10 @@ async function payWithTon(amountTon, itemId) {
         // Muvaffaqiyatli bo'lsa:
         const reward = getRewardAmount(itemId);
         addTransactionRecord(reward.desc, `${amountTon} TON`, "TON");
-        
+
         // addDiamondsToUser(reward.amount); // Balansga qo'shish
 
-        alert(`To'lov qabul qilindi! ✅\nSizga ${reward.desc} berildi.`);
+        alert(`Payment accepted! ✅\nYou have been given ${reward.desc}`);
 
     } catch (e) {
         console.error(e);
@@ -403,7 +402,7 @@ async function payWithEvm(amountBnb, itemName, itemId) {
 
     // Manzil borligini tekshirish
     if (!MERCHANT_EVM) {
-        alert("Merchant EVM manzili yuklanmadi. Iltimos sahifani yangilang.");
+        alert("Merchant EVM address not loaded. Please refresh the page.");
         return;
     }
 
@@ -420,13 +419,13 @@ async function payWithEvm(amountBnb, itemName, itemId) {
                     params: [{ chainId: '0x38' }],
                 });
             } catch (err) {
-                alert("Iltimos, MetaMaskda BNB Smart Chain tarmog'ini tanlang.");
+                alert("Please select the BNB Smart Chain network in MetaMask.");
                 return;
             }
         }
 
         const weiValue = "0x" + BigInt(Math.floor(parseFloat(amountBnb) * 1e18)).toString(16);
-        
+
         const txParams = {
             from: myAddress,
             to: MERCHANT_EVM,
@@ -444,11 +443,11 @@ async function payWithEvm(amountBnb, itemName, itemId) {
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
             setTimeout(() => {
                 const link = document.createElement('a');
-                link.href = "wc://"; 
-                
-                link.target = "_blank"; 
+                link.href = "wc://";
+
+                link.target = "_blank";
                 link.rel = "noopener noreferrer";
-                
+
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -464,15 +463,15 @@ async function payWithEvm(amountBnb, itemName, itemId) {
         const reward = getRewardAmount(itemId);
         addTransactionRecord(reward.desc, `${amountBnb} BNB`, "BNB");
 
-        alert(`To'lov yuborildi! ✅\nSizga ${reward.desc} berildi.`);
+        alert(`Payment sent! ✅\nYou have been given ${reward.desc}`);
 
     } catch (e) {
         console.error(e);
         if (!e.message?.includes("rejected")) {
             if (e.message?.includes("insufficient funds") || e.message?.includes("gas")) {
-                alert("Xatolik: Balansingizda BNB yetarli emas (Gas fee uchun ham kerak).");
+                alert("Error: Insufficient BNB balance (Gas fee also required).");
             } else {
-                alert("Xatolik: " + e.message);
+                alert("Error: " + e.message);
             }
         }
     }

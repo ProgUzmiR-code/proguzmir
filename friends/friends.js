@@ -54,10 +54,10 @@ function initInvite() {
 function updateReferralLinkCache() {
     const tg = window.Telegram?.WebApp;
     const user = tg?.initDataUnsafe?.user;
-    
+
     // Wallet yoki ID ni olish
     const refRaw = localStorage.getItem('proguzmir_wallet') || (user ? String(user.id) : '');
-    
+
     // Agar ID bo'lmasa, oddiy saytni qaytaradi
     if (!refRaw) return 'https://proguzmir.vercel.app';
 
@@ -74,12 +74,12 @@ function updateReferralLinkCache() {
         encodedRef = refRaw;
     }
 
-    const botUsername = 'proguzmir_bot'; 
+    const botUsername = 'proguzmir_bot';
     const finalLink = `https://t.me/${botUsername}?start=ref_${encodedRef}`;
 
     // MUHIM: Tayyor linkni xotiraga yozib qo'yamiz
     localStorage.setItem('proguzmir_my_ref_link', finalLink);
-    
+
     return finalLink;
 }
 
@@ -113,7 +113,7 @@ async function loadFriendsList() {
     const container = document.querySelector('.fs-list');
     const countEl = document.getElementById('friendsCount');
     // Tepadagi labelni topamiz ("Invite Friend" yozilgan joy)
-    const totalLabel = document.querySelector('.invite__label'); 
+    const totalLabel = document.querySelector('.invite__label');
 
     if (countEl) countEl.textContent = '(...)';
     if (!container) return;
@@ -188,7 +188,7 @@ async function loadFriendsList() {
             avatar.textContent = (f.first_name || 'U').slice(0, 2).toUpperCase();
 
             const info = document.createElement('div');
-            
+
             const name = document.createElement('div');
             name.style.fontWeight = '700';
             name.textContent = f.first_name || 'Unknown';
@@ -210,15 +210,15 @@ async function loadFriendsList() {
             // O'NG TARAF (Bonus ko'rsatish)
             const right = document.createElement('div');
             right.style.cssText = "text-align: right;";
-            
+
             const bonusDiv = document.createElement('div');
             bonusDiv.style.cssText = "color: #ffd700; font-weight: 700; font-size: 14px;";
             // K formatda chiqarish (25K yoki 50K)
             bonusDiv.textContent = `+${bonus / 1000}K 💎`;
-            
+
             // Agar premium bo'lsa, kichik belgi qo'yish (ixtiyoriy)
             if (f.is_premium) {
-                 bonusDiv.innerHTML += ' <span style="font-size:10px">🌟</span>';
+                bonusDiv.innerHTML += ' <span style="font-size:10px">🌟</span>';
             }
 
             right.appendChild(bonusDiv);
@@ -230,7 +230,7 @@ async function loadFriendsList() {
         });
 
         // --- YAKUNIY NATIJALAR ---
-        
+
         // 1. Do'stlar soni
         if (countEl) countEl.textContent = `(${friends.length})`;
 

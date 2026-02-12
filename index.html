@@ -5,6 +5,22 @@
   <meta charset="UTF-8">
   <meta name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const tg = window.Telegram.WebApp;
+
+      // Ichki rangni o‘rnatish
+      tg.setBackgroundColor("#ffffff");
+
+      // Mini-appni maksimal holatga kengaytirish
+      tg.expand();
+
+      // Full screen so‘rash (faqat mobil brauzerlar qo‘llaganida)
+      if (tg.requestFullscreen) {
+        tg.requestFullscreen();
+      }
+    });
+  </script>
   <style>
     /* Loading overlay: shows only the image that sharpens over time */
     .loading-img {
@@ -207,24 +223,6 @@
         console.warn('Telegram init skipped:', err && err.message ? err.message : err);
       }
     })();
-  </script>
-
-
-  <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      const tg = window.Telegram.WebApp;
-
-      // Ichki rangni o‘rnatish
-      tg.setBackgroundColor("#ffffff");
-
-      // Mini-appni maksimal holatga kengaytirish
-      tg.expand();
-
-      // Full screen so‘rash (faqat mobil brauzerlar qo‘llaganida)
-      if (tg.requestFullscreen) {
-        tg.requestFullscreen();
-      }
-    });
   </script>
 
   <style>
@@ -974,7 +972,7 @@
   <link href="wallet/wallet.css" rel="stylesheet">
   <link href="key/key.css" rel="stylesheet">
   <link href="income/income.css" rel="stylesheet">
-  
+
 
   <title>ProgUzmiR</title>
 </head>
@@ -1016,7 +1014,7 @@
     <div class="invite" style="display: none;" id="invitecontent"></div>
     <div class="earn" style="display: none;" id="earncontent"></div>
 
-    <div class="shop" style="display: none;" id="shopcontent"></div>   
+    <div class="shop" style="display: none;" id="shopcontent"></div>
     <div class="daily" style="display: none;" id="dailycontent"></div>
     <div class="games" style="display: none;" id="gamelistcontent"></div>
     <div class="income" style="display: none;" id="incomecontent"></div>

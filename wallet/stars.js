@@ -10,9 +10,9 @@ let STARS_CONFIG = {
 async function loadStarsConfig() {
     try {
         // Bu api/wallet-data.js ga so'rov yuboradi
-        const response = await fetch('/api/wallet-data.js'); 
+        const response = await fetch('/api/wallet-data.js');
         const data = await response.json();
-        
+
         if (data.supabase_url && data.supabase_key) {
             STARS_CONFIG.url = data.supabase_url;
             STARS_CONFIG.key = data.supabase_key;
@@ -35,13 +35,13 @@ async function initStarsPayment(amount, itemName) {
     if (!STARS_CONFIG.url || !STARS_CONFIG.key) {
         await loadStarsConfig();
         if (!STARS_CONFIG.url) {
-            alert("Tizim xatoligi: Config topilmadi.");
+            alert("System error: Config not found. Please try again later.");
             return;
         }
     }
 
     if (!window.Telegram?.WebApp) {
-        alert("Faqat Telegram ichida ishlaydi!");
+        alert("Only works inside Telegram!");
         return;
     }
 
@@ -59,7 +59,7 @@ async function initStarsPayment(amount, itemName) {
             body: JSON.stringify({
                 amount: amount, // Narx (Stars da)
                 title: itemName || "Game Item", // Mahsulot nomi
-                description: `ProgUzmiR do'konidan ${itemName} sotib olish`,
+                description: `Buy ${itemName} from ProgUzmiR store`,
                 payload: `buy_${itemName}_${userId}_${Date.now()}` // Unikal ID
             })
         });
@@ -74,20 +74,20 @@ async function initStarsPayment(amount, itemName) {
         tg.openInvoice(data.invoiceLink, (status) => {
             if (status === 'paid') {
                 tg.HapticFeedback.notificationOccurred('success');
-                alert("To'lov muvaffaqiyatli! ✅");
-                
+                alert("Payment successful! ✅");
+
                 // BU YERDA OLMOSLARNI QO'SHISH FUNKSIYASINI CHAQIRASIZ
                 // Masalan: addDiamondsToUser(amount * 10); 
                 addTransactionRecord(item.name, `${item.stars} Stars`, "Stars");
             } else if (status === 'cancelled') {
                 // Bekor qilindi
             } else {
-                alert("To'lov holati: " + status);
+                alert("Payment status: " + status);
             }
         });
 
     } catch (err) {
         console.error("Stars Error:", err);
-        alert("Xatolik: " + err.message);
+        alert("Error: " + err.message);
     }
 }

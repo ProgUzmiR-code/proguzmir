@@ -16,7 +16,7 @@ const SHOP = [
 
 function renderShop() {
   const s = loadState();
-  
+
   // Asosiy oyna strukturasini chizamiz
   shopcontent.innerHTML = `
     <div style="margin-top: 50px;">
@@ -104,24 +104,24 @@ function renderShop() {
   const skinCol = document.getElementById('skinCol');
   const energyCol = document.getElementById('energyCol');
 
-  function activateShop() { 
-      shopCol1.style.display = 'block'; 
-      skinCol.style.display = 'none'; 
-      energyCol.style.display = 'none'; 
-      tabShop.classList.add('active-tab'); // Stil uchun klass qo'shish mumkin
-      // Disable logika shart emas, klass bilan ishlagan yaxshi
+  function activateShop() {
+    shopCol1.style.display = 'block';
+    skinCol.style.display = 'none';
+    energyCol.style.display = 'none';
+    tabShop.classList.add('active-tab'); // Stil uchun klass qo'shish mumkin
+    // Disable logika shart emas, klass bilan ishlagan yaxshi
   }
 
-  function activateEnergy() { 
-      energyCol.style.display = 'flex'; 
-      shopCol1.style.display = 'none'; 
-      skinCol.style.display = 'none'; 
+  function activateEnergy() {
+    energyCol.style.display = 'flex';
+    shopCol1.style.display = 'none';
+    skinCol.style.display = 'none';
   }
 
-  function activateSkins() { 
-      shopCol1.style.display = 'none'; 
-      energyCol.style.display = 'none'; 
-      skinCol.style.display = 'flex'; 
+  function activateSkins() {
+    shopCol1.style.display = 'none';
+    energyCol.style.display = 'none';
+    skinCol.style.display = 'flex';
   }
 
   tabShop.addEventListener('click', activateShop);
@@ -140,16 +140,16 @@ function renderShop() {
       if (!item) return;
 
       const state = loadState();
-      if (!chargeCost(state, item.costWei)) { 
-          alert('Not enough PRC.'); 
-          return; 
+      if (!chargeCost(state, item.costWei)) {
+        alert('Not enough PRC.');
+        return;
       }
 
       if (item.type === 'energy') {
         state.maxEnergy = (state.maxEnergy || DEFAULT_MAX_ENERGY) + item.amount;
         state.energy = state.maxEnergy;
       }
-      
+
       saveState(state);
       alert(`${item.name} purchased!`);
       renderShop(); // Ekranni yangilash
@@ -161,15 +161,15 @@ function renderShop() {
     btn.addEventListener('click', () => {
       const skinId = btn.dataset.skin;
       const state = loadState();
-      
-      if (!chargeCost(state, SKIN_COST_WEI)) { 
-          alert('Not enough PRC.'); 
-          return; 
+
+      if (!chargeCost(state, SKIN_COST_WEI)) {
+        alert('Not enough PRC.');
+        return;
       }
-      
+
       state.selectedSkin = skinId;
       saveState(state);
-      
+
       const skinName = SKINS.find(s => s.id === skinId)?.name || "Skin";
       alert(`${skinName} purchased!`);
       renderShop();

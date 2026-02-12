@@ -303,9 +303,9 @@ function markAsCompleted(item, href) {
             e.preventDefault();
             return false;
         };
-        
+
     }
-    
+
     // 3. LocalStorage-ga saqlash
     const wallet = (localStorage.getItem('proguzmir_wallet') || 'guest').toString();
     const claimKey = `proguzmir_claimed_${encodeURIComponent(href)}_${wallet}`;
@@ -316,7 +316,7 @@ function markAsCompleted(item, href) {
 // --- O'ZGARTIRILGAN: Initialize all invite items on load, including the Daily Login task ---
 (function initAllInviteItemsState() {
     const wallet = (localStorage.getItem('proguzmir_wallet') || 'guest').toString();
-    
+
     // Handle generic tasks
     // Exclude dailyLoginTask as it has its own specific update logic
     document.querySelectorAll('.invite-item.bton:not(#dailyLoginTask)').forEach(it => {
@@ -372,7 +372,7 @@ window.addEventListener('DOMContentLoaded', () => {
         mainContainer.classList.add('tab_active_view');
     }
     // Call initAllInviteItemsState here to ensure all task states are set after DOM is ready
-    initAllInviteItemsState(); 
+    initAllInviteItemsState();
 });
 
 // Sahifa yuklanganda default holat: Active

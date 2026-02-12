@@ -38,10 +38,10 @@ async function donateTonFunc() {
 
     try {
         await window.tonConnectUI.sendTransaction(transaction);
-        
+
         alert(`Thank you very much! ${amount} TON received 💎`);
         input.value = ""; // Inputni tozalash
-        
+
         // ✅ 1. TON UCHUN SHU YERGA QO'SHILADI:
         if (typeof addTransactionRecord === 'function') {
             addTransactionRecord("Donation", `${amount} TON`, "TON");
@@ -69,14 +69,14 @@ async function donateStarsFunc() {
 
     // wallet/stars.js dagi funksiyani chaqiramiz
     if (typeof initStarsPayment === 'function') {
-        
+
         // ✅ 2. STARS UCHUN MANTIQ:
         // Biz javobni kutamiz (await). initStarsPayment true yoki false qaytarishi kerak.
         const isPaid = await initStarsPayment(amount);
 
         if (isPaid) {
             input.value = ""; // Inputni tozalash
-            
+
             // Faqat to'lov o'tganda yozamiz:
             if (typeof addTransactionRecord === 'function') {
                 addTransactionRecord("Donation", `${amount} Stars`, "Stars");

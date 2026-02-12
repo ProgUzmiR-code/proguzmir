@@ -34,7 +34,7 @@
         function displayLeaderboard(rankName) {
             rankListContainer.innerHTML = '';
 
-            const tgFirstName = window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || "Siz";
+            const tgFirstName = window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || "You";
             const state = safeLoadState();
 
             // YANGI: Haqiqiy ma'lumotlarni Supabase'dan olish
@@ -84,7 +84,7 @@
 
                         // "Siz" dan keyin foydalanuvchi ismini chiqarish mantiqi
                         // isMe bo'lsa: "Siz (Ism)", bo'lmasa: "Ism"
-                        const displayName = isMe ? `Siz (${user.name})` : user.name;
+                        const displayName = isMe ? `You (${user.name})` : user.name;
 
                         const wrapper = document.createElement('div');
                         wrapper.className = `rank-item ${rankClass} bton`;
@@ -145,7 +145,6 @@
             };
         });
 
-        // Boshlang'ich yuklanishda foydalanuvchi rankini tanlash
         updateTabs(currentRank);
     }
 
@@ -159,6 +158,3 @@
         initRankPage();
     }
 })();
-
-
-

@@ -1,8 +1,8 @@
 // Hozir qaysi sahifada turganimiz
-let currentPage = 'game'; 
+let currentPage = 'game';
 
 // Oxirgi marta qaysi ASOSIY TAB (Earn, Rank..) ochiq bo'lganini eslab qolish uchun
-let lastMainTab = 'game'; 
+let lastMainTab = 'game';
 
 const DECIMALS = 18n;
 const UNIT = 10n ** DECIMALS;
@@ -515,13 +515,13 @@ function renderGame() {
     if (skinPreview) skinPreview.addEventListener('click', (ev) => { ev.stopPropagation(); renderShop(); });
 
     // --- Shop Preview handler ---
-    
 
 
-    
+
+
 
     // Har qanday joydagi Daily tugmasini tutib olish uchun global listener
-    
+
 
 
     // energy auto-recharge
@@ -934,7 +934,7 @@ async function loadHtmlIntoContent(url, containerId) {
     // OPTIMIZATSIYA: Agar quti ichida narsa bo'lsa, qayta yuklamasin!
     if (container.innerHTML.trim().length > 0) {
         console.log(`${containerId} allaqachon yuklangan, internet sarflamaymiz.`);
-        return; 
+        return;
     }
 
     try {
@@ -1004,8 +1004,8 @@ function updateInterface(pageName) {
     const nav = document.querySelector('.nav');
 
     // Yashirinishi kerak bo'lgan sahifalar
-    const hideNavPages = ['shop', 'key', 'daily', 'income', 'gamelist']; 
-    const hideHeaderPages = ['shop', 'key', 'daily', 'gamelist', 'rank', 'wallet', 'invite', 'earn']; 
+    const hideNavPages = ['shop', 'key', 'daily', 'income', 'gamelist'];
+    const hideHeaderPages = ['shop', 'key', 'daily', 'gamelist', 'rank', 'wallet', 'invite', 'earn'];
 
     // Header va Nav holati
     if (header) header.style.display = hideHeaderPages.includes(pageName) ? 'none' : 'flex';
@@ -1050,18 +1050,18 @@ function updateInterface(pageName) {
 function goBackSmart() {
     // Asosiy Tablar (Bular GAME ga qaytadi)
     const mainTabs = ['rank', 'wallet', 'invite', 'earn'];
-    
+
     // Ichki Sahifalar (Bular lastMainTab ga qaytadi)
     const subPages = ['shop', 'key', 'daily', 'income', 'gamelist'];
 
     if (mainTabs.includes(currentPage)) {
         // Rank, Wallet, Earn -> GAME
         handleGlobalNavigation('game');
-    } 
+    }
     else if (subPages.includes(currentPage)) {
         // Shop, Daily -> Qayerdan kelgan bo'lsa o'sha yerga (Earn yoki Game)
         handleGlobalNavigation(lastMainTab);
-    } 
+    }
     else {
         // Xavfsizlik uchun
         handleGlobalNavigation('game');
@@ -1071,7 +1071,7 @@ function goBackSmart() {
 // B) Asosiy O'tish Funksiyasi (Router)
 async function handleGlobalNavigation(targetPage) {
     console.log("O'tilmoqda:", targetPage);
-    
+
     // 1. Hozirgi sahifani yangilaymiz
     currentPage = targetPage;
 
@@ -1090,7 +1090,7 @@ async function handleGlobalNavigation(targetPage) {
     // ============================================================
     // 5. PASTKI MENYU VA INDIKATORNI BOSHQARISH (YANGILANGAN QISM)
     // ============================================================
-    
+
     // Faqat Asosiy Tablar uchun ishlaydi
     if (allMainTabs.includes(targetPage)) {
         const nav = document.querySelector('.nav');
@@ -1102,7 +1102,7 @@ async function handleGlobalNavigation(targetPage) {
                 // 1. Aktiv klassni o'chirish/yoqish
                 if (tab.dataset.tab === targetPage) {
                     tab.classList.add('active');
-                    
+
                     // 2. Indikatorni shu tabga surish (Sizning kodingiz)
                     if (indicator) {
                         indicator.style.left = `calc(${index * 20 + 10}% - 45px)`;
@@ -1118,27 +1118,27 @@ async function handleGlobalNavigation(targetPage) {
 
     // 6. Kontentni yuklash (Render)
     if (targetPage === 'earn') await loadHtmlIntoContent('./earn/earn.html', 'earncontent');
-    else if (targetPage === 'rank') { 
-        await loadHtmlIntoContent('./rank/rank.html', 'rankcontent'); 
-        if (typeof initRankPage === 'function') initRankPage(); 
+    else if (targetPage === 'rank') {
+        await loadHtmlIntoContent('./rank/rank.html', 'rankcontent');
+        if (typeof initRankPage === 'function') initRankPage();
     }
-    else if (targetPage === 'wallet') { 
-        await loadHtmlIntoContent('./wallet/wallet.html', 'walletcontent'); 
-        if (window.initTonWallet) window.initTonWallet(); 
+    else if (targetPage === 'wallet') {
+        await loadHtmlIntoContent('./wallet/wallet.html', 'walletcontent');
+        if (window.initTonWallet) window.initTonWallet();
     }
-    else if (targetPage === 'invite') { 
-        await loadHtmlIntoContent('./friends/friends.html', 'invitecontent'); 
-        if (typeof initInvite === 'function') initInvite(); 
+    else if (targetPage === 'invite') {
+        await loadHtmlIntoContent('./friends/friends.html', 'invitecontent');
+        if (typeof initInvite === 'function') initInvite();
     }
     else if (targetPage === 'shop' && typeof renderShop === 'function') renderShop();
     else if (targetPage === 'daily' && typeof renderDaily === 'function') renderDaily();
     else if (targetPage === 'income') await loadHtmlIntoContent('./income/income.html', 'incomecontent');
     else if (targetPage === 'key') await loadHtmlIntoContent('./key/key.html', 'keycontent');
     else if (targetPage === 'gamelist') {
-         document.body.classList.add('is-gaming'); 
-         const panel = document.querySelector('.panel');
-         if (panel) panel.classList.add('is-gaming');
-         if (typeof renderGames === 'function') renderGames();
+        document.body.classList.add('is-gaming');
+        const panel = document.querySelector('.panel');
+        if (panel) panel.classList.add('is-gaming');
+        if (typeof renderGames === 'function') renderGames();
     }
 }
 
@@ -1169,7 +1169,7 @@ document.addEventListener('click', (ev) => {
     if (target.closest('#shopCardPreview')) return handleGlobalNavigation('shop');
     if (target.closest('#dailyBtn')) return handleGlobalNavigation('daily');
     if (target.closest('#gameCardPreview')) return handleGlobalNavigation('gamelist');
-    
+
     if (target.closest('#incomeCardPreview') || target.closest('#incomeBtn')) {
         ev.preventDefault();
         return handleGlobalNavigation('income');

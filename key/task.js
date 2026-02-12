@@ -41,7 +41,7 @@
        ASOSIY OCHISH MANTIQI (DELEGATION)
     ================================ */
     document.addEventListener('click', function (e) {
-        
+
         // 1-MUHIM TUZATISH: Agar bosilgan joy Modal (pop) ichida bo'lsa, kodni to'xtat
         // Bu "Close" tugmasi bosilganda qayta ochilishini oldini oladi
         if (popModal.contains(e.target)) return;
@@ -86,7 +86,7 @@
 
     // Modal ichidagi linklar (shaffof) bosilganda
     // Bu yerda eski murakkab bind funksiyasini shunchaki delegation bilan almashtiramiz
-    upsubmitDiv.addEventListener('click', function(e) {
+    upsubmitDiv.addEventListener('click', function (e) {
         const shaffof = e.target.closest('.shaffof');
         if (shaffof) {
             const link = shaffof.querySelector('a');
