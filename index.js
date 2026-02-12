@@ -1018,7 +1018,7 @@ function updateInterface(pageName) {
     }
 
     // --- 4. TELEGRAM BACK BUTTON ---
-    if (pageName === 'game') {
+    if (pageName === 'lastActiveTab') {
         Telegram.WebApp.BackButton.hide();
     } else {
         Telegram.WebApp.BackButton.show();
@@ -1027,7 +1027,6 @@ function updateInterface(pageName) {
     }
 }
 
-// --- 2. Uyga qaytish funksiyasi ---
 // Aqlli orqaga qaytish funksiyasi
 function goBackSmart() {
     // Agar hozir Daily yoki Shop ochiq bo'lsa, qayerdan kelgan bo'lsak, o'sha yerga qaytamiz
