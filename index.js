@@ -1,4 +1,9 @@
-let lastActiveTab = 'game';
+// Hozir qaysi sahifada turganimiz
+let currentPage = 'game'; 
+
+// Oxirgi marta qaysi ASOSIY TAB (Earn, Rank..) ochiq bo'lganini eslab qolish uchun
+let lastMainTab = 'game'; 
+
 const DECIMALS = 18n;
 const UNIT = 10n ** DECIMALS;
 
@@ -979,7 +984,18 @@ function switchSection(activeId) {
         const el = document.getElementById(id);
         if (el) el.style.display = (id === activeId) ? 'block' : 'none';
     });
+    // Hamma qutilarni yopamiz
+    Object.values(sections).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+
+    // Faqat keraklisini ochamiz
+    const activeId = sections[targetPage];
+    const activeEl = document.getElementById(activeId);
+    if (activeEl) activeEl.style.display = 'block';
 }
+
 
 // --- 1. Interface (Ko'rinish) Boshqaruvchisi ---
 function updateInterface(pageName) {
