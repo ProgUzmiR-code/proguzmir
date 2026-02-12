@@ -976,7 +976,7 @@ async function loadHtmlIntoContent(url, containerId) {
 function switchSection(activeId) {
     // Barcha mavjud bo'limlar ro'yxati
     const allSections = [
-        'content', 'rankcontent', 'walletcontent', 'invitecontent', 'earncontent', // Tablar
+        'gamecontent', 'rankcontent', 'walletcontent', 'invitecontent', 'earncontent', // Tablar
         'incomecontent', 'keycontent', 'shopcontent', 'dailycontent', 'gamecontent', 'gamelistcontent' // Ichki bo'limlar
     ];
     
@@ -984,18 +984,7 @@ function switchSection(activeId) {
         const el = document.getElementById(id);
         if (el) el.style.display = (id === activeId) ? 'block' : 'none';
     });
-    // Hamma qutilarni yopamiz
-    Object.values(sections).forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-    });
-
-    // Faqat keraklisini ochamiz
-    const activeId = sections[targetPage];
-    const activeEl = document.getElementById(activeId);
-    if (activeEl) activeEl.style.display = 'block';
 }
-
 
 // --- 1. Interface (Ko'rinish) Boshqaruvchisi ---
 function updateInterface(pageName) {
@@ -1043,12 +1032,19 @@ function updateInterface(pageName) {
     }
 }
 
-// --- 2. Uyga qaytish funksiyasi ---
-// Aqlli orqaga qaytish funksiyasi
 function goBackSmart() {
-    // Agar hozir Daily yoki Shop ochiq bo'lsa, qayerdan kelgan bo'lsak, o'sha yerga qaytamiz
-    handleGlobalNavigation(lastActiveTab);
+    // 1. Agar biz ASOSIY TABLARda bo'lsak -> GAME ga qaytish shart!
+    const mainTabs = ['rank', 'wallet', 'invite', 'earn'];
+
+    if (mainTabs.includes(currentPage)) {
+        handleGlobalNavigation('game'); // <--- MANA SHU YERDA YECHIM
+    } 
+    // 2. Agar biz ICHKI SAHIFAda bo'lsak (Shop, Daily...) -> Oxirgi TABga qaytamiz
+    else {
+        handleGlobalNavigation(lastMainTab);
+    }
 }
+
 
 // --- Event Listener ichida ---
 document.addEventListener('click', (ev) => {
@@ -1098,10 +1094,10 @@ async function handleGlobalNavigation(targetPage) {
     console.log("O'tilmoqda:", targetPage);
 
     // 1. Asosiy Tablarni aniqlaymiz
-    const mainTabs = ['game', 'earn', 'rank', 'wallet', 'invite'];
+    const tabs = ['game', 'earn', 'rank', 'wallet', 'invite'];
 
     // 2. Agar foydalanuvchi asosiy tabga o'tayotgan bo'lsa, uni eslab qolamiz
-    if (mainTabs.includes(targetPage)) {
+    if (tabs.includes(targetPage)) {
         lastActiveTab = targetPage; 
     }
 
