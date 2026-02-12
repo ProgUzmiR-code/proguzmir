@@ -970,48 +970,57 @@ async function loadHtmlIntoContent(url, containerId) {
 }
 // --- NEW: header visibility control per page ---
 
+// A) Qutilarni almashtirish (ID larni to'g'ri yozish shart!)
+function switchSection(targetPage) {
+    // HTML dagi ID lar ro'yxati (Sizning HTML ga moslab yozdim)
+    const sections = {
+        'game': 'gamecontent',       // HTMLda id="gamecontent"
+        'rank': 'rankcontent',
+        'wallet': 'walletcontent',
+        'invite': 'invitecontent',
+        'earn': 'earncontent',
+        'shop': 'shopcontent',
+        'daily': 'dailycontent',
+        'gamelist': 'gamelistcontent',
+        'income': 'incomecontent',
+        'key': 'keycontent'
+    };
 
-
-// --- 1. Yordamchi: Bo'limlarni almashtirish ---
-function switchSection(activeId) {
-    // Barcha mavjud bo'limlar ro'yxati
-    const allSections = [
-        'gamecontent', 'rankcontent', 'walletcontent', 'invitecontent', 'earncontent', // Tablar
-        'incomecontent', 'keycontent', 'shopcontent', 'dailycontent', 'gamecontent', 'gamelistcontent' // Ichki bo'limlar
-    ];
-    
-    allSections.forEach(id => {
+    // 1. Hammasini yopamiz
+    Object.values(sections).forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.style.display = (id === activeId) ? 'block' : 'none';
+        if (el) el.style.display = 'none';
     });
+
+    // 2. Keraklisini ochamiz
+    const activeId = sections[targetPage];
+    const activeEl = document.getElementById(activeId);
+    if (activeEl) activeEl.style.display = 'block';
 }
 
-// --- 1. Interface (Ko'rinish) Boshqaruvchisi ---
+// B) Interfeys va Tugmalarni boshqarish
 function updateInterface(pageName) {
     const header = document.querySelector('.header');
     const nav = document.querySelector('.nav');
 
-    // 1. Header va Navni yashirish
+    // Yashirinishi kerak bo'lgan sahifalar
     const hideNavPages = ['shop', 'key', 'daily', 'income', 'gamelist']; 
-    const hideheaderPages = ['shop', 'key', 'daily', 'gamelist', 'rank', 'wallet', 'invite', 'earn']; 
+    const hideHeaderPages = ['shop', 'key', 'daily', 'gamelist', 'rank', 'wallet', 'invite', 'earn']; 
 
-    const ishideheader = hideheaderPages.includes(pageName);
-    const ishidenav = hideNavPages.includes(pageName);
+    // Header va Nav holati
+    if (header) header.style.display = hideHeaderPages.includes(pageName) ? 'none' : 'flex';
+    if (nav) nav.style.display = hideNavPages.includes(pageName) ? 'none' : 'flex';
 
-    if (header) header.style.display = ishideheader ? 'none' : 'flex';
-    if (nav) nav.style.display = ishidenav ? 'none' : 'flex';
-
-    // --- 2. YANGI: O'YIN EFFEKTINI TOZALASH (MUHIM JOYI) ---
-    // Agar biz hozir 'gamelist' sahifasida bo'lmasak, effektni o'chiramiz
+    // O'yin effekti (faqat gamelist uchun)
     if (pageName !== 'gamelist') {
         document.body.classList.remove('is-gaming');
         const panel = document.querySelector('.panel');
         if (panel) panel.classList.remove('is-gaming');
     }
 
-    // --- 3. FON RANGINI O'ZGARTIRISH ---
-    const darkBackgroundPages = ['rank', 'wallet', 'income'];
-    if (darkBackgroundPages.includes(pageName)) {
+    // Fon rangini boshqarish
+    const darkPages = ['rank', 'wallet', 'income'];
+    if (darkPages.includes(pageName)) {
         document.body.style.background = "#06121a";
         document.body.style.backgroundImage = "none";
     } else {
@@ -1022,231 +1031,128 @@ function updateInterface(pageName) {
         document.body.style.backgroundAttachment = "fixed";
     }
 
-    // --- 4. TELEGRAM BACK BUTTON ---
+    // TELEGRAM BACK BUTTON
     if (pageName === 'game') {
         Telegram.WebApp.BackButton.hide();
     } else {
         Telegram.WebApp.BackButton.show();
-        Telegram.WebApp.BackButton.offClick(goBackSmart);
-        Telegram.WebApp.BackButton.onClick(goBackSmart);
+        Telegram.WebApp.BackButton.offClick(goBackSmart); // Eski eventni o'chiramiz
+        Telegram.WebApp.BackButton.onClick(goBackSmart);  // Yangisini ulaymiz
     }
 }
 
+
+// ==================================================
+// 3. NAVIGATSIYA MANTIQI (ROUTER)
+// ==================================================
+
+// A) Aqlli Orqaga Qaytish
 function goBackSmart() {
-    // 1. Agar biz ASOSIY TABLARda bo'lsak -> GAME ga qaytish shart!
+    // Asosiy Tablar (Bular GAME ga qaytadi)
     const mainTabs = ['rank', 'wallet', 'invite', 'earn'];
+    
+    // Ichki Sahifalar (Bular lastMainTab ga qaytadi)
+    const subPages = ['shop', 'key', 'daily', 'income', 'gamelist'];
 
     if (mainTabs.includes(currentPage)) {
-        handleGlobalNavigation('game'); // <--- MANA SHU YERDA YECHIM
+        // Rank, Wallet, Earn -> GAME
+        handleGlobalNavigation('game');
     } 
-    // 2. Agar biz ICHKI SAHIFAda bo'lsak (Shop, Daily...) -> Oxirgi TABga qaytamiz
-    else {
+    else if (subPages.includes(currentPage)) {
+        // Shop, Daily -> Qayerdan kelgan bo'lsa o'sha yerga (Earn yoki Game)
         handleGlobalNavigation(lastMainTab);
+    } 
+    else {
+        // Xavfsizlik uchun
+        handleGlobalNavigation('game');
+    }
+}
+
+// B) Asosiy O'tish Funksiyasi
+async function handleGlobalNavigation(targetPage) {
+    console.log("O'tilmoqda:", targetPage);
+    
+    // 1. Hozirgi sahifani yangilaymiz
+    currentPage = targetPage;
+
+    // 2. Agar bu ASOSIY TAB bo'lsa, uni eslab qolamiz
+    // (O'zgaruvchi nomi to'g'rilandi: lastMainTab)
+    const mainTabs = ['game', 'rank', 'wallet', 'invite', 'earn'];
+    if (mainTabs.includes(targetPage)) {
+        lastMainTab = targetPage;
+    }
+
+    // 3. Interfeysni yangilash
+    updateInterface(targetPage);
+
+    // 4. Qutini almashtirish
+    switchSection(targetPage);
+
+    // 5. Pastki menyu (Tab) aktivligini to'g'irlash
+    document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
+    if (mainTabs.includes(targetPage)) {
+        document.querySelector(`.nav .tab[data-tab="${targetPage}"]`)?.classList.add('active');
+    }
+
+    // 6. Kontentni yuklash (Render)
+    if (targetPage === 'earn') await loadHtmlIntoContent('./earn/earn.html', 'earncontent');
+    else if (targetPage === 'rank') { 
+        await loadHtmlIntoContent('./rank/rank.html', 'rankcontent'); 
+        if (typeof initRankPage === 'function') initRankPage(); 
+    }
+    else if (targetPage === 'wallet') { 
+        await loadHtmlIntoContent('./wallet/wallet.html', 'walletcontent'); 
+        if (window.initTonWallet) window.initTonWallet(); 
+    }
+    else if (targetPage === 'invite') { 
+        await loadHtmlIntoContent('./friends/friends.html', 'invitecontent'); 
+        if (typeof initInvite === 'function') initInvite(); 
+    }
+    else if (targetPage === 'shop' && typeof renderShop === 'function') renderShop();
+    else if (targetPage === 'daily' && typeof renderDaily === 'function') renderDaily();
+    else if (targetPage === 'income') await loadHtmlIntoContent('./income/income.html', 'incomecontent');
+    else if (targetPage === 'key') await loadHtmlIntoContent('./key/key.html', 'keycontent');
+    else if (targetPage === 'gamelist') {
+         document.body.classList.add('is-gaming'); 
+         const panel = document.querySelector('.panel');
+         if (panel) panel.classList.add('is-gaming');
+         if (typeof renderGames === 'function') renderGames();
     }
 }
 
 
-// --- Event Listener ichida ---
+// ==================================================
+// 4. EVENT LISTENERS (CLICK)
+// ==================================================
+
 document.addEventListener('click', (ev) => {
     const target = ev.target;
 
-    // 1. "Back" tugmalari (dailyBack, shopBack va h.k.)
-    // Agar Daily'dagi back tugmasi bosilsa:
-    if (target.id === 'dailyBack') {
+    // 1. ORQAGA TUGMALARI (Manual bosilganda)
+    const backIds = ['incomeBack', 'keyBack', 'shopBack', 'dailyBack', 'backFromGame'];
+    if (backIds.includes(target.id) || target.closest('#backFromGame')) {
         ev.preventDefault();
-        goBackSmart(); // <-- O'ZGARDI: goHome() o'rniga goBackSmart()
+        goBackSmart(); // <-- Bu funksiyani chaqiramiz
         return;
     }
 
-    // Boshqa "Back" tugmalari uchun (masalan Shop yoki Key)
-    // Ular ham qayerdan kelgan bo'lsa o'sha yerga qaytishini xohlasangiz:
-     const backIds = ['incomeBack', 'keyBack', 'shopBack', 'dailyBack', 'backFromGame'];
-    
-    if (backIds.includes(target.id) || target.closest('#backFromGame')) {
-        ev.preventDefault();
-        goBackSmart(); // Uyga qaytaradi
+    // 2. TABLAR (Pastki menyu)
+    const tabEl = target.closest('.nav .tab');
+    if (tabEl) {
+        handleGlobalNavigation(tabEl.dataset.tab);
         return;
     }
-    // 2. Shop, Daily va boshqa menyu tugmalari
+
+    // 3. BOSHQA MENYU TUGMALARI
     if (target.closest('#shopCardPreview')) return handleGlobalNavigation('shop');
     if (target.closest('#dailyBtn')) return handleGlobalNavigation('daily');
     if (target.closest('#gameCardPreview')) return handleGlobalNavigation('gamelist');
     
-    // Income va Key (ID orqali)
     if (target.closest('#incomeCardPreview') || target.closest('#incomeBtn')) {
-        ev.preventDefault(); // href ga o'tib ketmasligi uchun
+        ev.preventDefault();
         return handleGlobalNavigation('income');
     }
     if (target.closest('#luckyKeyBtn')) return handleGlobalNavigation('key');
-
-    // 3. Tablar
-    const tabEl = target.closest('.nav .tab');
-    if (tabEl) {
-        document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
-        tabEl.classList.add('active');
-        handleGlobalNavigation(tabEl.dataset.tab);
-    }
-});
-
-
-// --- 3. GLOBAL NAVIGATSIYA FUNKSIYASI (ROUTER) ---
-async function handleGlobalNavigation(targetPage) {
-    console.log("O'tilmoqda:", targetPage);
-
-    // 1. Asosiy Tablarni aniqlaymiz
-    const tabs = ['game', 'earn', 'rank', 'wallet', 'invite'];
-
-    // 2. Agar foydalanuvchi asosiy tabga o'tayotgan bo'lsa, uni eslab qolamiz
-    if (tabs.includes(targetPage)) {
-        lastMainTab = targetPage; 
-    }
-
-    // --- INTERFEYSNI YANGILASH ---
-    updateInterface(targetPage);
-
-    // A) GAME (Bosh sahifa)
-    if (targetPage === 'game') {
-        switchSection('gamecontent');
-        updateInterface('game');
-        
-        // Tabni aktivlashtirish
-        document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
-        document.querySelector('.nav .tab[data-tab="game"]')?.classList.add('active');
-    }
-
-    // B) RANK
-    else if (targetPage === 'rank') {
-        switchSection('rankcontent');
-        updateInterface('rank');
-        await loadHtmlIntoContent('./rank/rank.html', 'rankcontent');
-        if (typeof initRankPage === 'function') initRankPage();
-    }
-
-    // C) WALLET
-    else if (targetPage === 'wallet') {
-        switchSection('walletcontent');
-        updateInterface('wallet');
-        await loadHtmlIntoContent('./wallet/wallet.html', 'walletcontent');
-        if (window.initTonWallet) window.initTonWallet();
-        if (window.initMetaMaskWallet) window.initMetaMaskWallet();
-    }
-
-    // D) INVITE
-    else if (targetPage === 'invite') {
-        switchSection('invitecontent');
-        updateInterface('invite');
-        await loadHtmlIntoContent('./friends/friends.html', 'invitecontent');
-        if (typeof initInvite === 'function') initInvite();
-    }
-
-    // E) EARN
-    else if (targetPage === 'earn') {
-        switchSection('earncontent');
-        updateInterface('earn');
-        await loadHtmlIntoContent('./earn/earn.html', 'earncontent');
-    }
-
-    // --- ICHKI TUGMALAR ---
-
-    // F) INCOME (Daromad)
-    else if (targetPage === 'income') {
-        switchSection('incomecontent');
-        updateInterface('income');
-        await loadHtmlIntoContent('./income/income.html', 'incomecontent');
-    }
-
-    // G) KEY (Omadli kalit)
-    else if (targetPage === 'key') {
-        switchSection('keycontent');
-        updateInterface('key');
-        await loadHtmlIntoContent('./key/key.html', 'keycontent');
-    }
-
-    else if (targetPage === 'shop') {
-        switchSection('shopcontent'); // 1. Qutini ochamiz
-        updateInterface('shop');      // 2. Headerni yashiramiz (agar kerak bo'lsa)
-        
-        // 3. Render funksiyasini chaqiramiz
-        if (typeof renderShop === 'function') {
-            renderShop(); 
-        } else {
-            console.error("renderShop funksiyasi topilmadi! shop.js ulanganmi?");
-        }
-    }
-
-    // H) DAILY (Kunlik)
-   // G) DAILY (Kunlik mukofot)
-    else if (targetPage === 'daily') {
-        switchSection('dailycontent');
-        updateInterface('daily');
-
-        if (typeof renderDaily === 'function') {
-            renderDaily();
-        }
-    }
-
-    // I) GAMELIST (O'yinlar ro'yxati)
-    else if (targetPage === 'gamelist') {
-        // Eski kodingizdagi maxsus effektlar
-        document.body.classList.add('is-gaming');
-        const panel = document.querySelector('.panel');
-        if (panel) panel.classList.add('is-gaming');
-
-        switchSection('gamelistcontent'); // Yoki o'yinlar qayerda chiqishini xohlasangiz
-        updateInterface('gamelist');
-        
-        if (typeof renderGames === 'function') renderGames(); // renderGames endi gamelistcontent ga chizishi kerak
-    }
-
-}
-
-
-// --- 4. MASTER EVENT LISTENER (Hamma narsani eshituvchi quloq) ---
-document.addEventListener('click', (ev) => {
-    // 1. Agar TAB bosilsa
-    const tabEl = ev.target.closest('.nav .tab');
-    if (tabEl) {
-        // Tab vizual aktivligi
-        document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
-        tabEl.classList.add('active');
-        
-        handleGlobalNavigation(tabEl.dataset.tab);
-        return; // Bajarildi, to'xtatamiz
-    }
-
-    // 2. Agar INCOME tugmalari bosilsa (#incomeCardPreview yoki #incomeBtn)
-    if (ev.target.closest('#incomeCardPreview') || ev.target.closest('#incomeBtn')) {
-        ev.stopPropagation();
-        handleGlobalNavigation('income');
-        return;
-    }
-
-    // 3. Agar KEY (Lucky) tugmasi bosilsa
-    if (ev.target.closest('#luckyKeyBtn')) {
-        ev.stopPropagation();
-        handleGlobalNavigation('key');
-        return;
-    }
-
-    // 4. Agar DAILY tugmasi bosilsa
-    if (ev.target.closest('#dailyBtn')) {
-        ev.stopPropagation();
-        handleGlobalNavigation('daily');
-        return;
-    }
-
-    // 5. Agar GAME PREVIEW (O'yinlar) bosilsa
-    if (ev.target.closest('#gameCardPreview')) {
-        ev.stopPropagation();
-        handleGlobalNavigation('gamelist');
-        return;
-    }
-    // SHOP TUGMASI BOSILSA
-    if (ev.target.closest('#shopCardPreview')) {
-        ev.stopPropagation();
-        handleGlobalNavigation('shop'); // <-- Shopni och
-        return;
-    }
 });
 
 
