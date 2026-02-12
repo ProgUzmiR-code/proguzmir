@@ -1079,26 +1079,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script src="index.js"></script>
-  <script>
-    let nav = document.querySelector('.nav');
-    let tabs = nav.querySelectorAll('.tab');
-    let nav_indicator = nav.querySelector('.nav-indicator');
-
-    tabs.forEach((tab, i) => {
-      tab.onclick = () => {
-
-        // eski active ni o‘chir
-        nav.querySelector('.tab.active')?.classList.remove('active');
-
-        // yangisiga qo‘y
-        tab.classList.add('active');
-
-        // indikatorni harakatlantirish
-        nav_indicator.style.left = `calc(${i * 20 + 10}% - 45px)`;
-      };
-    });
-
-  </script>
   <script src="/render/game.js"></script>
   <script src="/render/shop.js"></script>
   <script src="/render/daily.js"></script>

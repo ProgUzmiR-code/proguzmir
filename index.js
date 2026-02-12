@@ -1068,17 +1068,16 @@ function goBackSmart() {
     }
 }
 
-// B) Asosiy O'tish Funksiyasi
+// B) Asosiy O'tish Funksiyasi (Router)
 async function handleGlobalNavigation(targetPage) {
     console.log("O'tilmoqda:", targetPage);
     
     // 1. Hozirgi sahifani yangilaymiz
     currentPage = targetPage;
 
-    // 2. Agar bu ASOSIY TAB bo'lsa, uni eslab qolamiz
-    // (O'zgaruvchi nomi to'g'rilandi: lastMainTab)
-    const mainTabs = ['game', 'rank', 'wallet', 'invite', 'earn'];
-    if (mainTabs.includes(targetPage)) {
+    // 2. Agar bu ASOSIY TAB bo'lsa, eslab qolamiz
+    const allMainTabs = ['game', 'rank', 'wallet', 'invite', 'earn'];
+    if (allMainTabs.includes(targetPage)) {
         lastMainTab = targetPage;
     }
 
@@ -1088,11 +1087,34 @@ async function handleGlobalNavigation(targetPage) {
     // 4. Qutini almashtirish
     switchSection(targetPage);
 
-    // 5. Pastki menyu (Tab) aktivligini to'g'irlash
-    document.querySelectorAll('.nav .tab').forEach(t => t.classList.remove('active'));
-    if (mainTabs.includes(targetPage)) {
-        document.querySelector(`.nav .tab[data-tab="${targetPage}"]`)?.classList.add('active');
+    // ============================================================
+    // 5. PASTKI MENYU VA INDIKATORNI BOSHQARISH (YANGILANGAN QISM)
+    // ============================================================
+    
+    // Faqat Asosiy Tablar uchun ishlaydi
+    if (allMainTabs.includes(targetPage)) {
+        const nav = document.querySelector('.nav');
+        const indicator = nav?.querySelector('.nav-indicator');
+        const allTabs = nav?.querySelectorAll('.tab');
+
+        if (nav && allTabs) {
+            allTabs.forEach((tab, index) => {
+                // 1. Aktiv klassni o'chirish/yoqish
+                if (tab.dataset.tab === targetPage) {
+                    tab.classList.add('active');
+                    
+                    // 2. Indikatorni shu tabga surish (Sizning kodingiz)
+                    if (indicator) {
+                        indicator.style.left = `calc(${index * 20 + 10}% - 45px)`;
+                    }
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+        }
     }
+
+    // ============================================================
 
     // 6. Kontentni yuklash (Render)
     if (targetPage === 'earn') await loadHtmlIntoContent('./earn/earn.html', 'earncontent');
