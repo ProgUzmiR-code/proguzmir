@@ -1,4 +1,6 @@
-let lastActiveTab = 'game';
+let lastActiveTab = 'game'; // Oxirgi kirgan ASOSIY bo'limimiz
+let currentPage = 'game';   // Ayni damda turgan sahifamiz
+
 const DECIMALS = 18n;
 const UNIT = 10n ** DECIMALS;
 
@@ -281,7 +283,7 @@ function rankImage(rank) {
 
 
 // UI rendering per tab (Game updated with taps logic)
-const gameContent = document.getElementById('gameContent');
+const gamecontent = document.getElementById('gamecontent');
 function renderGame() {
     const s = loadState();
     console.log({
@@ -307,7 +309,7 @@ function renderGame() {
     const skinObj = SKINS.find(x => x.id === selectedSkin);
     const displayImg = skinObj ? skinObj.file : defaultTapImg;
     // top quick access: Skin (left), Shop (center), Game (right) — diamond THEN previews THEN tap
-    gameContent.innerHTML = `
+    gamecontent.innerHTML = `
         
       <div class="tap-area">
         <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10px;">
@@ -971,8 +973,8 @@ async function loadHtmlIntoContent(url, containerId) {
 function switchSection(activeId) {
     // Barcha mavjud bo'limlar ro'yxati
     const allSections = [
-        'gameContent', 'rankcontent', 'walletcontent', 'invitecontent', 'earncontent', // Tablar
-        'incomecontent', 'keycontent', 'shopcontent', 'dailycontent', 'gameContent', 'gamelistcontent' // Ichki bo'limlar
+        'gamecontent', 'rankcontent', 'walletcontent', 'invitecontent', 'earncontent', // Tablar
+        'incomecontent', 'keycontent', 'shopcontent', 'dailycontent', 'gamecontent', 'gamelistcontent' // Ichki bo'limlar
     ];
     
     allSections.forEach(id => {
@@ -1018,7 +1020,7 @@ function updateInterface(pageName) {
     }
 
     // --- 4. TELEGRAM BACK BUTTON ---
-    if (pageName === 'lastActiveTab') {
+    if (pageName === 'game') {
         Telegram.WebApp.BackButton.hide();
     } else {
         Telegram.WebApp.BackButton.show();
@@ -1079,21 +1081,31 @@ document.addEventListener('click', (ev) => {
 // --- 3. GLOBAL NAVIGATSIYA FUNKSIYASI (ROUTER) ---
 async function handleGlobalNavigation(targetPage) {
     console.log("O'tilmoqda:", targetPage);
-
+     // 1. Hozirgi sahifani eslab
+    currentPage = targetPage;
     // 1. Asosiy Tablarni aniqlaymiz
-    const mainTabs = ['game', 'earn', 'rank', 'wallet', 'invite'];
+    const mainTabs = ['earn', 'rank', 'wallet', 'invite'];
 
     // 2. Agar foydalanuvchi asosiy tabga o'tayotgan bo'lsa, uni eslab qolamiz
     if (mainTabs.includes(targetPage)) {
         lastActiveTab = targetPage; 
+    } else if (targetPage === 'game') {
+        lastActiveTab = 'game';
     }
 
     // --- INTERFEYSNI YANGILASH ---
     updateInterface(targetPage);
 
+     // ID larni to'g'irlash (katta-kichik harflarga e'tibor bering!)
+    // Sizda ba'zisi 'gamecontent', ba'zisi 'rankcontent'
+    let contentId = targetPage + 'content';
+    if (targetPage === 'game') contentId = 'gamecontent'; 
+
+    switchSection(contentId);
+
     // A) GAME (Bosh sahifa)
     if (targetPage === 'game') {
-        switchSection('gameContent');
+        switchSection('gamecontent');
         updateInterface('game');
         
         // Tabni aktivlashtirish
