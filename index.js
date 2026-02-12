@@ -1098,7 +1098,7 @@ async function handleGlobalNavigation(targetPage) {
 
     // 2. Agar foydalanuvchi asosiy tabga o'tayotgan bo'lsa, uni eslab qolamiz
     if (tabs.includes(targetPage)) {
-        lastActiveTab = targetPage; 
+        lastMainTab = targetPage; 
     }
 
     // --- INTERFEYSNI YANGILASH ---
