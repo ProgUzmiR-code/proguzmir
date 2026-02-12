@@ -1,6 +1,4 @@
-let lastActiveTab = 'game'; // Oxirgi kirgan ASOSIY bo'limimiz
-let currentPage = 'game';   // Ayni damda turgan sahifamiz
-
+let lastActiveTab = 'game';
 const DECIMALS = 18n;
 const UNIT = 10n ** DECIMALS;
 
@@ -973,7 +971,7 @@ async function loadHtmlIntoContent(url, containerId) {
 function switchSection(activeId) {
     // Barcha mavjud bo'limlar ro'yxati
     const allSections = [
-        'gamecontent', 'rankcontent', 'walletcontent', 'invitecontent', 'earncontent', // Tablar
+        'content', 'rankcontent', 'walletcontent', 'invitecontent', 'earncontent', // Tablar
         'incomecontent', 'keycontent', 'shopcontent', 'dailycontent', 'gamecontent', 'gamelistcontent' // Ichki bo'limlar
     ];
     
@@ -1029,6 +1027,7 @@ function updateInterface(pageName) {
     }
 }
 
+// --- 2. Uyga qaytish funksiyasi ---
 // Aqlli orqaga qaytish funksiyasi
 function goBackSmart() {
     // Agar hozir Daily yoki Shop ochiq bo'lsa, qayerdan kelgan bo'lsak, o'sha yerga qaytamiz
@@ -1081,27 +1080,17 @@ document.addEventListener('click', (ev) => {
 // --- 3. GLOBAL NAVIGATSIYA FUNKSIYASI (ROUTER) ---
 async function handleGlobalNavigation(targetPage) {
     console.log("O'tilmoqda:", targetPage);
-     // 1. Hozirgi sahifani eslab
-    currentPage = targetPage;
+
     // 1. Asosiy Tablarni aniqlaymiz
-    const mainTabs = ['earn', 'rank', 'wallet', 'invite'];
+    const mainTabs = ['game', 'earn', 'rank', 'wallet', 'invite'];
 
     // 2. Agar foydalanuvchi asosiy tabga o'tayotgan bo'lsa, uni eslab qolamiz
     if (mainTabs.includes(targetPage)) {
         lastActiveTab = targetPage; 
-    } else if (targetPage === 'game') {
-        lastActiveTab = 'game';
     }
 
     // --- INTERFEYSNI YANGILASH ---
     updateInterface(targetPage);
-
-     // ID larni to'g'irlash (katta-kichik harflarga e'tibor bering!)
-    // Sizda ba'zisi 'gamecontent', ba'zisi 'rankcontent'
-    let contentId = targetPage + 'content';
-    if (targetPage === 'game') contentId = 'gamecontent'; 
-
-    switchSection(contentId);
 
     // A) GAME (Bosh sahifa)
     if (targetPage === 'game') {
