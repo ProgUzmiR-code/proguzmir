@@ -348,8 +348,8 @@ document.addEventListener('click', function (e) {
     if (!tab) return;
 
     const tabs = document.querySelectorAll('.tab_item');
-    tabs.forEach(item => item.classList.remove('checked'));
-    tab.classList.add('checked');
+    tabs.forEach(item => item.classList.remove('checked1'));
+    tab.classList.add('checked1');
 
     const target = tab.getAttribute('data-target');
     const mainContainer = document.querySelector('.earn-main');
