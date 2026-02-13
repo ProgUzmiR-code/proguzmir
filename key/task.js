@@ -1,6 +1,3 @@
-// Diqqat: Bu kod ishlashi uchun JS faylingizning boshida Supabase ulanishi 
-// (supabase.createClient) to'g'ri sozlangan bo'lishi kerak.
-
 (() => {
     const popModal = document.getElementById('pop');
     const upsubmitDiv = popModal.querySelector('.upsubmit');
@@ -60,7 +57,6 @@
         const taskId = this.getAttribute('data-task-id');
 
         // Telegram ob'ektidan foydalanuvchi ID sini olish
-        // (Sizning Mini App'ingizda bu qanday olinayotgan bo'lsa shunday ishlating)
         const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
 
         if (!tgId) {
@@ -81,7 +77,8 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    telegram_id: tgId,
+                    // Bazada `wallet` ustuni text bo'lgani uchun, ID ni matnga o'giramiz
+                    telegram_id: tgId.toString(),
                     task_id: taskId,
                     user_code: userCode
                 })
@@ -92,10 +89,6 @@
             if (data.success) {
                 // KOD TO'G'RI! API tangalarni qo'shdi.
                 alert(data.message);
-
-                // (Ixtiyoriy) Ekranda foydalanuvchi balansini ko'rsatadigan joyingiz 
-                // bo'lsa, data.new_balance orqali uni yangilashingiz mumkin.
-
                 closeModal();
             } else {
                 // Noto'g'ri kod yoki boshqa xato (API xabari chiqadi)
@@ -113,7 +106,6 @@
             }
         }
     });
-
 
     // Videoni ochish
     if (watchBtn) watchBtn.onclick = function () {
