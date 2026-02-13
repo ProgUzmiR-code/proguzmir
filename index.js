@@ -770,13 +770,10 @@ async function loadHtmlIntoContent(url, containerId) {
         container.innerHTML = `<div style="padding:20px;color:red;">Internet error!</div>`;
     }
 }
-// --- NEW: header visibility control per page ---
-
 // A) Qutilarni almashtirish (ID larni to'g'ri yozish shart!)
 function switchSection(targetPage) {
-    // HTML dagi ID lar ro'yxati (Sizning HTML ga moslab yozdim)
     const sections = {
-        'game': 'gamecontent',       // HTMLda id="gamecontent"
+        'game': 'gamecontent',
         'rank': 'rankcontent',
         'wallet': 'walletcontent',
         'invite': 'invitecontent',
@@ -805,22 +802,18 @@ function updateInterface(pageName) {
     const header = document.querySelector('.header');
     const nav = document.querySelector('.nav');
 
-    // Yashirinishi kerak bo'lgan sahifalar
     const hideNavPages = ['shop', 'key', 'daily', 'income', 'gamelist'];
     const hideHeaderPages = ['shop', 'key', 'daily', 'gamelist', 'rank', 'wallet', 'invite', 'earn'];
 
-    // Header va Nav holati
     if (header) header.style.display = hideHeaderPages.includes(pageName) ? 'none' : 'flex';
     if (nav) nav.style.display = hideNavPages.includes(pageName) ? 'none' : 'flex';
 
-    // O'yin effekti (faqat gamelist uchun)
     if (pageName !== 'gamelist') {
         document.body.classList.remove('is-gaming');
         const panel = document.querySelector('.panel');
         if (panel) panel.classList.remove('is-gaming');
     }
 
-    // Fon rangini boshqarish (Sizdagi kod...)
     const darkPages = ['rank', 'wallet', 'income'];
     if (darkPages.includes(pageName)) {
         document.body.style.background = "#06121a";
@@ -833,69 +826,49 @@ function updateInterface(pageName) {
         document.body.style.backgroundAttachment = "fixed";
     }
 
-    // ✅ TELEGRAM BACK BUTTON (Xavfsiz qilingan versiyasi)
+    // ✅ TELEGRAM BACK BUTTON (Mutlaqo xavfsiz versiyasi)
     if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.BackButton) {
         if (pageName === 'game') {
-            Telegram.WebApp.BackButton.hide();
+            window.Telegram.WebApp.BackButton.hide();
         } else {
-            Telegram.WebApp.BackButton.show();
-            Telegram.WebApp.BackButton.offClick(goBackSmart); // Eski eventni o'chiramiz
-            Telegram.WebApp.BackButton.onClick(goBackSmart);  // Yangisini ulaymiz
+            window.Telegram.WebApp.BackButton.show();
+            window.Telegram.WebApp.BackButton.offClick(goBackSmart); 
+            window.Telegram.WebApp.BackButton.onClick(goBackSmart);  
         }
     }
 }
-
 
 // ==================================================
 // 3. NAVIGATSIYA MANTIQI (ROUTER)
 // ==================================================
 
-// A) Aqlli Orqaga Qaytish
 function goBackSmart() {
-    // Asosiy Tablar (Bular GAME ga qaytadi)
     const mainTabs = ['rank', 'wallet', 'invite', 'earn'];
-
-    // Ichki Sahifalar (Bular lastMainTab ga qaytadi)
     const subPages = ['shop', 'key', 'daily', 'income', 'gamelist'];
 
     if (mainTabs.includes(currentPage)) {
-        // Rank, Wallet, Earn -> GAME
         handleGlobalNavigation('game');
     }
     else if (subPages.includes(currentPage)) {
-        // Shop, Daily -> Qayerdan kelgan bo'lsa o'sha yerga (Earn yoki Game)
         handleGlobalNavigation(lastMainTab);
     }
     else {
-        // Xavfsizlik uchun
         handleGlobalNavigation('game');
     }
 }
 
-// B) Asosiy O'tish Funksiyasi (Router)
 async function handleGlobalNavigation(targetPage) {
     console.log("O'tilmoqda:", targetPage);
-
-    // 1. Hozirgi sahifani yangilaymiz
     currentPage = targetPage;
 
-    // 2. Agar bu ASOSIY TAB bo'lsa, eslab qolamiz
     const allMainTabs = ['game', 'rank', 'wallet', 'invite', 'earn'];
     if (allMainTabs.includes(targetPage)) {
         lastMainTab = targetPage;
     }
 
-    // 3. Interfeysni yangilash
     updateInterface(targetPage);
-
-    // 4. Qutini almashtirish
     switchSection(targetPage);
 
-    // ============================================================
-    // 5. PASTKI MENYU VA INDIKATORNI BOSHQARISH (YANGILANGAN QISM)
-    // ============================================================
-
-    // Faqat Asosiy Tablar uchun ishlaydi
     if (allMainTabs.includes(targetPage)) {
         const nav = document.querySelector('.nav');
         const indicator = nav?.querySelector('.nav-indicator');
@@ -903,11 +876,8 @@ async function handleGlobalNavigation(targetPage) {
 
         if (nav && allTabs) {
             allTabs.forEach((tab, index) => {
-                // 1. Aktiv klassni o'chirish/yoqish
                 if (tab.dataset.tab === targetPage) {
                     tab.classList.add('active');
-
-                    // 2. Indikatorni shu tabga surish (Sizning kodingiz)
                     if (indicator) {
                         indicator.style.left = `calc(${index * 20 + 10}% - 45px)`;
                     }
@@ -918,10 +888,7 @@ async function handleGlobalNavigation(targetPage) {
         }
     }
 
-    // ============================================================
-    // 6. Kontentni yuklash (Render)
     if (targetPage === 'game') {
-        // ✅ YANGI QO'SHILDI: Game bosilganda o'yinni chizish
         if (typeof renderGame === 'function') renderGame();
     }
     else if (targetPage === 'earn') await loadHtmlIntoContent('./earn/earn.html', 'earncontent');
@@ -948,6 +915,41 @@ async function handleGlobalNavigation(targetPage) {
         if (typeof renderGames === 'function') renderGames();
     }
 }
+
+// ==================================================
+// 4. EVENT LISTENERS (CLICK) - ✅ TUSHIRIB QOLDIRILGAN QISM TIKLANDI
+// ==================================================
+
+document.addEventListener('click', (ev) => {
+    const target = ev.target;
+
+    // 1. ORQAGA TUGMALARI
+    const backIds = ['incomeBack', 'keyBack', 'shopBack', 'dailyBack', 'backFromGame'];
+    if (backIds.includes(target.id) || target.closest('#backFromGame')) {
+        ev.preventDefault();
+        goBackSmart(); 
+        return;
+    }
+
+    // 2. TABLAR (Pastki menyu)
+    const tabEl = target.closest('.nav .tab');
+    if (tabEl) {
+        handleGlobalNavigation(tabEl.dataset.tab);
+        return;
+    }
+
+    // 3. BOSHQA MENYU TUGMALARI (Tepadagi qutilar)
+    if (target.closest('#shopCardPreview')) return handleGlobalNavigation('shop');
+    if (target.closest('#dailyBtn')) return handleGlobalNavigation('daily');
+    if (target.closest('#gameCardPreview')) return handleGlobalNavigation('gamelist');
+
+    if (target.closest('#incomeCardPreview') || target.closest('#incomeBtn')) {
+        ev.preventDefault();
+        return handleGlobalNavigation('income');
+    }
+    if (target.closest('#luckyKeyBtn')) return handleGlobalNavigation('key');
+});
+
 
 // ==================================================
 // 4. EVENT LISTENERS (CLICK)
