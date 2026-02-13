@@ -36,7 +36,7 @@ export default async function handler(req, res) {
         const { data: userData, error: userError } = await supabase
             .from('user_states') // O'zingizning foydalanuvchilar jadvalingiz nomi (masalan 'users')
             .select('diamond') // Balans saqlanadigan ustun nomi
-            .eq('telegram_id', telegram_id)
+            .eq('wallet', telegram_id)
             .single();
 
         if (userError || !userData) {
