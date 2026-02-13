@@ -2,6 +2,7 @@
   "version": 2,
   "builds": [
     { "src": "config/db.js", "use": "@vercel/node" },
+    { "src": "api/key.js", "use": "@vercel/node" },
     { "src": "api/wallet-data.js", "use": "@vercel/node" },
     { "src": "api/stars.js", "use": "@vercel/node" },
     { "src": "api/referral_save.js", "use": "@vercel/node" },
@@ -14,6 +15,7 @@
   ],
   "routes": [
     { "src": "/config/db", "dest": "/config/db.js" },
+    { "src": "/api/key", "dest": "/api/key.js" },
     { "src": "/api/wallet-data", "dest": "/api/wallet-data.js" },
     { "src": "/api/stars", "dest": "/api/stars.js" },
     { "src": "/api/leaderboard", "dest": "/api/leaderboard.js" },
