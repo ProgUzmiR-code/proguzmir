@@ -1,9 +1,4 @@
-// Hozir qaysi sahifada turganimiz
-let currentPage = 'game';
-
-// Oxirgi marta qaysi ASOSIY TAB (Earn, Rank..) ochiq bo'lganini eslab qolish uchun
-let lastMainTab = 'game';
-
+// index.js
 const DECIMALS = 18n;
 const UNIT = 10n ** DECIMALS;
 
@@ -47,9 +42,12 @@ const SKINS = [
     { id: "master.png", name: "Master", file: "./image/master.png" }
 ];
 
-
 const KEY_KEYS_TOTAL = 'proguzmir_keys_total';
 const KEY_KEYS_USED = 'proguzmir_keys_used';
+
+let state = loadState();
+let currentPage = 'game';
+let lastMainTab = 'game';
 
 // Init state (default PRC = 0.0000000000000037 PRC -> 3700 wei)
 // --- YANGI: foydalanuvchiga xos key yaratish funksiyasi ---
@@ -58,43 +56,37 @@ function makeUserKey(baseKey, wallet) {
 }
 // --- YANGILANGAN loadState() ---
 function loadState() {
-    // prefer Telegram WebApp id when available (we store it as "tg_{id}" in KEY_WALLET)
+    // 1. Telegram ID'ni olish va xavfsiz hamyon manzilini saqlash
     let wallet = localStorage.getItem(KEY_WALLET) || "";
     try {
         const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
         if (tgId) {
-            // ensure the KEY_WALLET contains tg_{id} while in Telegram
             wallet = String(tgId);
             localStorage.setItem(KEY_WALLET, wallet);
         }
     } catch (e) { /* ignore */ }
 
-    const keyPRC = makeUserKey(KEY_PRC, wallet);
-    const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
-    const keyTaps = makeUserKey(KEY_TAPS_USED, wallet);
-    const keyCap = makeUserKey(KEY_TAP_CAP, wallet);
-    const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
-    const keyEnergy = makeUserKey(KEY_ENERGY, wallet);
-    const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
-    const keyTodayIndex = makeUserKey(KEY_TODAY_INDEX, wallet);
-    const keyRank = makeUserKey(KEY_RANK, wallet);  // YANGI: Rank key
-
-    const prc = localStorage.getItem(keyPRC) || "0";
-    const diamond = parseInt(localStorage.getItem(keyDiamond) || "0", 10);
-    const tapsUsed = parseInt(localStorage.getItem(keyTaps) || "0", 10);
-    const tapCap = parseInt(localStorage.getItem(keyCap) || String(DEFAULT_TAP_CAP), 10);
+    // 2. Faqatgina zararsiz bo'lgan dizayn (skin) ma'lumotini o'qiymiz
+    const keySkin = typeof makeUserKey === 'function' ? makeUserKey(KEY_SELECTED_SKIN, wallet) : KEY_SELECTED_SKIN;
     const selectedSkin = localStorage.getItem(keySkin) || "";
-    const maxEnergy = parseInt(localStorage.getItem(keyMaxEnergy) || String(DEFAULT_MAX_ENERGY), 10);
-    const todayIndex = parseInt(localStorage.getItem(keyTodayIndex) || "0", 10);
-    const rank = localStorage.getItem(keyRank) || "bronze";  // YANGI: Rank
 
-    let energy = parseInt(localStorage.getItem(keyEnergy) || String(maxEnergy), 10);
-    // clamp energy to maxEnergy to avoid >max on corrupted storage
-    if (Number.isNaN(energy)) energy = maxEnergy;
-    if (energy > maxEnergy) energy = maxEnergy;
+    const maxE = typeof DEFAULT_MAX_ENERGY !== 'undefined' ? DEFAULT_MAX_ENERGY : 1000;
+    const cap = typeof DEFAULT_TAP_CAP !== 'undefined' ? DEFAULT_TAP_CAP : 0;
 
-    return { prcWei: BigInt(prc), diamond, wallet, tapsUsed, tapCap, selectedSkin, energy, maxEnergy, todayIndex, rank }; // YANGI: rank qo'shdi
+    return {
+        prcWei: BigInt(0), // O'yin puli 0 dan boshlanadi
+        diamond: 0,        // Olmoslar 0
+        wallet: wallet,
+        tapsUsed: 0,
+        tapCap: cap,
+        selectedSkin: selectedSkin,
+        energy: maxE,      // Boshlang'ich to'liq energiya
+        maxEnergy: maxE,
+        todayIndex: 0,
+        rank: "bronze"     // Boshlang'ich daraja
+    };
 }
+
 // yangi helper: jami PRC (sotib olingan prcWei + diamond*conversion)
 function getTotalPRCWei(state) {
     return state.prcWei;
@@ -123,92 +115,6 @@ function chargeCost(state, costWei) {
     if (overpay > 0n) state.prcWei += overpay;
     saveState(state);
     return true;
-}
-
-// --- YANGILANGAN saveState(): remove server sync, keep local snapshot only ---
-function saveState(state) {
-    // prefer explicit state.wallet but fallback to persisted KEY_WALLET
-    const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
-    const keyPRC = makeUserKey(KEY_PRC, wallet);
-    const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
-    const keyTaps = makeUserKey(KEY_TAPS_USED, wallet);
-    const keyCap = makeUserKey(KEY_TAP_CAP, wallet);
-    const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
-    const keyEnergy = makeUserKey(KEY_ENERGY, wallet);
-    const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
-    const keyTodayIndex = makeUserKey(KEY_TODAY_INDEX, wallet);
-    const keyRank = makeUserKey(KEY_RANK, wallet);  // YANGI: Rank key
-    const keyKeysTotal = makeUserKey(KEY_KEYS_TOTAL, wallet);
-    const keyKeysUsed = makeUserKey(KEY_KEYS_USED, wallet);
-
-    // ensure state.wallet stored so subsequent loads use same identifier
-    if (!state.wallet && wallet) state.wallet = wallet;
-
-    localStorage.setItem(keyPRC, state.prcWei.toString());
-    localStorage.setItem(keyDiamond, String(state.diamond));
-    localStorage.setItem(keyTaps, String(state.tapsUsed));
-    localStorage.setItem(keyCap, String(state.tapCap));
-    // ensure energy/maxEnergy saved with sensible defaults (avoid writing "undefined")
-    const maxE = (typeof state.maxEnergy === 'number' && !Number.isNaN(state.maxEnergy)) ? state.maxEnergy : DEFAULT_MAX_ENERGY;
-    const en = (typeof state.energy === 'number' && !Number.isNaN(state.energy)) ? Math.min(state.energy, maxE) : maxE;
-    localStorage.setItem(keyEnergy, String(en));
-    localStorage.setItem(keyMaxEnergy, String(maxE));
-    if (typeof state.todayIndex === 'number') localStorage.setItem(keyTodayIndex, String(state.todayIndex));
-    if (state.rank) localStorage.setItem(keyRank, state.rank);  // YANGI: Rank saqlash
-
-    if (state.selectedSkin)
-        localStorage.setItem(keySkin, state.selectedSkin);
-    else localStorage.removeItem(keySkin);
-
-    if (state.wallet)
-        localStorage.setItem(KEY_WALLET, state.wallet);
-
-    const total = getTotalPRCWei(state);
-    const header = document.getElementById('headerBalance');
-    if (header) header.innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(total);
-    const energyEl = document.getElementById('tapsCount');
-    if (energyEl && typeof state.energy !== 'undefined') energyEl.textContent = `${state.energy} / ${state.maxEnergy}`;
-
-    // Local-only snapshot (no server sync)
-    try {
-        if (typeof saveSnapshotToLocal === 'function') saveSnapshotToLocal(state);
-    } catch (err) {
-        console.warn('saveState: snapshot error', err);
-    }
-
-    // Non-blocking Supabase sync (best-effort) — guarded to avoid ReferenceError
-    try {
-        if (typeof supabaseClient !== 'undefined' && supabaseClient && typeof syncSnapshotToSupabase === 'function') {
-            // call existing helper if present
-            syncSnapshotToSupabase(state).catch(e => console.warn('Supabase sync failed', e));
-        } else {
-            // if no helper, optionally perform a minimal best-effort upsert when publishable client exists
-            if (typeof supabaseClient !== 'undefined' && supabaseClient && typeof supabaseClient.from === 'function') {
-                // best-effort, non-blocking write (don't await)
-                (async () => {
-                    try {
-                        await supabaseClient.from('user_states').upsert({
-                            wallet: state.wallet || localStorage.getItem(KEY_WALLET) || 'guest',
-                            prc_wei: String(state.prcWei || '0'),
-                            diamond: state.diamond || 0,
-                            taps_used: state.tapsUsed || 0,
-                            tap_cap: state.tapCap || 0,
-                            selected_skin: state.selectedSkin || null,
-                            energy: state.energy || 0,
-                            max_energy: state.maxEnergy || 0,
-                            today_index: state.todayIndex || 0,
-                            updated_at: new Date().toISOString()
-                        });
-                    } catch (e) {
-                        // swallow errors — sync is best-effort
-                        console.warn('Supabase best-effort upsert failed', e);
-                    }
-                })();
-            }
-        }
-    } catch (e) {
-        console.warn('Supabase sync invocation error', e);
-    }
 }
 
 // doim 18 onlik ko'rsatadi (full precision)
@@ -249,11 +155,9 @@ function fmtPRC(wei) {
         }
         return out;
     }
-
     const compressedFrac = compressFraction(frac);
     return (negative ? '-' : '') + whole + '.' + compressedFrac + ' PRC';
 }
-
 
 function getRankFromWei(wei) {
     // Exact thresholds in Wei (18 decimals)
@@ -284,11 +188,10 @@ function rankImage(rank) {
     return map[rank] || "./image/logo.png";
 }
 
-
 // UI rendering per tab (Game updated with taps logic)
 const gamecontent = document.getElementById('gamecontent');
 function renderGame() {
-    const s = loadState();
+    const s = state;
     console.log({
         prcWei: s.prcWei.toString(),
         diamond: s.diamond,
@@ -474,122 +377,89 @@ function renderGame() {
         }, 1000);
     }
 
-
-    // tap handler: use energy (manual only) 
     const tapBtn = document.getElementById('tapBtn');
+
     tapBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const state = loadState();
-        if (state.energy <= 0) { alert('Energy is running out - wait for it to be replenished.'); return; }
 
-        // update model
+        // 1. DIQQAT: const state = loadState(); qatori olib tashlandi.
+        // Biz to'g'ridan-to'g'ri xotirada turgan global 'state' dan foydalanamiz.
+
+        if (state.energy <= 0) {
+            alert('Energiya tugadi - tiklanishini kuting.');
+            return;
+        }
+
+        // 2. Modelni (xotirani) yangilaymiz
         state.energy = Math.max(0, state.energy - 1);
         state.diamond += 1;
-        // --- YANGI: har bir tap uchun PRC ham oshadi ---
-        state.prcWei = (state.prcWei || 0n) + BASE_WEI;
 
-        // update UI immediately (don't rely on saveState to succeed)
+        // PRC ni xavfsiz BigInt sifatida qo'shamiz
+        const baseWei = typeof BASE_WEI !== 'undefined' ? BigInt(BASE_WEI) : 0n;
+        const currentPrc = typeof state.prcWei === 'bigint' ? state.prcWei : BigInt(state.prcWei || 0);
+        state.prcWei = currentPrc + baseWei;
+
+        // 3. Ekranni darhol yangilaymiz (foydalanuvchi qotib qolishni sezmasligi uchun)
         const diamondEl = document.getElementById('diamondTop');
         if (diamondEl) diamondEl.textContent = '💎 ' + state.diamond;
+
         const tapsEl = document.getElementById('tapsCount');
         if (tapsEl) tapsEl.textContent = `${state.energy} / ${state.maxEnergy}`;
 
-        // persist, but guard against errors so UI remains responsive
+        // PRC ekranda ham yangilanishi uchun funksiya chaqiramiz (agar mavjud bo'lsa)
+        if (typeof updateHeaderPRC === 'function') updateHeaderPRC();
+
+        // 4. O'zgarishlarni saqlash funksiyasiga yuboramiz
         try {
-            saveState(state);
+            saveState(state); // Bu endi faqat Supabase'ga yuboradi, localStorage'ga emas
         } catch (err) {
             console.error('Failed to save state on tap:', err);
-            // As a fallback ensure localStorage has the latest values
-            try {
-                const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
-                localStorage.setItem(makeUserKey(KEY_PRC, wallet), state.prcWei.toString());
-                localStorage.setItem(makeUserKey(KEY_DIAMOND, wallet), String(state.diamond));
-                localStorage.setItem(makeUserKey(KEY_ENERGY, wallet), String(state.energy));
-            } catch (e) { /* ignore fallback errors */ }
+            // DIQQAT: localStorage ga yozadigan zararli fallback (zaxira) kodi butunlay olib tashlandi!
         }
     });
+
 
     // quick open handlers (top-left previews) — skin preview now opens shop (skin tab inside shop)
     const skinPreview = document.getElementById('skinCardPreview');
     if (skinPreview) skinPreview.addEventListener('click', (ev) => { ev.stopPropagation(); renderShop(); });
 
-    // --- Shop Preview handler ---
-
-
-
-
-
-    // Har qanday joydagi Daily tugmasini tutib olish uchun global listener
-
-
-
     // energy auto-recharge
-
     if (window._energyInterval) { clearInterval(window._energyInterval); window._energyInterval = null; }
 
     // Doimiy interval: har soniyada tekshiradi
-    window._energyInterval = setInterval(async () => {
+    window._energyInterval = setInterval(() => {
+        // loadState() va async olib tashlandi. Faqat global state tekshiriladi
+        if (!state || typeof state.energy !== 'number' || typeof state.maxEnergy !== 'number') return;
 
-        const st = loadState();
-
-
-        // Agar birdaniga maxEnergy 0 yoki noto'g'ri bo'lib qolsa:
-        if (!st.maxEnergy || st.maxEnergy <= 0) {
-            console.warn("⚠️ Diqqat! Energiya 0 ga tushib qoldi. Avtomatik tuzatilmoqda...");
-
-            st.maxEnergy = 1000;
-
-            if (st.energy <= 0) st.energy = 1000;
-
-            saveState(st);
-
-            // 3. Ekranni darhol yangilaymiz (foydalanuvchi kutib qolmasligi uchun)
+        if (state.maxEnergy <= 0) {
+            state.maxEnergy = typeof DEFAULT_MAX_ENERGY !== 'undefined' ? DEFAULT_MAX_ENERGY : 1000;
+            if (state.energy <= 0) state.energy = state.maxEnergy;
             const el = document.getElementById('tapsCount');
-            if (el) el.textContent = `${st.energy} / ${st.maxEnergy}`;
-
+            if (el) el.textContent = `${state.energy} / ${state.maxEnergy}`;
         }
 
-        // Asosiy mantiq (Sizning kodingiz)
-        if (typeof st.energy !== 'number' || typeof st.maxEnergy !== 'number') return;
-
-        if (st.energy < st.maxEnergy) {
-            // Kichik o'zgarish: 1 ga oshirganda maxEnergy dan oshib ketmasligini ta'minlash
-            st.energy = Math.min(st.maxEnergy, st.energy + 1);
-
-            saveState(st);
-
+        if (state.energy < state.maxEnergy) {
+            state.energy = Math.min(state.maxEnergy, state.energy + 1);
+            // ❌ DIQQAT: saveState(st) mutlaqo yozilmaydi! Server charchamaydi!
             const el = document.getElementById('tapsCount');
-            if (el) el.textContent = `${st.energy} / ${st.maxEnergy}`;
+            if (el) el.textContent = `${state.energy} / ${state.maxEnergy}`;
         }
-
     }, 1000);
-
     // replace modal behavior: clicking boostsBox opens Boosts "page" (renderBoosts)
     const boostsBox = document.getElementById('boostsBox');
     if (boostsBox) {
         boostsBox.addEventListener('click', (ev) => { ev.stopPropagation(); renderBoosts(); });
     }
 
-
-
 } // end of function renderGame()
 
 // --- YANGI: Header PRC ni real vaqitda yangilash (global) ---
 function updateHeaderPRC() {
     const headerBalance = document.getElementById('headerBalance');
-    if (headerBalance) {
-        const KEY_PRC = "proguzmir_prc_wei";
-        const KEY_WALLET = "proguzmir_wallet";
-
-        function makeUserKey(baseKey, wallet) {
-            return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest";
-        }
-
-        const wallet = localStorage.getItem(KEY_WALLET) || "";
-        const keyPRC = makeUserKey(KEY_PRC, wallet);
+    if (headerBalance && state) { // state borligini tekshiramiz
         try {
-            const prcWei = BigInt(localStorage.getItem(keyPRC) || "0");
+            const prcWei = typeof state.prcWei === 'bigint' ? state.prcWei : BigInt(state.prcWei || 0);
             headerBalance.innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(prcWei);
         } catch (e) {
             console.log("Header PRC update error:", e);
@@ -597,24 +467,11 @@ function updateHeaderPRC() {
     }
 }
 
-// --- YANGI: Header Diamond ni real vaqitda yangilash (global) ---
 function updateHeaderDiamond() {
-    // Header ichidagi diamond ni yangilash (agar mavjud bo'lsa)
-    // Bu function header.html yoki panel componentida diamond display qilish uchun
     const diamondElements = document.querySelectorAll('[data-diamond-display]');
-    if (diamondElements.length === 0) return; // Agar diamond display element yo'q bo'lsa chiq
-
-    const KEY_DIAMOND = "proguzmir_diamond";
-    const KEY_WALLET = "proguzmir_wallet";
-
-    function makeUserKey(baseKey, wallet) {
-        return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest";
-    }
-
-    const wallet = localStorage.getItem(KEY_WALLET) || "";
-    const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
+    if (diamondElements.length === 0 || !state) return;
     try {
-        const diamond = parseInt(localStorage.getItem(keyDiamond) || "0", 10);
+        const diamond = state.diamond || 0;
         diamondElements.forEach(el => {
             el.textContent = String(diamond);
         });
@@ -622,6 +479,7 @@ function updateHeaderDiamond() {
         console.log("Header Diamond update error:", e);
     }
 }
+
 
 // Update on load and every second
 updateHeaderPRC();
@@ -631,12 +489,6 @@ setInterval(() => {
     updateHeaderDiamond();
 }, 1000);
 
-
-
-// default: start loader then render UI and stop loader after content settles
-window.startLoader && window.startLoader();
-// call renderAndWait to render and hide loader when ready
-setTimeout(renderAndWait, 250); // small delay so loader visuals start
 
 document.querySelectorAll('img').forEach(img => {
     img.addEventListener('contextmenu', e => e.preventDefault()); // O'ng bosish menyusini o'chiradi
@@ -795,56 +647,6 @@ function saveSnapshotToLocal(state) {
         localStorage.setItem(key, JSON.stringify(snap));
     } catch (err) { console.warn('saveSnapshotToLocal error', err); }
 }
-
-// --- NEW: profile modal + Telegram-based wallet assignment + local-only startup ---
-(async function clientOnlyStartup() {
-    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-    if (tgUser && tgUser.id) {
-        const walletId = String(tgUser.id);
-        localStorage.setItem(KEY_WALLET, walletId);
-
-        // YANGI: Load ALL data from Supabase using helper
-        try {
-            const supabaseState = await loadAllStateFromSupabase(walletId);
-            if (supabaseState) {
-                // Save to localStorage and sync state
-                localStorage.setItem(makeUserKey(KEY_PRC, walletId), supabaseState.prcWei.toString());
-                localStorage.setItem(makeUserKey(KEY_DIAMOND, walletId), String(supabaseState.diamond));
-                localStorage.setItem(makeUserKey(KEY_TAPS_USED, walletId), String(supabaseState.tapsUsed));
-                localStorage.setItem(makeUserKey(KEY_TAP_CAP, walletId), String(supabaseState.tapCap));
-                localStorage.setItem(makeUserKey(KEY_SELECTED_SKIN, walletId), supabaseState.selectedSkin);
-                localStorage.setItem(makeUserKey(KEY_ENERGY, walletId), String(supabaseState.energy));
-                localStorage.setItem(makeUserKey(KEY_MAX_ENERGY, walletId), String(supabaseState.maxEnergy));
-                localStorage.setItem(makeUserKey(KEY_TODAY_INDEX, walletId), String(supabaseState.todayIndex));
-
-                // YANGI: Save additional fields
-                if (supabaseState.dailyWeekStart) {
-                    localStorage.setItem(makeUserKey(KEY_DAILY_WEEK_START, walletId), supabaseState.dailyWeekStart);
-                }
-                if (supabaseState.dailyClaims) {
-                    localStorage.setItem(makeUserKey(KEY_DAILY_CLAIMS, walletId), JSON.stringify(supabaseState.dailyClaims));
-                }
-                if (supabaseState.cardsLvl) {
-                    localStorage.setItem(makeUserKey('proguzmir_cards_lvl', walletId), JSON.stringify(supabaseState.cardsLvl));
-                }
-                if (supabaseState.boosts) {
-                    localStorage.setItem(makeUserKey('proguzmir_boosts', walletId), JSON.stringify(supabaseState.boosts));
-                }
-                // YANGI: Save keys
-                localStorage.setItem(makeUserKey(KEY_KEYS_TOTAL, walletId), String(supabaseState.keysTotal));
-                localStorage.setItem(makeUserKey(KEY_KEYS_USED, walletId), String(supabaseState.keysUsed));
-
-                updateHeaderPRC();
-                const diamondEl = document.getElementById('diamondTop');
-                if (diamondEl) diamondEl.textContent = '💎 ' + supabaseState.diamond;
-            }
-        } catch (e) {
-            console.warn('clientOnlyStartup: supabase load skipped or failed', e);
-        }
-    }
-
-    renderAndWait();
-})();
 
 // Profile modal: open when .profile clicked, show info from Telegram WebApp initDataUnsafe.user or localStorage
 (function setupProfileClick() {
@@ -1018,7 +820,7 @@ function updateInterface(pageName) {
         if (panel) panel.classList.remove('is-gaming');
     }
 
-    // Fon rangini boshqarish
+    // Fon rangini boshqarish (Sizdagi kod...)
     const darkPages = ['rank', 'wallet', 'income'];
     if (darkPages.includes(pageName)) {
         document.body.style.background = "#06121a";
@@ -1031,13 +833,15 @@ function updateInterface(pageName) {
         document.body.style.backgroundAttachment = "fixed";
     }
 
-    // TELEGRAM BACK BUTTON
-    if (pageName === 'game') {
-        Telegram.WebApp.BackButton.hide();
-    } else {
-        Telegram.WebApp.BackButton.show();
-        Telegram.WebApp.BackButton.offClick(goBackSmart); // Eski eventni o'chiramiz
-        Telegram.WebApp.BackButton.onClick(goBackSmart);  // Yangisini ulaymiz
+    // ✅ TELEGRAM BACK BUTTON (Xavfsiz qilingan versiyasi)
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.BackButton) {
+        if (pageName === 'game') {
+            Telegram.WebApp.BackButton.hide();
+        } else {
+            Telegram.WebApp.BackButton.show();
+            Telegram.WebApp.BackButton.offClick(goBackSmart); // Eski eventni o'chiramiz
+            Telegram.WebApp.BackButton.onClick(goBackSmart);  // Yangisini ulaymiz
+        }
     }
 }
 
@@ -1115,9 +919,12 @@ async function handleGlobalNavigation(targetPage) {
     }
 
     // ============================================================
-
     // 6. Kontentni yuklash (Render)
-    if (targetPage === 'earn') await loadHtmlIntoContent('./earn/earn.html', 'earncontent');
+    if (targetPage === 'game') {
+        // ✅ YANGI QO'SHILDI: Game bosilganda o'yinni chizish
+        if (typeof renderGame === 'function') renderGame();
+    }
+    else if (targetPage === 'earn') await loadHtmlIntoContent('./earn/earn.html', 'earncontent');
     else if (targetPage === 'rank') {
         await loadHtmlIntoContent('./rank/rank.html', 'rankcontent');
         if (typeof initRankPage === 'function') initRankPage();
@@ -1142,269 +949,155 @@ async function handleGlobalNavigation(targetPage) {
     }
 }
 
-
 // ==================================================
 // 4. EVENT LISTENERS (CLICK)
 // ==================================================
+// index.js oxiridagi DOMContentLoaded qismi
 
-document.addEventListener('click', (ev) => {
-    const target = ev.target;
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const saved = await loadUserState();
+        if (saved) {
+            if (typeof restoreState === 'function') {
+                restoreState(saved);
+            } else {
+                // Ma'lumotlarni State'ga yozish
+                state.prcWei = saved.prcWei;
+                state.diamond = saved.diamond;
+                state.energy = saved.energy;
+                state.maxEnergy = saved.maxEnergy;
+                state.tapsUsed = saved.tapsUsed;
+                state.selectedSkin = saved.selectedSkin;
+                state.todayIndex = saved.todayIndex;
+                state.wallet = saved.wallet; 
 
-    // 1. ORQAGA TUGMALARI (Manual bosilganda)
-    const backIds = ['incomeBack', 'keyBack', 'shopBack', 'dailyBack', 'backFromGame'];
-    if (backIds.includes(target.id) || target.closest('#backFromGame')) {
-        ev.preventDefault();
-        goBackSmart(); // <-- Bu funksiyani chaqiramiz
-        return;
+                state.dailyWeekStart = saved.dailyWeekStart;
+                state.dailyClaims = saved.dailyClaims;
+                state.cardsLvl = saved.cardsLvl;
+                state.boosts = saved.boosts;
+                state.keysTotal = saved.keysTotal;
+                state.keysUsed = saved.keysUsed;
+                state.tonWallet = saved.tonWallet;
+                state.cryptoWallet = saved.cryptoWallet;
+
+                // LocalStorage'ga yozish (Ton va Cripto ishlashi uchun)
+                if (state.wallet) {
+                    if (state.tonWallet) {
+                        localStorage.setItem("proguzmir_ton_wallet", state.tonWallet); 
+                        localStorage.setItem("proguzmir_ton_type", "ton");
+                    }
+                    if (state.cryptoWallet) {
+                        localStorage.setItem("proguzmir_crypto_wallet", state.cryptoWallet); 
+                        localStorage.setItem("proguzmir_crypto_type", "evm");
+                    }
+                }
+                saveState(state);
+            }
+        } else {
+            if (typeof initNewUser === 'function') initNewUser();
+        }
+    } catch (e) { 
+        console.warn('startup load error', e); 
     }
 
-    // 2. TABLAR (Pastki menyu)
-    const tabEl = target.closest('.nav .tab');
-    if (tabEl) {
-        handleGlobalNavigation(tabEl.dataset.tab);
-        return;
+    // ✅ XATO TO'G'RILANDI: Asl ishlaydigan o'yinni chizish funksiyasini chaqiramiz
+    if (typeof renderAndWait === 'function') {
+        renderAndWait();
+    } else if (typeof renderGame === 'function') {
+        renderGame();
     }
 
-    // 3. BOSHQA MENYU TUGMALARI
-    if (target.closest('#shopCardPreview')) return handleGlobalNavigation('shop');
-    if (target.closest('#dailyBtn')) return handleGlobalNavigation('daily');
-    if (target.closest('#gameCardPreview')) return handleGlobalNavigation('gamelist');
-
-    if (target.closest('#incomeCardPreview') || target.closest('#incomeBtn')) {
-        ev.preventDefault();
-        return handleGlobalNavigation('income');
-    }
-    if (target.closest('#luckyKeyBtn')) return handleGlobalNavigation('key');
+    // Orqa fonda 30 soniyada bir marta bazaga saqlash mexanizmini yoqamiz
+    if (typeof setupAutoSave === 'function') setupAutoSave();
 });
-
-
 
 // Replace the Supabase sync invocation in saveState with a guarded version
 function saveState(state) {
-    // prefer explicit state.wallet but fallback to persisted KEY_WALLET
+    // 1. Faqatgina xavf tug'dirmaydigan ma'lumotlarni mahalliy saqlaymiz (masalan, hamyon manzili va tanlangan dizayn/skin)
     const wallet = state.wallet || localStorage.getItem(KEY_WALLET) || "";
-    const keyPRC = makeUserKey(KEY_PRC, wallet);
-    const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
-    const keyTaps = makeUserKey(KEY_TAPS_USED, wallet);
-    const keyCap = makeUserKey(KEY_TAP_CAP, wallet);
-    const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
-    const keyEnergy = makeUserKey(KEY_ENERGY, wallet);
-    const keyMaxEnergy = makeUserKey(KEY_MAX_ENERGY, wallet);
-    const keyTodayIndex = makeUserKey(KEY_TODAY_INDEX, wallet);
-    const keyRank = makeUserKey(KEY_RANK, wallet);  // YANGI: Rank key
-    const keyKeysTotal = makeUserKey(KEY_KEYS_TOTAL, wallet);
-    const keyKeysUsed = makeUserKey(KEY_KEYS_USED, wallet);
-
-    // ensure state.wallet stored so subsequent loads use same identifier
     if (!state.wallet && wallet) state.wallet = wallet;
 
-    localStorage.setItem(keyPRC, state.prcWei.toString());
-    localStorage.setItem(keyDiamond, String(state.diamond));
-    localStorage.setItem(keyTaps, String(state.tapsUsed));
-    localStorage.setItem(keyCap, String(state.tapCap));
-    // ensure energy/maxEnergy saved with sensible defaults (avoid writing "undefined")
-    const maxE = (typeof state.maxEnergy === 'number' && !Number.isNaN(state.maxEnergy)) ? state.maxEnergy : DEFAULT_MAX_ENERGY;
-    const en = (typeof state.energy === 'number' && !Number.isNaN(state.energy)) ? Math.min(state.energy, maxE) : maxE;
-    localStorage.setItem(keyEnergy, String(en));
-    localStorage.setItem(keyMaxEnergy, String(maxE));
-    if (typeof state.todayIndex === 'number') localStorage.setItem(keyTodayIndex, String(state.todayIndex));
-    if (state.rank) localStorage.setItem(keyRank, state.rank);  // YANGI: Rank saqlash
-
-    if (state.selectedSkin)
-        localStorage.setItem(keySkin, state.selectedSkin);
-    else localStorage.removeItem(keySkin);
-
-    if (state.wallet)
+    if (state.wallet) {
         localStorage.setItem(KEY_WALLET, state.wallet);
+    }
+
+    if (state.selectedSkin) {
+        const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
+        localStorage.setItem(keySkin, state.selectedSkin);
+    } else {
+        const keySkin = makeUserKey(KEY_SELECTED_SKIN, wallet);
+        localStorage.removeItem(keySkin);
+    }
+
 
     const total = getTotalPRCWei(state);
     const header = document.getElementById('headerBalance');
-    if (header) header.innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(total);
+    if (header) {
+        header.innerHTML = '<img src="./image/coin.png" alt="logo" style="width:25px; margin-right: 10px; vertical-align:middle;"> ' + fmtPRC(total);
+    }
+
+    // Energiyani hisoblash va holatni yangilash
+    const maxE = (typeof state.maxEnergy === 'number' && !Number.isNaN(state.maxEnergy)) ? state.maxEnergy : DEFAULT_MAX_ENERGY;
+    const en = (typeof state.energy === 'number' && !Number.isNaN(state.energy)) ? Math.min(state.energy, maxE) : maxE;
+
+    // Yangilangan energiyani state'ga qaytarib qo'yamiz, chunki endi u faqat shu state'da yashaydi
+    state.energy = en;
+    state.maxEnergy = maxE;
+
     const energyEl = document.getElementById('tapsCount');
-    if (energyEl && typeof state.energy !== 'undefined') energyEl.textContent = `${state.energy} / ${state.maxEnergy}`;
-
-    // Local-only snapshot (no server sync)
-    try {
-        if (typeof saveSnapshotToLocal === 'function') saveSnapshotToLocal(state);
-    } catch (err) {
-        console.warn('saveState: snapshot error', err);
+    if (energyEl && typeof state.energy !== 'undefined') {
+        energyEl.textContent = `${state.energy} / ${state.maxEnergy}`;
     }
-
-    // Non-blocking Supabase sync (best-effort) — guarded to avoid ReferenceError
-    try {
-        if (typeof supabaseClient !== 'undefined' && supabaseClient && typeof syncSnapshotToSupabase === 'function') {
-            // call existing helper if present
-            syncSnapshotToSupabase(state).catch(e => console.warn('Supabase sync failed', e));
-        } else {
-            // if no helper, optionally perform a minimal best-effort upsert when publishable client exists
-            if (typeof supabaseClient !== 'undefined' && supabaseClient && typeof supabaseClient.from === 'function') {
-                // best-effort, non-blocking write (don't await)
-                (async () => {
-                    try {
-                        await supabaseClient.from('user_states').upsert({
-                            wallet: state.wallet || localStorage.getItem(KEY_WALLET) || 'guest',
-                            prc_wei: String(state.prcWei || '0'),
-                            diamond: state.diamond || 0,
-                            taps_used: state.tapsUsed || 0,
-                            tap_cap: state.tapCap || 0,
-                            selected_skin: state.selectedSkin || null,
-                            energy: state.energy || 0,
-                            max_energy: state.maxEnergy || 0,
-                            today_index: state.todayIndex || 0,
-                            updated_at: new Date().toISOString()
-                        });
-                    } catch (e) {
-                        // swallow errors — sync is best-effort
-                        console.warn('Supabase best-effort upsert failed', e);
-                    }
-                })();
-            }
-        }
-    } catch (e) {
-        console.warn('Supabase sync invocation error', e);
-    }
+    // DIQQAT: Serverga har tap qilganda yozilmaydi! 
+    // Serverga yozishni eng pastdagi setupAutoSave() funksiyasi 30 soniyada bir marta tinchgina bajaradi.
 }
 
-
-
-// YANGI: Helper function to load all state from Supabase
-async function loadAllStateFromSupabase(walletId) {
-    try {
-        if (typeof supabaseClient === 'undefined' || !supabaseClient) return null;
-
-        const { data, error } = await supabaseClient
-            .from('user_states')
-            .select('*')
-            .eq('wallet', walletId)
-            .single();
-
-        if (error || !data) return null;
-
-        // Parse JSON fields
-        const dailyClaims = data.daily_claims ? JSON.parse(data.daily_claims) : null;
-        const cardsLvl = data.cards_lvl ? JSON.parse(data.cards_lvl) : null;
-        const boosts = data.boosts ? JSON.parse(data.boosts) : null;
-
-        return {
-            prcWei: BigInt(data.prc_wei || '0'),
-            diamond: data.diamond || 0,
-            wallet: data.wallet,
-            tapsUsed: data.taps_used || 0,
-            tapCap: data.tap_cap || DEFAULT_TAP_CAP,
-            selectedSkin: data.selected_skin || "",
-            energy: data.energy || DEFAULT_MAX_ENERGY,
-            maxEnergy: data.max_energy || DEFAULT_MAX_ENERGY,
-            todayIndex: data.today_index || 0,
-            dailyWeekStart: data.daily_week_start || null,
-            dailyClaims: dailyClaims,
-            cardsLvl: cardsLvl,
-            boosts: boosts,
-            // YANGI: keys fields
-            keysTotal: data.keys_total || 0,
-            keysUsed: data.keys_used || 0
-        };
-    } catch (e) {
-        console.warn('loadAllStateFromSupabase error:', e);
-        return null;
-    }
-}
-
-// --- UPDATED: clientOnlyStartup() ---
-(async function clientOnlyStartup() {
-    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-    if (tgUser && tgUser.id) {
-        const walletId = String(tgUser.id);
-        localStorage.setItem(KEY_WALLET, walletId);
-
-        // YANGI: Load ALL data from Supabase using helper
-        try {
-            const supabaseState = await loadAllStateFromSupabase(walletId);
-            if (supabaseState) {
-                // Save to localStorage and sync state
-                localStorage.setItem(makeUserKey(KEY_PRC, walletId), supabaseState.prcWei.toString());
-                localStorage.setItem(makeUserKey(KEY_DIAMOND, walletId), String(supabaseState.diamond));
-                localStorage.setItem(makeUserKey(KEY_TAPS_USED, walletId), String(supabaseState.tapsUsed));
-                localStorage.setItem(makeUserKey(KEY_TAP_CAP, walletId), String(supabaseState.tapCap));
-                localStorage.setItem(makeUserKey(KEY_SELECTED_SKIN, walletId), supabaseState.selectedSkin);
-                localStorage.setItem(makeUserKey(KEY_ENERGY, walletId), String(supabaseState.energy));
-                localStorage.setItem(makeUserKey(KEY_MAX_ENERGY, walletId), String(supabaseState.maxEnergy));
-                localStorage.setItem(makeUserKey(KEY_TODAY_INDEX, walletId), String(supabaseState.todayIndex));
-
-                // YANGI: Save additional fields
-                if (supabaseState.dailyWeekStart) {
-                    localStorage.setItem(makeUserKey(KEY_DAILY_WEEK_START, walletId), supabaseState.dailyWeekStart);
-                }
-                if (supabaseState.dailyClaims) {
-                    localStorage.setItem(makeUserKey(KEY_DAILY_CLAIMS, walletId), JSON.stringify(supabaseState.dailyClaims));
-                }
-                if (supabaseState.cardsLvl) {
-                    localStorage.setItem(makeUserKey('proguzmir_cards_lvl', walletId), JSON.stringify(supabaseState.cardsLvl));
-                }
-                if (supabaseState.boosts) {
-                    localStorage.setItem(makeUserKey('proguzmir_boosts', walletId), JSON.stringify(supabaseState.boosts));
-                }
-                // YANGI: Save keys
-                localStorage.setItem(makeUserKey(KEY_KEYS_TOTAL, walletId), String(supabaseState.keysTotal));
-                localStorage.setItem(makeUserKey(KEY_KEYS_USED, walletId), String(supabaseState.keysUsed));
-
-                updateHeaderPRC();
-                const diamondEl = document.getElementById('diamondTop');
-                if (diamondEl) diamondEl.textContent = '💎 ' + supabaseState.diamond;
-            }
-        } catch (e) {
-            console.warn('clientOnlyStartup: supabase load skipped or failed', e);
-        }
-    }
-
-    renderAndWait();
-})();
 // index.js ichidagi saveUserState funksiyasi
 
 async function saveUserState(state) {
     let st = state;
-    try { if (!st) st = loadState(); } catch (e) { st = null; }
-    if (!st) return;
+    try {
+        if (!st) st = typeof loadState === 'function' ? loadState() : null;
+    } catch (e) {
+        st = null;
+    }
 
+    if (!st) return;
     if (!window.Telegram?.WebApp?.initData) return;
 
-    const wallet = st.wallet || localStorage.getItem(KEY_WALLET) || "";
-    // ... boshqa kalitlar ...
-    const keyKeysTotal = makeUserKey(KEY_KEYS_TOTAL, wallet);
-    const keyKeysUsed = makeUserKey(KEY_KEYS_USED, wallet);
+    // 1. Faqat hamyonlar kabi xavfsiz lokal ma'lumotlarni o'qiymiz
+    const localTonWallet = localStorage.getItem("proguzmir_ton_wallet") || null;
+    const localCryptoWallet = localStorage.getItem("proguzmir_crypto_wallet") || null;
 
-    // LocalStorage dan hamyon manzillarini olamiz (ton.js va cripto.js yozgan joydan)
-    // Kalitlar ton.js va cripto.js dagi bilan bir xil bo'lishi kerak!
-    const localTonWallet = localStorage.getItem("proguzmir_ton_wallet");
-    const localCryptoWallet = localStorage.getItem("proguzmir_crypto_wallet");
-
-    // ... boshqa o'qishlar ...
-    const keysTotal = parseInt(localStorage.getItem(keyKeysTotal) || '0', 10);
-    const keysUsed = parseInt(localStorage.getItem(keyKeysUsed) || '0', 10);
-
+    // 2. DIQQAT: keys, cards, boosts kabi barcha ma'lumotlarni endi localStorage'dan EMAS, 
+    // to'g'ridan-to'g'ri xotiradagi 'st' obyektidan olamiz!
     const payload = {
-        initData: Telegram.WebApp.initData,
+        initData: window.Telegram.WebApp.initData,
         state: {
-            prcWei: String(st.prcWei),
-            diamond: st.diamond,
-            energy: st.energy,
-            maxEnergy: st.maxEnergy,
-            tapsUsed: st.tapsUsed,
-            selectedSkin: st.selectedSkin,
-            todayIndex: st.todayIndex,
-            dailyWeekStart: localStorage.getItem(makeUserKey(KEY_DAILY_WEEK_START, wallet)),
-            dailyClaims: JSON.parse(localStorage.getItem(makeUserKey(KEY_DAILY_CLAIMS, wallet)) || 'null'),
-            cardsLvl: JSON.parse(localStorage.getItem(makeUserKey('proguzmir_cards_lvl', wallet)) || 'null'),
-            boosts: JSON.parse(localStorage.getItem(makeUserKey('proguzmir_boosts', wallet)) || 'null'),
-            claimDate: localStorage.getItem(makeUserKey(KEY_REKLAM_CLAIM, wallet)),
-            keysTotal: keysTotal,
-            keysUsed: keysUsed,
+            prcWei: String(st.prcWei || '0'),
+            diamond: st.diamond || 0,
+            energy: st.energy || 0,
+            maxEnergy: st.maxEnergy || 0,
+            tapsUsed: st.tapsUsed || 0,
+            selectedSkin: st.selectedSkin || null,
+            todayIndex: st.todayIndex || 0,
 
-            // ❗ YANGI: Hamyonlarni payloadga qo'shamiz
+            // Mahalliy xotiradan (localStorage) o'qishlar o'rniga xotiradan (state) o'qish:
+            dailyWeekStart: st.dailyWeekStart || null,
+            dailyClaims: st.dailyClaims || null,
+            cardsLvl: st.cardsLvl || {},
+            boosts: st.boosts || {},
+            claimDate: st.claimDate || null,
+            keysTotal: st.keysTotal || 0,
+            keysUsed: st.keysUsed || 0,
+
+            // Hamyonlarni payloadga qo'shamiz
             tonWallet: localTonWallet,
             cryptoWallet: localCryptoWallet
         }
     };
 
+    // 3. Backend'ga yuborish
     try {
         await fetch('/api/save', {
             method: 'POST',
@@ -1416,6 +1109,7 @@ async function saveUserState(state) {
         console.warn('saveUserState error', err);
     }
 }
+
 // index.js ichidagi setupAutoSave funksiyasi
 
 function setupAutoSave() {
@@ -1429,22 +1123,26 @@ function setupAutoSave() {
             if (!st || !window.Telegram?.WebApp?.initData) return;
 
             const wallet = st.wallet || localStorage.getItem(KEY_WALLET) || "";
-            // ... boshqa o'zgaruvchilar ...
 
-            // ❗ Hamyonlarni o'qish
             const localTonWallet = localStorage.getItem("proguzmir_ton_wallet");
             const localCryptoWallet = localStorage.getItem("proguzmir_crypto_wallet");
 
             const payload = {
                 initData: Telegram.WebApp.initData,
                 state: {
-                    prcWei: String(st.prcWei),
-                    diamond: st.diamond,
-                    // ... boshqa state maydonlari ...
-                    keysTotal: parseInt(localStorage.getItem(makeUserKey(KEY_KEYS_TOTAL, wallet)) || '0', 10),
-                    keysUsed: parseInt(localStorage.getItem(makeUserKey(KEY_KEYS_USED, wallet)) || '0', 10),
+                    prcWei: String(state.prcWei),
+                    diamond: state.diamond,
+                    energy: state.energy,
+                    maxEnergy: state.maxEnergy,
+                    tapsUsed: state.tapsUsed,
+                    selectedSkin: state.selectedSkin,
+                    todayIndex: state.todayIndex,
 
-                    // ❗ YANGI: Payloadga qo'shish
+                    // ❌ XATO: localStorage.getItem(...)
+                    // ✅ TO'G'RI: To'g'ridan to'g'ri state dan o'qiymiz!
+                    keysTotal: state.keysTotal || 0,
+                    keysUsed: state.keysUsed || 0,
+
                     tonWallet: localTonWallet,
                     cryptoWallet: localCryptoWallet
                 }
@@ -1471,7 +1169,6 @@ function setupAutoSave() {
         }
     } catch (e) { /* ignore */ }
 }
-
 
 async function loadUserState() {
     if (!window.Telegram?.WebApp?.initData) return null;
@@ -1521,68 +1218,6 @@ async function loadUserState() {
         return null;
     }
 }
-// index.js oxiridagi DOMContentLoaded qismi
-
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        const saved = await loadUserState();
-        if (saved) {
-            if (typeof restoreState === 'function') {
-                restoreState(saved);
-            } else {
-                // Fallback: State ni tiklash
-                const st = {
-                    prcWei: saved.prcWei,
-                    diamond: saved.diamond,
-                    energy: saved.energy,
-                    maxEnergy: saved.maxEnergy,
-                    tapsUsed: saved.tapsUsed,
-                    selectedSkin: saved.selectedSkin,
-                    todayIndex: saved.todayIndex,
-                    wallet: saved.wallet, // tg_id
-
-                    dailyWeekStart: saved.dailyWeekStart,
-                    dailyClaims: saved.dailyClaims,
-                    cardsLvl: saved.cardsLvl,
-                    boosts: saved.boosts,
-                    keysTotal: saved.keysTotal,
-                    keysUsed: saved.keysUsed,
-
-                    // ❗ YANGI: Hamyonlar
-                    tonWallet: saved.tonWallet,
-                    cryptoWallet: saved.cryptoWallet
-                };
-
-                // LocalStorage ga qo'shimcha maydonlarni saqlash
-                if (st.wallet) {
-                    if (st.dailyWeekStart) localStorage.setItem(makeUserKey(KEY_DAILY_WEEK_START, st.wallet), st.dailyWeekStart);
-                    if (st.dailyClaims) localStorage.setItem(makeUserKey(KEY_DAILY_CLAIMS, st.wallet), JSON.stringify(st.dailyClaims));
-                    if (st.cardsLvl) localStorage.setItem(makeUserKey('proguzmir_cards_lvl', st.wallet), JSON.stringify(st.cardsLvl));
-                    if (st.boosts) localStorage.setItem(makeUserKey('proguzmir_boosts', st.wallet), JSON.stringify(st.boosts));
-                    if (st.keysTotal) localStorage.setItem(makeUserKey(KEY_KEYS_TOTAL, st.wallet), String(st.keysTotal));
-                    if (st.keysUsed) localStorage.setItem(makeUserKey(KEY_KEYS_USED, st.wallet), String(st.keysUsed));
-
-                    // ❗ YANGI: Agar bazada hamyon bo'lsa, uni LocalStorage ga tiklaymiz
-                    // Shunda ton.js va cripto.js buni ko'rib, UI ni yangilaydi
-                    if (st.tonWallet) {
-                        localStorage.setItem("proguzmir_ton_wallet", st.tonWallet); // ton.js dagi kalit bilan bir xil bo'lsin
-                        localStorage.setItem("proguzmir_ton_type", "ton");
-                    }
-                    if (st.cryptoWallet) {
-                        localStorage.setItem("proguzmir_crypto_wallet", st.cryptoWallet); // cripto.js dagi kalit bilan bir xil bo'lsin
-                        localStorage.setItem("proguzmir_crypto_type", "evm");
-                    }
-                }
-
-                saveState(st);
-            }
-        } else {
-            if (typeof initNewUser === 'function') initNewUser();
-        }
-    } catch (e) { console.warn('startup load error', e); }
-
-    setupAutoSave();
-});
 
 // --- REFERALNI ALOHIDA SAQLASH ---
 async function processReferral() {

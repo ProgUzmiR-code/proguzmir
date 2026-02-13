@@ -22,7 +22,7 @@ async function loadWalletConfig() {
         if (data.ton_address && data.evm_address) {
             MERCHANT_TON = data.ton_address;
             MERCHANT_EVM = data.evm_address;
-            console.log("Wallet addresses loaded ✅");
+            console.log("Wallet addresses loaded");
         }
     } catch (error) {
         console.error("Error loading config:", error);
