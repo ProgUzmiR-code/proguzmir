@@ -87,8 +87,20 @@
             const data = await response.json();
 
             if (data.success) {
-                // KOD TO'G'RI! API tangalarni qo'shdi.
                 alert(data.message);
+
+                // 1. Olmosni ekranda yangilash (ID ni o'zingiznikiga almashtirasiz)
+                const diamondElement = document.getElementById('diamondCount');
+                if (diamondElement) {
+                    diamondElement.innerText = data.new_diamond;
+                }
+
+                // 2. Kalitni ekranda yangilash (ID ni o'zingiznikiga almashtirasiz)
+                const keyElement = document.getElementById('totalKeys');
+                if (keyElement) {
+                    keyElement.innerText = data.new_keys;
+                }
+
                 closeModal();
             } else {
                 // Noto'g'ri kod yoki boshqa xato (API xabari chiqadi)
