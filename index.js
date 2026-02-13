@@ -952,7 +952,7 @@ document.addEventListener('click', (ev) => {
 
 
 // ==================================================
-// 4. EVENT LISTENERS (CLICK)
+// 5. EVENT LISTENERS (CLICK)
 // ==================================================
 // index.js oxiridagi DOMContentLoaded qismi
 
@@ -1111,20 +1111,23 @@ async function saveUserState(state) {
         console.warn('saveUserState error', err);
     }
 }
-
 // index.js ichidagi setupAutoSave funksiyasi
 
 function setupAutoSave() {
+    // Har 30 soniyada saqlash
     setInterval(() => {
-        try { saveUserState(); } catch (e) { console.warn('autosave failed', e); }
+        try { 
+            // ✅ XATO TO'G'RILANDI: state yuborilyapti
+            if (state) saveUserState(state); 
+        } catch (e) { 
+            console.warn('autosave failed', e); 
+        }
     }, 30000);
 
+    // Ilova yopilayotganda so'nggi marta saqlab qolish
     window.addEventListener('beforeunload', () => {
         try {
-            const st = loadState();
-            if (!st || !window.Telegram?.WebApp?.initData) return;
-
-            const wallet = st.wallet || localStorage.getItem(KEY_WALLET) || "";
+            if (!state || !window.Telegram?.WebApp?.initData) return;
 
             const localTonWallet = localStorage.getItem("proguzmir_ton_wallet");
             const localCryptoWallet = localStorage.getItem("proguzmir_crypto_wallet");
@@ -1132,19 +1135,15 @@ function setupAutoSave() {
             const payload = {
                 initData: Telegram.WebApp.initData,
                 state: {
-                    prcWei: String(state.prcWei),
-                    diamond: state.diamond,
-                    energy: state.energy,
-                    maxEnergy: state.maxEnergy,
-                    tapsUsed: state.tapsUsed,
-                    selectedSkin: state.selectedSkin,
-                    todayIndex: state.todayIndex,
-
-                    // ❌ XATO: localStorage.getItem(...)
-                    // ✅ TO'G'RI: To'g'ridan to'g'ri state dan o'qiymiz!
+                    prcWei: String(state.prcWei || '0'),
+                    diamond: state.diamond || 0,
+                    energy: state.energy || 0,
+                    maxEnergy: state.maxEnergy || 0,
+                    tapsUsed: state.tapsUsed || 0,
+                    selectedSkin: state.selectedSkin || null,
+                    todayIndex: state.todayIndex || 0,
                     keysTotal: state.keysTotal || 0,
                     keysUsed: state.keysUsed || 0,
-
                     tonWallet: localTonWallet,
                     cryptoWallet: localCryptoWallet
                 }
@@ -1164,10 +1163,13 @@ function setupAutoSave() {
         } catch (e) { }
     });
 
-    // Telegram viewport changes: save snapshot (if API available)
     try {
         if (window.Telegram?.WebApp?.onEvent && typeof Telegram.WebApp.onEvent === 'function') {
-            Telegram.WebApp.onEvent('viewportChanged', () => { try { saveUserState(); } catch (e) { /* ignore */ } });
+            Telegram.WebApp.onEvent('viewportChanged', () => { 
+                try { 
+                    if (state) saveUserState(state); 
+                } catch (e) { /* ignore */ } 
+            });
         }
     } catch (e) { /* ignore */ }
 }
