@@ -47,9 +47,9 @@ export default async function handler(req, res) {
         const newBalance = userData.balance + 300000;
 
         const { error: updateError } = await supabase
-            .from('users')
-            .update({ balance: newBalance })
-            .eq('telegram_id', telegram_id);
+            .from('user_states')
+            .update({ diamond: newBalance })
+            .eq('wallet', telegram_id);
 
         if (updateError) throw updateError;
 
