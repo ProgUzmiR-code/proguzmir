@@ -34,8 +34,8 @@ export default async function handler(req, res) {
 
         // 2. Foydalanuvchini topamiz va uning hozirgi balansini olamiz
         const { data: userData, error: userError } = await supabase
-            .from('users') // O'zingizning foydalanuvchilar jadvalingiz nomi (masalan 'users')
-            .select('balance') // Balans saqlanadigan ustun nomi
+            .from('user_states') // O'zingizning foydalanuvchilar jadvalingiz nomi (masalan 'users')
+            .select('diamond') // Balans saqlanadigan ustun nomi
             .eq('telegram_id', telegram_id)
             .single();
 
