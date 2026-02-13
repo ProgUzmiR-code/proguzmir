@@ -19,7 +19,7 @@
         </div>
         <div class="coins-center">
             <div class="flex">
-                💎<span id="diamondCount">0</span>
+                💎<span data-diamond-display>0</span>
             </div>
         </div>
     </header>
@@ -235,37 +235,8 @@
             }
         }
     </script>
-    <script>
-        // Update diamond display
-        function updateDiamondDisplay() {
-            const diamondCount = document.getElementById('diamondCount');
-            if (diamondCount) {
-                try {
-                    // Load state from localStorage (same as index.js)
-                    const KEY_DIAMOND = "proguzmir_diamond";
-                    const KEY_WALLET = "proguzmir_wallet";
+    
 
-                    function makeUserKey(baseKey, wallet) {
-                        return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest";
-                    }
-
-                    const wallet = localStorage.getItem(KEY_WALLET) || "";
-                    const keyDiamond = makeUserKey(KEY_DIAMOND, wallet);
-                    const diamond = parseInt(localStorage.getItem(keyDiamond) || "0", 10);
-
-                    diamondCount.textContent = diamond;
-                } catch (e) {
-                    console.log("Diamond load error:", e);
-                }
-            }
-        }
-
-        // Update on page load
-        updateDiamondDisplay();
-
-        // Update every second to catch changes
-        setInterval(updateDiamondDisplay, 1000);
-    </script>
     <script>
         document.addEventListener('click', function (e) {
 

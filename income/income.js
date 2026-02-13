@@ -2,33 +2,25 @@
     const BASE_WEI = 1000n;
     const MAX_LVL = 50;
 
-    // Storage Keys
-    const KEY_DIAMOND = "proguzmir_diamond";
-    const KEY_KEYS = "proguzmir_keys_total";
-    const KEY_PRC = "proguzmir_prc_wei";
-    const KEY_WALLET = "proguzmir_wallet";
-    const KEY_CARD_DATA = "proguzmir_cards_lvl";
+    // --- DIQQAT: LOCALSTORAGE O'RNIGA GLOBAL 'state' DAN FOYDALANAMIZ ---
 
-    // Helper functions
-    function makeUserKey(baseKey, wallet) { return wallet ? baseKey + "_" + wallet.toLowerCase() : baseKey + "_guest"; }
-    function getWallet() { return localStorage.getItem(KEY_WALLET) || ""; }
+    // Getter va Setterlar (Faqat global xotiraga ulanadi)
+    function getDiamond() { return state ? state.diamond : 0; }
+    function setDiamond(v) { if (state) state.diamond = v; }
 
-    // --- GETTERS & SETTERS ---
-    function getDiamond() { return parseInt(localStorage.getItem(makeUserKey(KEY_DIAMOND, getWallet())) || "0", 10); }
-    function setDiamond(v) { localStorage.setItem(makeUserKey(KEY_DIAMOND, getWallet()), String(v)); }
+    // Eslatma: Asosiy faylda kalitlar keysTotal deb nomlangan
+    function getKeys() { return state ? (state.keysTotal || 0) : 0; }
+    function setKeys(v) { if (state) state.keysTotal = v; }
 
-    function getKeys() { return parseInt(localStorage.getItem(makeUserKey(KEY_KEYS, getWallet())) || "0", 10); }
-    function setKeys(v) { localStorage.setItem(makeUserKey(KEY_KEYS, getWallet()), String(v)); }
-
-    function getPRCWei() { try { return BigInt(localStorage.getItem(makeUserKey(KEY_PRC, getWallet())) || "0"); } catch (e) { return 0n; } }
-    function setPRCWei(v) { localStorage.setItem(makeUserKey(KEY_PRC, getWallet()), v.toString()); }
+    function getPRCWei() { return state && state.prcWei ? BigInt(state.prcWei) : 0n; }
+    function setPRCWei(v) { if (state) state.prcWei = v; }
 
     // --- UI Elements ---
     const upgradeBtn = document.querySelector('.update-btn');
     const pop = document.getElementById('pop');
     let lastClickedBooItem = null;
 
-    // Header UI Update
+    // Header UI Update (Income sahifasining o'zidagi raqamlar)
     function updateHeaderUI() {
         const dEl = document.getElementById('diamondCount');
         if (dEl) dEl.textContent = getDiamond();
@@ -36,21 +28,23 @@
         const kEl = document.getElementById('keyCount');
         if (kEl) kEl.textContent = getKeys();
     }
+    
+    // Boshlang'ich yuklash
     updateHeaderUI();
     setInterval(updateHeaderUI, 1000);
 
-    // --- CARD STATE MANAGEMENT ---
-
+    // --- CARD STATE MANAGEMENT (Kartalar darajasini saqlash) ---
     function saveCardState(id, dataObj) {
-        const wallet = getWallet();
-        const allData = JSON.parse(localStorage.getItem(makeUserKey(KEY_CARD_DATA, wallet)) || "{}");
-        allData[id] = dataObj;
-        localStorage.setItem(makeUserKey(KEY_CARD_DATA, wallet), JSON.stringify(allData));
+        if (!state) return;
+        if (!state.cardsLvl) state.cardsLvl = {};
+        
+        state.cardsLvl[id] = dataObj;
+        // saveState(state) chaqirilganda bu o'z-o'zidan Supabase'ga ketadi
     }
 
     function loadCardsState() {
-        const wallet = getWallet();
-        const allData = JSON.parse(localStorage.getItem(makeUserKey(KEY_CARD_DATA, wallet)) || "{}");
+        if (!state) return;
+        const allData = state.cardsLvl || {};
 
         document.querySelectorAll('.boo-item').forEach(item => {
             const id = item.getAttribute('data-target');
@@ -75,12 +69,10 @@
                         coinDiv.textContent = (lvl >= MAX_LVL) ? "MAX" : `💎${diamondCost}`;
                     }
                     if (lvlText) lvlText.textContent = (lvl >= MAX_LVL) ? "MAX" : `lvl ${lvl}`;
-
                     if (lvl >= MAX_LVL) item.classList.add('max-reached');
 
                     const costSpan = item.querySelector('.boo__cost span');
                     if (costSpan) costSpan.textContent = diamondCost;
-
                 } else {
                     // QULFLANGAN
                     if (lockIcon) lockIcon.style.display = 'flex';
@@ -91,7 +83,8 @@
         });
     }
 
-    loadCardsState();
+    // Sahifa ochilganda kartalarni holatini yuklash
+    setTimeout(loadCardsState, 100); // Kichik kechikish global state to'la yuklanishi uchun
 
     // --- CLICK HANDLER (POPUP OCHISH) ---
     document.querySelectorAll('.boo-item').forEach(item => {
@@ -99,44 +92,36 @@
             lastClickedBooItem = this;
             const id = this.getAttribute('data-target');
 
-            // Tekshirish: Qulflanganmi?
             const lockIcon = this.querySelector('.lock-icon');
             const isLocked = (lockIcon && lockIcon.style.display !== 'none');
 
             const title = this.querySelector('.boo-title').textContent;
             const img = this.querySelector('.boo-icon img').src;
 
-            // Popup asosiy rasmlar
             pop.querySelector('.energy__title').textContent = title;
             pop.querySelector('.energy__img img').src = img;
 
-            // Popup ichidagi o'zgaruvchi elementlar
             const btnNumDiv = pop.querySelector('.btns .btn.active .btn-num div');
             const btnImg = pop.querySelector('.btns .btn.active .btn-num img');
             const updateBtnText = pop.querySelector('.update-btn');
 
-            // --- YANGI: Qulf holatiga qarab o'rta qismni (energy__threetitle) o'zgartirish ---
             const threeTitleItalic = pop.querySelector('.energy__threetitle i');
             const threeTitleImg = pop.querySelector('.energy__threetitle img');
-            const threeTitleSpan = pop.querySelector('#prcIncreaseValue'); // Yoki span
+            const threeTitleSpan = pop.querySelector('#prcIncreaseValue'); 
 
             if (isLocked) {
-                // --- UNLOCK MODI (QULF) ---
-
-                // 1. Popup tepasidagi level
+                // UNLOCK MODI
                 pop.querySelector('.energy__lv .n').textContent = "Locked";
                 pop.querySelector('.energy__lv .t').textContent = "lvl 0";
 
-                // 2. O'rta qism: FOYDALANUVCHIDA MAVJUD KALITLAR
-                threeTitleItalic.textContent = "Your Keys"; // Yoki "Key Balance"
-                threeTitleImg.src = "/image/key.png";
-                threeTitleSpan.textContent = getKeys(); // Borda bor kalitlar soni
+                threeTitleItalic.textContent = "Your Keys"; 
+                threeTitleImg.src = "./image/key.png";
+                threeTitleSpan.textContent = getKeys(); 
 
-                // 3. Tugma: Kalit narxi
                 const keyText = this.querySelector('.boo__num__key').textContent.trim();
                 const keyCost = parseInt(keyText.match(/\d+/)[0], 10);
 
-                btnImg.src = "/image/key.png";
+                btnImg.src = "./image/key.png";
                 btnNumDiv.textContent = keyCost;
                 updateBtnText.textContent = "Unlock";
 
@@ -144,28 +129,24 @@
                 upgradeBtn.dataset.cost = keyCost;
 
             } else {
-                // --- UPGRADE MODI (DIAMOND) ---
+                // UPGRADE MODI
                 const lvlText = this.querySelector('.boo__num_coin_text').textContent;
                 if (lvlText === "MAX") return;
 
                 const currentLvl = parseInt(lvlText.replace('lvl', '').trim()) || 0;
                 const nextLvl = currentLvl + 1;
 
-                // HTML dan Diamond narxini olish
                 const diamondText = this.querySelector('.boo__num__coin').textContent.replace('💎', '').trim();
                 const diamondCost = parseInt(diamondText, 10);
 
-                // 1. Level ko'rsatish
                 pop.querySelector('.energy__lv .n').textContent = lvlText;
                 pop.querySelector('.energy__lv .t').textContent = (nextLvl >= MAX_LVL) ? "MAX" : `lvl ${nextLvl}`;
 
-                // 2. O'rta qism: PRC FOYDA QO'SHILISHI
                 threeTitleItalic.textContent = "PRC";
-                threeTitleImg.src = "/image/coin.png";
-                threeTitleSpan.textContent = "+" + diamondCost; // Qancha foyda qo'shilishi (narxga teng deb oldim)
+                threeTitleImg.src = "./image/coin.png";
+                threeTitleSpan.textContent = "+" + diamondCost; 
 
-                // 3. Tugma: Diamond narxi
-                btnImg.src = "/image/diamond.png";
+                btnImg.src = "./image/diamond.png";
                 btnNumDiv.textContent = diamondCost;
                 updateBtnText.textContent = "Upgrade";
 
@@ -191,13 +172,11 @@
             let success = false;
 
             if (action === "unlock") {
-                // --- UNLOCK QILISH ---
                 const currentKeys = getKeys();
                 if (currentKeys >= cost) {
                     setKeys(currentKeys - cost);
                     success = true;
 
-                    // Unlock bo'lganda UI o'zgarishi
                     const lockIcon = lastClickedBooItem.querySelector('.lock-icon');
                     const keyDiv = lastClickedBooItem.querySelector('.boo__num__key');
                     const coinDiv = lastClickedBooItem.querySelector('.boo__num__coin');
@@ -206,34 +185,25 @@
                     keyDiv.style.display = 'none';
                     coinDiv.style.display = 'flex';
 
-                    // Default narxni olish
                     const startDiamondCost = parseInt(coinDiv.textContent.replace('💎', '').trim()) || 100;
 
                     saveCardState(id, { unlocked: true, lvl: 0, cost: startDiamondCost });
-
-                    // Muvaffaqiyatli ochilganda oynani yopish
                     pop.style.display = 'none';
-                    // Yoki agar oynani yopmasdan darrov "Upgrade" rejimiga o'tkazmoqchi bo'lsangiz, shu yerda qayta render qilish kerak.
-                    // Hozircha yopib qo'ya qolamiz.
 
-                    alert("Card Unlocked!");
-
+                    if (typeof showToast === 'function') showToast("Card Unlocked!");
                 } else {
                     alert(`Not enough Keys! Need ${cost} keys.`);
                 }
 
             } else if (action === "upgrade") {
-                // --- UPGRADE QILISH ---
                 const currentDiamonds = getDiamond();
                 if (currentDiamonds >= cost) {
                     setDiamond(currentDiamonds - cost);
                     success = true;
 
-                    // Profit (PRC) qo'shish
                     let prcBonus = BigInt(cost) * BASE_WEI;
                     setPRCWei(getPRCWei() + prcBonus);
 
-                    // Kartani yangilash
                     const lvlEl = lastClickedBooItem.querySelector('.boo__num_coin_text');
                     const coinDiv = lastClickedBooItem.querySelector('.boo__num__coin');
                     const costSpan = lastClickedBooItem.querySelector('.boo__cost span');
@@ -242,7 +212,6 @@
                     let newLvl = curLvl + 1;
                     let newCost = cost + 100;
 
-                    // DOM yangilash
                     if (newLvl >= MAX_LVL) {
                         lvlEl.textContent = "MAX";
                         coinDiv.textContent = "MAX";
@@ -257,14 +226,9 @@
 
                         saveCardState(id, { unlocked: true, lvl: newLvl, cost: newCost });
 
-                        // Oynani (Popup) yangilash: Keyingi levelga tayyorlash
                         pop.querySelector('.energy__lv .n').textContent = `lvl ${newLvl}`;
                         pop.querySelector('.energy__lv .t').textContent = (newLvl + 1 >= MAX_LVL) ? "MAX" : `lvl ${newLvl + 1}`;
-
-                        // O'rta qismni yangilash: PRC
                         pop.querySelector('#prcIncreaseValue').textContent = "+" + newCost;
-
-                        // Tugmani yangilash
                         pop.querySelector('.btns .btn.active .btn-num div').textContent = newCost;
                         upgradeBtn.dataset.cost = newCost;
                     }
@@ -275,7 +239,11 @@
 
             if (success) {
                 updateHeaderUI();
-                try { if (window.parent && window.parent.updateHeaderPRC) window.parent.updateHeaderPRC(); } catch (e) { }
+                
+                // 💾 DIQQAT: Xarid qilingandan so'ng darhol global o'zgarishlarni saqlaymiz va ekranni yangilaymiz
+                if (typeof saveState === 'function') saveState(state);
+                if (typeof updateHeaderPRC === 'function') updateHeaderPRC();
+                if (typeof updateHeaderDiamond === 'function') updateHeaderDiamond();
             }
 
             startCooldown(upgradeBtn, 1);
