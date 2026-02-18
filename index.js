@@ -31,16 +31,7 @@ const DAILY_REWARDS = [1000, 2000, 3000, 6000, 7000, 9000, 30000]; // diamonds f
 const DEFAULT_TAP_CAP = 1000;
 const INCREASE_BLOCK = 1000; // qancha tapped limitni oshiramiz har xaridda
 
-// Skinlar ro'yxati
-const SKIN_COST_WEI = 500000000000000n; // 0.0005 PRC = 5e14 wei
-const SKINS = [
-    { id: "bronza.png", name: "Bronza", file: "./image/bronza.png" },
-    { id: "silver.png", name: "Silver", file: "./image/silver.png" },
-    { id: "gold.png", name: "Gold", file: "./image/gold.png" },
-    { id: "smart_gold.png", name: "Smart Gold", file: "./image/smart_gold.png" },
-    { id: "platinium.png", name: "Platinium", file: "./image/platinium.png" },
-    { id: "master.png", name: "Master", file: "./image/master.png" }
-];
+
 
 const KEY_KEYS_TOTAL = 'proguzmir_keys_total';
 const KEY_KEYS_USED = 'proguzmir_keys_used';
@@ -1092,6 +1083,7 @@ async function saveUserState(state) {
             claimDate: st.claimDate || null,
             keysTotal: st.keysTotal || 0,
             keysUsed: st.keysUsed || 0,
+            ownedSkins: JSON.stringify(st.ownedSkins || ["bronze.png"]),
 
             // Hamyonlarni payloadga qo'shamiz
             tonWallet: localTonWallet,
@@ -1212,6 +1204,7 @@ async function loadUserState() {
 
             keysTotal: Number(result.user.keys_total || 0),
             keysUsed: Number(result.user.keys_used || 0),
+            ownedSkins: result.user.owned_skins ? JSON.parse(result.user.owned_skins) : ["bronze.png"],
 
             // ❗ YANGI: Hamyon manzillarini qabul qilish
             tonWallet: result.user.ton_wallet || null,
