@@ -1,4 +1,3 @@
-// api/save.js
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -22,68 +21,62 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing initData or state' });
     }
 
-    // 1. Telegram User ID ni olish
+    // 1. User ID ni olish
     const urlParams = new URLSearchParams(initData);
     const user = JSON.parse(urlParams.get('user') || '{}');
-    
-    if (!user.id) {
-      return res.status(400).json({ error: 'Missing user ID' });
-    }
+    if (!user.id) return res.status(400).json({ error: 'Missing user ID' });
 
     const wallet = String(user.id);
 
-    // 2. Hamyonlarni olish
-    const tonWalletVal = state.tonWallet || state.ton_wallet || null;
-    const cryptoWalletVal = state.cryptoWallet || state.crypto_wallet || null;
+    // 2. Bazaga yoziladigan obyektni yig'ish
+    // Faqat "state" ichida kelgan ma'lumotlarnigina yangilaymiz (undefined bo'lsa tegmaymiz)
+    const updates = {
+      wallet: wallet,
+      updated_at: new Date().toISOString()
+    };
 
-    // 3. Ma'lumotlarni saqlash (UPSERT)
+    // User info (har doim yangilash zarar qilmaydi)
+    if (user.first_name) updates.first_name = user.first_name;
+    if (user.last_name) updates.last_name = user.last_name;
+
+    // --- MOLIYAVIY QISM (Auto-saveda keladi) ---
+    if (state.prcWei !== undefined) updates.prc_wei = String(state.prcWei);
+    if (state.diamond !== undefined) updates.diamond = Number(state.diamond);
+    if (state.keysTotal !== undefined) updates.keys_total = Number(state.keysTotal);
+    if (state.keysUsed !== undefined) updates.keys_used = Number(state.keysUsed);
+    
+    // Hamyonlar
+    if (state.tonWallet !== undefined) updates.ton_wallet = state.tonWallet;
+    if (state.cryptoWallet !== undefined) updates.crypto_wallet = state.cryptoWallet;
+
+    // --- TO'LIQ QISM (Ilova yopilganda keladi) ---
+    if (state.energy !== undefined) updates.energy = Number(state.energy);
+    if (state.maxEnergy !== undefined) updates.max_energy = Number(state.maxEnergy);
+    if (state.tapsUsed !== undefined) updates.taps_used = Number(state.tapsUsed);
+    if (state.selectedSkin !== undefined) updates.selected_skin = state.selectedSkin;
+    if (state.todayIndex !== undefined) updates.today_index = Number(state.todayIndex);
+    if (state.rank !== undefined) updates.rank = state.rank;
+    
+    // JSON maydonlar
+    if (state.ownedSkins !== undefined) updates.owned_skins = state.ownedSkins; // JSON.stringify frontda qilinadi yoki shunday yuboriladi
+    if (state.dailyWeekStart !== undefined) updates.daily_week_start = state.dailyWeekStart;
+    if (state.dailyClaims !== undefined) updates.daily_claims = state.dailyClaims;
+    if (state.cardsLvl !== undefined) updates.cards_lvl = state.cardsLvl;
+    if (state.boosts !== undefined) updates.boosts = state.boosts;
+    if (state.claimDate !== undefined) updates.claim_date = state.claimDate;
+    if (state.completedTasks !== undefined) updates.completed_tasks = state.completedTasks;
+
+    // 3. UPSERT (Faqat o'zgarganlarni yangilaydi)
     const { error } = await supabase
       .from('user_states')
-      .upsert({
-        wallet: wallet,
-        first_name: user.first_name || null,
-        last_name: user.last_name || null,
-        
-        // O'yin state
-        prc_wei: String(state.prcWei || '0'),
-        diamond: Number(state.diamond || 0),
-        taps_used: Number(state.tapsUsed || 0),
-        tap_cap: Number(state.tapCap || 0),
-        selected_skin: state.selectedSkin || null,
-        energy: Number(state.energy || 0),
-        max_energy: Number(state.maxEnergy || 0),
-        today_index: Number(state.todayIndex || 0),
-        rank: state.rank || 'bronze',
-        
-        // Qo'shimcha JSON maydonlar
-        daily_week_start: state.dailyWeekStart || null,
-        daily_claims: state.dailyClaims ? JSON.stringify(state.dailyClaims) : null,
-        cards_lvl: state.cardsLvl ? JSON.stringify(state.cardsLvl) : null,
-        boosts: state.boosts ? JSON.stringify(state.boosts) : null,
-        owned_skins: state.ownedSkins ? JSON.stringify(state.ownedSkins) : null,
+      .upsert(updates, { onConflict: 'wallet' });
 
-        claim_date: state.claimDate || null,
-        keys_total: Number(state.keysTotal || 0),
-        keys_used: Number(state.keysUsed || 0),
-
-        // Hamyonlar
-        ton_wallet: tonWalletVal,
-        crypto_wallet: cryptoWalletVal,
-
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'wallet' 
-      });
-
-    if (error) {
-      console.error('Supabase save error:', error);
-      return res.status(500).json({ error: error.message });
-    }
+    if (error) throw error;
 
     return res.status(200).json({ ok: true });
 
   } catch (err) {
     console.error('API Save Error:', err);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    return res.status(500).json({ error: err.message });
   }
 }

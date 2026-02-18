@@ -1046,129 +1046,102 @@ function saveState(state) {
     // Serverga yozishni eng pastdagi setupAutoSave() funksiyasi 30 soniyada bir marta tinchgina bajaradi.
 }
 
-// index.js ichidagi saveUserState funksiyasi
-
-async function saveUserState(state) {
+// saveType: 'full' (hammasi) yoki 'partial' (faqat pullar)
+async function saveUserState(state, saveType = 'partial') {
     let st = state;
     try {
         if (!st) st = typeof loadState === 'function' ? loadState() : null;
-    } catch (e) {
-        st = null;
-    }
+    } catch (e) { st = null; }
 
     if (!st) return;
     if (!window.Telegram?.WebApp?.initData) return;
 
-    // 1. Faqat hamyonlar kabi xavfsiz lokal ma'lumotlarni o'qiymiz
-    const localTonWallet = localStorage.getItem("proguzmir_ton_wallet") || null;
-    const localCryptoWallet = localStorage.getItem("proguzmir_crypto_wallet") || null;
+    // 1. Doimiy kerak bo'ladigan maydonlar (PULLAR) - Auto Save uchun
+    let statePayload = {
+        prcWei: String(st.prcWei || '0'),
+        diamond: st.diamond || 0,
+        keysTotal: st.keysTotal || 0,
+        keysUsed: st.keysUsed || 0,
+        tonWallet: localStorage.getItem("proguzmir_ton_wallet") || null,
+        cryptoWallet: localStorage.getItem("proguzmir_crypto_wallet") || null
+    };
 
-    // 2. DIQQAT: keys, cards, boosts kabi barcha ma'lumotlarni endi localStorage'dan EMAS, 
-    // to'g'ridan-to'g'ri xotiradagi 'st' obyektidan olamiz!
-    const payload = {
-        initData: window.Telegram.WebApp.initData,
-        state: {
-            prcWei: String(st.prcWei || '0'),
-            diamond: st.diamond || 0,
+    // 2. Agar FULL save bo'lsa, qolgan hamma narsani qo'shamiz
+    if (saveType === 'full') {
+        statePayload = {
+            ...statePayload, // Pullarni ham qo'shamiz
             energy: st.energy || 0,
             maxEnergy: st.maxEnergy || 0,
             tapsUsed: st.tapsUsed || 0,
             selectedSkin: st.selectedSkin || null,
-            ownedSkins: JSON.stringify(st.ownedSkins || ["bronze.png"]),
             todayIndex: st.todayIndex || 0,
-
-            // Mahalliy xotiradan (localStorage) o'qishlar o'rniga xotiradan (state) o'qish:
+            rank: st.rank || 'bronze',
+            
+            // JSON obyektlar (Stringga o'giramiz)
+            ownedSkins: JSON.stringify(st.ownedSkins || ["bronze.png"]),
             dailyWeekStart: st.dailyWeekStart || null,
-            dailyClaims: st.dailyClaims || null,
-            cardsLvl: st.cardsLvl || {},
-            boosts: st.boosts || {},
+            dailyClaims: st.dailyClaims ? JSON.stringify(st.dailyClaims) : null,
+            cardsLvl: st.cardsLvl ? JSON.stringify(st.cardsLvl) : null,
+            boosts: st.boosts ? JSON.stringify(st.boosts) : null,
+            completedTasks: st.completedTasks ? JSON.stringify(st.completedTasks) : null,
             claimDate: st.claimDate || null,
-            keysTotal: st.keysTotal || 0,
-            keysUsed: st.keysUsed || 0,
+        };
+    }
 
-            // Hamyonlarni payloadga qo'shamiz
-            tonWallet: localTonWallet,
-            cryptoWallet: localCryptoWallet
-        }
-    };
-
-    // 3. Backend'ga yuborish
+    // 3. Yuborish
     try {
         await fetch('/api/save', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
+            body: JSON.stringify({
+                initData: window.Telegram.WebApp.initData,
+                state: statePayload
+            }),
             keepalive: true
         });
     } catch (err) {
         console.warn('saveUserState error', err);
     }
 }
-// index.js ichidagi setupAutoSave funksiyasi
+
+// index.js ichida
 
 function setupAutoSave() {
-    // Har 30 soniyada saqlash
+    // 1. Har 30 soniyada: Faqat pullarni saqlash (Serverni qiynamaslik uchun)
     setInterval(() => {
         try { 
-            // ✅ XATO TO'G'RILANDI: state yuborilyapti
-            if (state) saveUserState(state); 
+            if (state) saveUserState(state, 'partial'); 
         } catch (e) { 
-            console.warn('autosave failed', e); 
+            console.warn('autosave partial failed', e); 
         }
     }, 30000);
 
-    // Ilova yopilayotganda so'nggi marta saqlab qolish
-    window.addEventListener('beforeunload', () => {
+    // 2. Ilova yopilayotganda: HAMMA narsani saqlash (Full)
+    const handleFullSave = () => {
         try {
-            if (!state || !window.Telegram?.WebApp?.initData) return;
+            if (state) saveUserState(state, 'full');
+        } catch (e) { console.warn('full save failed', e); }
+    };
 
-            const localTonWallet = localStorage.getItem("proguzmir_ton_wallet");
-            const localCryptoWallet = localStorage.getItem("proguzmir_crypto_wallet");
-
-            const payload = {
-                initData: Telegram.WebApp.initData,
-                state: {
-                    prcWei: String(state.prcWei || '0'),
-                    diamond: state.diamond || 0,
-                    energy: state.energy || 0,
-                    maxEnergy: state.maxEnergy || 0,
-                    tapsUsed: state.tapsUsed || 0,
-                    selectedSkin: state.selectedSkin || null,
-                    todayIndex: state.todayIndex || 0,
-                    keysTotal: state.keysTotal || 0,
-                    keysUsed: state.keysUsed || 0,
-                    tonWallet: localTonWallet,
-                    cryptoWallet: localCryptoWallet
-                }
-            };
-
-            if (navigator.sendBeacon) {
-                const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-                navigator.sendBeacon('/api/save', blob);
-            } else {
-                fetch('/api/save', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                    keepalive: true
-                }).catch(() => { });
-            }
-        } catch (e) { }
-    });
-
+    window.addEventListener('beforeunload', handleFullSave);
+    window.addEventListener('unload', handleFullSave); // Ba'zi brauzerlar uchun qo'shimcha
+    
+    // Telegram yopilayotganda
     try {
-        if (window.Telegram?.WebApp?.onEvent && typeof Telegram.WebApp.onEvent === 'function') {
-            Telegram.WebApp.onEvent('viewportChanged', () => { 
-                try { 
-                    if (state) saveUserState(state); 
-                } catch (e) { /* ignore */ } 
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.onEvent('viewportChanged', (e) => {
+                if (e.isStateStable) handleFullSave(); // Ehtiyot shart saqlab turamiz
             });
         }
-    } catch (e) { /* ignore */ }
+    } catch (e) {}
 }
+
+
+// index.js ichida
 
 async function loadUserState() {
     if (!window.Telegram?.WebApp?.initData) return null;
+    
     try {
         const res = await fetch('/api/load', {
             method: 'POST',
@@ -1176,15 +1149,18 @@ async function loadUserState() {
             body: JSON.stringify({ initData: Telegram.WebApp.initData }),
             keepalive: true
         });
+
         if (!res.ok) return null;
         const result = await res.json();
         if (!result?.user) return null;
 
-        // JSON maydonlarni xavfsiz o'qish
-        const safeParse = (val) => {
-            if (val === null || val === undefined) return null;
-            if (typeof val === 'string') return JSON.parse(val);
-            return val;
+        // Xavfsiz parser (String kelsa ochadi, obyekt kelsa tegmaydi)
+        const safeParse = (val, defaultVal) => {
+            if (!val) return defaultVal;
+            if (typeof val === 'string') {
+                try { return JSON.parse(val); } catch(e) { return defaultVal; }
+            }
+            return val; // Zotan obyekt bo'lsa
         };
 
         return {
@@ -1193,21 +1169,23 @@ async function loadUserState() {
             energy: Number(result.user.energy || 0),
             maxEnergy: Number(result.user.max_energy || 0),
             tapsUsed: Number(result.user.taps_used || 0),
-            selectedSkin: result.user.selected_skin || '',
-            ownedSkins: result.user.owned_skins ? JSON.parse(result.user.owned_skins) : ["bronze.png"],
+            selectedSkin: result.user.selected_skin || 'bronza.png',
             todayIndex: Number(result.user.today_index || 0),
+            rank: result.user.rank || 'bronze',
 
+            // ✅ XATO TUZATILDI: Skinlar va Vazifalar to'g'ri yuklanadi
+            ownedSkins: safeParse(result.user.owned_skins, ["bronze.png"]),
+            completedTasks: safeParse(result.user.completed_tasks, {}),
+            
             dailyWeekStart: result.user.daily_week_start || null,
-            dailyClaims: safeParse(result.user.daily_claims),
-            cardsLvl: safeParse(result.user.cards_lvl),
-            boosts: safeParse(result.user.boosts),
+            dailyClaims: safeParse(result.user.daily_claims, null),
+            cardsLvl: safeParse(result.user.cards_lvl, {}),
+            boosts: safeParse(result.user.boosts, {}),
             claimDate: result.user.claim_date || null,
-            wallet: result.user.wallet || "", // Bu tg_id
-
+            
+            wallet: result.user.wallet || "",
             keysTotal: Number(result.user.keys_total || 0),
             keysUsed: Number(result.user.keys_used || 0),
-
-            // ❗ YANGI: Hamyon manzillarini qabul qilish
             tonWallet: result.user.ton_wallet || null,
             cryptoWallet: result.user.crypto_wallet || null
         };
@@ -1216,6 +1194,7 @@ async function loadUserState() {
         return null;
     }
 }
+
 
 // --- REFERALNI ALOHIDA SAQLASH ---
 async function processReferral() {
