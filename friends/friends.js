@@ -28,7 +28,28 @@ const Base62 = {
 function makeUserKey(baseKey, wallet) {
     return wallet ? baseKey + "_" + String(wallet).toLowerCase() : baseKey + "_guest";
 }
-const FRIENDS_CACHE_KEY = 'proguzmir_friends';
+const FRIENDS_CACHE_KEY = 'proguzmir_friends_cache';
+const FRIENDS_CACHE_TTL = 5 * 60 * 1000; // 5 daqiqa
+
+function getCachedFriends(wallet) {
+    try {
+        const cache = JSON.parse(localStorage.getItem(FRIENDS_CACHE_KEY) || "null");
+        if (!cache || !cache.data || !cache.ts || !cache.wallet) return null;
+        if (cache.wallet !== wallet) return null;
+        if (Date.now() - cache.ts > FRIENDS_CACHE_TTL) return null;
+        return cache.data;
+    } catch (e) { return null; }
+}
+
+function setCachedFriends(wallet, data) {
+    try {
+        localStorage.setItem(FRIENDS_CACHE_KEY, JSON.stringify({
+            wallet,
+            data,
+            ts: Date.now()
+        }));
+    } catch (e) { }
+}
 
 // Single delegated listener so .btn-send works after page switches
 if (!window._proguzmir_friends_delegate_installed) {
@@ -129,6 +150,14 @@ async function loadFriendsList() {
         return;
     }
 
+    // 1. Avval localStorage'dan o'qib ko'ramiz
+    const cached = getCachedFriends(wallet);
+    if (cached) {
+        renderFriendsList(cached, container, countEl, totalLabel);
+        return;
+    }
+
+    // 2. API'dan olib, cache'ga yozamiz
     try {
         const res = await fetch('/api/invite', {
             method: 'POST',
@@ -139,106 +168,15 @@ async function loadFriendsList() {
         if (!res.ok) {
             renderNoData(container);
             if (countEl) countEl.textContent = '(0)';
+            if (totalLabel) totalLabel.textContent = '0 💎';
             return;
         }
 
         const json = await res.json();
         const friends = json?.friends || [];
 
-        if (!friends.length) {
-            renderNoData(container);
-            if (countEl) countEl.textContent = '(0)';
-            if (totalLabel) totalLabel.textContent = '0 💎';
-            return;
-        }
-
-        // --- HISOB-KITOB QISMI ---
-        let totalBonus = 0;
-        const BONUS_REGULAR = 25000;
-        const BONUS_PREMIUM = 50000;
-
-        // Render list
-        container.innerHTML = '';
-
-        friends.forEach(f => {
-            // 1. Bonusni aniqlash
-            const bonus = f.is_premium ? BONUS_PREMIUM : BONUS_REGULAR;
-            totalBonus += bonus;
-
-            // 2. Element yaratish
-            const item = document.createElement('div');
-            item.className = 'invite-item';
-            // Stylelar (Siz bergan kod asosida)
-            item.style.cssText = `
-                display: flex; 
-                justify-content: space-between; 
-                align-items: center; 
-                padding: 8px; 
-                margin-bottom: 8px; 
-                background: rgba(0, 0, 0, 0.5); 
-                border-radius: 8px;
-            `;
-
-            // CHAP TARAF (Avatar + Ism + PRC)
-            const left = document.createElement('div');
-            left.style.cssText = "display: flex; gap: 10px; align-items: center;";
-
-            const avatar = document.createElement('div');
-            avatar.style.cssText = "width: 44px; height: 44px; border-radius: 8px; background: rgba(255, 255, 255, 0.03); display: flex; align-items: center; justify-content: center; font-weight: 700; color: rgb(255, 255, 255);";
-            avatar.textContent = (f.first_name || 'U').slice(0, 2).toUpperCase();
-
-            const info = document.createElement('div');
-
-            const name = document.createElement('div');
-            name.style.fontWeight = '700';
-            name.textContent = f.first_name || 'Unknown';
-
-            const prc = document.createElement('div');
-            prc.style.opacity = '0.8';
-            prc.style.fontSize = '12px';
-            try {
-                prc.textContent = (typeof fmtPRC === 'function') ? fmtPRC(BigInt(f.prc_wei || '0')) : (f.prc_wei || '0');
-            } catch (e) {
-                prc.textContent = (f.prc_wei || '0');
-            }
-
-            info.appendChild(name);
-            info.appendChild(prc);
-            left.appendChild(avatar);
-            left.appendChild(info);
-
-            // O'NG TARAF (Bonus ko'rsatish)
-            const right = document.createElement('div');
-            right.style.cssText = "text-align: right;";
-
-            const bonusDiv = document.createElement('div');
-            bonusDiv.style.cssText = "color: #ffd700; font-weight: 700; font-size: 14px;";
-            // K formatda chiqarish (25K yoki 50K)
-            bonusDiv.textContent = `+${bonus / 1000}K 💎`;
-
-            // Agar premium bo'lsa, kichik belgi qo'yish (ixtiyoriy)
-            if (f.is_premium) {
-                bonusDiv.innerHTML += ' <span style="font-size:10px">🌟</span>';
-            }
-
-            right.appendChild(bonusDiv);
-
-            // Yig'ish
-            item.appendChild(left);
-            item.appendChild(right); // O'ng tarafni qo'shamiz
-            container.appendChild(item);
-        });
-
-        // --- YAKUNIY NATIJALAR ---
-
-        // 1. Do'stlar soni
-        if (countEl) countEl.textContent = `(${friends.length})`;
-
-        // 2. TEPADAGI LABELNI YANGILASH (Jami bonuslar)
-        if (totalLabel) {
-            // Raqamni chiroyli formatlash (masalan: 75,000)
-            totalLabel.innerHTML = `<span style="color: #ffd700; font-size: 18px; font-weight: bold;">${totalBonus.toLocaleString()} 💎</span>`;
-        }
+        setCachedFriends(wallet, friends);
+        renderFriendsList(friends, container, countEl, totalLabel);
 
     } catch (err) {
         console.warn('fetch friends failed', err);
@@ -248,8 +186,85 @@ async function loadFriendsList() {
     }
 }
 
+// Yangi: faqat localStorage'dan o'qish uchun yordamchi
+function renderFriendsList(friends, container, countEl, totalLabel) {
+    // --- HISOB-KITOB QISMI ---
+    let totalBonus = 0;
+    const BONUS_REGULAR = 25000;
+    const BONUS_PREMIUM = 50000;
 
+    container.innerHTML = '';
 
+    if (!friends.length) {
+        renderNoData(container);
+        if (countEl) countEl.textContent = '(0)';
+        if (totalLabel) totalLabel.textContent = '0 💎';
+        return;
+    }
+
+    friends.forEach(f => {
+        const bonus = f.is_premium ? BONUS_PREMIUM : BONUS_REGULAR;
+        totalBonus += bonus;
+
+        const item = document.createElement('div');
+        item.className = 'invite-item';
+        item.style.cssText = `
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 8px; 
+            margin-bottom: 8px; 
+            background: rgba(0, 0, 0, 0.5); 
+            border-radius: 8px;
+        `;
+
+        const left = document.createElement('div');
+        left.style.cssText = "display: flex; gap: 10px; align-items: center;";
+
+        const avatar = document.createElement('div');
+        avatar.style.cssText = "width: 44px; height: 44px; border-radius: 8px; background: rgba(255, 255, 255, 0.03); display: flex; align-items: center; justify-content: center; font-weight: 700; color: rgb(255, 255, 255);";
+        avatar.textContent = (f.first_name || 'U').slice(0, 2).toUpperCase();
+
+        const info = document.createElement('div');
+        const name = document.createElement('div');
+        name.style.fontWeight = '700';
+        name.textContent = f.first_name || 'Unknown';
+
+        const prc = document.createElement('div');
+        prc.style.opacity = '0.8';
+        prc.style.fontSize = '12px';
+        try {
+            prc.textContent = (typeof fmtPRC === 'function') ? fmtPRC(BigInt(f.prc_wei || '0')) : (f.prc_wei || '0');
+        } catch (e) {
+            prc.textContent = (f.prc_wei || '0');
+        }
+
+        info.appendChild(name);
+        info.appendChild(prc);
+        left.appendChild(avatar);
+        left.appendChild(info);
+
+        const right = document.createElement('div');
+        right.style.cssText = "text-align: right;";
+
+        const bonusDiv = document.createElement('div');
+        bonusDiv.style.cssText = "color: #ffd700; font-weight: 700; font-size: 14px;";
+        bonusDiv.textContent = `+${bonus / 1000}K 💎`;
+        if (f.is_premium) {
+            bonusDiv.innerHTML += ' <span style="font-size:10px">🌟</span>';
+        }
+        right.appendChild(bonusDiv);
+
+        item.appendChild(left);
+        item.appendChild(right);
+        container.appendChild(item);
+    });
+
+    if (countEl) countEl.textContent = `(${friends.length})`;
+    if (totalLabel) {
+        totalLabel.innerHTML = `<span style="color: #ffd700; font-size: 18px; font-weight: bold;">${totalBonus.toLocaleString()} 💎</span>`;
+    }
+}
 
 function renderNoData(container) {
     // keep existing "No data." block markup
@@ -303,13 +318,10 @@ async function onSendInviteClick(ev) {
 }
 
 // Auto-start similar to previous behavior
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        initInvite();
-        loadFriendsList();
-    });
-} else {
-    initInvite();
+document.addEventListener('DOMContentLoaded', () => {
     loadFriendsList();
-}
-setInterval(loadFriendsList, 30000);
+    initInvite();
+});
+
+// Avto intervalni olib tashlaymiz
+// setInterval(loadFriendsList, 30000); // OLIB TASHLANDI
