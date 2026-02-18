@@ -1034,6 +1034,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (typeof updateHeaderPRC === 'function') updateHeaderPRC();
     if (typeof updateHeaderDiamond === 'function') updateHeaderDiamond();
     if (typeof updateHeaderKeys === 'function') updateHeaderKeys();
+    // ✅ XATO TO'G'RILANDI: Asl ishlaydigan o'yinni chizish funksiyasini chaqiramiz
+    if (typeof renderAndWait === 'function') {
+        renderAndWait();
+    } else if (typeof renderGame === 'function') {
+        renderGame();
+    }
 
     // 8. Avto-saqlashni (AutoSave) ishga tushirish
     if (typeof setupAutoSave === 'function') setupAutoSave();
