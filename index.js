@@ -945,6 +945,9 @@ document.addEventListener('click', (ev) => {
 // ==================================================
 // 5. EVENT LISTENERS (CLICK)
 // ==================================================
+// index.js oxiridagi DOMContentLoaded qismi
+// index.js (Eng oxirgi qismi - Startup Logikasi)
+
 document.addEventListener('DOMContentLoaded', async () => {
     
     // 1. Telegram Mini App sozlamalari
@@ -980,7 +983,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             // Yangi qo'shilganlar:
             state.ownedSkins = saved.ownedSkins || ["bronza.png"];
-            state.completedTasks = saved.completedTasks || {};
 
             state.dailyWeekStart = saved.dailyWeekStart;
             state.dailyClaims = saved.dailyClaims;
@@ -1116,7 +1118,6 @@ async function saveUserState(state, saveType = 'partial') {
             dailyClaims: st.dailyClaims ? JSON.stringify(st.dailyClaims) : null,
             cardsLvl: st.cardsLvl ? JSON.stringify(st.cardsLvl) : null,
             boosts: st.boosts ? JSON.stringify(st.boosts) : null,
-            completedTasks: st.completedTasks ? JSON.stringify(st.completedTasks) : null,
             claimDate: st.claimDate || null,
         };
     }
