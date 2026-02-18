@@ -37,13 +37,13 @@ export default async function handler(req, res) {
     const cryptoWalletVal = state.cryptoWallet || state.crypto_wallet || null;
 
     // 3. Ma'lumotlarni saqlash (UPSERT)
-    // DIQQAT: Bu yerda 'referrer_id' YO'Q! Shuning uchun u o'chib ketmaydi.
     const { error } = await supabase
       .from('user_states')
       .upsert({
         wallet: wallet,
         first_name: user.first_name || null,
         last_name: user.last_name || null,
+        
         // O'yin state
         prc_wei: String(state.prcWei || '0'),
         diamond: Number(state.diamond || 0),
@@ -55,11 +55,14 @@ export default async function handler(req, res) {
         today_index: Number(state.todayIndex || 0),
         rank: state.rank || 'bronze',
         
-        // Qo'shimcha
+        // Qo'shimcha JSON maydonlar
         daily_week_start: state.dailyWeekStart || null,
         daily_claims: state.dailyClaims ? JSON.stringify(state.dailyClaims) : null,
         cards_lvl: state.cardsLvl ? JSON.stringify(state.cardsLvl) : null,
         boosts: state.boosts ? JSON.stringify(state.boosts) : null,
+        owned_skins: state.ownedSkins ? JSON.stringify(state.ownedSkins) : null,
+        completed_tasks: state.completedTasks ? JSON.stringify(state.completedTasks) : null,
+
         claim_date: state.claimDate || null,
         keys_total: Number(state.keysTotal || 0),
         keys_used: Number(state.keysUsed || 0),
@@ -70,7 +73,7 @@ export default async function handler(req, res) {
 
         updated_at: new Date().toISOString()
       }, {
-        onConflict: 'wallet' // Faqat o'zgarganlarni yangilaydi, referrer_id ga tegmaydi
+        onConflict: 'wallet' 
       });
 
     if (error) {

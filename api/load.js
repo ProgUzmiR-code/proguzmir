@@ -7,7 +7,7 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
-  // CORS headers qo'shish
+  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: error.message });
     }
 
-    // YANGI: Parse JSON fields safely
+    // JSON maydonlarni xavfsiz o'qish (Parse)
     let result = null;
     if (data) {
       result = {
@@ -55,9 +55,12 @@ export default async function handler(req, res) {
         daily_claims: data.daily_claims ? JSON.parse(data.daily_claims) : null,
         cards_lvl: data.cards_lvl ? JSON.parse(data.cards_lvl) : null,
         boosts: data.boosts ? JSON.parse(data.boosts) : null,
+        ownedSkins: data.owned_skins ? JSON.parse(data.owned_skins) : ["bronze.png"], 
+        completedTasks: data.completed_tasks ? JSON.parse(data.completed_tasks) : {},
+
         claim_date: data.claim_date || null,
-        rank: data.rank || 'bronze',  // YANGI: Rank field
-        keys_total: data.keys_total || 0,  // YANGI: Keys fields
+        rank: data.rank || 'bronze',
+        keys_total: data.keys_total || 0,
         keys_used: data.keys_used || 0,
         ton_wallet: data.ton_wallet || null,
         crypto_wallet: data.crypto_wallet || null
