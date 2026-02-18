@@ -1,4 +1,3 @@
-// api/load.js
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -7,68 +6,56 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
-  // CORS headers
+  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
     const { initData } = req.body;
+    if (!initData) return res.status(400).json({ error: 'No initData' });
 
-    if (!initData) {
-      return res.status(400).json({ error: 'Missing initData' });
-    }
-
+    // Telegram ID ni olish
     const urlParams = new URLSearchParams(initData);
     const user = JSON.parse(urlParams.get('user') || '{}');
-
-    if (!user.id) {
-      return res.status(400).json({ error: 'Missing user ID from Telegram' });
-    }
-
     const wallet = String(user.id);
 
+    // Bazadan o'qish
     const { data, error } = await supabase
       .from('user_states')
       .select('*')
       .eq('wallet', wallet)
       .maybeSingle();
 
-    if (error) {
-      console.error('Supabase select error:', error);
-      return res.status(500).json({ error: error.message });
+    if (error) throw error;
+
+    // Agar user bazada yo'q bo'lsa (yangi user)
+    if (!data) {
+        return res.status(200).json({ user: null }); // Null qaytaramiz, frontend buni tushunadi
     }
 
-    // JSON maydonlarni xavfsiz o'qish (Parse)
-    let result = null;
-    if (data) {
-      result = {
+    // JSON poliyalarni chiroyli qilib qaytaramiz
+    // Muhim: Agar ustun bazada bo'lmasa, undefined ketmasligi uchun null tekshiruvini qilamiz
+    const safeJson = (val) => {
+        if (!val) return null;
+        try { return typeof val === 'string' ? JSON.parse(val) : val; } catch(e) { return null; }
+    };
+
+    const result = {
         ...data,
-        daily_claims: data.daily_claims ? JSON.parse(data.daily_claims) : null,
-        cards_lvl: data.cards_lvl ? JSON.parse(data.cards_lvl) : null,
-        boosts: data.boosts ? JSON.parse(data.boosts) : null,
-        ownedSkins: data.owned_skins ? JSON.parse(data.owned_skins) : ["bronze.png"], 
+        daily_claims: safeJson(data.daily_claims),
+        cards_lvl: safeJson(data.cards_lvl),
+        boosts: safeJson(data.boosts),
+        owned_skins: safeJson(data.owned_skins) || ["bronze.png"], // Default qiymat
+        completed_tasks: safeJson(data.completed_tasks) || {}
+    };
 
-        claim_date: data.claim_date || null,
-        rank: data.rank || 'bronze',
-        keys_total: data.keys_total || 0,
-        keys_used: data.keys_used || 0,
-        ton_wallet: data.ton_wallet || null,
-        crypto_wallet: data.crypto_wallet || null
-      };
-    }
+    return res.status(200).json({ user: result });
 
-    return res.status(200).json({ user: result || null });
   } catch (err) {
-    console.error('Load API error:', err);
-    return res.status(500).json({ error: err.message || 'Server error' });
+    console.error('Load Error:', err);
+    return res.status(500).json({ error: err.message });
   }
 }

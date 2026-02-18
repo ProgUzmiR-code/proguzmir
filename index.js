@@ -945,65 +945,98 @@ document.addEventListener('click', (ev) => {
 // ==================================================
 // 5. EVENT LISTENERS (CLICK)
 // ==================================================
-// index.js oxiridagi DOMContentLoaded qismi
-
 document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        const saved = await loadUserState();
-        if (saved) {
-            if (typeof restoreState === 'function') {
-                restoreState(saved);
-            } else {
-                // Ma'lumotlarni State'ga yozish
-                state.prcWei = saved.prcWei;
-                state.diamond = saved.diamond;
-                state.energy = saved.energy;
-                state.maxEnergy = saved.maxEnergy;
-                state.tapsUsed = saved.tapsUsed;
-                state.selectedSkin = saved.selectedSkin;
-                state.ownedSkins = saved.ownedSkins || ["bronza.png"];
-                state.todayIndex = saved.todayIndex;
-                state.wallet = saved.wallet; 
-
-                state.dailyWeekStart = saved.dailyWeekStart;
-                state.dailyClaims = saved.dailyClaims;
-                state.cardsLvl = saved.cardsLvl;
-                state.boosts = saved.boosts;
-                state.keysTotal = saved.keysTotal;
-                state.keysUsed = saved.keysUsed;
-                state.tonWallet = saved.tonWallet;
-                state.cryptoWallet = saved.cryptoWallet;
-
-                // LocalStorage'ga yozish (Ton va Cripto ishlashi uchun)
-                if (state.wallet) {
-                    if (state.tonWallet) {
-                        localStorage.setItem("proguzmir_ton_wallet", state.tonWallet); 
-                        localStorage.setItem("proguzmir_ton_type", "ton");
-                    }
-                    if (state.cryptoWallet) {
-                        localStorage.setItem("proguzmir_crypto_wallet", state.cryptoWallet); 
-                        localStorage.setItem("proguzmir_crypto_type", "evm");
-                    }
-                }
-                saveState(state);
-            }
-        } else {
-            if (typeof initNewUser === 'function') initNewUser();
-        }
-    } catch (e) { 
-        console.warn('startup load error', e); 
+    
+    // 1. Telegram Mini App sozlamalari
+    if (window.Telegram?.WebApp) {
+        try {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            window.Telegram.WebApp.enableClosingConfirmation(); // Yopishdan oldin so'rash
+            // Orqa fonni qoraytiramiz (chiroyli ko'rinishi uchun)
+            window.Telegram.WebApp.setBackgroundColor('#000000'); 
+            window.Telegram.WebApp.setHeaderColor('#000000');
+        } catch (e) { console.log("Telegram WebApp init warning", e); }
     }
 
-    // ✅ XATO TO'G'RILANDI: Asl ishlaydigan o'yinni chizish funksiyasini chaqiramiz
-    if (typeof renderAndWait === 'function') {
-        renderAndWait();
+    try {
+        console.log("⏳ Bazadan foydalanuvchi ma'lumotlari yuklanmoqda...");
+        
+        // 2. Bazadan ma'lumotlarni tortib olamiz
+        const saved = await loadUserState();
+
+        if (saved) {
+            console.log("✅ Ma'lumotlar keldi, State yangilanmoqda...");
+
+            // 3. Global State ni yangilaymiz (Sizning eski kodingiz asosida)
+            state.prcWei = saved.prcWei;
+            state.diamond = saved.diamond;
+            state.energy = saved.energy;
+            state.maxEnergy = saved.maxEnergy;
+            state.tapsUsed = saved.tapsUsed;
+            state.selectedSkin = saved.selectedSkin;
+            state.todayIndex = saved.todayIndex;
+            state.wallet = saved.wallet; 
+            
+            // Yangi qo'shilganlar:
+            state.ownedSkins = saved.ownedSkins || ["bronza.png"];
+            state.completedTasks = saved.completedTasks || {};
+
+            state.dailyWeekStart = saved.dailyWeekStart;
+            state.dailyClaims = saved.dailyClaims;
+            state.cardsLvl = saved.cardsLvl;
+            state.boosts = saved.boosts;
+            state.keysTotal = saved.keysTotal;
+            state.keysUsed = saved.keysUsed;
+            state.tonWallet = saved.tonWallet;
+            state.cryptoWallet = saved.cryptoWallet;
+
+            // 4. MUHIM: Hamyonlarni localStorage ga qaytarish (Wallet.js ishlashi uchun)
+            if (state.tonWallet) {
+                localStorage.setItem("proguzmir_ton_wallet", state.tonWallet); 
+                localStorage.setItem("proguzmir_ton_type", "ton");
+            }
+            if (state.cryptoWallet) {
+                localStorage.setItem("proguzmir_crypto_wallet", state.cryptoWallet); 
+                localStorage.setItem("proguzmir_crypto_type", "evm");
+            }
+
+            // O'qib bo'lgach, bir marta to'liq sinxronizatsiya qilib qo'yamiz (Ehtiyot shart)
+            // Lekin 'partial' rejimda, serverni qiynamaslik uchun
+            // saveUserState(state, 'partial'); 
+
+        } else {
+            // 5. Agar bazada yo'q bo'lsa -> YANGI FOYDALANUVCHI
+            console.log("✨ Yangi foydalanuvchi aniqlandi.");
+            if (typeof initNewUser === 'function') initNewUser();
+            
+            // Yangi userni darhol bazaga yozamiz (Full save)
+            if (typeof saveUserState === 'function') {
+                saveUserState(state, 'full');
+            }
+        }
+
+    } catch (e) { 
+        console.error('Startup Load Error:', e); 
+    }
+
+    // 6. Ilovani ekranga chizish (Render)
+    // Endi ma'lumotlar aniq bor, bemalol chizish mumkin
+    if (typeof handleGlobalNavigation === 'function') {
+        handleGlobalNavigation('game');
     } else if (typeof renderGame === 'function') {
         renderGame();
     }
 
-    // Orqa fonda 30 soniyada bir marta bazaga saqlash mexanizmini yoqamiz
+    // 7. Headerdagi pullar va kalitlarni yangilash
+    if (typeof updateHeaderPRC === 'function') updateHeaderPRC();
+    if (typeof updateHeaderDiamond === 'function') updateHeaderDiamond();
+    if (typeof updateHeaderKeys === 'function') updateHeaderKeys();
+
+    // 8. Avto-saqlashni (AutoSave) ishga tushirish
     if (typeof setupAutoSave === 'function') setupAutoSave();
 });
+
 
 // Replace the Supabase sync invocation in saveState with a guarded version
 function saveState(state) {
@@ -1135,66 +1168,81 @@ function setupAutoSave() {
         }
     } catch (e) {}
 }
-
-
 // index.js ichida
 
 async function loadUserState() {
-    if (!window.Telegram?.WebApp?.initData) return null;
+    console.log("⏳ Bazadan ma'lumot yuklanmoqda...");
     
+    if (!window.Telegram?.WebApp?.initData) {
+        console.warn("⚠️ Telegram InitData yo'q! (Brauzerda bo'lsangiz normal holat)");
+        return null;
+    }
+
     try {
         const res = await fetch('/api/load', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ initData: Telegram.WebApp.initData }),
-            keepalive: true
+            cache: 'no-store' // Keshlashni o'chiramiz
         });
 
-        if (!res.ok) return null;
+        if (!res.ok) {
+            console.error("❌ API xato qaytardi:", res.status);
+            return null;
+        }
+
         const result = await res.json();
-        if (!result?.user) return null;
+        console.log("✅ Bazadan javob keldi:", result);
 
-        // Xavfsiz parser (String kelsa ochadi, obyekt kelsa tegmaydi)
-        const safeParse = (val, defaultVal) => {
-            if (!val) return defaultVal;
+        if (!result || result.user === null) {
+            console.log("🆕 Bu yangi foydalanuvchi.");
+            return null; // Yangi user ekanligini bildiramiz
+        }
+
+        const u = result.user;
+
+        // Xavfsiz parser
+        const parse = (val, def) => {
+            if (!val) return def;
             if (typeof val === 'string') {
-                try { return JSON.parse(val); } catch(e) { return defaultVal; }
+                try { return JSON.parse(val); } catch (e) { return def; }
             }
-            return val; // Zotan obyekt bo'lsa
+            return val; // Zotan object bo'lsa
         };
 
+        // Barcha ma'lumotlarni yig'amiz
         return {
-            prcWei: BigInt(result.user.prc_wei || '0'),
-            diamond: Number(result.user.diamond || 0),
-            energy: Number(result.user.energy || 0),
-            maxEnergy: Number(result.user.max_energy || 0),
-            tapsUsed: Number(result.user.taps_used || 0),
-            selectedSkin: result.user.selected_skin || 'bronza.png',
-            todayIndex: Number(result.user.today_index || 0),
-            rank: result.user.rank || 'bronze',
-
-            // ✅ XATO TUZATILDI: Skinlar va Vazifalar to'g'ri yuklanadi
-            ownedSkins: safeParse(result.user.owned_skins, ["bronze.png"]),
-            completedTasks: safeParse(result.user.completed_tasks, {}),
+            prcWei: BigInt(u.prc_wei || '0'),
+            diamond: Number(u.diamond || 0),
+            energy: Number(u.energy || 1000),
+            maxEnergy: Number(u.max_energy || 1000),
+            tapsUsed: Number(u.taps_used || 0),
             
-            dailyWeekStart: result.user.daily_week_start || null,
-            dailyClaims: safeParse(result.user.daily_claims, null),
-            cardsLvl: safeParse(result.user.cards_lvl, {}),
-            boosts: safeParse(result.user.boosts, {}),
-            claimDate: result.user.claim_date || null,
+            selectedSkin: u.selected_skin || 'bronze.png',
+            ownedSkins: parse(u.owned_skins, ["bronze.png"]), // Array bo'lishi shart
+            completedTasks: parse(u.completed_tasks, {}),
             
-            wallet: result.user.wallet || "",
-            keysTotal: Number(result.user.keys_total || 0),
-            keysUsed: Number(result.user.keys_used || 0),
-            tonWallet: result.user.ton_wallet || null,
-            cryptoWallet: result.user.crypto_wallet || null
+            todayIndex: Number(u.today_index || 0),
+            dailyWeekStart: u.daily_week_start || null,
+            dailyClaims: parse(u.daily_claims, null),
+            cardsLvl: parse(u.cards_lvl, {}),
+            boosts: parse(u.boosts, {}),
+            claimDate: u.claim_date || null,
+            
+            rank: u.rank || 'bronze',
+            wallet: u.wallet || "",
+            keysTotal: Number(u.keys_total || 0),
+            keysUsed: Number(u.keys_used || 0),
+            
+            tonWallet: u.ton_wallet || null,
+            cryptoWallet: u.crypto_wallet || null
         };
+
     } catch (err) {
-        console.warn('loadUserState error', err);
+        console.error("❌ loadUserState da jiddiy xato:", err);
         return null;
     }
 }
-
 
 // --- REFERALNI ALOHIDA SAQLASH ---
 async function processReferral() {
