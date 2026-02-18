@@ -1,4 +1,3 @@
-
 (function () {
     // 1. Yordamchi normalizatsiya funksiyasi
     function normalizeRank(name) {
@@ -37,86 +36,106 @@
             const tgFirstName = window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || "You";
             const state = safeLoadState();
 
-            // YANGI: Haqiqiy ma'lumotlarni Supabase'dan olish
+            // --- YANGI: CACHING bilan yuklash ---
             async function loadLeaderboard() {
                 rankListContainer.innerHTML = '<div class="loading">Loading...</div>';
 
+                // Cache key va muddati
+                const CACHE_KEY = "proguzmir_leaderboard_cache";
+                const CACHE_TTL = 5 * 60 * 1000; // 5 daqiqa
+
+                // 1. Cache'dan o'qish
+                let cache = null;
                 try {
-                    // Supabase o'rniga o'zimizning API dan olamiz
+                    cache = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+                } catch (e) { cache = null; }
+
+                const now = Date.now();
+                if (cache && cache.data && cache.ts && (now - cache.ts < CACHE_TTL)) {
+                    // Cache'dan foydalanamiz
+                    renderLeaderboard(cache.data);
+                    return;
+                }
+
+                // 2. API'dan olish va cache'ga yozish
+                try {
                     const response = await fetch('/api/leaderboard');
                     const result = await response.json();
 
                     if (!result.leaderboard) throw new Error("No data found");
 
-                    const data = result.leaderboard;
-
-                    // 1. Ma'lumotlarni map qilishda username-ni ham qo'shing
-                    let allUsers = data.map(u => ({
-                        name: u.first_name || u.last_name || `User ${u.wallet.replace('tg_', '')}`, // Bazada ism bo'lsa o'shani, bo'lmasa lasname ni qo'yamiz
-                        score: u.prc_wei || "0",
-                        wallet: u.wallet
+                    // Cache'ga yozamiz
+                    localStorage.setItem(CACHE_KEY, JSON.stringify({
+                        data: result.leaderboard,
+                        ts: Date.now()
                     }));
 
-                    allUsers.sort((a, b) => {
-                        const vA = BigInt(a.score);
-                        const vB = BigInt(b.score);
-                        return vB > vA ? 1 : vB < vA ? -1 : 0;
-                    });
-
-                    // 2. Tanlangan rank bo'yicha filtrlash
-                    const filteredUsers = allUsers.filter(user => {
-                        const userRank = getRankFromWei(BigInt(user.score));
-                        return normalizeRank(userRank) === normalizeRank(rankName);
-                    });
-
-                    rankListContainer.innerHTML = '';
-
-                    if (filteredUsers.length === 0) {
-                        rankListContainer.innerHTML = `<div class="empty-state">${rankName} No players in this league</div>`;
-                        return;
-                    }
-
-                    // 3. Ekranga chiqarish (forEach ichida)
-                    filteredUsers.forEach((user, index) => {
-                        const pos = index + 1;
-                        const isMe = String(user.wallet) === String(state.wallet);
-                        const rankClass = pos <= 3 ? `top${pos}` : '';
-
-                        // "Siz" dan keyin foydalanuvchi ismini chiqarish mantiqi
-                        // isMe bo'lsa: "Siz (Ism)", bo'lmasa: "Ism"
-                        const displayName = isMe ? `You (${user.name})` : user.name;
-
-                        const wrapper = document.createElement('div');
-                        wrapper.className = `rank-item ${rankClass} bton`;
-                        if (isMe) wrapper.style.border = '1px solid gold';
-
-                        wrapper.innerHTML = `
-                            <div class="rank-left">
-                                <div class="rank-position ${rankClass}">${pos}</div>
-                                <div class="rank-info">
-                                    <div class="rank-name">${displayName}</div>
-                                </div>
-                            </div>
-                            <div class="rank-score">${safeFmtPRC(user.score)}</div>
-                        `;
-
-                        rankListContainer.appendChild(wrapper);
-                    });
-
-
+                    renderLeaderboard(result.leaderboard);
                 } catch (e) {
                     console.error('API error:', e);
                     rankListContainer.innerHTML = '<div class="error">Failed to load leaderboard.</div>';
                 }
             }
 
+            // --- Leaderboard rendering logic (cache va API uchun umumiy) ---
+            function renderLeaderboard(data) {
+                // 1. Ma'lumotlarni map qilishda username-ni ham qo'shing
+                let allUsers = data.map(u => ({
+                    name: u.first_name || u.last_name || `User ${u.wallet.replace('tg_', '')}`, // Bazada ism bo'lsa o'shani, bo'lmasa lasname ni qo'yamiz
+                    score: u.prc_wei || "0",
+                    wallet: u.wallet
+                }));
 
+                allUsers.sort((a, b) => {
+                    const vA = BigInt(a.score);
+                    const vB = BigInt(b.score);
+                    return vB > vA ? 1 : vB < vA ? -1 : 0;
+                });
+
+                // 2. Tanlangan rank bo'yicha filtrlash
+                const filteredUsers = allUsers.filter(user => {
+                    const userRank = getRankFromWei(BigInt(user.score));
+                    return normalizeRank(userRank) === normalizeRank(rankName);
+                });
+
+                rankListContainer.innerHTML = '';
+
+                if (filteredUsers.length === 0) {
+                    rankListContainer.innerHTML = `<div class="empty-state">${rankName} No players in this league</div>`;
+                    return;
+                }
+
+                // 3. Ekranga chiqarish (forEach ichida)
+                filteredUsers.forEach((user, index) => {
+                    const pos = index + 1;
+                    const isMe = String(user.wallet) === String(state.wallet);
+                    const rankClass = pos <= 3 ? `top${pos}` : '';
+
+                    // "Siz" dan keyin foydalanuvchi ismini chiqarish mantiqi
+                    // isMe bo'lsa: "Siz (Ism)", bo'lmasa: "Ism"
+                    const displayName = isMe ? `You (${user.name})` : user.name;
+
+                    const wrapper = document.createElement('div');
+                    wrapper.className = `rank-item ${rankClass} bton`;
+                    if (isMe) wrapper.style.border = '1px solid gold';
+
+                    wrapper.innerHTML = `
+                        <div class="rank-left">
+                            <div class="rank-position ${rankClass}">${pos}</div>
+                            <div class="rank-info">
+                                <div class="rank-name">${displayName}</div>
+                            </div>
+                        </div>
+                        <div class="rank-score">${safeFmtPRC(user.score)}</div>
+                    `;
+
+                    rankListContainer.appendChild(wrapper);
+                });
+            }
 
             // Async funksiyani chaqirish
             loadLeaderboard().catch(e => console.error('Leaderboard load error:', e));
         }
-
-
 
         // Tablarni yangilash
         function updateTabs(selectedRankRaw) {

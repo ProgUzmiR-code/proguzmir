@@ -22,6 +22,8 @@ let retryCount = 0;
 
 // 1. AppKitni ishga tushirish
 async function initMetaMaskSystem() {
+    console.log("EVM Wallet system ishga tushdi");
+
     if (!window.AppKitLibrary) {
         if (retryCount < 20) {
             retryCount++;
@@ -119,6 +121,8 @@ async function addToken() {
 
 // 3. Asosiy funksiya
 function initMetaMaskWallet() {
+    console.log("EVM Wallet moduli ishga tushdi");
+
     initMetaMaskSystem();
     setupMetaMaskButton();
     updateMetaMaskUI();
@@ -126,7 +130,9 @@ function initMetaMaskWallet() {
 
 // 4. Tugmani sozlash
 function setupMetaMaskButton() {
+    console.log("setupMetaMaskButton called");
     const btnMeta = document.getElementById('btnMetaMask');
+    console.log("MetaMask tugmachasini sozlash:", btnMeta);
     if (!btnMeta) return;
 
     const newBtn = btnMeta.cloneNode(true);

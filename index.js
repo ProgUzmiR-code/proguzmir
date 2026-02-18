@@ -823,8 +823,8 @@ function updateInterface(pageName) {
             window.Telegram.WebApp.BackButton.hide();
         } else {
             window.Telegram.WebApp.BackButton.show();
-            window.Telegram.WebApp.BackButton.offClick(goBackSmart); 
-            window.Telegram.WebApp.BackButton.onClick(goBackSmart);  
+            window.Telegram.WebApp.BackButton.offClick(goBackSmart);
+            window.Telegram.WebApp.BackButton.onClick(goBackSmart);
         }
     }
 }
@@ -885,11 +885,11 @@ async function handleGlobalNavigation(targetPage) {
     else if (targetPage === 'earn') await loadHtmlIntoContent('./earn/earn.html', 'earncontent');
     else if (targetPage === 'rank') {
         await loadHtmlIntoContent('./rank/rank.html', 'rankcontent');
-        if (typeof initRankPage === 'function') initRankPage();
     }
     else if (targetPage === 'wallet') {
         await loadHtmlIntoContent('./wallet/wallet.html', 'walletcontent');
         if (window.initTonWallet) window.initTonWallet();
+        if (window.initMetaMaskWallet) window.initMetaMaskWallet(); // YANGI: MetaMask hamyonini ishga tushirish
     }
     else if (targetPage === 'invite') {
         await loadHtmlIntoContent('./friends/friends.html', 'invitecontent');
@@ -918,7 +918,7 @@ document.addEventListener('click', (ev) => {
     const backIds = ['incomeBack', 'keyBack', 'shopBack', 'dailyBack', 'backFromGame'];
     if (backIds.includes(target.id) || target.closest('#backFromGame')) {
         ev.preventDefault();
-        goBackSmart(); 
+        goBackSmart();
         return;
     }
 
@@ -949,7 +949,7 @@ document.addEventListener('click', (ev) => {
 // index.js (Eng oxirgi qismi - Startup Logikasi)
 
 document.addEventListener('DOMContentLoaded', async () => {
-    
+
     // 1. Telegram Mini App sozlamalari
     if (window.Telegram?.WebApp) {
         try {
@@ -957,14 +957,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.Telegram.WebApp.expand();
             window.Telegram.WebApp.enableClosingConfirmation(); // Yopishdan oldin so'rash
             // Orqa fonni qoraytiramiz (chiroyli ko'rinishi uchun)
-            window.Telegram.WebApp.setBackgroundColor('#000000'); 
+            window.Telegram.WebApp.setBackgroundColor('#000000');
             window.Telegram.WebApp.setHeaderColor('#000000');
         } catch (e) { console.log("Telegram WebApp init warning", e); }
     }
 
     try {
         console.log("⏳ Bazadan foydalanuvchi ma'lumotlari yuklanmoqda...");
-        
+
         // 2. Bazadan ma'lumotlarni tortib olamiz
         const saved = await loadUserState();
 
@@ -979,8 +979,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             state.tapsUsed = saved.tapsUsed;
             state.selectedSkin = saved.selectedSkin;
             state.todayIndex = saved.todayIndex;
-            state.wallet = saved.wallet; 
-            
+            state.wallet = saved.wallet;
+
             // Yangi qo'shilganlar:
             state.ownedSkins = saved.ownedSkins || ["bronza.png"];
 
@@ -995,11 +995,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // 4. MUHIM: Hamyonlarni localStorage ga qaytarish (Wallet.js ishlashi uchun)
             if (state.tonWallet) {
-                localStorage.setItem("proguzmir_ton_wallet", state.tonWallet); 
+                localStorage.setItem("proguzmir_ton_wallet", state.tonWallet);
                 localStorage.setItem("proguzmir_ton_type", "ton");
             }
             if (state.cryptoWallet) {
-                localStorage.setItem("proguzmir_crypto_wallet", state.cryptoWallet); 
+                localStorage.setItem("proguzmir_crypto_wallet", state.cryptoWallet);
                 localStorage.setItem("proguzmir_crypto_type", "evm");
             }
 
@@ -1011,15 +1011,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             // 5. Agar bazada yo'q bo'lsa -> YANGI FOYDALANUVCHI
             console.log("✨ Yangi foydalanuvchi aniqlandi.");
             if (typeof initNewUser === 'function') initNewUser();
-            
+
             // Yangi userni darhol bazaga yozamiz (Full save)
             if (typeof saveUserState === 'function') {
                 saveUserState(state, 'full');
             }
         }
 
-    } catch (e) { 
-        console.error('Startup Load Error:', e); 
+    } catch (e) {
+        console.error('Startup Load Error:', e);
     }
 
     // 6. Ilovani ekranga chizish (Render)
@@ -1117,7 +1117,7 @@ async function saveUserState(state, saveType = 'partial') {
             selectedSkin: st.selectedSkin || null,
             todayIndex: st.todayIndex || 0,
             rank: st.rank || 'bronze',
-            
+
             // JSON obyektlar (Stringga o'giramiz)
             ownedSkins: JSON.stringify(st.ownedSkins || ["bronze.png"]),
             dailyWeekStart: st.dailyWeekStart || null,
@@ -1149,10 +1149,10 @@ async function saveUserState(state, saveType = 'partial') {
 function setupAutoSave() {
     // 1. Har 30 soniyada: Faqat pullarni saqlash (Serverni qiynamaslik uchun)
     setInterval(() => {
-        try { 
-            if (state) saveUserState(state, 'partial'); 
-        } catch (e) { 
-            console.warn('autosave partial failed', e); 
+        try {
+            if (state) saveUserState(state, 'partial');
+        } catch (e) {
+            console.warn('autosave partial failed', e);
         }
     }, 30000);
 
@@ -1165,7 +1165,7 @@ function setupAutoSave() {
 
     window.addEventListener('beforeunload', handleFullSave);
     window.addEventListener('unload', handleFullSave); // Ba'zi brauzerlar uchun qo'shimcha
-    
+
     // Telegram yopilayotganda
     try {
         if (window.Telegram?.WebApp) {
@@ -1173,13 +1173,13 @@ function setupAutoSave() {
                 if (e.isStateStable) handleFullSave(); // Ehtiyot shart saqlab turamiz
             });
         }
-    } catch (e) {}
+    } catch (e) { }
 }
 // index.js ichida
 
 async function loadUserState() {
     console.log("⏳ Bazadan ma'lumot yuklanmoqda...");
-    
+
     if (!window.Telegram?.WebApp?.initData) {
         console.warn("⚠️ Telegram InitData yo'q! (Brauzerda bo'lsangiz normal holat)");
         return null;
@@ -1224,23 +1224,23 @@ async function loadUserState() {
             energy: Number(u.energy || 1000),
             maxEnergy: Number(u.max_energy || 1000),
             tapsUsed: Number(u.taps_used || 0),
-            
+
             selectedSkin: u.selected_skin || 'bronze.png',
             ownedSkins: parse(u.owned_skins, ["bronze.png"]), // Array bo'lishi shart
             completedTasks: parse(u.completed_tasks, {}),
-            
+
             todayIndex: Number(u.today_index || 0),
             dailyWeekStart: u.daily_week_start || null,
             dailyClaims: parse(u.daily_claims, null),
             cardsLvl: parse(u.cards_lvl, {}),
             boosts: parse(u.boosts, {}),
             claimDate: u.claim_date || null,
-            
+
             rank: u.rank || 'bronze',
             wallet: u.wallet || "",
             keysTotal: Number(u.keys_total || 0),
             keysUsed: Number(u.keys_used || 0),
-            
+
             tonWallet: u.ton_wallet || null,
             cryptoWallet: u.crypto_wallet || null
         };
