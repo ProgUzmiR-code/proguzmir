@@ -169,6 +169,7 @@
             if (bonusKeys > 0) {
                 setKeysTotal(getKeysTotal() + bonusKeys);
                 setKeysUsed(getKeysUsed() + bonusKeys);
+                
             }
             if (diamonds > 0) {
                 setDiamond(getDiamond() + diamonds);
