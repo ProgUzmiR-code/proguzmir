@@ -961,6 +961,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 state.maxEnergy = saved.maxEnergy;
                 state.tapsUsed = saved.tapsUsed;
                 state.selectedSkin = saved.selectedSkin;
+                state.ownedSkins = saved.ownedSkins || ["bronza.png"];
                 state.todayIndex = saved.todayIndex;
                 state.wallet = saved.wallet; 
 

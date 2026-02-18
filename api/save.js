@@ -61,7 +61,6 @@ export default async function handler(req, res) {
         cards_lvl: state.cardsLvl ? JSON.stringify(state.cardsLvl) : null,
         boosts: state.boosts ? JSON.stringify(state.boosts) : null,
         owned_skins: state.ownedSkins ? JSON.stringify(state.ownedSkins) : null,
-        completed_tasks: state.completedTasks ? JSON.stringify(state.completedTasks) : null,
 
         claim_date: state.claimDate || null,
         keys_total: Number(state.keysTotal || 0),
