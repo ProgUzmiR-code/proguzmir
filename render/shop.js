@@ -15,7 +15,7 @@ const SHOP_ENERGY = [
   { id: 'energyUpgrade1k', name: '+1000 Max Energy', img: './image/boost.png', amount: 1000, maxLimit: 50000, costDiamond: 1000 } 
 ];
 
-const SKIN_COST_DIAMOND = 300000; 
+const SKIN_COST_DIAMOND = 1; 
 const SKINS = [
     { id: "bronza.png", name: "Bronza", file: "./image/bronza.png" },
     { id: "silver.png", name: "Silver", file: "./image/silver.png" },
@@ -85,7 +85,7 @@ function renderShop() {
                     btnHtml = `<button class="playGameBtn" style="cursor:default; background:#555;" disabled>Active</button>`;
                 } else if (isOwned) {
                     // Agar bor bo'lsa, lekin tanlanmagan bo'lsa -> SELECT tugmasi
-                    btnHtml = `<button class="playGameBtn equipSkinBtn" data-skin="${sk.id}" style="background:#28a745;">Select</button>`;
+                    btnHtml = `<button class="playGameBtn equipSkinBtn" data-skin="${sk.id}">Select</button>`;
                 } else {
                     // Agar yo'q bo'lsa -> BUY tugmasi
                     btnHtml = `<button class="playGameBtn buySkinBtn" data-skin="${sk.id}">Buy</button>`;
@@ -156,6 +156,8 @@ function renderShop() {
   tabShop.addEventListener('click', () => { resetTabs(); shopCol1.style.display = 'block'; tabShop.style.color = '#ffd700'; });
   tabEnergy.addEventListener('click', () => { resetTabs(); energyCol.style.display = 'flex'; tabEnergy.style.color = '#ffd700'; });
   tabSkins.addEventListener('click', () => { resetTabs(); skinCol.style.display = 'flex'; tabSkins.style.color = '#ffd700'; });
+  // Default: Shop tabini aktiv qilish
+  tabShop.click();
 
   // --- ENERGY BUY ---
   document.querySelectorAll('.buyEnergyBtn').forEach(btn => {
