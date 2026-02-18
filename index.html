@@ -74,18 +74,6 @@
     }
   </style>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-  <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.bundle.js"></script>
-
-  <script type="module">
-    import { createAppKit } from 'https://esm.sh/@reown/appkit@latest'
-    import { EthersAdapter } from 'https://esm.sh/@reown/appkit-adapter-ethers@latest'
-    import { mainnet, arbitrum, polygon, bsc } from 'https://esm.sh/@reown/appkit@latest/networks'
-    window.AppKitLibrary = { createAppKit, EthersAdapter, networks: [mainnet, polygon, bsc] };
-    console.log("AppKit Library (Networks moduli bilan) yuklandi!");
-  </script>
-
   <script>
     // Loading helpers
     (function () {
@@ -180,86 +168,51 @@
     }
   </script>
 
-  <script>
-    function getTelegramUser() {
-      if (!window.Telegram?.WebApp?.initDataUnsafe?.user) return null;
-      return Telegram.WebApp.initDataUnsafe.user;
-    }
-  </script>
-
-  <script>
-    (function () {
-      try {
-        if (window.Telegram && window.Telegram.WebApp) {
-          // Bu yerda endi expand chaqirish shart emas, chunki tepadagi script allaqachon qildi.
-          // Faqat username display logikasi qoladi.
-          const u = window.Telegram.WebApp.initDataUnsafe?.user;
-          if (u) {
-            document.addEventListener('DOMContentLoaded', function () {
-              const nameNode = document.querySelector('.profile .username');
-              if (nameNode) {
-                const display = ((u.first_name || '')).trim();
-                nameNode.textContent = display || (u.username ? '@' + u.username : 'Telegram user');
-              }
-            });
-          }
-        }
-      } catch (err) {
-        console.warn('Telegram init skipped:', err);
-      }
-    })();
-  </script>
-
   <style>
     :root {
       --corner-d: 32px;
       --bar-radius: 6px;
+      --tg-viewport-height: 100vh;
+      --tg-viewport-stable-height: 100vh;
+    }
+
+    html,
+    body,
+    #root {
+      height: var(--tg-viewport-height, 100vh);
+      min-height: var(--tg-viewport-height, 100vh);
+    }
+
+    @media (orientation: landscape) {
+      body {
+        transform: rotate(90deg);
+        transform-origin: top left;
+        width: 100vh;
+        height: 100vw;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+    }
+
+
+    /* Global user-select disable (safe cross-browser) */
+    * {
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-tap-highlight-color: rgb(0, 0, 0, 0);
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    img {
+      pointer-events: none;
+      -webkit-user-drag: none;
+      -webkit-touch-callout: none;
     }
 
     body {
-      :root {
-        --tg-viewport-height: 100vh;
-        --tg-viewport-stable-height: 100vh;
-
-
-      }
-
-      html,
-      body,
-      #root {
-        height: var(--tg-viewport-height, 100vh);
-        min-height: var(--tg-viewport-height, 100vh);
-      }
-
-      @media (orientation: landscape) {
-        body {
-          transform: rotate(90deg);
-          transform-origin: top left;
-          width: 100vh;
-          height: 100vw;
-          position: absolute;
-          top: 0;
-          left: 0;
-        }
-      }
-
-
-      /* Global user-select disable (safe cross-browser) */
-      * {
-        -webkit-user-select: none;
-        -webkit-tap-highlight-color: transparent;
-        -webkit-tap-highlight-color: rgb(0, 0, 0, 0);
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-      }
-
-      img {
-        pointer-events: none;
-        -webkit-user-drag: none;
-        -webkit-touch-callout: none;
-      }
-
       /* rasm markazda, qaytarilmasin, to'liq ekranni qoplasin */
       background-image: url('./image/background1.jpg');
       background-position: center center;
@@ -370,8 +323,50 @@
       <button class="close-modal-btn" onclick="closePaymentModal()">Bekor qilish</button>
     </div>
   </div>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+  <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.bundle.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script type="module">
+    import { createAppKit } from 'https://esm.sh/@reown/appkit@latest'
+    import { EthersAdapter } from 'https://esm.sh/@reown/appkit-adapter-ethers@latest'
+    import { mainnet, arbitrum, polygon, bsc } from 'https://esm.sh/@reown/appkit@latest/networks'
+    window.AppKitLibrary = { createAppKit, EthersAdapter, networks: [mainnet, polygon, bsc] };
+    console.log("AppKit Library (Networks moduli bilan) yuklandi!");
+  </script>
+
+  
+
+  <script>
+    function getTelegramUser() {
+      if (!window.Telegram?.WebApp?.initDataUnsafe?.user) return null;
+      return Telegram.WebApp.initDataUnsafe.user;
+    }
+  </script>
+
+  <script>
+    (function () {
+      try {
+        if (window.Telegram && window.Telegram.WebApp) {
+          // Bu yerda endi expand chaqirish shart emas, chunki tepadagi script allaqachon qildi.
+          // Faqat username display logikasi qoladi.
+          const u = window.Telegram.WebApp.initDataUnsafe?.user;
+          if (u) {
+            document.addEventListener('DOMContentLoaded', function () {
+              const nameNode = document.querySelector('.profile .username');
+              if (nameNode) {
+                const display = ((u.first_name || '')).trim();
+                nameNode.textContent = display || (u.username ? '@' + u.username : 'Telegram user');
+              }
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Telegram init skipped:', err);
+      }
+    })();
+  </script>
   <script src="index.js"></script>
   <script src="/render/game.js"></script>
   <script src="/render/shop.js"></script>
