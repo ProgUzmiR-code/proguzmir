@@ -15,7 +15,7 @@ const SHOP_ENERGY = [
   { id: 'energyUpgrade1k', name: '+1000 Max Energy', img: './image/boost.png', amount: 1000, maxLimit: 50000, costDiamond: 1000 } 
 ];
 
-const SKIN_COST_DIAMOND = 300000; 
+const SKIN_COST_DIAMOND = 1; 
 const SKINS = [
     { id: "bronza.png", name: "Bronza", file: "./image/bronza.png" },
     { id: "silver.png", name: "Silver", file: "./image/silver.png" },

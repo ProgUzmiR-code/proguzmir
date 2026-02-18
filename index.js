@@ -1073,6 +1073,7 @@ async function saveUserState(state) {
             maxEnergy: st.maxEnergy || 0,
             tapsUsed: st.tapsUsed || 0,
             selectedSkin: st.selectedSkin || null,
+            ownedSkins: JSON.stringify(st.ownedSkins || ["bronze.png"]),
             todayIndex: st.todayIndex || 0,
 
             // Mahalliy xotiradan (localStorage) o'qishlar o'rniga xotiradan (state) o'qish:
@@ -1083,7 +1084,6 @@ async function saveUserState(state) {
             claimDate: st.claimDate || null,
             keysTotal: st.keysTotal || 0,
             keysUsed: st.keysUsed || 0,
-            ownedSkins: JSON.stringify(st.ownedSkins || ["bronze.png"]),
 
             // Hamyonlarni payloadga qo'shamiz
             tonWallet: localTonWallet,
@@ -1193,6 +1193,7 @@ async function loadUserState() {
             maxEnergy: Number(result.user.max_energy || 0),
             tapsUsed: Number(result.user.taps_used || 0),
             selectedSkin: result.user.selected_skin || '',
+            ownedSkins: result.user.owned_skins ? JSON.parse(result.user.owned_skins) : ["bronze.png"],
             todayIndex: Number(result.user.today_index || 0),
 
             dailyWeekStart: result.user.daily_week_start || null,
@@ -1204,7 +1205,6 @@ async function loadUserState() {
 
             keysTotal: Number(result.user.keys_total || 0),
             keysUsed: Number(result.user.keys_used || 0),
-            ownedSkins: result.user.owned_skins ? JSON.parse(result.user.owned_skins) : ["bronze.png"],
 
             // ❗ YANGI: Hamyon manzillarini qabul qilish
             tonWallet: result.user.ton_wallet || null,
