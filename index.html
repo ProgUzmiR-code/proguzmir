@@ -5,23 +5,35 @@
   <meta charset="UTF-8">
   <meta name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <script>
-    window.addEventListener("DOMContentLoaded", () => {
+    (function () {
       const tg = window.Telegram.WebApp;
+      try {
+        // Ilovani tayyor deb belgilash
+        tg.ready();
 
-      // Ichki rangni o‘rnatish
-      tg.setBackgroundColor("#ffffff");
+        // Darhol kengaytirish
+        tg.expand();
 
-      // Mini-appni maksimal holatga kengaytirish
-      tg.expand();
+        // Full screen so'rash
+        if (tg.requestFullscreen) {
+          tg.requestFullscreen();
+        }
 
-      // Full screen so‘rash (faqat mobil brauzerlar qo‘llaganida)
-      if (tg.requestFullscreen) {
-        tg.requestFullscreen();
+        // 3. Miltillashni oldini olish uchun fonni Loading rangi (qora) bilan bir xil qilamiz
+        tg.setBackgroundColor("#000000");
+        tg.setHeaderColor("#000000");
+
+        // Ilova yuklangandan keyin oq rangga qaytarish uchun pastdagi mantiqqa kod qo'shish mumkin
+      } catch (e) {
+        console.error("Telegram init error:", e);
       }
-    });
+    })();
   </script>
+
   <style>
     /* Loading overlay: shows only the image that sharpens over time */
     .loading-img {
@@ -67,26 +79,15 @@
   <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.bundle.js"></script>
 
   <script type="module">
-    // 1. Asosiy AppKit
     import { createAppKit } from 'https://esm.sh/@reown/appkit@latest'
-
-    // 2. Ethers Adapter (EVM uchun)
     import { EthersAdapter } from 'https://esm.sh/@reown/appkit-adapter-ethers@latest'
-
-    // 3. TARMOQLAR (Siz so'ragan qism)
-    // Hujjatdagidek "/networks" yo'lidan olamiz, faqat oldiga https://esm.sh... qo'yamiz
     import { mainnet, arbitrum, polygon, bsc } from 'https://esm.sh/@reown/appkit@latest/networks'
-
-    // Kutubxonani globalga chiqaramiz
-    // DIQQAT: Solana qo'shmadim, chunki EthersAdapter faqat EVM (ETH, BNB, Polygon) ni o'qiydi.
     window.AppKitLibrary = { createAppKit, EthersAdapter, networks: [mainnet, polygon, bsc] };
-
     console.log("AppKit Library (Networks moduli bilan) yuklandi!");
   </script>
 
-
   <script>
-    // Loading helpers: controlled animation loop (blur <-> sharp) until content ready.
+    // Loading helpers
     (function () {
       let animInterval = null;
       let overlay = null;
@@ -100,12 +101,11 @@
         if (!overlay) return;
         overlay.classList.remove('hidden');
         overlay.setAttribute('aria-hidden', 'false');
-        // default: show image; if it errors we'll switch to text
+
         if (img) {
           img.style.display = '';
           text.style.display = 'none';
           img.classList.remove('sharp');
-          // try to apply sharp/blurry loop
           let on = false;
           if (animInterval) clearInterval(animInterval);
           animInterval = setInterval(() => {
@@ -115,97 +115,84 @@
             on = !on;
           }, 700);
         } else {
-          // fallback: show text only
           if (text) { text.style.display = ''; }
         }
-        // listen for image load/error: if error -> show text instead
         if (img) {
           img.addEventListener('error', onImgError);
           img.addEventListener('load', onImgLoad);
-          // if image already loaded but failed to render (naturalWidth==0), treat as error
           if (img.complete && img.naturalWidth === 0) onImgError();
         }
       }
+
       function onImgError() {
         if (!img || !overlay) return;
-        // hide image, show text
         img.style.display = 'none';
         const txt = document.getElementById('loadingText');
         if (txt) txt.style.display = '';
-        // stop image animation if any
         if (animInterval) { clearInterval(animInterval); animInterval = null; }
       }
+
       function onImgLoad() {
-        // ensure animation uses sharp state shortly after load
-        if (img) {
-          img.classList.add('sharp');
-        }
+        if (img) { img.classList.add('sharp'); }
       }
+
       function stopLoader() {
+        // App to'liq yuklangach, fon rangini oqqa (yoki o'z dizayningizga) qaytarish
+        if (window.Telegram && window.Telegram.WebApp) {
+          window.Telegram.WebApp.setBackgroundColor("#ffffff");
+        }
+
         overlay = overlay || document.getElementById('loadingOverlay');
         img = img || document.getElementById('loadingImg');
         text = text || document.getElementById('loadingText');
         if (!overlay) return;
         if (animInterval) { clearInterval(animInterval); animInterval = null; }
-        // graceful fade: add hidden class after short delay so CSS transition applies
         overlay.classList.add('hidden');
         overlay.setAttribute('aria-hidden', 'true');
-        // cleanup listeners
         if (img) {
           img.removeEventListener('error', onImgError);
           img.removeEventListener('load', onImgLoad);
         }
       }
 
-      // expose to global for lifecycle usage
       window.startLoader = startLoader;
       window.stopLoader = stopLoader;
     })();
 
-    // Helper: render UI then wait for content images to load (or timeout) before hiding loader
+    // Render helper
     function renderAndWait() {
-      // render synchronously
-      renderGame();
-      // collect images inside content and wait for them
-      const imgs = Array.from(document.getElementById('content').querySelectorAll('img'));
+      if (typeof renderGame === 'function') renderGame();
+      const imgs = Array.from(document.getElementById('content')?.querySelectorAll('img') || []);
       const promises = imgs.map(im => {
         return new Promise(res => {
-          if (im.complete) {
-            // if it failed to load, naturalWidth==0 => consider as loaded to avoid stalling
-            return res();
-          }
+          if (im.complete) return res();
           const ondone = () => { im.removeEventListener('load', ondone); im.removeEventListener('error', ondone); res(); };
           im.addEventListener('load', ondone);
           im.addEventListener('error', ondone);
         });
       });
-      // wait all or timeout (2s)
       Promise.race([
         Promise.all(promises),
         new Promise(r => setTimeout(r, 2000))
       ]).then(() => {
-        // give a small delay for final visual
         setTimeout(() => { window.stopLoader && window.stopLoader(); }, 120);
       });
     }
   </script>
 
   <script>
-
     function getTelegramUser() {
       if (!window.Telegram?.WebApp?.initDataUnsafe?.user) return null;
       return Telegram.WebApp.initDataUnsafe.user;
     }
   </script>
-  
+
   <script>
     (function () {
       try {
-        // If Telegram WebApp is available, mark ready and expand UI.
         if (window.Telegram && window.Telegram.WebApp) {
-          try { window.Telegram.WebApp.ready && window.Telegram.WebApp.ready(); } catch (e) { }
-          try { window.Telegram.WebApp.expand && window.Telegram.WebApp.expand(); } catch (e) { }
-          // Populate header username when initDataUnsafe is present
+          // Bu yerda endi expand chaqirish shart emas, chunki tepadagi script allaqachon qildi.
+          // Faqat username display logikasi qoladi.
           const u = window.Telegram.WebApp.initDataUnsafe?.user;
           if (u) {
             document.addEventListener('DOMContentLoaded', function () {
@@ -218,8 +205,7 @@
           }
         }
       } catch (err) {
-        // fail silently in non-Telegram contexts
-        console.warn('Telegram init skipped:', err && err.message ? err.message : err);
+        console.warn('Telegram init skipped:', err);
       }
     })();
   </script>
@@ -230,6 +216,7 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.main.css" rel="stylesheet">
+
   <link href="earn/earn.css" rel="stylesheet">
   <link href="rank/rank.css" rel="stylesheet">
   <link href="friends/invite.css" rel="stylesheet">
@@ -237,13 +224,10 @@
   <link href="key/key.css" rel="stylesheet">
   <link href="income/income.css" rel="stylesheet">
 
-
   <title>ProgUzmiR</title>
 </head>
 
 <body>
-  <!-- Keep a single Loading overlay, single panel and single nav -->
-  <!-- Loading overlay (shows on app start) -->
   <div id="loadingOverlay" class="loading-overlay" aria-hidden="false">
     <img id="loadingImg" class="loading-img" src="./image/loading.svg" alt="">
     <div id="loadingText" style="display:none;color:#fff;font-weight:700;">
@@ -251,33 +235,26 @@
     </div>
   </div>
 
-  <!-- o'zgardi: endi header container (logo chapda, balans oʻngda) -->
   <div class="header" aria-label="header">
     <div class="PRS font-effect-shadow-multiple">ProgUzmiR</div>
     <div class="circle2">
       <svg class="bg-shape" viewBox="0 0 505 75" preserveAspectRatio="none">
-        <path d="M 0 0 L 505 0 L 505 88 C 505 70 504 60 481 60 L 24 60 C 1 60 0 70 0 88 L 0 0 Z" fill="#1f2f3a">
-        </path>
+        <path d="M 0 0 L 505 0 L 505 88 C 505 70 504 60 481 60 L 24 60 C 1 60 0 70 0 88 L 0 0 Z" fill="#1f2f3a"></path>
       </svg>
-
       <div class="profile">
         <img style="margin-bottom: 10px; margin-left: 10px;" src="./image/loading.svg" alt="">
         <div class="username" style="font-size: 15px;">ProgUzmiR</div>
       </div>
-      <div class="balance" id="headerBalance"><img src="./image/coin.png" alt="" style="width:25px;">
-        0 PRC</div>
+      <div class="balance" id="headerBalance"><img src="./image/coin.png" alt="" style="width:25px;"> 0 PRC</div>
     </div>
   </div>
 
-  <!-- panel: content rendered by JS -->
   <div class="panel" id="content">
     <div class="game" style="display: block;" id="gamecontent"></div>
-
     <div class="rank" style="display: none;" id="rankcontent"></div>
     <div class="wallet" style="display: none;" id="walletcontent"></div>
     <div class="invite" style="display: none;" id="invitecontent"></div>
     <div class="earn" style="display: none;" id="earncontent"></div>
-
     <div class="shop" style="display: none;" id="shopcontent"></div>
     <div class="daily" style="display: none;" id="dailycontent"></div>
     <div class="games" style="display: none;" id="gamelistcontent"></div>
@@ -285,61 +262,45 @@
     <div class="key" style="display: none;" id="keycontent"></div>
   </div>
 
-
-  <!-- single nav (keep only one instance) -->
   <div class="nav" role="tablist" aria-label="Navigation">
     <div class="circle1">
       <svg class="bg-shape" viewBox="0 0 505 75" preserveAspectRatio="none">
-        <path d="M 0 0 L 505 0 L 505 88 C 505 70 504 60 480 60 L 350 60 C 275 60 275 50 252.5 50 C 230 50 230 60 155 60 L 25 60 C 1 60 0 70 0 88 L 0 0 Z" fill="#1f2f3a">
-        </path>
+        <path d="M 0 0 L 505 0 L 505 88 C 505 70 504 60 480 60 L 350 60 C 275 60 275 50 252.5 50 C 230 50 230 60 155 60 L 25 60 C 1 60 0 70 0 88 L 0 0 Z" fill="#1f2f3a"></path>
       </svg>
     </div>
     <span class="nav-indicator"></span>
     <div class="li">
-      <div class="tab " data-tab="game">
-        <img class="i material-icons" src="./image/nav1.svg" alt="">
-        <span id="r">GAME</span>
-      </div>
+      <div class="tab" data-tab="game"><img class="i material-icons" src="./image/nav1.svg" alt=""><span
+          id="r">GAME</span></div>
     </div>
     <div class="li">
-      <div class="tab " data-tab="rank">
-        <img class="i material-icons" src="./image/nav2.svg" alt="">
-        <span id="r">RANK</span>
-      </div>
+      <div class="tab" data-tab="rank"><img class="i material-icons" src="./image/nav2.svg" alt=""><span
+          id="r">RANK</span></div>
     </div>
     <div class="li">
-      <div class="tab nav-item-active" data-tab="wallet">
-        <img class="i svgicon" src="./image/coin.png" alt="">
-        <span id="r">WALLET</span>
-      </div>
+      <div class="tab nav-item-active" data-tab="wallet"><img class="i svgicon" src="./image/coin.png" alt=""><span
+          id="r">WALLET</span></div>
     </div>
     <div class="li">
-      <div class="tab" data-tab="invite">
-        <img class="i material-icons" src="./image/nav3.svg" alt="">
-        <span id="r">INVITE</span>
-      </div>
+      <div class="tab" data-tab="invite"><img class="i material-icons" src="./image/nav3.svg" alt=""><span
+          id="r">INVITE</span></div>
     </div>
     <div class="li">
-      <div class="tab earncolor" data-tab="earn">
-        <img class="i material-icons fa-spin" src="./image/nav4.svg" alt="">
-        <span id="r">EARN</span>
-      </div>
+      <div class="tab earncolor" data-tab="earn"><img class="i material-icons fa-spin" src="./image/nav4.svg"
+          alt=""><span id="r">EARN</span></div>
     </div>
   </div>
+
   <div id="paymentModal" class="payment-modal" style="display: none;">
     <div class="payment-content">
       <h3 id="paymentTitle">To'lov turini tanlang</h3>
       <p id="paymentItemName" style="color: #ffd700; margin-bottom: 20px;"></p>
-
-      <div id="paymentOptions" class="payment-grid">
-      </div>
-
+      <div id="paymentOptions" class="payment-grid"></div>
       <button class="close-modal-btn" onclick="closePaymentModal()">Bekor qilish</button>
     </div>
   </div>
-  <!-- ADD: Supabase CDN (frontend publishable key ok to expose) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="index.js"></script>
   <script src="/render/game.js"></script>
   <script src="/render/shop.js"></script>
@@ -350,5 +311,4 @@
   <script src="/friends/friends.js"></script>
 
 </body>
-
 </html>
