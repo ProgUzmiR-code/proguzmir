@@ -210,6 +210,75 @@
     })();
   </script>
 
+  <style>
+    :root {
+      --corner-d: 32px;
+      --bar-radius: 6px;
+    }
+
+    body {
+      :root {
+        --tg-viewport-height: 100vh;
+        --tg-viewport-stable-height: 100vh;
+
+
+      }
+
+      html,
+      body,
+      #root {
+        height: var(--tg-viewport-height, 100vh);
+        min-height: var(--tg-viewport-height, 100vh);
+      }
+
+      @media (orientation: landscape) {
+        body {
+          transform: rotate(90deg);
+          transform-origin: top left;
+          width: 100vh;
+          height: 100vw;
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+      }
+
+
+      /* Global user-select disable (safe cross-browser) */
+      * {
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-tap-highlight-color: rgb(0, 0, 0, 0);
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      img {
+        pointer-events: none;
+        -webkit-user-drag: none;
+        -webkit-touch-callout: none;
+      }
+
+      /* rasm markazda, qaytarilmasin, to'liq ekranni qoplasin */
+      background-image: url('./image/background1.jpg');
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+      /* desktop uchun; mobilda brauzer cheklashi mumkin */
+      background-color: #06121a;
+      /* rasm yuklanmasa fallback rang */
+      color: white;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-sizing: border-box;
+    }
+  </style>
+
   <link href="index.css" rel="stylesheet">
   <link rel="preload" href="./image/loading.svg" as="image">
   <link rel="shortcut icon" href="./image/loading.svg" type="image/svg/x-icon">
@@ -265,7 +334,9 @@
   <div class="nav" role="tablist" aria-label="Navigation">
     <div class="circle1">
       <svg class="bg-shape" viewBox="0 0 505 75" preserveAspectRatio="none">
-        <path d="M 0 0 L 505 0 L 505 88 C 505 70 504 60 480 60 L 350 60 C 275 60 275 50 252.5 50 C 230 50 230 60 155 60 L 25 60 C 1 60 0 70 0 88 L 0 0 Z" fill="#1f2f3a"></path>
+        <path
+          d="M 0 0 L 505 0 L 505 88 C 505 70 504 60 480 60 L 350 60 C 275 60 275 50 252.5 50 C 230 50 230 60 155 60 L 25 60 C 1 60 0 70 0 88 L 0 0 Z"
+          fill="#1f2f3a"></path>
       </svg>
     </div>
     <span class="nav-indicator"></span>
@@ -311,4 +382,5 @@
   <script src="/friends/friends.js"></script>
 
 </body>
+
 </html>
