@@ -33,6 +33,10 @@
     color: white;
 }
 
+#keycontent .shaffof img {
+    margin-right: 15px;
+}
+
 #keycontent .key {
     width: 20px;
     height: 20px;

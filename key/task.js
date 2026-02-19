@@ -113,11 +113,19 @@
                     alert(data.message);
                 }
 
+                // Bajarilgan vazifani vizual o'zgartirish (xiralashtirish va Done rasmiga o'tkazish)
                 const completedTaskDiv = document.getElementById(taskId);
                 if (completedTaskDiv) {
-                    completedTaskDiv.style.opacity = '0.5';
-                    completedTaskDiv.style.pointerEvents = 'none';
+                    completedTaskDiv.style.opacity = '0.4'; // Biroz xiralashadi
+                    completedTaskDiv.style.pointerEvents = 'none'; // Qayta bosib bo'lmaydigan bo'ladi
+                    
+                    // arrow.svg rasmini topib done.svg ga almashtiramiz
+                    const arrowImg = completedTaskDiv.querySelector('img[src*="arrow.svg"]');
+                    if (arrowImg) {
+                        arrowImg.src = './image/done.svg';
+                    }
                 }
+
 
                 closeModal();
             } else {
@@ -149,4 +157,24 @@
             if (link?.href) window.open(link.href, '_blank');
         }
     });
+        // Sahifa yuklanganda avval bajarilgan vazifalarni tekshirib, rasm va holatini to'g'rilab qo'yish
+    setTimeout(() => {
+        if (typeof state !== 'undefined' && state && state.completedTasks) {
+            // state.completedTasks ichidagi barcha ID larni aylanib chiqamiz (masalan: key1, key2)
+            Object.keys(state.completedTasks).forEach(tId => {
+                const taskDiv = document.getElementById(tId);
+                // Agar shu ID 'key' so'zi bilan boshlansa va ekranda bor bo'lsa
+                if (taskDiv && taskDiv.id.startsWith('key')) {
+                    taskDiv.style.opacity = '0.4'; // Xiralashtirish
+                    taskDiv.style.pointerEvents = 'none';
+                    
+                    const arrImg = taskDiv.querySelector('img[src*="arrow.svg"]');
+                    if (arrImg) {
+                        arrImg.src = './image/done.svg';
+                    }
+                }
+            });
+        }
+    }, 500); // Ma'lumotlar bazadan kelishini yarim soniya kutamiz
+
 })();
