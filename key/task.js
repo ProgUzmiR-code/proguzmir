@@ -1,5 +1,9 @@
+// key/task.js
+
 (() => {
     const popModal = document.getElementById('pop');
+    if (!popModal) return;
+
     const upsubmitDiv = popModal.querySelector('.upsubmit');
     const watchBtn = popModal.querySelector('.pop-main .btns .btn');
     const btnClose = popModal.querySelector('.btn-close');
@@ -56,8 +60,8 @@
         const userCode = inputElement.value.trim().toUpperCase();
         const taskId = this.getAttribute('data-task-id');
 
-        // Telegram ob'ektidan foydalanuvchi ID sini olish
-        const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+        // Telegram identifikatori yoki LocalStorage dagi wallet
+        const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || localStorage.getItem('proguzmir_wallet');
 
         if (!tgId) {
             alert("Telegram identifikatori topilmadi. Ilovani Telegram ichida oching.");
@@ -70,14 +74,10 @@
         this.classList.add('dis');
 
         try {
-            // O'zimizning API ga jo'natamiz
             const response = await fetch('/api/key', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    // Bazada `wallet` ustuni text bo'lgani uchun, ID ni matnga o'giramiz
                     telegram_id: tgId.toString(),
                     task_id: taskId,
                     user_code: userCode
@@ -87,23 +87,36 @@
             const data = await response.json();
 
             if (data.success) {
-                alert(data.message);
-
-                // 1. Olmosni ekranda yangilash (ID ni o'zingiznikiga almashtirasiz)
-                const diamondElement = document.getElementById('diamondCount');
-                if (diamondElement) {
-                    diamondElement.innerText = data.new_diamond;
+                // 1. GLOBAL STATE NI YANGILASH (Eng muhimi!)
+                if (typeof window.state !== 'undefined') {
+                    window.state.diamond = data.new_diamond;
+                    window.state.keysTotal = data.new_keys;
+                    
+                    // Vazifani bajarilganlar qatoriga qo'shish (ixtiyoriy)
+                    if (!window.state.completedTasks) window.state.completedTasks = {};
+                    window.state.completedTasks[taskId] = true;
                 }
 
-                // 2. Kalitni ekranda yangilash (ID ni o'zingiznikiga almashtirasiz)
-                const keyElement = document.getElementById('totalKeys');
-                if (keyElement) {
-                    keyElement.innerText = data.new_keys;
+                // 2. EKRANNI DARHOL YANGILASH (Global funksiyalar orqali)
+                if (typeof window.updateHeaderDiamond === 'function') window.updateHeaderDiamond();
+                if (typeof window.updateHeaderKeys === 'function') window.updateHeaderKeys();
+
+                // Yutuq xabari
+                if (typeof showToast === 'function') {
+                    showToast("🎉 +300k Diamond & +1 Key!");
+                } else {
+                    alert(data.message);
+                }
+
+                // 3. Vazifani vizual ravishda o'chirib qo'yish (bajarildi qilib)
+                const completedTaskDiv = document.getElementById(taskId);
+                if (completedTaskDiv) {
+                    completedTaskDiv.style.opacity = '0.5';
+                    completedTaskDiv.style.pointerEvents = 'none';
                 }
 
                 closeModal();
             } else {
-                // Noto'g'ri kod yoki boshqa xato (API xabari chiqadi)
                 alert(data.message);
                 inputElement.value = '';
             }
@@ -111,7 +124,6 @@
             console.error("So'rovda xato:", error);
             alert("Internet bilan muammo yuz berdi.");
         } finally {
-            // Tugmani holatini asliga qaytarish
             this.innerText = originalText;
             if (inputElement.value.trim().length > 0) {
                 this.classList.remove('dis');

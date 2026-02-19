@@ -1,3 +1,4 @@
+// api/key.js
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -6,13 +7,11 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
-    // Faqat POST so'rovlarni qabul qilamiz
+
     if (req.method !== 'POST') {
         return res.status(405).json({ success: false, message: 'Faqat POST so\'rovlar ruxsat etilgan' });
     }
 
-    // Frontenddan kelgan ma'lumotlarni ajratib olamiz
-    // Eslatma: Frontend telegram_id yuboradi, biz uni bazadagi 'wallet' bilan solishtiramiz
     const { telegram_id, task_id, user_code } = req.body;
 
     if (!telegram_id || !task_id || !user_code) {
@@ -20,7 +19,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        // 1. Kiritilgan kod to'g'riligini 'video_codes' jadvalidan tekshiramiz
+
         const { data: videoData, error: videoError } = await supabase
             .from('video_codes')
             .select('*')
@@ -28,12 +27,10 @@ export default async function handler(req, res) {
             .eq('secret_code', user_code)
             .single(); 
 
-        // Agar kod xato bo'lsa yoki topilmasa
         if (videoError || !videoData) {
             return res.status(400).json({ success: false, message: "Noto'g'ri kod kiritildi!" });
         }
 
-        // 2. Foydalanuvchini topamiz va uning hozirgi 'diamond' va 'keys_total' miqdorini olamiz
         const { data: userData, error: userError } = await supabase
             .from('user_states')
             .select('diamond, keys_total') // Ham olmosni, ham kalitni olamiz
@@ -44,14 +41,12 @@ export default async function handler(req, res) {
             return res.status(404).json({ success: false, message: "Foydalanuvchi topilmadi" });
         }
 
-        // 3. Hisoblash (userData.diamond deb olinishi shart)
         const currentDiamond = parseInt(userData.diamond) || 0;
         const currentKeys = parseInt(userData.keys_total) || 0;
 
         const newDiamondBalance = currentDiamond + 300000;
         const newKeysTotal = currentKeys + 1;
 
-        // 4. Bazani yangilaymiz (Olmos va Kalitlarni qo'shamiz)
         const { error: updateError } = await supabase
             .from('user_states')
             .update({ 
@@ -62,7 +57,6 @@ export default async function handler(req, res) {
 
         if (updateError) throw updateError;
 
-        // Hammasi muvaffaqiyatli yakunlandi!
         return res.status(200).json({ 
             success: true, 
             message: "Tabriklaymiz! To'g'ri kod. Hisobingizga 300,000 olmos va 1 ta kalit qo'shildi!",
