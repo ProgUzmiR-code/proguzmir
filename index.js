@@ -1088,6 +1088,7 @@ function saveState(state) {
 }
 
 // saveType: 'full' (hammasi) yoki 'partial' (faqat pullar)
+// index.js ichida
 async function saveUserState(state, saveType = 'partial') {
     let st = state;
     try {
@@ -1125,8 +1126,6 @@ async function saveUserState(state, saveType = 'partial') {
             cardsLvl: st.cardsLvl ? JSON.stringify(st.cardsLvl) : null,
             boosts: st.boosts ? JSON.stringify(st.boosts) : null,
             claimDate: st.claimDate || null,
-
-            // 🔥 ENG MUHIMI: Vazifalarni bazaga yuborish
             completedTasks: st.completedTasks ? JSON.stringify(st.completedTasks) : null
         };
     }
@@ -1243,9 +1242,7 @@ async function loadUserState() {
             keysUsed: Number(u.keys_used || 0),
 
             tonWallet: u.ton_wallet || null,
-            cryptoWallet: u.crypto_wallet || null,
-            // 🔥 ENG MUHIMI: Bazadan yuklab olish
-            completedTasks: parse(u.completed_tasks, {})
+            cryptoWallet: u.crypto_wallet || null
         };
 
     } catch (err) {
