@@ -116,7 +116,7 @@
                 // Bajarilgan vazifani vizual o'zgartirish (xiralashtirish va Done rasmiga o'tkazish)
                 const completedTaskDiv = document.getElementById(taskId);
                 if (completedTaskDiv) {
-                    completedTaskDiv.style.opacity = '0.4'; // Biroz xiralashadi
+                    completedTaskDiv.style.opacity = '0.7'; // Biroz xiralashadi
                     completedTaskDiv.style.pointerEvents = 'none'; // Qayta bosib bo'lmaydigan bo'ladi
                     
                     // arrow.svg rasmini topib done.svg ga almashtiramiz
@@ -165,7 +165,7 @@
                 const taskDiv = document.getElementById(tId);
                 // Agar shu ID 'key' so'zi bilan boshlansa va ekranda bor bo'lsa
                 if (taskDiv && taskDiv.id.startsWith('key')) {
-                    taskDiv.style.opacity = '0.4'; // Xiralashtirish
+                    taskDiv.style.opacity = '0.7'; // Xiralashtirish
                     taskDiv.style.pointerEvents = 'none';
                     
                     const arrImg = taskDiv.querySelector('img[src*="arrow.svg"]');
