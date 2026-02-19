@@ -25,7 +25,7 @@ export default async function handler(req, res) {
             .select('*')
             .eq('task_id', task_id)
             .eq('secret_code', user_code)
-            .single(); 
+            .single();
 
         if (videoError || !videoData) {
             return res.status(400).json({ success: false, message: "Noto'g'ri kod kiritildi!" });
@@ -47,18 +47,26 @@ export default async function handler(req, res) {
         const newDiamondBalance = currentDiamond + 300000;
         const newKeysTotal = currentKeys + 1;
 
-        const { error: updateError } = await supabase
+
+        const { data: updateData, error: updateError } = await supabase
             .from('user_states')
-            .update({ 
+            .update({
                 diamond: newDiamondBalance,
-                keys_total: newKeysTotal 
+                keys_total: newKeysTotal
             })
-            .eq('wallet', telegram_id);
+            .eq('wallet', telegram_id)
+            .select();
 
-        if (updateError) throw updateError;
+        if (updateError) {
+            console.error('Supabase update error:', updateError);
+            return res.status(500).json({ success: false, message: "Hisobni yangilashda xatolik: " + updateError.message });
+        }
+        if (!updateData || updateData.length === 0) {
+            return res.status(500).json({ success: false, message: "Hisob yangilanmadi. Foydalanuvchi topilmadi yoki o'zgarish amalga oshmadi." });
+        }
 
-        return res.status(200).json({ 
-            success: true, 
+        return res.status(200).json({
+            success: true,
             message: "Tabriklaymiz! To'g'ri kod. Hisobingizga 300,000 olmos va 1 ta kalit qo'shildi!",
             new_diamond: newDiamondBalance,
             new_keys: newKeysTotal

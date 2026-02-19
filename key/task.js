@@ -86,29 +86,33 @@
 
             const data = await response.json();
 
-            if (data.success) {
-                // 1. GLOBAL STATE NI YANGILASH (Eng muhimi!)
-                if (typeof window.state !== 'undefined') {
-                    window.state.diamond = data.new_diamond;
-                    window.state.keysTotal = data.new_keys;
+                        if (data.success) {
+                // 1. GLOBAL STATE NI YANGILASH (Eng muhimi - AutoSave o'chirib yubormasligi uchun)
+                // window.state emas, to'g'ridan-to'g'ri state ni chaqiramiz:
+                if (typeof state !== 'undefined' && state !== null) {
+                    state.diamond = Number(data.new_diamond);
+                    state.keysTotal = Number(data.new_keys);
                     
-                    // Vazifani bajarilganlar qatoriga qo'shish (ixtiyoriy)
-                    if (!window.state.completedTasks) window.state.completedTasks = {};
-                    window.state.completedTasks[taskId] = true;
+                    if (!state.completedTasks) state.completedTasks = {};
+                    state.completedTasks[taskId] = true;
                 }
 
-                // 2. EKRANNI DARHOL YANGILASH (Global funksiyalar orqali)
-                if (typeof window.updateHeaderDiamond === 'function') window.updateHeaderDiamond();
-                if (typeof window.updateHeaderKeys === 'function') window.updateHeaderKeys();
+                // 2. EKRANNI DARHOL YANGILASH (Barcha joyda raqam o'zgarishi uchun)
+                if (typeof updateHeaderDiamond === 'function') updateHeaderDiamond();
+                if (typeof updateHeaderKeys === 'function') updateHeaderKeys();
 
-                // Yutuq xabari
+                // 3. Orqa fonda serverga YANA BIR BOR saqlab yuboramiz (Sinxronizatsiya kafolati)
+                if (typeof saveUserState === 'function') {
+                    saveUserState(typeof state !== 'undefined' ? state : null, 'full');
+                }
+
                 if (typeof showToast === 'function') {
-                    showToast("🎉 +300k Diamond & +1 Key!");
+                    showToast("🎉 To'g'ri kod! +300,000 Diamond & +1 Key!");
                 } else {
                     alert(data.message);
                 }
 
-                // 3. Vazifani vizual ravishda o'chirib qo'yish (bajarildi qilib)
+                // Bajarilgan vazifani vizual o'chirish (xiralashtirish)
                 const completedTaskDiv = document.getElementById(taskId);
                 if (completedTaskDiv) {
                     completedTaskDiv.style.opacity = '0.5';
