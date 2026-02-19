@@ -116,7 +116,7 @@
                 // Bajarilgan vazifani vizual o'zgartirish (xiralashtirish, Done rasmiga o'tkazish va Animatsiyani to'xtatish)
                 const completedTaskDiv = document.getElementById(taskId);
                 if (completedTaskDiv) {
-                    completedTaskDiv.style.opacity = '0.6'; 
+                    completedTaskDiv.style.opacity = '0.7'; 
                     completedTaskDiv.style.pointerEvents = 'none'; 
                     
                     // 1. arrow.svg ni done.svg ga almashtirish
@@ -168,7 +168,7 @@
                 const taskDiv = document.getElementById(tId);
                 
                 if (taskDiv && taskDiv.id.startsWith('key')) {
-                    taskDiv.style.opacity = '0.6';
+                    taskDiv.style.opacity = '0.7';
                     taskDiv.style.pointerEvents = 'none';
                     
                     // 1. Rasmni o'zgartirish
@@ -178,7 +178,7 @@
                     }
 
                     // 2. Animatsiyani to'xtatish
-                    const ytIcon = taskDiv.querySelector('.fa-shake');
+                    const ytIcon = taskDiv.querySelector('.youtubepaf .fa-shake');
                     if (ytIcon) {
                         ytIcon.classList.remove('fa-shake');
                     }

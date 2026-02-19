@@ -1097,7 +1097,7 @@ async function saveUserState(state, saveType = 'partial') {
     if (!st) return;
     if (!window.Telegram?.WebApp?.initData) return;
 
-    // 1. Doimiy kerak bo'ladigan maydonlar (PULLAR) - Auto Save uchun
+    // Har doim yuboriladigan qism (Asosan pullar)
     let statePayload = {
         prcWei: String(st.prcWei || '0'),
         diamond: st.diamond || 0,
@@ -1107,28 +1107,30 @@ async function saveUserState(state, saveType = 'partial') {
         cryptoWallet: localStorage.getItem("proguzmir_crypto_wallet") || null
     };
 
-    // 2. Agar FULL save bo'lsa, qolgan hamma narsani qo'shamiz
+    // Ilova yopilayotganda yoki katta o'zgarish bo'lganda (FULL SAVE)
     if (saveType === 'full') {
         statePayload = {
-            ...statePayload, // Pullarni ham qo'shamiz
+            ...statePayload,
             energy: st.energy || 0,
             maxEnergy: st.maxEnergy || 0,
             tapsUsed: st.tapsUsed || 0,
-            selectedSkin: st.selectedSkin || null,
+            selectedSkin: st.selectedSkin || 'bronze.png',
             todayIndex: st.todayIndex || 0,
             rank: st.rank || 'bronze',
-
-            // JSON obyektlar (Stringga o'giramiz)
+            
+            // JSON formatdagi ma'lumotlar
             ownedSkins: JSON.stringify(st.ownedSkins || ["bronze.png"]),
             dailyWeekStart: st.dailyWeekStart || null,
             dailyClaims: st.dailyClaims ? JSON.stringify(st.dailyClaims) : null,
             cardsLvl: st.cardsLvl ? JSON.stringify(st.cardsLvl) : null,
             boosts: st.boosts ? JSON.stringify(st.boosts) : null,
             claimDate: st.claimDate || null,
+
+            // 🔥 ENG MUHIMI: Vazifalarni bazaga yuborish
+            completedTasks: st.completedTasks ? JSON.stringify(st.completedTasks) : null
         };
     }
 
-    // 3. Yuborish
     try {
         await fetch('/api/save', {
             method: 'POST',
@@ -1144,7 +1146,6 @@ async function saveUserState(state, saveType = 'partial') {
     }
 }
 
-// index.js ichida
 
 function setupAutoSave() {
     // 1. Har 30 soniyada: Faqat pullarni saqlash (Serverni qiynamaslik uchun)
@@ -1242,7 +1243,9 @@ async function loadUserState() {
             keysUsed: Number(u.keys_used || 0),
 
             tonWallet: u.ton_wallet || null,
-            cryptoWallet: u.crypto_wallet || null
+            cryptoWallet: u.crypto_wallet || null,
+            // 🔥 ENG MUHIMI: Bazadan yuklab olish
+            completedTasks: parse(u.completed_tasks, {})
         };
 
     } catch (err) {
