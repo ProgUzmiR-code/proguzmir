@@ -992,7 +992,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             state.keysUsed = saved.keysUsed;
             state.tonWallet = saved.tonWallet;
             state.cryptoWallet = saved.cryptoWallet;
-
+            state.completedTasks = saved.completedTasks || {};
+            
             // 4. MUHIM: Hamyonlarni localStorage ga qaytarish (Wallet.js ishlashi uchun)
             if (state.tonWallet) {
                 localStorage.setItem("proguzmir_ton_wallet", state.tonWallet);
@@ -1002,6 +1003,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 localStorage.setItem("proguzmir_crypto_wallet", state.cryptoWallet);
                 localStorage.setItem("proguzmir_crypto_type", "evm");
             }
+            // 🔥 YANGI QO'SHILDI: Butun ilovaga xabar yuborish
+            const event = new Event('StateLoaded');
+            window.dispatchEvent(event);
 
             // O'qib bo'lgach, bir marta to'liq sinxronizatsiya qilib qo'yamiz (Ehtiyot shart)
             // Lekin 'partial' rejimda, serverni qiynamaslik uchun
