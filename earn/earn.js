@@ -1,3 +1,4 @@
+// earn/earn.js
 (function () {
     if (window._earnScriptLoaded) return;
     window._earnScriptLoaded = true;

@@ -85,23 +85,24 @@
             });
 
             const data = await response.json();
-
-                        if (data.success) {
-                // 1. GLOBAL STATE NI YANGILASH (Eng muhimi - AutoSave o'chirib yubormasligi uchun)
-                // window.state emas, to'g'ridan-to'g'ri state ni chaqiramiz:
+            if (data.success) {
+                // 1. GLOBAL STATE NI YANGILASH
                 if (typeof state !== 'undefined' && state !== null) {
                     state.diamond = Number(data.new_diamond);
-                    state.keysTotal = Number(data.new_keys);
+                    
+                    // Sizning logikangiz: Kalit olinsa, ikkalasiga ham qo'shilsin
+                    state.keysTotal = Number(data.new_keys); 
+                    state.keysUsed = (state.keysUsed || 0) + 1; // <--- YANGI QO'SHILDI: Bunga ham +1 qo'shamiz
                     
                     if (!state.completedTasks) state.completedTasks = {};
                     state.completedTasks[taskId] = true;
                 }
 
-                // 2. EKRANNI DARHOL YANGILASH (Barcha joyda raqam o'zgarishi uchun)
+                // 2. EKRANNI DARHOL YANGILASH
                 if (typeof updateHeaderDiamond === 'function') updateHeaderDiamond();
                 if (typeof updateHeaderKeys === 'function') updateHeaderKeys();
 
-                // 3. Orqa fonda serverga YANA BIR BOR saqlab yuboramiz (Sinxronizatsiya kafolati)
+                // 3. SERVERGA SAQLASH
                 if (typeof saveUserState === 'function') {
                     saveUserState(typeof state !== 'undefined' ? state : null, 'full');
                 }
@@ -112,7 +113,6 @@
                     alert(data.message);
                 }
 
-                // Bajarilgan vazifani vizual o'chirish (xiralashtirish)
                 const completedTaskDiv = document.getElementById(taskId);
                 if (completedTaskDiv) {
                     completedTaskDiv.style.opacity = '0.5';
@@ -121,6 +121,7 @@
 
                 closeModal();
             } else {
+
                 alert(data.message);
                 inputElement.value = '';
             }
