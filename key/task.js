@@ -126,7 +126,7 @@
                     }
 
                     // 2. Youtube animatsiyasini to'xtatish (fa-shake ni olib tashlash)
-                    const ytIcon = completedTaskDiv.querySelector('.fa-shake');
+                    const ytIcon = completedTaskDiv.querySelector('.youtubepaf .fa-shake');
                     if (ytIcon) {
                         ytIcon.classList.remove('fa-shake');
                     }
