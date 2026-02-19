@@ -113,20 +113,24 @@
                     alert(data.message);
                 }
 
-                // Bajarilgan vazifani vizual o'zgartirish (xiralashtirish va Done rasmiga o'tkazish)
+                // Bajarilgan vazifani vizual o'zgartirish (xiralashtirish, Done rasmiga o'tkazish va Animatsiyani to'xtatish)
                 const completedTaskDiv = document.getElementById(taskId);
                 if (completedTaskDiv) {
-                    completedTaskDiv.style.opacity = '0.7'; // Biroz xiralashadi
-                    completedTaskDiv.style.pointerEvents = 'none'; // Qayta bosib bo'lmaydigan bo'ladi
+                    completedTaskDiv.style.opacity = '0.6'; 
+                    completedTaskDiv.style.pointerEvents = 'none'; 
                     
-                    // arrow.svg rasmini topib done.svg ga almashtiramiz
-                    const arrowImg = completedTaskDiv.querySelector('img[src*="arrow.svg"]');
+                    // 1. arrow.svg ni done.svg ga almashtirish
+                    const arrowImg = completedTaskDiv.querySelector('.done img') || completedTaskDiv.querySelector('img[src*="arrow.svg"]');
                     if (arrowImg) {
                         arrowImg.src = './image/done.svg';
                     }
+
+                    // 2. Youtube animatsiyasini to'xtatish (fa-shake ni olib tashlash)
+                    const ytIcon = completedTaskDiv.querySelector('.fa-shake');
+                    if (ytIcon) {
+                        ytIcon.classList.remove('fa-shake');
+                    }
                 }
-
-
                 closeModal();
             } else {
 
@@ -157,24 +161,30 @@
             if (link?.href) window.open(link.href, '_blank');
         }
     });
-        // Sahifa yuklanganda avval bajarilgan vazifalarni tekshirib, rasm va holatini to'g'rilab qo'yish
+           // Sahifa yuklanganda avval bajarilgan vazifalarni tekshirib, vizual holatini to'g'rilash
     setTimeout(() => {
         if (typeof state !== 'undefined' && state && state.completedTasks) {
-            // state.completedTasks ichidagi barcha ID larni aylanib chiqamiz (masalan: key1, key2)
             Object.keys(state.completedTasks).forEach(tId => {
                 const taskDiv = document.getElementById(tId);
-                // Agar shu ID 'key' so'zi bilan boshlansa va ekranda bor bo'lsa
+                
                 if (taskDiv && taskDiv.id.startsWith('key')) {
-                    taskDiv.style.opacity = '0.7'; // Xiralashtirish
+                    taskDiv.style.opacity = '0.6';
                     taskDiv.style.pointerEvents = 'none';
                     
-                    const arrImg = taskDiv.querySelector('img[src*="arrow.svg"]');
-                    if (arrImg) {
-                        arrImg.src = './image/done.svg';
+                    // 1. Rasmni o'zgartirish
+                    const arrowImg = taskDiv.querySelector('.done img') || taskDiv.querySelector('img[src*="arrow.svg"]');
+                    if (arrowImg) {
+                        arrowImg.src = './image/done.svg';
+                    }
+
+                    // 2. Animatsiyani to'xtatish
+                    const ytIcon = taskDiv.querySelector('.fa-shake');
+                    if (ytIcon) {
+                        ytIcon.classList.remove('fa-shake');
                     }
                 }
             });
         }
-    }, 500); // Ma'lumotlar bazadan kelishini yarim soniya kutamiz
+    }, 500); 
 
 })();
