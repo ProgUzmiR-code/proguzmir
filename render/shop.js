@@ -23,7 +23,7 @@ const SKINS = [
 
 // 1. Max Energy narxi
 function getDynamicEnergyCost(currentMax) {
-    if (currentMax < 2000) return 50000; // 1000 dan 2000 gacha: 50K
+    if (currentMax < 2000) return 500000; // 1000 dan 2000 gacha: 500K
     const level = Math.floor((currentMax - 1000) / 1000); 
     return level * 1000000; // Har 1000 Max Energy uchun narx 1M ga oshadi
 }

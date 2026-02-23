@@ -24,7 +24,7 @@ const DEFAULT_MAX_ENERGY = 1000;
 
 const KEY_DAILY_WEEK_START = "proguzmir_daily_week_start";
 const KEY_DAILY_CLAIMS = "proguzmir_daily_claims"; // JSON array of 7 booleans
-const DAILY_REWARDS = [1000, 2000, 3000, 6000, 7000, 9000, 30000]; // diamonds for days 1..6, 10 PRC for day 7
+const DAILY_REWARDS = [1000, 2000, 4000, 6000, 8000, 10000, 100000]; // diamonds for days 1..6, 10 PRC for day 7
 
 
 // Default tap cap va blok o'lchami
