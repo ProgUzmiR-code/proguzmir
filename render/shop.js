@@ -26,13 +26,13 @@ function getDynamicEnergyCost(currentMax) {
     if (currentMax < 2000) {
         return 5; // 1-xarid uchun 500k
     } else {
-        // 2000 da 1M, 3000 da 2M, 4000 da 3M qilib hisoblaydi
         const level = Math.floor((currentMax - 1000) / 1000); 
         return level * 10;
     }
 }
 
-function renderShop() {
+// Funksiyaga "activeTabId" argumentini qo'shdik (default = 'tabShop')
+function renderShop(activeTabId = 'tabShop') {
   const shopcontent = document.getElementById('shopcontent');
   if (!shopcontent) return;
 
@@ -83,16 +83,14 @@ function renderShop() {
           <div id="skinCol" style="display:none; flex-direction:column; gap:12px;">
             ${SKINS.map(sk => {
                 const isSelected = (currentSkin === sk.id);
-                const isOwned = state.ownedSkins.includes(sk.id); // Bizda bormi?
+                const isOwned = state.ownedSkins.includes(sk.id); 
 
                 let btnHtml = '';
                 if (isSelected) {
                     btnHtml = `<button class="playGameBtn" style="cursor:default; background:#555;" disabled>Active</button>`;
                 } else if (isOwned) {
-                    // Agar bor bo'lsa, lekin tanlanmagan bo'lsa -> SELECT tugmasi
                     btnHtml = `<button class="playGameBtn equipSkinBtn" data-skin="${sk.id}">Select</button>`;
                 } else {
-                    // Agar yo'q bo'lsa -> BUY tugmasi
                     btnHtml = `<button class="playGameBtn buySkinBtn" data-skin="${sk.id}">Buy</button>`;
                 }
 
@@ -113,9 +111,9 @@ function renderShop() {
           </div>
       
           <div id="shopCol1" style="display:block; padding: 10px;">
-              <div style="background: linear-gradient(180deg, #4a90e2 0%, #1a56a0 100%); border-radius: 15px; padding: 15px; margin-bottom: 20px; color: white; position: relative; overflow: hidden;">
+              <div style="background: linear-gradient(180deg, #4a90e2 0%, #1a56a0 100%); border-radius: 15px; padding: 15px; margin-bottom: 20px; color: white; position: relative; overflow: hidden; height: 80px;">
                   <h2 style="margin: 0; font-size: 22px; font-style: italic; position: relative; z-index: 50;">2X Diamond Bonus</h2>
-                  <p style="margin: 8px 0 0; font-size: 13px; opacity: 0.9; line-height: 1.4; position: relative; z-index: 50;">First purchase bonus.</p>
+                  <p style="margin: 8px 0 0; font-size: 13px; opacity: 0.9; line-height: 1.4; position: relative; z-index: 50;">Any first purchase of any <br> tier earns 2x Rebate rewards.</p>
                   <img src="./image/gems_pile.jpg" style="position: absolute; right: 0px; top: -10px; width: 100%; opacity: 0.8; z-index:1;">
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -161,8 +159,15 @@ function renderShop() {
   tabShop.addEventListener('click', () => { resetTabs(); shopCol1.style.display = 'block'; tabShop.style.color = '#ffd700'; });
   tabEnergy.addEventListener('click', () => { resetTabs(); energyCol.style.display = 'flex'; tabEnergy.style.color = '#ffd700'; });
   tabSkins.addEventListener('click', () => { resetTabs(); skinCol.style.display = 'flex'; tabSkins.style.color = '#ffd700'; });
-  // Default: Shop tabini aktiv qilish
-  tabShop.click();
+
+  // Qaysi oyna kerak bo'lsa o'shani avtomatik ochish
+  if (activeTabId === 'tabEnergy') {
+      tabEnergy.click();
+  } else if (activeTabId === 'tabSkins') {
+      tabSkins.click();
+  } else {
+      tabShop.click();
+  }
 
   // --- DINAMIK ENERGY BUY LOGIKASI ---
   const buyEnergyBtn = document.getElementById('buyDynamicEnergyBtn');
@@ -183,23 +188,19 @@ function renderShop() {
               return;
           }
 
-          // Pulni yechish
           state.diamond -= cost;
-          
-          // Energiyani hisoblash (50k dan oshib ketmasligi kerak)
           let newMax = currentMax + 1000;
           if (newMax > 50000) newMax = 50000;
           
           state.maxEnergy = newMax;
-          state.energy = newMax; // Olganda energiyani darhol to'ldirib beramiz
+          state.energy = newMax; 
 
-          // Saqlash
           saveState(state);
           if (typeof saveUserState === 'function') saveUserState(state, 'full');
           if (typeof updateHeaderDiamond === 'function') updateHeaderDiamond();
           
           alert(`Success! +1000 Energy. New Max: ${newMax.toLocaleString()} ⚡`);
-          renderShop(); // Interfeysni darhol qayta chizib, yangi narxni ko'rsatamiz
+          renderShop('tabEnergy'); // Energy oynasida qolish
       });
   }
 
@@ -226,7 +227,7 @@ function renderShop() {
       if (typeof updateHeaderDiamond === 'function') updateHeaderDiamond();
       
       alert(`Skin purchased and equipped!`);
-      renderShop(); 
+      renderShop('tabSkins'); // Skin oynasida qolish
     });
   });
 
@@ -240,7 +241,7 @@ function renderShop() {
       if (typeof saveUserState === 'function') saveUserState(state, 'full');
 
       alert(`Skin equipped!`);
-      renderShop();
+      renderShop('tabSkins'); // Skin oynasida qolish
     });
   });
 }
