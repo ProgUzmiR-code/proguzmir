@@ -3,19 +3,15 @@
 // ==========================================
 
 const SHOP_ITEMS = [
-  { id: 'gem1', name: '500', bonus: '+500', cost: '1.19 US$', img: './image/bagdiamonds.jpg' },
-  { id: 'gem2', name: '2,500', bonus: '+2,500', cost: '4.99 US$', img: './image/gem1.jpg' },
-  { id: 'gem3', name: '5,000', bonus: '+5,000', cost: '9.98 US$', img: './image/gem2.jpg' },
-  { id: 'gem4', name: '10,000', bonus: '+10,000', cost: '19.96 US$', img: './image/gem3.jpg' },
-  { id: 'gem5', name: '25,000', bonus: '+25,000', cost: '49.99 US$', img: './image/gem4.jpg' },
-  { id: 'gem6', name: '50,000', bonus: '+50,000', cost: '99.98 US$', img: './image/gem5.jpg' },
+  { id: 'gem1', name: '1000', bonus: '+1000', cost: '1.19 US$', img: './image/bagdiamonds.jpg' },
+  { id: 'gem2', name: '5,000', bonus: '+5000', cost: '4.99 US$', img: './image/gem1.jpg' },
+  { id: 'gem3', name: '10,000', bonus: '+10,000', cost: '9.98 US$', img: './image/gem2.jpg' },
+  { id: 'gem4', name: '20,000', bonus: '+20,000', cost: '19.96 US$', img: './image/gem3.jpg' },
+  { id: 'gem5', name: '50,000', bonus: '+50,000', cost: '49.99 US$', img: './image/gem4.jpg' },
+  { id: 'gem6', name: '100,000', bonus: '+100,000', cost: '99.98 US$', img: './image/gem5.jpg' },
 ];
 
-const SHOP_ENERGY = [
-  { id: 'energyUpgrade1k', name: '+1000 Max Energy', img: './image/boost.png', amount: 1000, maxLimit: 50000, costDiamond: 1000 } 
-];
-
-const SKIN_COST_DIAMOND = 1; 
+const SKIN_COST_DIAMOND = 3; // Har bir skin uchun narx (diamondsda)
 const SKINS = [
     { id: "bronza.png", name: "Bronza", file: "./image/bronza.png" },
     { id: "silver.png", name: "Silver", file: "./image/silver.png" },
@@ -25,20 +21,31 @@ const SKINS = [
     { id: "master.png", name: "Master", file: "./image/master.png" }
 ];
 
+// Dinamik narxni hisoblash funksiyasi
+function getDynamicEnergyCost(currentMax) {
+    if (currentMax < 2000) {
+        return 5; // 1-xarid uchun 500k
+    } else {
+        // 2000 da 1M, 3000 da 2M, 4000 da 3M qilib hisoblaydi
+        const level = Math.floor((currentMax - 1000) / 1000); 
+        return level * 10;
+    }
+}
+
 function renderShop() {
   const shopcontent = document.getElementById('shopcontent');
   if (!shopcontent) return;
 
-  // Global State tekshiruvi
   if (!state) return;
 
-  // 1. Mavjud skinlar ro'yxatini aniqlash (Agar yo'q bo'lsa default beramiz)
   if (!state.ownedSkins || !Array.isArray(state.ownedSkins)) {
-      state.ownedSkins = ["bronza.png"]; // Default skin ID si
+      state.ownedSkins = ["bronza.png"]; 
   }
 
   const currentSkin = state.selectedSkin;
   const currentMaxEnergy = state.maxEnergy || 1000;
+  const isEnergyMaxed = currentMaxEnergy >= 50000;
+  const currentEnergyCost = getDynamicEnergyCost(currentMaxEnergy);
 
   shopcontent.innerHTML = `
     <div style="margin-top: 50px;">
@@ -57,22 +64,20 @@ function renderShop() {
       <div style="margin-top:6px;">
           
           <div id="energyCol" style="display:none; flex-direction:column; gap:12px;">
-            ${SHOP_ENERGY.map(it => {
-                const isMaxed = currentMaxEnergy >= it.maxLimit;
-                return `
               <div class="shop-item" style="background:rgba(0,0,0,0.5); border-radius:12px; padding:12px; display: flex; align-items: center;">
-                <img src="${it.img}" alt="${it.name}" style="width:80px; object-fit:cover; border-radius:8px;">
+                <img src="./image/boost.png" alt="Energy Boost" style="width:80px; object-fit:cover; border-radius:8px;">
                 <div style="margin-left:12px; flex:1;">
-                  <b>${it.name}</b>
+                  <b style="color: #4ade80;">+1000 Max Energy</b>
                   <div style="color:#ccc; font-size:13px; margin-top: 4px;">Current Max: ${currentMaxEnergy.toLocaleString()} ⚡</div>
-                  <div style="color:#ffd700; font-size:13px;">${isMaxed ? 'Max Limit Reached' : `Cost: 💎 + ${it.costDiamond.toLocaleString()}`}</div>
+                  <div style="color:#ffd700; font-size:14px; font-weight: bold; margin-top: 2px;">
+                    ${isEnergyMaxed ? 'Max Limit Reached' : `Cost: 💎 ${currentEnergyCost.toLocaleString()}`}
+                  </div>
                 </div>
-                ${isMaxed 
-                    ? `<button class="btn" style="cursor:not-allowed;" disabled>Maxed</button>`
-                    : `<button class="playGameBtn buyEnergyBtn" data-id="${it.id}">Buy</button>`
+                ${isEnergyMaxed 
+                    ? `<button class="btn" style="cursor:not-allowed; background:#555;" disabled>Maxed</button>`
+                    : `<button class="playGameBtn" id="buyDynamicEnergyBtn">Buy</button>`
                 }
               </div>
-            `}).join('')}
           </div>
 
           <div id="skinCol" style="display:none; flex-direction:column; gap:12px;">
@@ -133,7 +138,7 @@ function renderShop() {
     </div>
   `;
 
-  // --- TABLAR ---
+  // --- TABLAR BOSHQARUVI ---
   const tabShop = document.getElementById('tabShop');
   const tabEnergy = document.getElementById('tabEnergy');
   const tabSkins = document.getElementById('tabSkins');
@@ -159,34 +164,46 @@ function renderShop() {
   // Default: Shop tabini aktiv qilish
   tabShop.click();
 
-  // --- ENERGY BUY ---
-  document.querySelectorAll('.buyEnergyBtn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.id;
-      const item = SHOP_ENERGY.find(x => x.id === id);
-      if (!item) return;
+  // --- DINAMIK ENERGY BUY LOGIKASI ---
+  const buyEnergyBtn = document.getElementById('buyDynamicEnergyBtn');
+  if (buyEnergyBtn) {
+      buyEnergyBtn.addEventListener('click', () => {
+          if (!state) return;
 
-      if ((state.maxEnergy || 1000) >= item.maxLimit) return;
+          const currentMax = state.maxEnergy || 1000;
+          const cost = getDynamicEnergyCost(currentMax);
 
-      if ((state.diamond || 0) < item.costDiamond) {
-        alert(`Not enough Diamonds! Need ${item.costDiamond.toLocaleString()} 💎`);
-        return;
-      }
+          if (currentMax >= 50000) {
+              alert("You have reached the maximum energy limit of 50,000!");
+              return;
+          }
 
-      state.diamond -= item.costDiamond;
-      state.maxEnergy = (state.maxEnergy || 1000) + item.amount;
-      if (state.maxEnergy > item.maxLimit) state.maxEnergy = item.maxLimit;
-      state.energy = state.maxEnergy;
+          if ((state.diamond || 0) < cost) {
+              alert(`Not enough Diamonds! Need ${cost.toLocaleString()} 💎`);
+              return;
+          }
 
-      saveState(state);
-      if (typeof updateHeaderDiamond === 'function') updateHeaderDiamond();
-      
-      alert(`Success! Energy upgraded.`);
-      renderShop();
-    });
-  });
+          // Pulni yechish
+          state.diamond -= cost;
+          
+          // Energiyani hisoblash (50k dan oshib ketmasligi kerak)
+          let newMax = currentMax + 1000;
+          if (newMax > 50000) newMax = 50000;
+          
+          state.maxEnergy = newMax;
+          state.energy = newMax; // Olganda energiyani darhol to'ldirib beramiz
 
-  // --- SKIN BUY (SOTIB OLISH) ---
+          // Saqlash
+          saveState(state);
+          if (typeof saveUserState === 'function') saveUserState(state, 'full');
+          if (typeof updateHeaderDiamond === 'function') updateHeaderDiamond();
+          
+          alert(`Success! +1000 Energy. New Max: ${newMax.toLocaleString()} ⚡`);
+          renderShop(); // Interfeysni darhol qayta chizib, yangi narxni ko'rsatamiz
+      });
+  }
+
+  // --- SKIN BUY ---
   document.querySelectorAll('.buySkinBtn').forEach(btn => {
     btn.addEventListener('click', () => {
       const skinId = btn.dataset.skin;
@@ -197,21 +214,15 @@ function renderShop() {
         return;
       }
 
-      // 1. Pulni olamiz
-      state.diamond = currentDiamond - SKIN_COST_DIAMOND;
+      state.diamond -= SKIN_COST_DIAMOND;
       
-      // 2. Skinni "Sotib olinganlar" ro'yxatiga qo'shamiz
       if (!state.ownedSkins.includes(skinId)) {
           state.ownedSkins.push(skinId);
       }
-      
-      // 3. Avtomatik tanlaymiz
       state.selectedSkin = skinId;
 
-      // 4. Saqlaymiz (Supabasega owned_skins ham ketadi)
       saveState(state);
-      if (typeof saveUserState === 'function') saveUserState(state);
-      
+      if (typeof saveUserState === 'function') saveUserState(state, 'full');
       if (typeof updateHeaderDiamond === 'function') updateHeaderDiamond();
       
       alert(`Skin purchased and equipped!`);
@@ -219,16 +230,14 @@ function renderShop() {
     });
   });
 
-  // --- SKIN SELECT (BORINI TANLASH) - YANGI ---
+  // --- SKIN SELECT ---
   document.querySelectorAll('.equipSkinBtn').forEach(btn => {
     btn.addEventListener('click', () => {
       const skinId = btn.dataset.skin;
-      
-      // Faqat tanlaymiz, pul ketmaydi
       state.selectedSkin = skinId;
       
       saveState(state);
-      if (typeof saveUserState === 'function') saveUserState(state);
+      if (typeof saveUserState === 'function') saveUserState(state, 'full');
 
       alert(`Skin equipped!`);
       renderShop();
