@@ -284,7 +284,7 @@ async function processPayment(itemId, method) {
                 addTransactionRecord(reward.desc, `${item.stars} Stars`, "Stars");
 
                 // Bu yerda foydalanuvchi balansiga olmos qo'shish funksiyasini chaqirasiz
-                // addDiamondsToUser(reward.amount);
+                completeEarnTask('#stars_payment');
 
                 alert(`Successful! You were given ${reward.desc} ! 💎`);
             }
@@ -370,7 +370,7 @@ async function payWithTon(amountTon, itemId) {
         const reward = getRewardAmount(itemId);
         addTransactionRecord(reward.desc, `${amountTon} TON`, "TON");
 
-        // addDiamondsToUser(reward.amount); // Balansga qo'shish
+        completeEarnTask('#ton_payment');
 
         alert(`Payment accepted! ✅\nYou have been given ${reward.desc}`);
 
@@ -462,6 +462,7 @@ async function payWithEvm(amountBnb, itemName, itemId) {
         // Muvaffaqiyatli:
         const reward = getRewardAmount(itemId);
         addTransactionRecord(reward.desc, `${amountBnb} BNB`, "BNB");
+        completeEarnTask('#bnb_payment');
 
         alert(`Payment sent! ✅\nYou have been given ${reward.desc}`);
 
@@ -474,5 +475,17 @@ async function payWithEvm(amountBnb, itemName, itemId) {
                 alert("Error: " + e.message);
             }
         }
+    }
+}
+
+// Earn bo'limidagi vazifalarni avtomat bajarildi deb belgilash funksiyasi
+function completeEarnTask(taskId) {
+    if (typeof state !== 'undefined') {
+        if (!state.completedTasks) state.completedTasks = {};
+        state.completedTasks[taskId] = true;
+        
+        // Saqlash funksiyalarini chaqiramiz
+        if (typeof saveState === 'function') saveState(state);
+        if (typeof saveUserState === 'function') saveUserState(state);
     }
 }

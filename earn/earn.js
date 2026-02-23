@@ -17,12 +17,12 @@
     function updateKeyDisplay() {
         document.querySelectorAll('[data-key-total-display]').forEach(el => el.innerText = String(getKeysTotal()));
         document.querySelectorAll('[data-key-used-display]').forEach(el => el.innerText = String(getKeysUsed()));
-        
+
     }
 
     setInterval(updateKeyDisplay, 1000);
     setTimeout(updateKeyDisplay, 100);
-    
+
 
     window.updateDailyLoginTaskIcon = function() {
         const dailyLoginArrow = document.getElementById('dailyLoginArrow');
@@ -42,7 +42,7 @@
             dailyLoginArrow.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/arrow.svg" alt=""></span>`;
         }
     };
-    
+
     setTimeout(window.updateDailyLoginTaskIcon, 300);
 
     function markAsCompleted(item, taskId) {
@@ -95,7 +95,7 @@
 
             const target = tab.getAttribute('data-target');
             const mainContainer = document.querySelector('.earn-main');
-            
+
             if (mainContainer) {
                 if (target === 'active') {
                     mainContainer.classList.add('tab_active_view');
@@ -110,6 +110,20 @@
 
         const item = ev.target.closest('.invite-item.bton');
         if (!item || item.id === 'dailyLoginTask') return;
+
+        // 🔥 YANGI QO'SHILGAN KOD: Tranzaksiya vazifalarini ushlab qolish
+        const taskType = item.getAttribute('data-task-type');
+        if (taskType === 'ton_transaction' || taskType === 'stars_transaction') {
+            ev.preventDefault(); // Ssilkani ochishni to'xtatadi
+
+            // Agar vazifa allaqachon bajarilgan bo'lsa, hech narsa qilmaydi
+            if (item.classList.contains('is-completed')) return;
+
+            // Foydalanuvchiga xabar chiqarish
+            alert("Iltimos, vazifani bajarish uchun Wallet sahifasining 'Recharge' bo'limidan xaridni amalga oshiring.");
+            return; // Shu yerda to'xtaydi va Claim tugmasiga aylanib qolmaydi
+        }
+        // -----------------------------------------------------------
 
         if (ev.target.classList.contains('claim-inline-btn')) {
             if (ev.target.classList.contains('processing')) return;
@@ -137,7 +151,7 @@
 
         const arrowDiv = item.querySelector('.invite-arrow');
         if (arrowDiv) {
-            anchor.setAttribute('data-href', href); 
+            anchor.setAttribute('data-href', href);
             arrowDiv.innerHTML = `<button class="claim-inline-btn">Claim</button>`;
         }
     });
@@ -170,7 +184,7 @@
             if (bonusKeys > 0) {
                 setKeysTotal(getKeysTotal() + bonusKeys);
                 setKeysUsed(getKeysUsed() + bonusKeys);
-                
+
             }
             if (diamonds > 0) {
                 setDiamond(getDiamond() + diamonds);
@@ -180,25 +194,25 @@
             const top = document.getElementById('diamondTop');
             if (top) top.textContent = '💎 ' + getDiamond();
             if (typeof updateHeaderDiamond === 'function') {
-                try { updateHeaderDiamond(); } catch (e) {}
+                try { updateHeaderDiamond(); } catch (e) { }
             }
 
             try {
                 const particleCount = Math.min(12, Math.max(4, Math.round((diamonds || 0) / 5000) + (bonusKeys || 0)));
                 animateRewardParticles(item, particleCount);
-            } catch (e) {}
+            } catch (e) { }
 
             const arrowDiv = item.querySelector('.invite-arrow');
             if (arrowDiv) {
                 arrowDiv.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/done.svg" alt=""></span>`;
             }
-            
+
             markAsCompleted(item, href);
             item.style.display = 'none';
 
             const s = getGlobalState();
             if (s && typeof saveState === 'function') {
-                saveState(s); 
+                saveState(s);
                 if (typeof saveUserState === 'function') saveUserState(s);
             }
 
@@ -209,14 +223,14 @@
     function animateRewardParticles(item, count) {
         if (!item || !count) return;
         const rect = item.getBoundingClientRect();
-        const startX = rect.right - 40; 
+        const startX = rect.right - 40;
         const startY = rect.top + rect.height / 2;
-        
+
         for (let i = 0; i < count; i++) {
             (function (idx) {
                 const img = document.createElement('img');
                 img.src = (idx % 2 === 0) ? '/image/diamond.png' : '/image/key.png';
-                const size = Math.floor(12 + Math.random() * 30); 
+                const size = Math.floor(12 + Math.random() * 30);
                 img.style.position = 'fixed';
                 img.style.left = (startX + (Math.random() * 40 - 20)) + 'px';
                 img.style.top = (startY + (Math.random() * 20 - 10)) + 'px';
@@ -230,8 +244,8 @@
                 document.body.appendChild(img);
 
                 requestAnimationFrame(() => {
-                    const dy = 120 + Math.random() * 180; 
-                    const dx = (Math.random() * 80 - 40); 
+                    const dy = 120 + Math.random() * 180;
+                    const dx = (Math.random() * 80 - 40);
                     const rot = Math.random() * 360;
                     img.style.transform = `translate(${dx}px, -${dy}px) rotate(${rot}deg) scale(${0.6 + Math.random()})`;
                     img.style.opacity = '0';
