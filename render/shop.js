@@ -11,7 +11,7 @@ const SHOP_ITEMS = [
   { id: 'gem6', name: '100,000', bonus: '+100,000', cost: '99.98 US$', img: './image/gem5.jpg' },
 ];
 
-const SKIN_COST_DIAMOND = 300000; 
+const SKIN_COST_DIAMOND = 300000; // Har bir skin uchun doimiy narx (300K Diamond)
 const SKINS = [
     { id: "bronza.png", name: "Bronza", file: "./image/bronza.png" },
     { id: "silver.png", name: "Silver", file: "./image/silver.png" },
@@ -23,19 +23,19 @@ const SKINS = [
 
 // 1. Max Energy narxi
 function getDynamicEnergyCost(currentMax) {
-    if (currentMax < 2000) return 500000; 
+    if (currentMax < 2000) return 50000; // 1000 dan 2000 gacha: 50K
     const level = Math.floor((currentMax - 1000) / 1000); 
-    return level * 1000000;
+    return level * 1000000; // Har 1000 Max Energy uchun narx 1M ga oshadi
 }
 
 // 2. To'lish Tezligi narxi (2M dan boshlanadi, 2M qadam bilan oshadi)
 function getRechargeSpeedCost(currentLevel) {
-    return currentLevel * 2000000;
+    return currentLevel * 2000000; // Har 1 daraja uchun narx 2M ga oshadi (1 dan 10 gacha)
 }
 
 // 3. Multitap narxi (2M dan boshlanadi)
 function getMultitapCost(currentLevel) {
-    return currentLevel * 2000000;
+    return currentLevel * 2000000; // Har 1 daraja uchun narx 2M ga oshadi (1 dan 10 gacha)
 }
 
 function renderShop(activeTabId = 'tabShop') {
@@ -57,7 +57,7 @@ function renderShop(activeTabId = 'tabShop') {
   // Recharge holati
   const currentRechargeLevel = state.boosts.rechargeLevel || 1;
   const isRechargeMaxed = currentRechargeLevel >= 10;
-  const currentRechargeCost = currentRechargeLevel * 2000000;
+  const currentRechargeCost = getRechargeSpeedCost(currentRechargeLevel);
 
   // 🔥 YANGI: Multitap holati
   const currentMultitapLevel = state.boosts.multitapLevel || 1;
