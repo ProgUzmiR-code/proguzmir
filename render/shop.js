@@ -11,7 +11,7 @@ const SHOP_ITEMS = [
   { id: 'gem6', name: '100,000', bonus: '+100,000', cost: '99.98 US$', img: './image/gem5.jpg' },
 ];
 
-const SKIN_COST_DIAMOND = 3; 
+const SKIN_COST_DIAMOND = 300000; 
 const SKINS = [
     { id: "bronza.png", name: "Bronza", file: "./image/bronza.png" },
     { id: "silver.png", name: "Silver", file: "./image/silver.png" },
@@ -23,14 +23,19 @@ const SKINS = [
 
 // 1. Max Energy narxi
 function getDynamicEnergyCost(currentMax) {
-    if (currentMax < 2000) return 5; 
+    if (currentMax < 2000) return 500000; 
     const level = Math.floor((currentMax - 1000) / 1000); 
-    return level * 10;
+    return level * 1000000;
 }
 
 // 2. To'lish Tezligi narxi (2M dan boshlanadi, 2M qadam bilan oshadi)
 function getRechargeSpeedCost(currentLevel) {
-    return currentLevel * 200;
+    return currentLevel * 2000000;
+}
+
+// 3. Multitap narxi (2M dan boshlanadi)
+function getMultitapCost(currentLevel) {
+    return currentLevel * 2000000;
 }
 
 function renderShop(activeTabId = 'tabShop') {
@@ -52,7 +57,12 @@ function renderShop(activeTabId = 'tabShop') {
   // Recharge holati
   const currentRechargeLevel = state.boosts.rechargeLevel || 1;
   const isRechargeMaxed = currentRechargeLevel >= 10;
-  const currentRechargeCost = getRechargeSpeedCost(currentRechargeLevel);
+  const currentRechargeCost = currentRechargeLevel * 2000000;
+
+  // 🔥 YANGI: Multitap holati
+  const currentMultitapLevel = state.boosts.multitapLevel || 1;
+  const isMultitapMaxed = currentMultitapLevel >= 10;
+  const currentMultitapCost = getMultitapCost(currentMultitapLevel);
 
   shopcontent.innerHTML = `
     <div style="margin-top: 50px;">
@@ -98,10 +108,24 @@ function renderShop(activeTabId = 'tabShop') {
                 </div>
                 ${isRechargeMaxed 
                     ? `<button class="btn" style="cursor:not-allowed; background:#555;" disabled>Maxed</button>`
-                    : `<button class="playGameBtn" id="buyRechargeSpeedBtn" style="background:#ff9800;">Buy</button>`
+                    : `<button class="playGameBtn" id="buyRechargeSpeedBtn">Buy</button>`
                 }
               </div>
 
+              <div class="shop-item" style="background:rgba(0,0,0,0.5); border-radius:12px; padding:12px; display: flex; align-items: center; margin-top:10px;">
+                <div style="width:80px; height:80px; border-radius:8px; background:rgba(33, 149, 243, 0); border: 1px solid rgba(33, 149, 243, 0); display:flex; justify-content:center; align-items:center; font-size:45px; text-shadow: 0 0 10px rgba(33,150,243,0.5);">👆</div>
+                <div style="margin-left:12px; flex:1;">
+                  <b style="color: #2196f3;">Multitap</b>
+                  <div style="color:#ccc; font-size:13px; margin-top: 4px;">Current Tap: +${currentMultitapLevel} 💎</div>
+                  <div style="color:#ffd700; font-size:14px; font-weight: bold; margin-top: 2px;">
+                    ${isMultitapMaxed ? 'Max Limit Reached' : `Cost: 💎 ${currentMultitapCost.toLocaleString()}`}
+                  </div>
+                </div>
+                ${isMultitapMaxed 
+                    ? `<button class="btn" style="cursor:not-allowed; background:#555;" disabled>Maxed</button>`
+                    : `<button class="playGameBtn" id="buyMultitapBtn">Buy</button>`
+                }
+              </div>
           </div>
 
           <div id="skinCol" style="display:none; flex-direction:column; gap:12px;">
@@ -167,6 +191,9 @@ function renderShop(activeTabId = 'tabShop') {
   const shopCol1 = document.getElementById('shopCol1');
   const skinCol = document.getElementById('skinCol');
   const energyCol = document.getElementById('energyCol');
+  const buyEnergyBtn = document.getElementById('buyDynamicEnergyBtn');
+  const buyRechargeBtn = document.getElementById('buyRechargeSpeedBtn');
+  const buyMultitapBtn = document.getElementById('buyMultitapBtn');
 
   function resetTabs() {
       shopCol1.style.display = 'none';
@@ -189,7 +216,7 @@ function renderShop(activeTabId = 'tabShop') {
   else { tabShop.click(); }
 
   // --- 1. MAX ENERGY BUY ---
-  const buyEnergyBtn = document.getElementById('buyDynamicEnergyBtn');
+  
   if (buyEnergyBtn) {
       buyEnergyBtn.addEventListener('click', () => {
           if (!state) return;
@@ -213,7 +240,7 @@ function renderShop(activeTabId = 'tabShop') {
   }
 
   // --- 2. RECHARGE SPEED BUY ---
-  const buyRechargeBtn = document.getElementById('buyRechargeSpeedBtn');
+  
   if (buyRechargeBtn) {
       buyRechargeBtn.addEventListener('click', () => {
           if (!state) return;
@@ -233,6 +260,29 @@ function renderShop(activeTabId = 'tabShop') {
           if (typeof updateHeaderDiamond === 'function') updateHeaderDiamond();
           
           alert(`Success! Recharge speed is now +${state.boosts.rechargeLevel}/sec ⚡`);
+          renderShop('tabEnergy'); 
+      });
+  }
+
+  if (buyMultitapBtn) {
+      buyMultitapBtn.addEventListener('click', () => {
+          if (!state) return;
+          if (!state.boosts) state.boosts = {};
+          
+          const currentLevel = state.boosts.multitapLevel || 1;
+          const cost = getMultitapCost(currentLevel);
+
+          if (currentLevel >= 10) { alert("Max tap limit reached!"); return; }
+          if ((state.diamond || 0) < cost) { alert(`Need ${cost.toLocaleString()} 💎`); return; }
+
+          state.diamond -= cost;
+          state.boosts.multitapLevel = currentLevel + 1;
+
+          saveState(state);
+          if (typeof saveUserState === 'function') saveUserState(state, 'full');
+          if (typeof updateHeaderDiamond === 'function') updateHeaderDiamond();
+          
+          alert(`Success! Multitap is now +${state.boosts.multitapLevel} 💎 per tap!`);
           renderShop('tabEnergy'); 
       });
   }

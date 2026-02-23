@@ -374,42 +374,44 @@ function renderGame() {
         e.preventDefault();
         e.stopPropagation();
 
-        // 1. DIQQAT: const state = loadState(); qatori olib tashlandi.
-        // Biz to'g'ridan-to'g'ri xotirada turgan global 'state' dan foydalanamiz.
-
         if (state.energy <= 0) {
-            alert('Energiya tugadi - tiklanishini kuting.');
-            return;
+            // Energiya tugaganda indamaymiz yoki yozuv chiqaramiz
+            return; 
         }
 
-        // 2. Modelni (xotirani) yangilaymiz
-        state.energy = Math.max(0, state.energy - 1);
-        state.diamond += 1;
+        // 🔥 1. Xotiradan multitap darajasini o'qiymiz (Kamida 1 bo'ladi)
+        let tapPower = (state.boosts && state.boosts.multitapLevel) ? state.boosts.multitapLevel : 1;
+        
+        // Agar energiyamiz qolgan tap quvvatidan kam bo'lsa (Masalan kuchimiz +5, lekin energiya 3 ta qolgan bo'lsa)
+        if (state.energy < tapPower) {
+            tapPower = state.energy; // Qancha energiya qolgan bo'lsa, shuncha olamiz
+        }
 
-        // PRC ni xavfsiz BigInt sifatida qo'shamiz
+        if (tapPower <= 0) return;
+
+        // 🔥 2. Modelni yangilash: Energiyadan ayirib, Diamondga qo'shamiz
+        state.energy = Math.max(0, state.energy - tapPower);
+        state.diamond += tapPower;
+
+        // 🔥 3. PRC esa xuddi siz aytgandek FAQT 1 marta (baseWei) qo'shiladi
         const baseWei = typeof BASE_WEI !== 'undefined' ? BigInt(BASE_WEI) : 0n;
         const currentPrc = typeof state.prcWei === 'bigint' ? state.prcWei : BigInt(state.prcWei || 0);
         state.prcWei = currentPrc + baseWei;
 
-        // 3. Ekranni darhol yangilaymiz (foydalanuvchi qotib qolishni sezmasligi uchun)
+        // 4. Ekranni darhol yangilaymiz
         const diamondEl = document.getElementById('diamondTop');
         if (diamondEl) diamondEl.textContent = '💎 ' + state.diamond;
 
         const tapsEl = document.getElementById('tapsCount');
         if (tapsEl) tapsEl.textContent = `${state.energy} / ${state.maxEnergy}`;
 
-        // PRC ekranda ham yangilanishi uchun funksiya chaqiramiz (agar mavjud bo'lsa)
         if (typeof updateHeaderPRC === 'function') updateHeaderPRC();
 
-        // 4. O'zgarishlarni saqlash funksiyasiga yuboramiz
+        // 5. Saqlash
         try {
-            saveState(state); // Bu endi faqat Supabase'ga yuboradi, localStorage'ga emas
-        } catch (err) {
-            console.error('Failed to save state on tap:', err);
-            // DIQQAT: localStorage ga yozadigan zararli fallback (zaxira) kodi butunlay olib tashlandi!
-        }
+            saveState(state);
+        } catch (err) {}
     });
-
 
     // quick open handlers (top-left previews) — skin preview now opens shop (skin tab inside shop)
     const skinPreview = document.getElementById('skinCardPreview');
