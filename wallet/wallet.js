@@ -364,15 +364,17 @@ async function payWithTon(amountTon, itemId) {
         };
 
         const result = await window.tonConnectUI.sendTransaction(transaction);
-        
-        if (result) {
-            // Muvaffaqiyatli bo'lsa tranzaksiya tarixiga yozish
-            const reward = getRewardAmount(itemId);
-            addTransactionRecord(reward.desc, `${amountTon} TON`, "TON");
-            
-            return true; // <--- MUHIM: Muvaffaqiyat signalini qaytaramiz
-        }
-    }catch (e) {
+        console.log("TON Payment success:", result);
+
+        // Muvaffaqiyatli bo'lsa:
+        const reward = getRewardAmount(itemId);
+        addTransactionRecord(reward.desc, `${amountTon} TON`, "TON");
+
+        // addDiamondsToUser(reward.amount); // Balansga qo'shish
+
+        alert(`Payment accepted! ✅\nYou have been given ${reward.desc}`);
+
+    } catch (e) {
         console.error(e);
         if (!e.message?.includes("User rejected")) {
             alert("Error: " + e.message);
