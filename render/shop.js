@@ -1,5 +1,5 @@
 // ==========================================
-// RENDER SHOP - OWNED SKINS & SUPABASE SYNC
+// RENDER SHOP - MAX ENERGY & RECHARGE SPEED
 // ==========================================
 
 const SHOP_ITEMS = [
@@ -11,7 +11,7 @@ const SHOP_ITEMS = [
   { id: 'gem6', name: '100,000', bonus: '+100,000', cost: '99.98 US$', img: './image/gem5.jpg' },
 ];
 
-const SKIN_COST_DIAMOND = 3; // Har bir skin uchun narx (diamondsda)
+const SKIN_COST_DIAMOND = 3; 
 const SKINS = [
     { id: "bronza.png", name: "Bronza", file: "./image/bronza.png" },
     { id: "silver.png", name: "Silver", file: "./image/silver.png" },
@@ -21,31 +21,38 @@ const SKINS = [
     { id: "master.png", name: "Master", file: "./image/master.png" }
 ];
 
-// Dinamik narxni hisoblash funksiyasi
+// 1. Max Energy narxi
 function getDynamicEnergyCost(currentMax) {
-    if (currentMax < 2000) {
-        return 5; // 1-xarid uchun 500k
-    } else {
-        const level = Math.floor((currentMax - 1000) / 1000); 
-        return level * 10;
-    }
+    if (currentMax < 2000) return 5; 
+    const level = Math.floor((currentMax - 1000) / 1000); 
+    return level * 10;
 }
 
-// Funksiyaga "activeTabId" argumentini qo'shdik (default = 'tabShop')
+// 2. To'lish Tezligi narxi (2M dan boshlanadi, 2M qadam bilan oshadi)
+function getRechargeSpeedCost(currentLevel) {
+    return currentLevel * 200;
+}
+
 function renderShop(activeTabId = 'tabShop') {
   const shopcontent = document.getElementById('shopcontent');
   if (!shopcontent) return;
 
   if (!state) return;
 
-  if (!state.ownedSkins || !Array.isArray(state.ownedSkins)) {
-      state.ownedSkins = ["bronza.png"]; 
-  }
+  if (!state.ownedSkins || !Array.isArray(state.ownedSkins)) state.ownedSkins = ["bronza.png"]; 
+  if (!state.boosts) state.boosts = {};
 
   const currentSkin = state.selectedSkin;
+  
+  // Max Energy holati
   const currentMaxEnergy = state.maxEnergy || 1000;
   const isEnergyMaxed = currentMaxEnergy >= 50000;
   const currentEnergyCost = getDynamicEnergyCost(currentMaxEnergy);
+
+  // Recharge holati
+  const currentRechargeLevel = state.boosts.rechargeLevel || 1;
+  const isRechargeMaxed = currentRechargeLevel >= 10;
+  const currentRechargeCost = getRechargeSpeedCost(currentRechargeLevel);
 
   shopcontent.innerHTML = `
     <div style="margin-top: 50px;">
@@ -64,8 +71,9 @@ function renderShop(activeTabId = 'tabShop') {
       <div style="margin-top:6px;">
           
           <div id="energyCol" style="display:none; flex-direction:column; gap:12px;">
+              
               <div class="shop-item" style="background:rgba(0,0,0,0.5); border-radius:12px; padding:12px; display: flex; align-items: center;">
-                <img src="./image/boost.png" alt="Energy Boost" style="width:80px; object-fit:cover; border-radius:8px;">
+                <img src="./image/boost.png" alt="Max Energy" style="width:80px; object-fit:cover; border-radius:8px;">
                 <div style="margin-left:12px; flex:1;">
                   <b style="color: #4ade80;">+1000 Max Energy</b>
                   <div style="color:#ccc; font-size:13px; margin-top: 4px;">Current Max: ${currentMaxEnergy.toLocaleString()} ⚡</div>
@@ -78,6 +86,22 @@ function renderShop(activeTabId = 'tabShop') {
                     : `<button class="playGameBtn" id="buyDynamicEnergyBtn">Buy</button>`
                 }
               </div>
+
+              <div class="shop-item" style="background:rgba(0,0,0,0.5); border-radius:12px; padding:12px; display: flex; align-items: center; margin-top:10px;">
+                <div style="width:80px; height:80px; border-radius:8px; background:rgba(255, 153, 0, 0); border: 1px solid rgba(255, 153, 0, 0); display:flex; justify-content:center; align-items:center; font-size:45px; text-shadow: 0 0 10px rgba(255, 153, 0, 0);">⏳</div>
+                <div style="margin-left:12px; flex:1;">
+                  <b style="color: #ff9800;">+1 Energy / Sec</b>
+                  <div style="color:#ccc; font-size:13px; margin-top: 4px;">Current Speed: +${currentRechargeLevel}/sec ⏳</div>
+                  <div style="color:#ffd700; font-size:14px; font-weight: bold; margin-top: 2px;">
+                    ${isRechargeMaxed ? 'Max Limit Reached' : `Cost: 💎 ${currentRechargeCost.toLocaleString()}`}
+                  </div>
+                </div>
+                ${isRechargeMaxed 
+                    ? `<button class="btn" style="cursor:not-allowed; background:#555;" disabled>Maxed</button>`
+                    : `<button class="playGameBtn" id="buyRechargeSpeedBtn" style="background:#ff9800;">Buy</button>`
+                }
+              </div>
+
           </div>
 
           <div id="skinCol" style="display:none; flex-direction:column; gap:12px;">
@@ -160,66 +184,68 @@ function renderShop(activeTabId = 'tabShop') {
   tabEnergy.addEventListener('click', () => { resetTabs(); energyCol.style.display = 'flex'; tabEnergy.style.color = '#ffd700'; });
   tabSkins.addEventListener('click', () => { resetTabs(); skinCol.style.display = 'flex'; tabSkins.style.color = '#ffd700'; });
 
-  // Qaysi oyna kerak bo'lsa o'shani avtomatik ochish
-  if (activeTabId === 'tabEnergy') {
-      tabEnergy.click();
-  } else if (activeTabId === 'tabSkins') {
-      tabSkins.click();
-  } else {
-      tabShop.click();
-  }
+  if (activeTabId === 'tabEnergy') { tabEnergy.click(); } 
+  else if (activeTabId === 'tabSkins') { tabSkins.click(); } 
+  else { tabShop.click(); }
 
-  // --- DINAMIK ENERGY BUY LOGIKASI ---
+  // --- 1. MAX ENERGY BUY ---
   const buyEnergyBtn = document.getElementById('buyDynamicEnergyBtn');
   if (buyEnergyBtn) {
       buyEnergyBtn.addEventListener('click', () => {
           if (!state) return;
-
           const currentMax = state.maxEnergy || 1000;
           const cost = getDynamicEnergyCost(currentMax);
 
-          if (currentMax >= 50000) {
-              alert("You have reached the maximum energy limit of 50,000!");
-              return;
-          }
-
-          if ((state.diamond || 0) < cost) {
-              alert(`Not enough Diamonds! Need ${cost.toLocaleString()} 💎`);
-              return;
-          }
+          if (currentMax >= 50000) { alert("Max energy limit reached!"); return; }
+          if ((state.diamond || 0) < cost) { alert(`Need ${cost.toLocaleString()} 💎`); return; }
 
           state.diamond -= cost;
-          let newMax = currentMax + 1000;
-          if (newMax > 50000) newMax = 50000;
-          
-          state.maxEnergy = newMax;
-          state.energy = newMax; 
+          state.maxEnergy = Math.min(50000, currentMax + 1000);
+          state.energy = state.maxEnergy; 
 
           saveState(state);
           if (typeof saveUserState === 'function') saveUserState(state, 'full');
           if (typeof updateHeaderDiamond === 'function') updateHeaderDiamond();
           
-          alert(`Success! +1000 Energy. New Max: ${newMax.toLocaleString()} ⚡`);
-          renderShop('tabEnergy'); // Energy oynasida qolish
+          alert(`Success! +1000 Max Energy ⚡`);
+          renderShop('tabEnergy'); 
       });
   }
 
-  // --- SKIN BUY ---
+  // --- 2. RECHARGE SPEED BUY ---
+  const buyRechargeBtn = document.getElementById('buyRechargeSpeedBtn');
+  if (buyRechargeBtn) {
+      buyRechargeBtn.addEventListener('click', () => {
+          if (!state) return;
+          if (!state.boosts) state.boosts = {};
+          
+          const currentLevel = state.boosts.rechargeLevel || 1;
+          const cost = getRechargeSpeedCost(currentLevel);
+
+          if (currentLevel >= 10) { alert("Max recharge speed reached!"); return; }
+          if ((state.diamond || 0) < cost) { alert(`Need ${cost.toLocaleString()} 💎`); return; }
+
+          state.diamond -= cost;
+          state.boosts.rechargeLevel = currentLevel + 1;
+
+          saveState(state);
+          if (typeof saveUserState === 'function') saveUserState(state, 'full');
+          if (typeof updateHeaderDiamond === 'function') updateHeaderDiamond();
+          
+          alert(`Success! Recharge speed is now +${state.boosts.rechargeLevel}/sec ⚡`);
+          renderShop('tabEnergy'); 
+      });
+  }
+
+  // --- SKIN BUY & SELECT ---
   document.querySelectorAll('.buySkinBtn').forEach(btn => {
     btn.addEventListener('click', () => {
       const skinId = btn.dataset.skin;
       const currentDiamond = state.diamond || 0;
-      
-      if (currentDiamond < SKIN_COST_DIAMOND) {
-        alert(`Not enough Diamonds! Need ${SKIN_COST_DIAMOND.toLocaleString()} 💎`);
-        return;
-      }
+      if (currentDiamond < SKIN_COST_DIAMOND) { alert("Not enough Diamonds!"); return; }
 
       state.diamond -= SKIN_COST_DIAMOND;
-      
-      if (!state.ownedSkins.includes(skinId)) {
-          state.ownedSkins.push(skinId);
-      }
+      if (!state.ownedSkins.includes(skinId)) state.ownedSkins.push(skinId);
       state.selectedSkin = skinId;
 
       saveState(state);
@@ -227,21 +253,17 @@ function renderShop(activeTabId = 'tabShop') {
       if (typeof updateHeaderDiamond === 'function') updateHeaderDiamond();
       
       alert(`Skin purchased and equipped!`);
-      renderShop('tabSkins'); // Skin oynasida qolish
+      renderShop('tabSkins'); 
     });
   });
 
-  // --- SKIN SELECT ---
   document.querySelectorAll('.equipSkinBtn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const skinId = btn.dataset.skin;
-      state.selectedSkin = skinId;
-      
+      state.selectedSkin = btn.dataset.skin;
       saveState(state);
       if (typeof saveUserState === 'function') saveUserState(state, 'full');
-
       alert(`Skin equipped!`);
-      renderShop('tabSkins'); // Skin oynasida qolish
+      renderShop('tabSkins'); 
     });
   });
 }

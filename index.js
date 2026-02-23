@@ -418,9 +418,7 @@ function renderGame() {
     // energy auto-recharge
     if (window._energyInterval) { clearInterval(window._energyInterval); window._energyInterval = null; }
 
-    // Doimiy interval: har soniyada tekshiradi
     window._energyInterval = setInterval(() => {
-        // loadState() va async olib tashlandi. Faqat global state tekshiriladi
         if (!state || typeof state.energy !== 'number' || typeof state.maxEnergy !== 'number') return;
 
         if (state.maxEnergy <= 0) {
@@ -428,15 +426,21 @@ function renderGame() {
             if (state.energy <= 0) state.energy = state.maxEnergy;
             const el = document.getElementById('tapsCount');
             if (el) el.textContent = `${state.energy} / ${state.maxEnergy}`;
+            return;
         }
 
         if (state.energy < state.maxEnergy) {
-            state.energy = Math.min(state.maxEnergy, state.energy + 1);
-            // ❌ DIQQAT: saveState(st) mutlaqo yozilmaydi! Server charchamaydi!
+            // 🔥 YANGI QISM: Xotiradan to'lish darajasini o'qiymiz
+            const rechargeRate = (state.boosts && state.boosts.rechargeLevel) ? state.boosts.rechargeLevel : 1;
+            
+            // Shuncha qo'shamiz (masalan 900 -> 902 -> 904)
+            state.energy = Math.min(state.maxEnergy, state.energy + rechargeRate);
+            
             const el = document.getElementById('tapsCount');
             if (el) el.textContent = `${state.energy} / ${state.maxEnergy}`;
         }
     }, 1000);
+
     // replace modal behavior: clicking boostsBox opens Boosts "page" (renderBoosts)
     const boostsBox = document.getElementById('boostsBox');
     if (boostsBox) {
