@@ -120,7 +120,7 @@
             if (item.classList.contains('is-completed')) return;
 
             // Foydalanuvchiga xabar chiqarish
-            alert("Iltimos, vazifani bajarish uchun Wallet sahifasining 'Recharge' bo'limidan xaridni amalga oshiring.");
+            alert("Please make a purchase from the 'Recharge' section of the Wallet page to complete the task.");
             return; // Shu yerda to'xtaydi va Claim tugmasiga aylanib qolmaydi
         }
         // -----------------------------------------------------------
