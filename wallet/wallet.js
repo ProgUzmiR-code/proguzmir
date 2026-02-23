@@ -478,14 +478,37 @@ async function payWithEvm(amountBnb, itemName, itemId) {
     }
 }
 
-// Earn bo'limidagi vazifalarni avtomat bajarildi deb belgilash funksiyasi
+// Earn bo'limidagi vazifalarni avtomat bajarildi deb belgilash va 300k olmos + 20 kalit berish
 function completeEarnTask(taskId) {
-    if (typeof state !== 'undefined') {
-        if (!state.completedTasks) state.completedTasks = {};
-        state.completedTasks[taskId] = true;
+    // 1. Foydalanuvchi holatini (state) olish
+    let s = (typeof state !== 'undefined') ? state : JSON.parse(localStorage.getItem('user_state') || '{}');
+    
+    if (!s.completedTasks) s.completedTasks = {};
+
+    // 2. Agar vazifa oldin bajarilmagan bo'lsa (faqat 1 marta beriladi)
+    if (!s.completedTasks[taskId]) {
+        s.completedTasks[taskId] = true; // Bajarildi deb belgilash
         
-        // Saqlash funksiyalarini chaqiramiz
-        if (typeof saveState === 'function') saveState(state);
-        if (typeof saveUserState === 'function') saveUserState(state);
+        // 3. Mukofotni qo'shish: 300,000 olmos va 20 ta kalit
+        s.diamond = (s.diamond || 0) + 300000;
+        s.keysTotal = (s.keysTotal || 0) + 20;
+        s.keysUsed = (s.keysUsed || 0) + 20; 
+
+        // 4. Ma'lumotlarni saqlash
+        if (typeof state !== 'undefined') state = s; // Ochiq holatni yangilash
+        localStorage.setItem('user_state', JSON.stringify(s));
+        
+        if (typeof saveState === 'function') saveState(s);
+        if (typeof saveUserState === 'function') saveUserState(s);
+        
+        // 5. Ekranda olmos sonini o'zgartirish (Wallet pageda ko'rinishi uchun)
+        const diamondDisplay = document.querySelector('[data-diamond-display]');
+        if (diamondDisplay) diamondDisplay.innerText = s.diamond;
+        
+        // 6. Mukofot berilgani haqida xabar
+        setTimeout(() => {
+            alert("🎉 Congratulations! 'Transaction' task completed: +300,000 💎 and +20 🔑 added!");
+        }, 500); // Asosiy xabardan keyin chiqishi uchun biroz kutamiz
     }
 }
+

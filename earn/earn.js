@@ -113,7 +113,7 @@
 
         // 🔥 YANGI QO'SHILGAN KOD: Tranzaksiya vazifalarini ushlab qolish
         const taskType = item.getAttribute('data-task-type');
-        if (taskType === 'ton_transaction' || taskType === 'stars_transaction') {
+        if (taskType === 'ton_transaction' || taskType === 'stars_transaction' || taskType === 'bnb_transaction') {
             ev.preventDefault(); // Ssilkani ochishni to'xtatadi
 
             // Agar vazifa allaqachon bajarilgan bo'lsa, hech narsa qilmaydi
