@@ -61,7 +61,8 @@
 #invitecontent .frens-main .invite .invite__title {
     font-size: 1.06rem;
     font-weight: 700;
-    text-align: left
+    text-align: left;
+    padding-top: 1.22rem
 }
 
 #invitecontent .frens-main .invite .invite-main {
