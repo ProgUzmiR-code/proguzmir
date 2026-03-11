@@ -3,7 +3,7 @@
     if (window._earnScriptLoaded) return;
     window._earnScriptLoaded = true;
 
-    const BASE_WEI = 1000n;
+    const BASE_WEI = 1n;
 
     function getGlobalState() { return (typeof state !== 'undefined') ? state : null; }
     function getDiamond() { const s = getGlobalState(); return s ? (s.diamond || 0) : 0; }

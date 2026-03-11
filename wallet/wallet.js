@@ -6,12 +6,12 @@ let MERCHANT_EVM = null;
 
 // Mahsulotlar (USD va STARS narxlari bilan)
 const PRICES = {
-    'gem1': { name: "1000 diamond", val: 1000, bonus: 1000, usd: 1.19, stars: 60 },
-    'gem2': { name: "5,000 diamond", val: 5000, bonus: 5000, usd: 4.99, stars: 250 },
-    'gem3': { name: "10,000 diamond", val: 10000, bonus: 10000, usd: 9.98, stars: 500 },
-    'gem4': { name: "20,000 diamond", val: 20000, bonus: 20000, usd: 19.96, stars: 1000 },
-    'gem5': { name: "50,000 diamond", val: 50000, bonus: 50000, usd: 49.99, stars: 2500 },
-    'gem6': { name: "100,000 diamond", val: 100000, bonus: 100000, usd: 99.98, stars: 5000 }
+    'gem1': { name: "1000 diamond", val: 10000, bonus: 10000, usd: 1.19, stars: 60 },
+    'gem2': { name: "5,000 diamond", val: 50000, bonus: 50000, usd: 4.99, stars: 250 },
+    'gem3': { name: "10,000 diamond", val: 100000, bonus: 100000, usd: 9.98, stars: 500 },
+    'gem4': { name: "20,000 diamond", val: 200000, bonus: 200000, usd: 19.96, stars: 1000 },
+    'gem5': { name: "50,000 diamond", val: 500000, bonus: 500000, usd: 49.99, stars: 2500 },
+    'gem6': { name: "100,000 diamond", val: 1000000, bonus: 1000000, usd: 99.98, stars: 5000 }
 };
 
 // --- 1. SOZLAMALARNI YUKLASH ---

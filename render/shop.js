@@ -3,12 +3,12 @@
 // ==========================================
 
 const SHOP_ITEMS = [
-  { id: 'gem1', name: '1000', bonus: '+1000', cost: '1.19 US$', img: './image/bagdiamonds.jpg' },
-  { id: 'gem2', name: '5,000', bonus: '+5000', cost: '4.99 US$', img: './image/gem1.jpg' },
-  { id: 'gem3', name: '10,000', bonus: '+10,000', cost: '9.98 US$', img: './image/gem2.jpg' },
-  { id: 'gem4', name: '20,000', bonus: '+20,000', cost: '19.96 US$', img: './image/gem3.jpg' },
-  { id: 'gem5', name: '50,000', bonus: '+50,000', cost: '49.99 US$', img: './image/gem4.jpg' },
-  { id: 'gem6', name: '100,000', bonus: '+100,000', cost: '99.98 US$', img: './image/gem5.jpg' },
+  { id: 'gem1', name: '10,000', bonus: '+10,000', cost: '1.19 US$', img: './image/bagdiamonds.jpg' },
+  { id: 'gem2', name: '50,000', bonus: '+50,000', cost: '4.99 US$', img: './image/gem1.jpg' },
+  { id: 'gem3', name: '100,000', bonus: '+100,000', cost: '9.98 US$', img: './image/gem2.jpg' },
+  { id: 'gem4', name: '200,000', bonus: '+200,000', cost: '19.96 US$', img: './image/gem3.jpg' },
+  { id: 'gem5', name: '500,000', bonus: '+500,000', cost: '49.99 US$', img: './image/gem4.jpg' },
+  { id: 'gem6', name: '1,000,000', bonus: '+1,000,000', cost: '99.98 US$', img: './image/gem5.jpg' },
 ];
 
 const SKIN_COST_DIAMOND = 300000; // Har bir skin uchun doimiy narx (300K Diamond)

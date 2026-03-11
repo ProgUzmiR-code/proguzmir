@@ -1,9 +1,9 @@
 // index.js
-const DECIMALS = 18n;
+const DECIMALS = 5n;
 const UNIT = 10n ** DECIMALS;
 
 // Konstantalar (BigInt wei da)
-const BASE_WEI = 1000n; // 0.000000000000001000 PRC -> 1e-15 / 1e-18 = 1000 wei
+const BASE_WEI = 1n; // 0.000001000000000000 PRC -> 1e-15 / 1e-18 = 1000 wei
 const DIAMOND_TO_WEI = 1n; // 1 diamond = 0.000000000000000001 PRC = 1 wei
 
 const RANKS = ["bronze", "silver", "gold", "smart gold", "platinium", "master"];
@@ -137,7 +137,7 @@ function fmtPRC(wei) {
             let j = i + 1;
             while (j < s.length && s[j] === ch) j++;
             const len = j - i;
-            if (len >= 3) {
+            if (len >= 6) {
                 out += ch + '{' + len + '}';
             } else {
                 out += ch.repeat(len);

@@ -1,5 +1,5 @@
 (function () {
-    const BASE_WEI = 1000n;
+    const BASE_WEI = 1n;
     const MAX_LVL = 50;
 
     // --- DIQQAT: LOCALSTORAGE O'RNIGA GLOBAL 'state' DAN FOYDALANAMIZ ---
