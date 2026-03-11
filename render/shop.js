@@ -23,19 +23,19 @@ const SKINS = [
 
 // 1. Max Energy narxi
 function getDynamicEnergyCost(currentMax) {
-    if (currentMax < 2000) return 500000; // 1000 dan 2000 gacha: 500K
+    if (currentMax < 2000) return 20000; // 1000 dan 2000 gacha: 20K
     const level = Math.floor((currentMax - 1000) / 1000); 
-    return level * 1000000; // Har 1000 Max Energy uchun narx 1M ga oshadi
+    return level * 40000 // Har 1000 Max Energy uchun narx 20k ga oshadi
 }
 
 // 2. To'lish Tezligi narxi (2M dan boshlanadi, 2M qadam bilan oshadi)
 function getRechargeSpeedCost(currentLevel) {
-    return currentLevel * 2000000; // Har 1 daraja uchun narx 2M ga oshadi (1 dan 10 gacha)
+    return currentLevel * 50000; // Har 1 daraja uchun narx 50K ga oshadi (1 dan 10 gacha)
 }
 
 // 3. Multitap narxi (2M dan boshlanadi)
 function getMultitapCost(currentLevel) {
-    return currentLevel * 2000000; // Har 1 daraja uchun narx 2M ga oshadi (1 dan 10 gacha)
+    return currentLevel * 50000; // Har 1 daraja uchun narx 50K ga oshadi (1 dan 10 gacha)
 }
 
 function renderShop(activeTabId = 'tabShop') {
