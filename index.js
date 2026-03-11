@@ -152,11 +152,11 @@ function fmtPRC(wei) {
 
 function getRankFromWei(wei) {
     // Exact thresholds in Wei (18 decimals)
-    const SILVER_THRESHOLD = BigInt('10000000');              // 0.000000000010000000 PRC -> 1e7 wei
-    const GOLD_THRESHOLD = BigInt('1000000000');             // 0.000000001000000000 PRC -> 1e9 wei
-    const SMART_GOLD_THRESHOLD = BigInt('1000000000000');    // 0.000001000000000000 PRC -> 1e12 wei
-    const PLATINIUM_THRESHOLD = BigInt('1000000000000000');  // 0.001000000000000000 PRC -> 1e15 wei
-    const MASTER_THRESHOLD = BigInt('100000000000000000');   // 0.100000000000000000 PRC -> 1e17 wei
+    const SILVER_THRESHOLD = BigInt('1000');              // 0.000000000010000000 PRC -> 1e7 wei
+    const GOLD_THRESHOLD = BigInt('100000');             // 0.000000001000000000 PRC -> 1e9 wei
+    const SMART_GOLD_THRESHOLD = BigInt('1000000');    // 0.000001000000000000 PRC -> 1e12 wei
+    const PLATINIUM_THRESHOLD = BigInt('10000000');  // 0.001000000000000000 PRC -> 1e15 wei
+    const MASTER_THRESHOLD = BigInt('1000000000');   // 0.100000000000000000 PRC -> 1e17 wei
 
     if (wei >= MASTER_THRESHOLD) return 'master';
     if (wei >= PLATINIUM_THRESHOLD) return 'platinium';     // match rank.html spelling
