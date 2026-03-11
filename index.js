@@ -3,8 +3,8 @@ const DECIMALS = 5n;
 const UNIT = 10n ** DECIMALS;
 
 // Konstantalar (BigInt wei da)
-const BASE_WEI = 1n; // 0.000001000000000000 PRC -> 1e-15 / 1e-18 = 1000 wei
-const DIAMOND_TO_WEI = 1n; // 1 diamond = 0.000000000000000001 PRC = 1 wei
+const BASE_WEI = 1n; // 0.00001 PRC -> 1e-15 / 1e-18 = 1000 wei
+const DIAMOND_TO_WEI = 1n; // 1 diamond = 0.00001 PRC = 1 wei
 
 const RANKS = ["bronze", "silver", "gold", "smart gold", "platinium", "master"];
 
@@ -152,11 +152,11 @@ function fmtPRC(wei) {
 
 function getRankFromWei(wei) {
     // Exact thresholds in Wei (18 decimals)
-    const SILVER_THRESHOLD = BigInt('1000');              // 0.000000000010000000 PRC -> 1e7 wei
-    const GOLD_THRESHOLD = BigInt('100000');             // 0.000000001000000000 PRC -> 1e9 wei
-    const SMART_GOLD_THRESHOLD = BigInt('1000000');    // 0.000001000000000000 PRC -> 1e12 wei
-    const PLATINIUM_THRESHOLD = BigInt('10000000');  // 0.001000000000000000 PRC -> 1e15 wei
-    const MASTER_THRESHOLD = BigInt('1000000000');   // 0.100000000000000000 PRC -> 1e17 wei
+    const SILVER_THRESHOLD = BigInt('1000');              // 0.01000 PRC -> 1e7 wei
+    const GOLD_THRESHOLD = BigInt('100000');             // 1.00000 PRC -> 1e9 wei
+    const SMART_GOLD_THRESHOLD = BigInt('1000000');    // 10.00000 PRC -> 1e12 wei
+    const PLATINIUM_THRESHOLD = BigInt('10000000');  // 100.00000 PRC -> 1e15 wei
+    const MASTER_THRESHOLD = BigInt('100000000');   // 1000.00000 PRC -> 1e17 wei
 
     if (wei >= MASTER_THRESHOLD) return 'master';
     if (wei >= PLATINIUM_THRESHOLD) return 'platinium';     // match rank.html spelling

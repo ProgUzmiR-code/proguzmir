@@ -10,9 +10,10 @@
 #invitecontent .frens-main .total .total__title {
     font-weight: 400;
     font-family: var(--chakra-fonts-righteous);
-    font-size: 32px;
+    font-size: 28px;
     line-height: 1.25;
     text-align: center;
+    color: #ffd700;
 }
 
 #invitecontent .frens-main .total .total__num {
