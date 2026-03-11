@@ -101,7 +101,7 @@
                 rankListContainer.innerHTML = '';
 
                 if (filteredUsers.length === 0) {
-                    rankListContainer.innerHTML = `<div class="empty-state">${rankName} No players in this league</div>`;
+                    rankListContainer.innerHTML = `<div class="empty-state">${rankName} no players in this league</div>`;
                     return;
                 }
 
