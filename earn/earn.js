@@ -24,7 +24,7 @@
     setTimeout(updateKeyDisplay, 100);
 
 
-    window.updateDailyLoginTaskIcon = function() {
+    window.updateDailyLoginTaskIcon = function () {
         const dailyLoginArrow = document.getElementById('dailyLoginArrow');
         const dailyLoginItem = document.getElementById('dailyLoginTask');
         const s = getGlobalState();
@@ -109,7 +109,9 @@
         }
 
         const item = ev.target.closest('.invite-item.bton');
-        if (!item || item.id === 'dailyLoginTask') return;
+        // REKLAMA TUGMASI UCHUN ID QO'SHILDI
+        if (!item || item.id === 'dailyLoginTask' || item.id === 'watchAdBtn') return;
+
 
         // 🔥 YANGI QO'SHILGAN KOD: Tranzaksiya vazifalarini ushlab qolish
         const taskType = item.getAttribute('data-task-type');
@@ -262,26 +264,60 @@
         const mainContainer = document.querySelector('.earn-main');
         if (mainContainer) mainContainer.classList.add('tab_active_view');
     }
-})();
 
-// 2. Reklamani ko'rsatish funksiyasi
-function showRewardedAd() {
-    AdController.show().then((result) => {
-        // MUHIM: Bu qism reklama muvaffaqiyatli oxirigacha ko'rilsa ishlaydi
-        console.log("Reklama to'liq ko'rildi!");
-        
-        // Shu yerda foydalanuvchiga mukofot berasiz
-        // Masalan: foydalanuvchi balansiga +50 tanga qo'shish
-        giveUserReward(50); 
-        
-    }).catch((error) => {
-        // Bu qism foydalanuvchi reklamani yopib yuborsa yoki xatolik bo'lsa ishlaydi
-        console.log("Reklama ko'rilmadi yoki xatolik:", error);
-        alert("Mukofot olish uchun reklamani oxirigacha ko'rishingiz kerak.");
-    });
-}
 
-function giveUserReward(amount) {
-    // Bu yerda o'z backend API'ingizga so'rov yuborib, bazadagi tangalarni ko'paytirasiz
-    console.log("Foydalanuvchiga " + amount + " tanga berildi!");
-}
+    // ... tepadagi boshqa kodlaringiz ...
+
+    if (document.readyState !== 'loading') {
+        const mainContainer = document.querySelector('.earn-main');
+        if (mainContainer) mainContainer.classList.add('tab_active_view');
+    }
+
+    // 🔥 REKLAMA KO'RSATISH FUNKSIYASINI SHU YERGA (YOPILISHDAN OLDIN) QO'SHAMIZ
+    window.showRewardedAd = function (btnElement) {
+        if (typeof AdController === 'undefined' || !AdController) {
+            alert("Reklama tizimi yuklanmoqda, biroz kuting...");
+            return;
+        }
+
+        AdController.show().then((result) => {
+            console.log("Reklama to'liq ko'rildi!");
+
+            // 1. Tanga va kalitlarni qo'shish
+            let currentDiamond = getDiamond();
+            let currentTotalKeys = getKeysTotal();
+            let currentUsedKeys = getKeysUsed();
+
+            setDiamond(currentDiamond + 20000); // 20,000 olmos qo'shish
+            setKeysTotal(currentTotalKeys + 2); // 2 ta kalit qo'shish
+            setKeysUsed(currentUsedKeys + 2);
+
+            // 2. Ekranda ko'rsatkichlarni yangilash
+            updateKeyDisplay();
+            const top = document.getElementById('diamondTop');
+            if (top) top.textContent = '💎 ' + getDiamond();
+            if (typeof updateHeaderDiamond === 'function') {
+                try { updateHeaderDiamond(); } catch (e) { }
+            }
+
+            // 3. Zarralar animatsiyasi (ixtiyoriy)
+            try {
+                animateRewardParticles(btnElement, 15);
+            } catch (e) { }
+
+            // 4. Ma'lumotlarni saqlash (refresh berganda o'chib ketmasligi uchun)
+            const s = getGlobalState();
+            if (s && typeof saveState === 'function') {
+                saveState(s);
+                if (typeof saveUserState === 'function') saveUserState(s);
+            }
+
+            alert("Tabriklaymiz! 20,000 💎 va 2 ta kalit oldingiz!");
+
+        }).catch((error) => {
+            console.log("Reklama ko'rilmadi yoki xatolik:", error);
+            alert("Mukofot olish uchun reklamani oxirigacha ko'rishingiz kerak yoki reklama topilmadi.");
+        });
+    };
+
+})(); // <-- EARN.JS FAYLINING ENG OXIRGI QATORI SHU BO'LISHI SHART
