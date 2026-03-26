@@ -263,3 +263,25 @@
         if (mainContainer) mainContainer.classList.add('tab_active_view');
     }
 })();
+
+// 2. Reklamani ko'rsatish funksiyasi
+function showRewardedAd() {
+    AdController.show().then((result) => {
+        // MUHIM: Bu qism reklama muvaffaqiyatli oxirigacha ko'rilsa ishlaydi
+        console.log("Reklama to'liq ko'rildi!");
+        
+        // Shu yerda foydalanuvchiga mukofot berasiz
+        // Masalan: foydalanuvchi balansiga +50 tanga qo'shish
+        giveUserReward(50); 
+        
+    }).catch((error) => {
+        // Bu qism foydalanuvchi reklamani yopib yuborsa yoki xatolik bo'lsa ishlaydi
+        console.log("Reklama ko'rilmadi yoki xatolik:", error);
+        alert("Mukofot olish uchun reklamani oxirigacha ko'rishingiz kerak.");
+    });
+}
+
+function giveUserReward(amount) {
+    // Bu yerda o'z backend API'ingizga so'rov yuborib, bazadagi tangalarni ko'paytirasiz
+    console.log("Foydalanuvchiga " + amount + " tanga berildi!");
+}

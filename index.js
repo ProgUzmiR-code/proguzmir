@@ -31,7 +31,8 @@ const DAILY_REWARDS = [1000, 2000, 4000, 6000, 8000, 10000, 100000]; // diamonds
 const DEFAULT_TAP_CAP = 1000;
 const INCREASE_BLOCK = 1000; // qancha tapped limitni oshiramiz har xaridda
 
-
+// adsgram uchun blockId
+const AdController = window.Adsgram.init({ blockId: "23594" });
 
 const KEY_KEYS_TOTAL = 'proguzmir_keys_total';
 const KEY_KEYS_USED = 'proguzmir_keys_used';
