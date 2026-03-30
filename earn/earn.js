@@ -362,12 +362,12 @@
             alert("Tabriklaymiz! Maxsus vazifani bajardingiz va 30,000 💎 oldingiz!");
 
         }).catch((error) => {
-            console.log("Task ko'rilmadi yoki xatolik:", error);
+            console.log("Task not found or error:", error);
             
             if (error && error.description === 'There are currently no ads to display') {
-                alert("Kechirasiz, hozircha bu vazifa mavjud emas. Iltimos, birozdan so'ng qayta urinib ko'ring.");
+                alert("Sorry, this task is not available at this time. Please try again later.");
             } else {
-                alert("Mukofot olish uchun vazifani to'liq bajarishingiz kerak.");
+                alert("You must complete the task in full to receive the reward.");
             }
         });
     };
