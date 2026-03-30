@@ -33,6 +33,8 @@ const INCREASE_BLOCK = 1000; // qancha tapped limitni oshiramiz har xaridda
 
 // adsgram uchun blockId
 const AdController = window.Adsgram.init({ blockId: "25933" });
+// YANGI: Task (Vazifa) reklama bloki uchun
+const TaskAdController = window.Adsgram.init({ blockId: "25934" });
 
 const KEY_KEYS_TOTAL = 'proguzmir_keys_total';
 const KEY_KEYS_USED = 'proguzmir_keys_used';

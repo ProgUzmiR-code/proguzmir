@@ -108,9 +108,9 @@
             return;
         }
 
+        // Shu qatorni toping va shunday o'zgartiring:
         const item = ev.target.closest('.invite-item.bton');
-        // REKLAMA TUGMASI UCHUN ID QO'SHILDI
-        if (!item || item.id === 'dailyLoginTask' || item.id === 'watchAdBtn') return;
+        if (!item || item.id === 'dailyLoginTask' || item.id === 'watchAdBtn' || item.id === 'taskAdBtn') return;
 
 
         // 🔥 YANGI QO'SHILGAN KOD: Tranzaksiya vazifalarini ushlab qolish
@@ -317,6 +317,58 @@
         }).catch((error) => {
             console.log("Ad not seen or error:", error);
             alert("To receive a reward, you must watch the ad to the end or the ad was not found. Please try again.");
+        });
+    };
+
+    // YANGI TASK REKLAMASI UCHUN FUNKSIYA
+    window.showTaskAd = function (btnElement) {
+        if (typeof TaskAdController === 'undefined' || !TaskAdController) {
+            alert("Task tizimi yuklanmoqda, biroz kuting...");
+            return;
+        }
+
+        TaskAdController.show().then((result) => {
+            console.log("Task muvaffaqiyatli bajarildi!");
+
+            // 1. Tanga va kalitlarni qo'shish (bu yerda 30,000 va 3 ta kalit qo'shyapmiz, ixtiyoriy)
+            let currentDiamond = getDiamond();
+            let currentTotalKeys = getKeysTotal();
+            let currentUsedKeys = getKeysUsed();
+
+            setDiamond(currentDiamond + 1000); 
+            setKeysTotal(currentTotalKeys + 1); 
+            setKeysUsed(currentUsedKeys + 1);
+
+            // 2. Ekranda ko'rsatkichlarni yangilash
+            updateKeyDisplay();
+            const top = document.getElementById('diamondTop');
+            if (top) top.textContent = '💎 ' + getDiamond();
+            if (typeof updateHeaderDiamond === 'function') {
+                try { updateHeaderDiamond(); } catch (e) { }
+            }
+
+            // 3. Zarralar animatsiyasi
+            try {
+                animateRewardParticles(btnElement, 20);
+            } catch (e) { }
+
+            // 4. Ma'lumotlarni saqlash
+            const s = getGlobalState();
+            if (s && typeof saveState === 'function') {
+                saveState(s);
+                if (typeof saveUserState === 'function') saveUserState(s);
+            }
+
+            alert("Tabriklaymiz! Maxsus vazifani bajardingiz va 30,000 💎 oldingiz!");
+
+        }).catch((error) => {
+            console.log("Task ko'rilmadi yoki xatolik:", error);
+            
+            if (error && error.description === 'There are currently no ads to display') {
+                alert("Kechirasiz, hozircha bu vazifa mavjud emas. Iltimos, birozdan so'ng qayta urinib ko'ring.");
+            } else {
+                alert("Mukofot olish uchun vazifani to'liq bajarishingiz kerak.");
+            }
         });
     };
 
