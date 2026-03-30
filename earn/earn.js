@@ -355,12 +355,6 @@
             try { animateRewardParticles(taskElement, 20); } catch (e) { }
 
             alert("Congratulations! You completed the task and received 300 💎 and 2 key!");
-
-            // ✅ Belgini o'zgartiramiz (Endi bu reklamadan pul oldi deb hisoblaymiz)
-            isTaskRewarded = true;
-            
-            // ✅ Bajargandan keyin uni ekrandan yo'qotish:
-            taskElement.style.display = 'none';
         });
 
         // 2. Agar reklamada xatolik bo'lsa
@@ -373,7 +367,7 @@
         // 3. Agar vazifa topilmasa
         taskElement.addEventListener("onBannerNotFound", (event) => {
             console.log(`Task topilmadi: ${event.detail}`);
-            // alert("Hozircha bu vazifa mavjud emas."); // Istasangiz yoqib qo'yishingiz mumkin
+            // alert("This task does not exist yet."); // Istasangiz yoqib qo'yishingiz mumkin
             // ✅ Reklama yo'q bo'lsa, kulrang blokni yashirish:
             taskElement.style.display = 'none';
         });
