@@ -312,7 +312,7 @@
                 if (typeof saveUserState === 'function') saveUserState(s);
             }
 
-            alert("Tabriklaymiz! 2,000 💎 va 2 ta kalit oldingiz!");
+            alert("Congratulations! You received 2,000 💎 and 2 keys!");
 
         }).catch((error) => {
             console.log("Ad not seen or error:", error);
@@ -354,7 +354,7 @@
             // Animatsiya chiqarish (ixtiyoriy)
             try { animateRewardParticles(taskElement, 20); } catch (e) { }
 
-            alert("Tabriklaymiz! Vazifani bajardingiz va 30,000 💎 oldingiz!");
+            alert("Congratulations! You completed the task and received 300 💎 and 1 key!");
         });
 
         // 2. Agar reklamada xatolik bo'lsa

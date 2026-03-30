@@ -321,7 +321,7 @@
     margin-left: 8% !important;
 }
 
-.task {
+#earncontent .task {
   --adsgram-task-font-size: 16px;
   --adsgram-task-icon-size: 50px;
   --adsgram-task-icon-title-gap: 15px;
@@ -338,12 +338,14 @@
   color: white;
 }
 
-.task__reward {
+#earncontent .task__reward {
   margin: 5px 0 0 0;
+  display: flex;
+  align-items: center;
   font-size: 14px;
 }
 
-.task__button {
+#earncontent .task__button {
   margin-left: 10px;
   background-color: #50a8eb;
   border-radius: 5px;
@@ -352,12 +354,18 @@
   cursor: pointer;
 }
 
-.task__button_claim {
+#earncontent .task__button_claim {
   margin-left: 0;
   background-color: #ee941c;
 }
 
-.task__button_done {
+#earncontent .task__button_done {
   margin-left: 0;
   background-color: #007539;
+}
+
+#earncontent .task__reward img {
+  width: 14px;
+  height: 14px;
+  margin-left: 25px;
 }
