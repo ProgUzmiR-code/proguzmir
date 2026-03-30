@@ -273,11 +273,50 @@
         if (mainContainer) mainContainer.classList.add('tab_active_view');
     }
 
-    // 🔥 REKLAMA KO'RSATISH FUNKSIYASINI SHU YERGA (YOPILISHDAN OLDIN) QO'SHAMIZ
+    // Sahifa yuklanganda necha marta ko'rganini tekshirib, HTML ga yozib qo'yish
+    function initAdLimit() {
+        const s = getGlobalState();
+        if (s) {
+            if (typeof s.dailyAdsWatched === 'undefined') s.dailyAdsWatched = 0;
+            const adsLeft = 10 - s.dailyAdsWatched;
+            
+            const counterEl = document.getElementById('adCounterDisplay');
+            if (counterEl) counterEl.innerText = adsLeft > 0 ? adsLeft : 0;
+
+            // Agar 0 ta qolgan bo'lsa, tugmani bajarilgan (Done) holatiga o'tkazish
+            if (adsLeft <= 0) {
+                const btn = document.getElementById('watchAdBtn');
+                if (btn) {
+                    btn.classList.add('is-completed');
+                    const arrowDiv = btn.querySelector('.invite-arrow');
+                    if (arrowDiv) arrowDiv.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/done.svg" alt=""></span>`;
+                }
+            }
+        }
+    }
+    // Buni darhol ishga tushiramiz
+    setTimeout(initAdLimit, 500);
+
+    // 🔥 REKLAMA KO'RSATISH FUNKSIYASI (Limit bilan)
     window.showRewardedAd = function (btnElement) {
         if (typeof AdController === 'undefined' || !AdController) {
             alert("Reklama tizimi yuklanmoqda, biroz kuting...");
             return;
+        }
+
+        const s = getGlobalState();
+        if (!s) return;
+        
+        // Agar birinchi marta kirayotgan bo'lsa, nol qilib belgilaymiz
+        if (typeof s.dailyAdsWatched === 'undefined') {
+            s.dailyAdsWatched = 0;
+        }
+
+        // Limitni tekshiramiz
+        let adsLeft = 10 - s.dailyAdsWatched;
+        if (adsLeft <= 0) {
+            alert("Siz bugungi barcha reklamalarni ko'rib bo'ldingiz. Iltimos ertaga qayta urinib ko'ring!");
+            return; // Shu yerda to'xtaydi, reklama ko'rsatmaydi
         }
 
         AdController.show().then((result) => {
@@ -288,11 +327,15 @@
             let currentTotalKeys = getKeysTotal();
             let currentUsedKeys = getKeysUsed();
 
-            setDiamond(currentDiamond + 2000); // 2,000 olmos qo'shish
-            setKeysTotal(currentTotalKeys + 2); // 2 ta kalit qo'shish
+            setDiamond(currentDiamond + 2000); 
+            setKeysTotal(currentTotalKeys + 2); 
             setKeysUsed(currentUsedKeys + 2);
 
-            // 2. Ekranda ko'rsatkichlarni yangilash
+            // 2. Limitni bittaga oshirish va hisoblash
+            s.dailyAdsWatched += 1;
+            adsLeft = 10 - s.dailyAdsWatched;
+
+            // 3. Ekranda tangalarni yangilash
             updateKeyDisplay();
             const top = document.getElementById('diamondTop');
             if (top) top.textContent = '💎 ' + getDiamond();
@@ -300,19 +343,31 @@
                 try { updateHeaderDiamond(); } catch (e) { }
             }
 
-            // 3. Zarralar animatsiyasi (ixtiyoriy)
-            try {
-                animateRewardParticles(btnElement, 15);
-            } catch (e) { }
+            // 4. HTML dagi Counter ni yangilash (9, 8, 7...)
+            const counterEl = document.getElementById('adCounterDisplay');
+            if (counterEl) {
+                counterEl.innerText = adsLeft;
+            }
 
-            // 4. Ma'lumotlarni saqlash (refresh berganda o'chib ketmasligi uchun)
-            const s = getGlobalState();
+            // 5. Agar 0 ta qolsa, tugmani yashil (bajarildi) qilib qo'yish
+            if (adsLeft <= 0) {
+                btnElement.classList.add('is-completed');
+                const arrowDiv = btnElement.querySelector('.invite-arrow');
+                if (arrowDiv) {
+                    arrowDiv.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/done.svg" alt=""></span>`;
+                }
+            }
+
+            // 6. Zarralar animatsiyasi
+            try { animateRewardParticles(btnElement, 15); } catch (e) { }
+
+            // 7. Ma'lumotlarni saqlash
             if (s && typeof saveState === 'function') {
                 saveState(s);
                 if (typeof saveUserState === 'function') saveUserState(s);
             }
 
-            alert("Congratulations! You received 2,000 💎 and 2 keys!");
+            alert(`Congratulations! You received 2,000 💎 and 2 keys! You have ${adsLeft} more chances today.`);
 
         }).catch((error) => {
             console.log("Ad not seen or error:", error);
@@ -333,7 +388,7 @@
             let currentUsedKeys = getKeysUsed();
 
             // 30,000 tanga va 3 ta kalit qo'shish
-            setDiamond(currentDiamond + 300); 
+            setDiamond(currentDiamond + 3000); 
             setKeysTotal(currentTotalKeys + 2); 
             setKeysUsed(currentUsedKeys + 2);
 
@@ -354,7 +409,7 @@
             // Animatsiya chiqarish (ixtiyoriy)
             try { animateRewardParticles(taskElement, 20); } catch (e) { }
 
-            alert("Congratulations! You completed the task and received 300 💎 and 2 key!");
+            alert("Congratulations! You completed the task and received 3000 💎 and 2 key!");
         });
 
         // 2. Agar reklamada xatolik bo'lsa

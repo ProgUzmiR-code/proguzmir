@@ -179,6 +179,7 @@
     align-items: center;
     height: 2px;
     line-height: 2px;
+    margin-right: 15px;
 }
 
 #earncontent .earn .earn-main .invite .invite-list .invite-item .invite-info .invite__num .invite__keys img {
