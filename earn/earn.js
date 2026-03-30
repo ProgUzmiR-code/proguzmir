@@ -334,8 +334,8 @@
 
             // 30,000 tanga va 3 ta kalit qo'shish
             setDiamond(currentDiamond + 300); 
-            setKeysTotal(currentTotalKeys + 1); 
-            setKeysUsed(currentUsedKeys + 1);
+            setKeysTotal(currentTotalKeys + 2); 
+            setKeysUsed(currentUsedKeys + 2);
 
             updateKeyDisplay();
             const top = document.getElementById('diamondTop');
@@ -354,7 +354,7 @@
             // Animatsiya chiqarish (ixtiyoriy)
             try { animateRewardParticles(taskElement, 20); } catch (e) { }
 
-            alert("Congratulations! You completed the task and received 300 💎 and 1 key!");
+            alert("Congratulations! You completed the task and received 300 💎 and 2 key!");
             // ✅ Bajargandan keyin uni ekrandan yo'qotish:
             taskElement.style.display = 'none';
         });
