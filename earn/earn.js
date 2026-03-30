@@ -355,18 +355,41 @@
             try { animateRewardParticles(taskElement, 20); } catch (e) { }
 
             alert("Congratulations! You completed the task and received 300 💎 and 1 key!");
+            // ✅ Bajargandan keyin uni ekrandan yo'qotish:
+            taskElement.style.display = 'none';
         });
 
         // 2. Agar reklamada xatolik bo'lsa
         taskElement.addEventListener("onError", (event) => {
             console.log(`Task xatosi: ${event.detail}`);
+            // ✅ Xato bo'lsa, kulrang blokni yashirish:
+            taskElement.style.display = 'none';
         });
 
         // 3. Agar vazifa topilmasa
         taskElement.addEventListener("onBannerNotFound", (event) => {
             console.log(`Task topilmadi: ${event.detail}`);
             // alert("Hozircha bu vazifa mavjud emas."); // Istasangiz yoqib qo'yishingiz mumkin
+            // ✅ Reklama yo'q bo'lsa, kulrang blokni yashirish:
+            taskElement.style.display = 'none';
         });
     }
 
 })(); // <-- EARN.JS FAYLINING ENG OXIRGI QATORI SHU BO'LISHI SHART
+// TASK UCHUN EVENT LISTENER'LAR
+
+
+        // 2. Agar reklamada xatolik bo'lsa (yuklanmay qolsa)
+        taskElement.addEventListener("onError", (event) => {
+            console.log(`Task xatosi: ${event.detail}`);
+            // ✅ Xato bo'lsa, kulrang blokni yashirish:
+            taskElement.style.display = 'none';
+        });
+
+        // 3. Agar vazifa topilmasa (reklama tugagan bo'lsa)
+        taskElement.addEventListener("onBannerNotFound", (event) => {
+            console.log(`Task topilmadi: ${event.detail}`);
+            // ✅ Reklama yo'q bo'lsa, kulrang blokni yashirish:
+            taskElement.style.display = 'none';
+        });
+    }
