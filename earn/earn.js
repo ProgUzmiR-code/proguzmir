@@ -278,7 +278,7 @@
         const s = getGlobalState();
         if (s) {
             if (typeof s.dailyAdsWatched === 'undefined') s.dailyAdsWatched = 0;
-            const adsLeft = 10 - s.dailyAdsWatched;
+            const adsLeft = 5 - s.dailyAdsWatched;
             
             const counterEl = document.getElementById('adCounterDisplay');
             if (counterEl) counterEl.innerText = adsLeft > 0 ? adsLeft : 0;
@@ -367,7 +367,7 @@
                 if (typeof saveUserState === 'function') saveUserState(s);
             }
 
-            alert(`Congratulations! You received 2,000 💎 and 2 keys! You have ${adsLeft} more chances today.`);
+            alert(`Congratulations! You received 2,000 💎 and 2 🗝️ keys! You have ${adsLeft} more chances today.`);
 
         }).catch((error) => {
             console.log("Ad not seen or error:", error);
@@ -409,7 +409,7 @@
             // Animatsiya chiqarish (ixtiyoriy)
             try { animateRewardParticles(taskElement, 20); } catch (e) { }
 
-            alert("Congratulations! You completed the task and received 3000 💎 and 2 key!");
+            alert("Congratulations! You completed the task and received 3000 💎 and 2 🗝️ key!");
         });
 
         // 2. Agar reklamada xatolik bo'lsa
