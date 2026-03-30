@@ -5,6 +5,13 @@
 
     const BASE_WEI = 1n;
 
+    // Mukofotlar bazasi (HTML dan emas, faqat shu yerdan o'qiladi)
+    const TASKS_REWARDS = {
+        "https://t.me/proguzmir": { diamonds: 20000, keys: 2 },
+        "https://x.com/Muhammadqo15310?t=ljV5i8XxBl-RwpsCzLdmRQ&s=09": { diamonds: 20000, keys: 2 },
+        "https://www.youtube.com/channel/UCV5mg-pmIiMTwjNuKf17htQ?sub_confirmation=1": { diamonds: 20000, keys: 2 }
+    };
+
     function getGlobalState() { return (typeof state !== 'undefined') ? state : null; }
     function getDiamond() { const s = getGlobalState(); return s ? (s.diamond || 0) : 0; }
     function setDiamond(v) { const s = getGlobalState(); if (s) s.diamond = v; }
@@ -158,7 +165,7 @@
         }
     });
 
-    function awardBonusAndCloseInline(item, href) {
+   function awardBonusAndCloseInline(item, href) {
         const claimBtn = item.querySelector('.claim-inline-btn');
         if (!claimBtn || claimBtn.classList.contains('processing')) return;
 
@@ -169,24 +176,28 @@
             let bonusKeys = 0;
             let diamonds = 0;
 
-            const keysNode = item.querySelector('.invite__keys');
-            if (keysNode) {
-                const m = (keysNode.textContent || '').match(/(\d+)/);
-                if (m) bonusKeys = parseInt(m[1], 10) || 0;
+            // XAVFSIZLIK: Qiymatlarni HTML dan emas, faqat JS ro'yxatidan (TASKS_REWARDS) olamiz!
+            if (TASKS_REWARDS[href]) {
+                diamonds = TASKS_REWARDS[href].diamonds;
+                bonusKeys = TASKS_REWARDS[href].keys;
+            } else {
+                // Agar ssilka ro'yxatda topilmasa, firibgarlik ehtimoli bor deb nol beramiz
+                console.warn("Noma'lum vazifa:", href);
+                diamonds = 0;
+                bonusKeys = 0;
             }
 
-            const numNode = item.querySelector('.invite__num');
-            if (numNode) {
-                const txt = numNode.textContent || '';
-                const match = txt.match(/💎\s*([\d,]+)/) || txt.match(/([\d,]+)\s*$/);
-                if (match) diamonds = parseInt(match[1].replace(/,/g, ''), 10) || 0;
+            // ✅ Agar vazifadan hech narsa berilmasa, qolgan kodlarni ishlatib o'tirmaymiz
+            if (diamonds === 0 && bonusKeys === 0) {
+                claimBtn.classList.remove('processing');
+                claimBtn.innerHTML = 'Error';
+                return;
             }
 
-            // ✅ 2. XATO TO'G'RILANDI: Topilganda faqat Totalga qo'shiladi! Used ga tegilmaydi!
+            // ✅ Qolgan ishonchli kodlar (Used va Total ga qo'shish)
             if (bonusKeys > 0) {
                 setKeysTotal(getKeysTotal() + bonusKeys);
                 setKeysUsed(getKeysUsed() + bonusKeys);
-
             }
             if (diamonds > 0) {
                 setDiamond(getDiamond() + diamonds);
