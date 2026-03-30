@@ -320,26 +320,23 @@
         });
     };
 
-    // YANGI TASK REKLAMASI UCHUN FUNKSIYA
-    window.showTaskAd = function (btnElement) {
-        if (typeof TaskAdController === 'undefined' || !TaskAdController) {
-            alert("Task tizimi yuklanmoqda, biroz kuting...");
-            return;
-        }
+    // TASK UCHUN EVENT LISTENER'LAR
+    const taskElement = document.querySelector("adsgram-task[data-block-id='task-25934']");
+    
+    if (taskElement) {
+        // 1. Vazifa bajarilganda ishlaydigan kod (Pul berish)
+        taskElement.addEventListener("reward", (event) => {
+            console.log(`Task muvaffaqiyatli bajarildi! ID: ${event.detail}`);
 
-        TaskAdController.show().then((result) => {
-            console.log("Task muvaffaqiyatli bajarildi!");
-
-            // 1. Tanga va kalitlarni qo'shish (bu yerda 30,000 va 3 ta kalit qo'shyapmiz, ixtiyoriy)
             let currentDiamond = getDiamond();
             let currentTotalKeys = getKeysTotal();
             let currentUsedKeys = getKeysUsed();
 
-            setDiamond(currentDiamond + 1000); 
+            // 30,000 tanga va 3 ta kalit qo'shish
+            setDiamond(currentDiamond + 300); 
             setKeysTotal(currentTotalKeys + 1); 
             setKeysUsed(currentUsedKeys + 1);
 
-            // 2. Ekranda ko'rsatkichlarni yangilash
             updateKeyDisplay();
             const top = document.getElementById('diamondTop');
             if (top) top.textContent = '💎 ' + getDiamond();
@@ -347,29 +344,29 @@
                 try { updateHeaderDiamond(); } catch (e) { }
             }
 
-            // 3. Zarralar animatsiyasi
-            try {
-                animateRewardParticles(btnElement, 20);
-            } catch (e) { }
-
-            // 4. Ma'lumotlarni saqlash
+            // Ma'lumotlarni serverga saqlash
             const s = getGlobalState();
             if (s && typeof saveState === 'function') {
                 saveState(s);
                 if (typeof saveUserState === 'function') saveUserState(s);
             }
 
-            alert("Tabriklaymiz! Maxsus vazifani bajardingiz va 30,000 💎 oldingiz!");
+            // Animatsiya chiqarish (ixtiyoriy)
+            try { animateRewardParticles(taskElement, 20); } catch (e) { }
 
-        }).catch((error) => {
-            console.log("Task not found or error:", error);
-            
-            if (error && error.description === 'There are currently no ads to display') {
-                alert("Sorry, this task is not available at this time. Please try again later.");
-            } else {
-                alert("You must complete the task in full to receive the reward.");
-            }
+            alert("Tabriklaymiz! Vazifani bajardingiz va 30,000 💎 oldingiz!");
         });
-    };
+
+        // 2. Agar reklamada xatolik bo'lsa
+        taskElement.addEventListener("onError", (event) => {
+            console.log(`Task xatosi: ${event.detail}`);
+        });
+
+        // 3. Agar vazifa topilmasa
+        taskElement.addEventListener("onBannerNotFound", (event) => {
+            console.log(`Task topilmadi: ${event.detail}`);
+            // alert("Hozircha bu vazifa mavjud emas."); // Istasangiz yoqib qo'yishingiz mumkin
+        });
+    }
 
 })(); // <-- EARN.JS FAYLINING ENG OXIRGI QATORI SHU BO'LISHI SHART
