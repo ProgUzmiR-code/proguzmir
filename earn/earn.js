@@ -5,13 +5,6 @@
 
     const BASE_WEI = 1n;
 
-    // Mukofotlar bazasi (HTML dan emas, faqat shu yerdan o'qiladi)
-    const TASKS_REWARDS = {
-        "https://t.me/proguzmir": { diamonds: 20000, keys: 2 },
-        "https://x.com/Muhammadqo15310?t=ljV5i8XxBl-RwpsCzLdmRQ&s=09": { diamonds: 20000, keys: 2 },
-        "https://www.youtube.com/channel/UCV5mg-pmIiMTwjNuKf17htQ?sub_confirmation=1": { diamonds: 20000, keys: 2 }
-    };
-
     function getGlobalState() { return (typeof state !== 'undefined') ? state : null; }
     function getDiamond() { const s = getGlobalState(); return s ? (s.diamond || 0) : 0; }
     function setDiamond(v) { const s = getGlobalState(); if (s) s.diamond = v; }
@@ -20,16 +13,13 @@
     function getKeysUsed() { const s = getGlobalState(); return s ? (s.keysUsed || 0) : 0; }
     function setKeysUsed(v) { const s = getGlobalState(); if (s) s.keysUsed = v; }
 
-    // ✅ 1. Barcha kalit ko'rsatkichlarini bittada yangilaymiz (Xuddi Diamond kabi)
     function updateKeyDisplay() {
         document.querySelectorAll('[data-key-total-display]').forEach(el => el.innerText = String(getKeysTotal()));
         document.querySelectorAll('[data-key-used-display]').forEach(el => el.innerText = String(getKeysUsed()));
-
     }
 
     setInterval(updateKeyDisplay, 1000);
     setTimeout(updateKeyDisplay, 100);
-
 
     window.updateDailyLoginTaskIcon = function () {
         const dailyLoginArrow = document.getElementById('dailyLoginArrow');
@@ -49,39 +39,19 @@
             dailyLoginArrow.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/arrow.svg" alt=""></span>`;
         }
     };
-
     setTimeout(window.updateDailyLoginTaskIcon, 300);
-
-    function markAsCompleted(item, taskId) {
-        if (!item) return;
-        item.classList.add('is-completed');
-        const a = item.querySelector('a');
-        if (a) {
-            a.removeAttribute('href');
-            a.style.cursor = 'default';
-            a.style.pointerEvents = 'none';
-            a.onclick = (e) => { e.preventDefault(); return false; };
-        }
-
-        const s = getGlobalState();
-        if (s && taskId) {
-            if (!s.completedTasks) s.completedTasks = {};
-            s.completedTasks[taskId] = true;
-        }
-    }
 
     function initAllInviteItemsState() {
         const s = getGlobalState();
         if (!s) return;
-        const completed = s.completedTasks || {};
+        const completedTasksText = s.completedTasks || ""; // Endi bu string (vergul bilan) yoki massiv bo'lishi mumkin
 
         document.querySelectorAll('.invite-item.bton:not(#dailyLoginTask)').forEach(it => {
-            const anchor = it.querySelector('a');
-            if (!anchor) return;
-            const href = anchor.getAttribute('href') || anchor.getAttribute('data-original-href') || anchor.getAttribute('data-href');
-            if (!href) return;
+            const taskId = it.getAttribute('data-task-id');
+            if (!taskId) return;
 
-            if (completed[href]) {
+            // Agar vazifa oldin bajarilgan bo'lsa
+            if (completedTasksText.includes(taskId)) {
                 it.classList.add('is-completed');
                 const arrowDiv = it.querySelector('.invite-arrow');
                 if (arrowDiv && !arrowDiv.querySelector('img[src*="done.svg"]')) {
@@ -93,7 +63,9 @@
     }
     setTimeout(initAllInviteItemsState, 500);
 
-    document.addEventListener('click', function (ev) {
+    // 🚀 BARCHA CLICK'LAR UCHUN YAGONA EVENT LISTENER
+    document.addEventListener('click', async function (ev) {
+        // 1. Tablarni o'zgartirish
         const tab = ev.target.closest('.tab_item');
         if (tab) {
             const tabs = document.querySelectorAll('.tab_item');
@@ -115,36 +87,64 @@
             return;
         }
 
-        // Shu qatorni toping va shunday o'zgartiring:
         const item = ev.target.closest('.invite-item.bton');
         if (!item || item.id === 'dailyLoginTask' || item.id === 'watchAdBtn' || item.id === 'taskAdBtn') return;
 
-
-        // 🔥 YANGI QO'SHILGAN KOD: Tranzaksiya vazifalarini ushlab qolish
+        // 2. Tranzaksiya vazifalarini ushlab qolish
         const taskType = item.getAttribute('data-task-type');
         if (taskType === 'ton_transaction' || taskType === 'stars_transaction' || taskType === 'bnb_transaction') {
-            ev.preventDefault(); // Ssilkani ochishni to'xtatadi
-
-            // Agar vazifa allaqachon bajarilgan bo'lsa, hech narsa qilmaydi
+            ev.preventDefault();
             if (item.classList.contains('is-completed')) return;
-
-            // Foydalanuvchiga xabar chiqarish
             alert("Please make a purchase from the 'Recharge' section of the Wallet page to complete the task.");
-            return; // Shu yerda to'xtaydi va Claim tugmasiga aylanib qolmaydi
-        }
-        // -----------------------------------------------------------
-
-        if (ev.target.classList.contains('claim-inline-btn')) {
-            if (ev.target.classList.contains('processing')) return;
-            const anchor = item.querySelector('a');
-            const href = anchor ? (anchor.getAttribute('data-href') || anchor.getAttribute('data-original-href') || anchor.getAttribute('href')) : '';
-            awardBonusAndCloseInline(item, href);
             return;
         }
 
+        // 3. Claim tugmasi bosilganda (Supabase jarayoni)
+        if (ev.target.classList.contains('claim-inline-btn')) {
+            const taskId = item.getAttribute('data-task-id');
+            const anchor = item.querySelector('a');
+            const href = anchor ? (anchor.getAttribute('data-href') || anchor.getAttribute('href')) : '';
+
+            if (!taskId) {
+                console.error("HTML da data-task-id topilmadi!");
+                return;
+            }
+
+            // A) Ssilka birinchi marta bosilyaptimi?
+            if (!item.classList.contains('visited')) {
+                item.classList.add('visited');
+                if (href) {
+                    try {
+                        if (window.Telegram && window.Telegram.WebApp) {
+                            window.Telegram.WebApp.openLink(href);
+                        } else {
+                            window.open(href, '_blank');
+                        }
+                    } catch (e) {
+                        window.open(href, '_blank');
+                    }
+                }
+                
+                // 3 soniya kutish
+                ev.target.innerText = "Checking...";
+                ev.target.classList.add('processing'); // O'chirib bo'lmaydigan qilib turamiz
+                
+                setTimeout(() => { 
+                    ev.target.innerText = "Claim Reward"; 
+                    ev.target.classList.remove('processing');
+                }, 3000);
+                return;
+            }
+
+            // B) Ssilka oldin bosilgan va endi mukofotni tekshiramiz
+            await processReward(item, ev.target, taskId);
+            return;
+        }
+
+        // 4. Agar tugma emas, butun blok bosilsa - ssilkani ochib, tugmani Claim ga aylantirish
         const anchor = item.querySelector('a[href]');
         if (!anchor) return;
-
+        
         ev.preventDefault();
         const href = anchor.getAttribute('href');
 
@@ -161,78 +161,85 @@
         const arrowDiv = item.querySelector('.invite-arrow');
         if (arrowDiv) {
             anchor.setAttribute('data-href', href);
-            arrowDiv.innerHTML = `<button class="claim-inline-btn">Claim</button>`;
+            arrowDiv.innerHTML = `<button class="claim-inline-btn visited">Check</button>`; 
+            // Darhol ssilkani ochgani uchun check qilib qo'yamiz
+            setTimeout(() => {
+                const btn = arrowDiv.querySelector('.claim-inline-btn');
+                if(btn) btn.innerText = "Claim Reward";
+            }, 3000);
         }
     });
 
-   function awardBonusAndCloseInline(item, href) {
-        const claimBtn = item.querySelector('.claim-inline-btn');
-        if (!claimBtn || claimBtn.classList.contains('processing')) return;
-
+    // 🔒 BACKEND (SUPABASE) ORQALI MUKOFOT BERISH MANTIG'I
+    async function processReward(item, claimBtn, taskId) {
+        if (claimBtn.classList.contains('processing')) return;
         claimBtn.classList.add('processing');
         claimBtn.innerHTML = `<span class="loading-dots"></span>`;
 
-        setTimeout(() => {
-            let bonusKeys = 0;
-            let diamonds = 0;
+        try {
+            const userWallet = getGlobalState()?.wallet; 
+            if (!userWallet) {
+                alert("Foydalanuvchi hamyoni topilmadi!");
+                throw new Error("Wallet not found in state");
+            }
 
-            // XAVFSIZLIK: Qiymatlarni HTML dan emas, faqat JS ro'yxatidan (TASKS_REWARDS) olamiz!
-            if (TASKS_REWARDS[href]) {
-                diamonds = TASKS_REWARDS[href].diamonds;
-                bonusKeys = TASKS_REWARDS[href].keys;
+            // Supabase'dan javob kutamiz
+            const { data, error } = await supabase.rpc('claim_task_reward', {
+                p_wallet: userWallet,
+                p_task_id: taskId
+            });
+
+            if (error) throw error;
+
+            if (data.success) {
+                // MUVAFFAQIYATLI: Balansni va HTMLni yangilash
+                setDiamond(getDiamond() + data.added_diamonds);
+                setKeysTotal(getKeysTotal() + data.added_keys);
+                setKeysUsed(getKeysUsed() + data.added_keys);
+
+                updateKeyDisplay();
+                const top = document.getElementById('diamondTop');
+                if (top) top.textContent = '💎 ' + getDiamond();
+                if (typeof updateHeaderDiamond === 'function') {
+                    try { updateHeaderDiamond(); } catch (e) { }
+                }
+
+                // Animatsiya
+                try {
+                    const particleCount = Math.min(12, Math.max(4, Math.round(data.added_diamonds / 5000) + data.added_keys));
+                    animateRewardParticles(item, particleCount);
+                } catch (e) { }
+
+                // UI ni bajarilgan holatga o'tkazish
+                const arrowDiv = item.querySelector('.invite-arrow');
+                if (arrowDiv) {
+                    arrowDiv.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/done.svg" alt=""></span>`;
+                }
+                item.classList.add('is-completed');
+
+                // State ni saqlash (majburiy emas aslida, chunki backend saqladi)
+                const s = getGlobalState();
+                if (s) {
+                    s.completedTasks = (s.completedTasks ? s.completedTasks + "," : "") + taskId;
+                    if (typeof saveState === 'function') saveState(s);
+                    if (typeof saveUserState === 'function') saveUserState(s);
+                }
+
             } else {
-                // Agar ssilka ro'yxatda topilmasa, firibgarlik ehtimoli bor deb nol beramiz
-                console.warn("Noma'lum vazifa:", href);
-                diamonds = 0;
-                bonusKeys = 0;
-            }
-
-            // ✅ Agar vazifadan hech narsa berilmasa, qolgan kodlarni ishlatib o'tirmaymiz
-            if (diamonds === 0 && bonusKeys === 0) {
+                // XATOLIK: Oldin bajargan yoki bazada task yo'q
+                alert(data.message);
                 claimBtn.classList.remove('processing');
-                claimBtn.innerHTML = 'Error';
-                return;
+                claimBtn.innerHTML = 'Claim';
             }
 
-            // ✅ Qolgan ishonchli kodlar (Used va Total ga qo'shish)
-            if (bonusKeys > 0) {
-                setKeysTotal(getKeysTotal() + bonusKeys);
-                setKeysUsed(getKeysUsed() + bonusKeys);
-            }
-            if (diamonds > 0) {
-                setDiamond(getDiamond() + diamonds);
-            }
-
-            updateKeyDisplay();
-            const top = document.getElementById('diamondTop');
-            if (top) top.textContent = '💎 ' + getDiamond();
-            if (typeof updateHeaderDiamond === 'function') {
-                try { updateHeaderDiamond(); } catch (e) { }
-            }
-
-            try {
-                const particleCount = Math.min(12, Math.max(4, Math.round((diamonds || 0) / 5000) + (bonusKeys || 0)));
-                animateRewardParticles(item, particleCount);
-            } catch (e) { }
-
-            const arrowDiv = item.querySelector('.invite-arrow');
-            if (arrowDiv) {
-                arrowDiv.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/done.svg" alt=""></span>`;
-            }
-
-            markAsCompleted(item, href);
-            item.style.display = 'none';
-
-            const s = getGlobalState();
-            if (s && typeof saveState === 'function') {
-                saveState(s);
-                if (typeof saveUserState === 'function') saveUserState(s);
-            }
-
-            if (typeof showToast === 'function') showToast('Bonus claimed!');
-        }, 2500);
+        } catch (err) {
+            console.error("Xatolik yuz berdi:", err);
+            claimBtn.classList.remove('processing');
+            claimBtn.innerHTML = 'Error';
+        }
     }
 
+    // Zarralar animatsiyasi funksiyasi
     function animateRewardParticles(item, count) {
         if (!item || !count) return;
         const rect = item.getBoundingClientRect();
@@ -271,30 +278,22 @@
         }
     }
 
+    // Sahifa ko'rinishlarini yuklash
     if (document.readyState !== 'loading') {
         const mainContainer = document.querySelector('.earn-main');
         if (mainContainer) mainContainer.classList.add('tab_active_view');
     }
 
-
-    // ... tepadagi boshqa kodlaringiz ...
-
-    if (document.readyState !== 'loading') {
-        const mainContainer = document.querySelector('.earn-main');
-        if (mainContainer) mainContainer.classList.add('tab_active_view');
-    }
-
-    // Sahifa yuklanganda necha marta ko'rganini tekshirib, HTML ga yozib qo'yish
+    // Ads Limit funksiyasi
     function initAdLimit() {
         const s = getGlobalState();
         if (s) {
             if (typeof s.dailyAdsWatched === 'undefined') s.dailyAdsWatched = 0;
             const adsLeft = 5 - s.dailyAdsWatched;
-            
+
             const counterEl = document.getElementById('adCounterDisplay');
             if (counterEl) counterEl.innerText = adsLeft > 0 ? adsLeft : 0;
 
-            // Agar 0 ta qolgan bo'lsa, tugmani bajarilgan (Done) holatiga o'tkazish
             if (adsLeft <= 0) {
                 const btn = document.getElementById('watchAdBtn');
                 if (btn) {
@@ -305,10 +304,9 @@
             }
         }
     }
-    // Buni darhol ishga tushiramiz
     setTimeout(initAdLimit, 500);
 
-    // 🔥 REKLAMA KO'RSATISH FUNKSIYASI (Limit bilan)
+    // Adsgram reklama funksiyasi
     window.showRewardedAd = function (btnElement) {
         if (typeof AdController === 'undefined' || !AdController) {
             alert("Reklama tizimi yuklanmoqda, biroz kuting...");
@@ -317,50 +315,38 @@
 
         const s = getGlobalState();
         if (!s) return;
-        
-        // Agar birinchi marta kirayotgan bo'lsa, nol qilib belgilaymiz
+
         if (typeof s.dailyAdsWatched === 'undefined') {
             s.dailyAdsWatched = 0;
         }
 
-        // Limitni tekshiramiz
-        let adsLeft = 10 - s.dailyAdsWatched;
+        let adsLeft = 5 - s.dailyAdsWatched; // Limit 5 ta bo'lsa 5 qiling, oldingi kodingizda 10 edi
         if (adsLeft <= 0) {
             alert("Siz bugungi barcha reklamalarni ko'rib bo'ldingiz. Iltimos ertaga qayta urinib ko'ring!");
-            return; // Shu yerda to'xtaydi, reklama ko'rsatmaydi
+            return; 
         }
 
         AdController.show().then((result) => {
-            console.log("The ad has been viewed in full! Rewarding the user...");
-
-            // 1. Tanga va kalitlarni qo'shish
             let currentDiamond = getDiamond();
             let currentTotalKeys = getKeysTotal();
             let currentUsedKeys = getKeysUsed();
 
-            setDiamond(currentDiamond + 2000); 
-            setKeysTotal(currentTotalKeys + 2); 
+            setDiamond(currentDiamond + 2000);
+            setKeysTotal(currentTotalKeys + 2);
             setKeysUsed(currentUsedKeys + 2);
 
-            // 2. Limitni bittaga oshirish va hisoblash
             s.dailyAdsWatched += 1;
-            adsLeft = 10 - s.dailyAdsWatched;
+            adsLeft = 5 - s.dailyAdsWatched;
 
-            // 3. Ekranda tangalarni yangilash
             updateKeyDisplay();
             const top = document.getElementById('diamondTop');
             if (top) top.textContent = '💎 ' + getDiamond();
-            if (typeof updateHeaderDiamond === 'function') {
-                try { updateHeaderDiamond(); } catch (e) { }
-            }
 
-            // 4. HTML dagi Counter ni yangilash (9, 8, 7...)
             const counterEl = document.getElementById('adCounterDisplay');
             if (counterEl) {
                 counterEl.innerText = adsLeft;
             }
 
-            // 5. Agar 0 ta qolsa, tugmani yashil (bajarildi) qilib qo'yish
             if (adsLeft <= 0) {
                 btnElement.classList.add('is-completed');
                 const arrowDiv = btnElement.querySelector('.invite-arrow');
@@ -369,16 +355,12 @@
                 }
             }
 
-            // 6. Zarralar animatsiyasi
             try { animateRewardParticles(btnElement, 15); } catch (e) { }
 
-            // 7. Ma'lumotlarni saqlash
             if (s && typeof saveState === 'function') {
                 saveState(s);
                 if (typeof saveUserState === 'function') saveUserState(s);
             }
-
-            alert(`Congratulations! You received 2,000 💎 and 2 🗝️ keys! You have ${adsLeft} more chances today.`);
 
         }).catch((error) => {
             console.log("Ad not seen or error:", error);
@@ -386,57 +368,40 @@
         });
     };
 
-    // TASK UCHUN EVENT LISTENER'LAR
+    // ADSGRAM TASK 
     const taskElement = document.querySelector("adsgram-task[data-block-id='task-25934']");
-    
-    if (taskElement) {
-        // 1. Vazifa bajarilganda ishlaydigan kod (Pul berish)
-        taskElement.addEventListener("reward", (event) => {
-            console.log(`Task muvaffaqiyatli bajarildi! ID: ${event.detail}`);
 
+    if (taskElement) {
+        taskElement.addEventListener("reward", (event) => {
             let currentDiamond = getDiamond();
             let currentTotalKeys = getKeysTotal();
             let currentUsedKeys = getKeysUsed();
 
-            // 30,000 tanga va 3 ta kalit qo'shish
-            setDiamond(currentDiamond + 3000); 
-            setKeysTotal(currentTotalKeys + 2); 
+            setDiamond(currentDiamond + 3000);
+            setKeysTotal(currentTotalKeys + 2);
             setKeysUsed(currentUsedKeys + 2);
 
             updateKeyDisplay();
             const top = document.getElementById('diamondTop');
             if (top) top.textContent = '💎 ' + getDiamond();
-            if (typeof updateHeaderDiamond === 'function') {
-                try { updateHeaderDiamond(); } catch (e) { }
-            }
 
-            // Ma'lumotlarni serverga saqlash
             const s = getGlobalState();
             if (s && typeof saveState === 'function') {
                 saveState(s);
                 if (typeof saveUserState === 'function') saveUserState(s);
             }
 
-            // Animatsiya chiqarish (ixtiyoriy)
             try { animateRewardParticles(taskElement, 20); } catch (e) { }
-
             alert("Congratulations! You completed the task and received 3000 💎 and 2 🗝️ key!");
         });
 
-        // 2. Agar reklamada xatolik bo'lsa
         taskElement.addEventListener("onError", (event) => {
-            console.log(`Task xatosi: ${event.detail}`);
-            // ✅ Xato bo'lsa, kulrang blokni yashirish:
             taskElement.style.display = 'none';
         });
 
-        // 3. Agar vazifa topilmasa
         taskElement.addEventListener("onBannerNotFound", (event) => {
-            console.log(`Task topilmadi: ${event.detail}`);
-            // alert("This task does not exist yet."); // Istasangiz yoqib qo'yishingiz mumkin
-            // ✅ Reklama yo'q bo'lsa, kulrang blokni yashirish:
             taskElement.style.display = 'none';
         });
     }
 
-})(); // <-- EARN.JS FAYLINING ENG OXIRGI QATORI SHU BO'LISHI SHART
+})();
