@@ -376,20 +376,3 @@
     }
 
 })(); // <-- EARN.JS FAYLINING ENG OXIRGI QATORI SHU BO'LISHI SHART
-// TASK UCHUN EVENT LISTENER'LAR
-
-
-        // 2. Agar reklamada xatolik bo'lsa (yuklanmay qolsa)
-        taskElement.addEventListener("onError", (event) => {
-            console.log(`Task xatosi: ${event.detail}`);
-            // ✅ Xato bo'lsa, kulrang blokni yashirish:
-            taskElement.style.display = 'none';
-        });
-
-        // 3. Agar vazifa topilmasa (reklama tugagan bo'lsa)
-        taskElement.addEventListener("onBannerNotFound", (event) => {
-            console.log(`Task topilmadi: ${event.detail}`);
-            // ✅ Reklama yo'q bo'lsa, kulrang blokni yashirish:
-            taskElement.style.display = 'none';
-        });
-    }
