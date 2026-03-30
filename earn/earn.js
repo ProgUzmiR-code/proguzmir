@@ -124,13 +124,13 @@
                         window.open(href, '_blank');
                     }
                 }
-                
+
                 // 3 soniya kutish
                 ev.target.innerText = "Checking...";
                 ev.target.classList.add('processing'); // O'chirib bo'lmaydigan qilib turamiz
-                
-                setTimeout(() => { 
-                    ev.target.innerText = "Claim Reward"; 
+
+                setTimeout(() => {
+                    ev.target.innerText = "Claim Reward";
                     ev.target.classList.remove('processing');
                 }, 3000);
                 return;
@@ -144,7 +144,7 @@
         // 4. Agar tugma emas, butun blok bosilsa - ssilkani ochib, tugmani Claim ga aylantirish
         const anchor = item.querySelector('a[href]');
         if (!anchor) return;
-        
+
         ev.preventDefault();
         const href = anchor.getAttribute('href');
 
@@ -161,35 +161,41 @@
         const arrowDiv = item.querySelector('.invite-arrow');
         if (arrowDiv) {
             anchor.setAttribute('data-href', href);
-            arrowDiv.innerHTML = `<button class="claim-inline-btn visited">Check</button>`; 
+            arrowDiv.innerHTML = `<button class="claim-inline-btn visited">Check</button>`;
             // Darhol ssilkani ochgani uchun check qilib qo'yamiz
             setTimeout(() => {
                 const btn = arrowDiv.querySelector('.claim-inline-btn');
-                if(btn) btn.innerText = "Claim Reward";
+                if (btn) btn.innerText = "Claim Reward";
             }, 3000);
         }
     });
 
-    // 🔒 BACKEND (SUPABASE) ORQALI MUKOFOT BERISH MANTIG'I
+    // 🔒 BACKEND (Sizning API) ORQALI MUKOFOT BERISH MANTIG'I
     async function processReward(item, claimBtn, taskId) {
         if (claimBtn.classList.contains('processing')) return;
         claimBtn.classList.add('processing');
         claimBtn.innerHTML = `<span class="loading-dots"></span>`;
 
         try {
-            const userWallet = getGlobalState()?.wallet; 
+            const userWallet = getGlobalState()?.wallet;
             if (!userWallet) {
                 alert("Foydalanuvchi hamyoni topilmadi!");
                 throw new Error("Wallet not found in state");
             }
 
-            // Supabase'dan javob kutamiz
-            const { data, error } = await supabase.rpc('claim_task_reward', {
-                p_wallet: userWallet,
-                p_task_id: taskId
+            // Supabase o'rniga, O'ZIMIZNING BACKEND ga so'rov yuboramiz
+            const response = await fetch('/api/earn', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    wallet: userWallet,
+                    taskId: taskId
+                })
             });
 
-            if (error) throw error;
+            const data = await response.json();
 
             if (data.success) {
                 // MUVAFFAQIYATLI: Balansni va HTMLni yangilash
@@ -200,9 +206,6 @@
                 updateKeyDisplay();
                 const top = document.getElementById('diamondTop');
                 if (top) top.textContent = '💎 ' + getDiamond();
-                if (typeof updateHeaderDiamond === 'function') {
-                    try { updateHeaderDiamond(); } catch (e) { }
-                }
 
                 // Animatsiya
                 try {
@@ -217,7 +220,7 @@
                 }
                 item.classList.add('is-completed');
 
-                // State ni saqlash (majburiy emas aslida, chunki backend saqladi)
+                // Mahalliy (local) saqlash
                 const s = getGlobalState();
                 if (s) {
                     s.completedTasks = (s.completedTasks ? s.completedTasks + "," : "") + taskId;
@@ -227,7 +230,7 @@
 
             } else {
                 // XATOLIK: Oldin bajargan yoki bazada task yo'q
-                alert(data.message);
+                alert(data.message || "Xatolik yuz berdi");
                 claimBtn.classList.remove('processing');
                 claimBtn.innerHTML = 'Claim';
             }
@@ -323,7 +326,7 @@
         let adsLeft = 5 - s.dailyAdsWatched; // Limit 5 ta bo'lsa 5 qiling, oldingi kodingizda 10 edi
         if (adsLeft <= 0) {
             alert("Siz bugungi barcha reklamalarni ko'rib bo'ldingiz. Iltimos ertaga qayta urinib ko'ring!");
-            return; 
+            return;
         }
 
         AdController.show().then((result) => {
