@@ -281,14 +281,14 @@
         }
 
         AdController.show().then((result) => {
-            console.log("Reklama to'liq ko'rildi!");
+            console.log("The ad has been viewed in full! Rewarding the user...");
 
             // 1. Tanga va kalitlarni qo'shish
             let currentDiamond = getDiamond();
             let currentTotalKeys = getKeysTotal();
             let currentUsedKeys = getKeysUsed();
 
-            setDiamond(currentDiamond + 20000); // 20,000 olmos qo'shish
+            setDiamond(currentDiamond + 2000); // 2,000 olmos qo'shish
             setKeysTotal(currentTotalKeys + 2); // 2 ta kalit qo'shish
             setKeysUsed(currentUsedKeys + 2);
 
@@ -312,11 +312,11 @@
                 if (typeof saveUserState === 'function') saveUserState(s);
             }
 
-            alert("Tabriklaymiz! 20,000 💎 va 2 ta kalit oldingiz!");
+            alert("Tabriklaymiz! 2,000 💎 va 2 ta kalit oldingiz!");
 
         }).catch((error) => {
-            console.log("Reklama ko'rilmadi yoki xatolik:", error);
-            alert("Mukofot olish uchun reklamani oxirigacha ko'rishingiz kerak yoki reklama topilmadi.");
+            console.log("Ad not seen or error:", error);
+            alert("To receive a reward, you must watch the ad to the end or the ad was not found. Please try again.");
         });
     };
 
