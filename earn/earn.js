@@ -386,36 +386,41 @@
 
     // ADSGRAM TASK 
     const taskElement = document.querySelector("adsgram-task[data-block-id='task-25934']");
+    
+    // Foydalanuvchi qayta-qayta bosavermasligi uchun himoya
+    let isTaskRewarded = false; 
 
     if (taskElement) {
         taskElement.addEventListener("reward", (event) => {
-            let currentDiamond = getDiamond();
-            let currentTotalKeys = getKeysTotal();
-            let currentUsedKeys = getKeysUsed();
+            if (isTaskRewarded) return; // Allaqachon bosilgan bo'lsa, to'xtatish
+            isTaskRewarded = true;
 
-            setDiamond(currentDiamond + 3000);
-            setKeysTotal(currentTotalKeys + 2);
-            setKeysUsed(currentUsedKeys + 2);
+            console.log(`Task muvaffaqiyatli bajarildi! S2S server kutilmoqda... ID: ${event.detail}`);
 
-            updateKeyDisplay();
-            const top = document.getElementById('diamondTop');
-            if (top) top.textContent = '💎 ' + getDiamond();
-
-            const s = getGlobalState();
-            if (s && typeof saveState === 'function') {
-                saveState(s);
-                if (typeof saveUserState === 'function') saveUserState(s);
-            }
-
+            // Animatsiya chiqarish (ixtiyoriy, chiroyli ko'rinishi uchun)
             try { animateRewardParticles(taskElement, 20); } catch (e) { }
-            alert("Congratulations! You completed the task and received 3000 💎 and 2 🗝️ key!");
+
+            // Vazifani darhol ekrandan yashirish (qayta bosmasligi uchun)
+            taskElement.style.display = 'none';
+
+            // 🔥 DIQQAT: Pulni endi JS emas, Backend (S2S webhook) qo'shadi!
+            // Shuning uchun bu yerda faqatgina foydalanuvchiga xabar berib, 
+            // ma'lumotlar bazadan yangilanishi uchun sahifani refresh qilamiz.
+            alert("Congratulations! Task completed. The reward has been sent to the server. The page will reload to update your balance!");
+
+            // 1 soniyadan keyin sahifani yangilash (Backend pulni yozib ulgurishi uchun)
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         });
 
         taskElement.addEventListener("onError", (event) => {
+            console.log(`Task xatosi: ${event.detail}`);
             taskElement.style.display = 'none';
         });
 
         taskElement.addEventListener("onBannerNotFound", (event) => {
+            console.log(`Task topilmadi: ${event.detail}`);
             taskElement.style.display = 'none';
         });
     }
