@@ -327,66 +327,120 @@
     setTimeout(initAdLimit, 500);
 
     // Adsgram reklama funksiyasi
-    window.showRewardedAd = function (btnElement) {
-        if (typeof AdController === 'undefined' || !AdController) {
-            alert("Reklama tizimi yuklanmoqda, biroz kuting...");
-            return;
-        }
+    // --- Yordamchi funksiyalar (Kunlik ad limit uchun) ---
+    function getTodayString() {
+        const d = new Date();
+        return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    }
 
-        const s = getGlobalState();
-        if (!s) return;
+    function getAdData() {
+        let dataStr = localStorage.getItem('adWatchData');
+        let today = getTodayString();
+        
+        if (dataStr) {
+            let data = JSON.parse(dataStr);
+            // Agar saqlangan sana bugungi sana bo'lmasa, hisoblagichni nolga tushiramiz (Yangi kun)
+            if (data.date !== today) {
+                data = { date: today, count: 0 };
+                localStorage.setItem('adWatchData', JSON.stringify(data));
+            }
+            return data;
+        } else {
+            // Agar umuman ma'lumot yo'q bo'lsa, yangi yaratamiz
+            let data = { date: today, count: 0 };
+            localStorage.setItem('adWatchData', JSON.stringify(data));
+            return data;
+        }
+    }
 
-        if (typeof s.dailyAdsWatched === 'undefined') {
-            s.dailyAdsWatched = 0;
-        }
+    function incrementAdData() {
+        let data = getAdData();
+        data.count += 1;
+        localStorage.setItem('adWatchData', JSON.stringify(data));
+        return data;
+    }
+    // -----------------------------------------------------
 
-        let adsLeft = 5 - s.dailyAdsWatched; // Limit 5 ta bo'lsa 5 qiling, oldingi kodingizda 10 edi
-        if (adsLeft <= 0) {
-            alert("Siz bugungi barcha reklamalarni ko'rib bo'ldingiz. Iltimos ertaga qayta urinib ko'ring!");
-            return;
-        }
+    // Ads Limit funksiyasi (Yangilangan)
+    function initAdLimit() {
+        const adData = getAdData();
+        const adsLeft = 5 - adData.count;
 
-        AdController.show().then((result) => {
-            let currentDiamond = getDiamond();
-            let currentTotalKeys = getKeysTotal();
-            let currentUsedKeys = getKeysUsed();
+        const counterEl = document.getElementById('adCounterDisplay');
+        if (counterEl) counterEl.innerText = adsLeft > 0 ? adsLeft : 0;
 
-            setDiamond(currentDiamond + 2000);
-            setKeysTotal(currentTotalKeys + 2);
-            setKeysUsed(currentUsedKeys + 2);
+        if (adsLeft <= 0) {
+            const btn = document.getElementById('watchAdBtn');
+            if (btn) {
+                btn.classList.add('is-completed');
+                const arrowDiv = btn.querySelector('.invite-arrow');
+                if (arrowDiv) arrowDiv.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/done.svg" alt=""></span>`;
+            }
+        }
+    }
+    setTimeout(initAdLimit, 500);
 
-            s.dailyAdsWatched += 1;
-            adsLeft = 5 - s.dailyAdsWatched;
+    // Adsgram reklama funksiyasi (Yangilangan)
+    window.showRewardedAd = function (btnElement) {
+        if (typeof AdController === 'undefined' || !AdController) {
+            alert("Reklama tizimi yuklanmoqda, biroz kuting...");
+            return;
+        }
 
-            updateKeyDisplay();
-            const top = document.getElementById('diamondTop');
-            if (top) top.textContent = '💎 ' + getDiamond();
+        const adData = getAdData();
+        let adsLeft = 5 - adData.count;
 
-            const counterEl = document.getElementById('adCounterDisplay');
-            if (counterEl) {
-                counterEl.innerText = adsLeft;
-            }
+        if (adsLeft <= 0) {
+            alert("Siz bugungi barcha reklamalarni ko'rib bo'ldingiz. Iltimos ertaga qayta urinib ko'ring!");
+            return;
+        }
 
-            if (adsLeft <= 0) {
-                btnElement.classList.add('is-completed');
-                const arrowDiv = btnElement.querySelector('.invite-arrow');
-                if (arrowDiv) {
-                    arrowDiv.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/done.svg" alt=""></span>`;
-                }
-            }
+        AdController.show().then((result) => {
+            // Mukofotlarni berish
+            let currentDiamond = getDiamond();
+            let currentTotalKeys = getKeysTotal();
+            let currentUsedKeys = getKeysUsed();
 
-            try { animateRewardParticles(btnElement, 15); } catch (e) { }
+            setDiamond(currentDiamond + 2000);
+            setKeysTotal(currentTotalKeys + 2);
+            setKeysUsed(currentUsedKeys + 2);
 
-            if (s && typeof saveState === 'function') {
-                saveState(s);
-                if (typeof saveUserState === 'function') saveUserState(s);
-            }
+            // 1 ta reklama ko'rildi deb localStorage'ga saqlash
+            const newData = incrementAdData();
+            adsLeft = 5 - newData.count;
 
-        }).catch((error) => {
-            console.log("Ad not seen or error:", error);
-            alert("To receive a reward, you must watch the ad to the end or the ad was not found. Please try again.");
-        });
-    };
+            // UIni yangilash
+            updateKeyDisplay();
+            const top = document.getElementById('diamondTop');
+            if (top) top.textContent = '💎 ' + getDiamond();
+
+            const counterEl = document.getElementById('adCounterDisplay');
+            if (counterEl) {
+                counterEl.innerText = adsLeft > 0 ? adsLeft : 0;
+            }
+
+            if (adsLeft <= 0) {
+                btnElement.classList.add('is-completed');
+                const arrowDiv = btnElement.querySelector('.invite-arrow');
+                if (arrowDiv) {
+                    arrowDiv.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/done.svg" alt=""></span>`;
+                }
+            }
+
+            try { animateRewardParticles(btnElement, 15); } catch (e) { }
+
+            // Asosiy state'ni ham saqlab qo'yamiz (Olmos va kalitlar uchun)
+            const s = getGlobalState();
+            if (s && typeof saveState === 'function') {
+                saveState(s);
+                if (typeof saveUserState === 'function') saveUserState(s);
+            }
+
+        }).catch((error) => {
+            console.log("Ad not seen or error:", error);
+            alert("To receive a reward, you must watch the ad to the end or the ad was not found. Please try again.");
+        });
+    };
 
     // ADSGRAM TASK 
     const taskElement = document.querySelector("adsgram-task[data-block-id='task-25934']");
