@@ -237,7 +237,7 @@
                     if (arrowDiv) {
                         arrowDiv.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/done.svg" alt=""></span>`;
                     }
-                    
+
                     // Va mahalliy xotirani ham to'g'irlab qo'yamiz
                     const s = getGlobalState();
                     if (s) {
@@ -347,25 +347,14 @@
         }
 
         AdController.show().then((result) => {
-            let currentDiamond = getDiamond();
-            let currentTotalKeys = getKeysTotal();
-            let currentUsedKeys = getKeysUsed();
+            console.log("Reklama to'liq ko'rildi! S2S server kutilmoqda...");
 
-            setDiamond(currentDiamond + 2000);
-            setKeysTotal(currentTotalKeys + 2);
-            setKeysUsed(currentUsedKeys + 2);
-
+            // 1. Limitni bittaga oshirish (Buni JS o'zida qoldiraveramiz, chunki bu shunchaki vizual limit)
             s.dailyAdsWatched += 1;
-            adsLeft = 5 - s.dailyAdsWatched;
-
-            updateKeyDisplay();
-            const top = document.getElementById('diamondTop');
-            if (top) top.textContent = '💎 ' + getDiamond();
+            let adsLeft = 5 - s.dailyAdsWatched;
 
             const counterEl = document.getElementById('adCounterDisplay');
-            if (counterEl) {
-                counterEl.innerText = adsLeft;
-            }
+            if (counterEl) counterEl.innerText = adsLeft;
 
             if (adsLeft <= 0) {
                 btnElement.classList.add('is-completed');
@@ -375,51 +364,63 @@
                 }
             }
 
+            // Zarralar animatsiyasi 
             try { animateRewardParticles(btnElement, 15); } catch (e) { }
 
-            if (s && typeof saveState === 'function') {
-                saveState(s);
-                if (typeof saveUserState === 'function') saveUserState(s);
-            }
+            // 🔥 DIQQAT: Pulni endi JS emas, Backend (S2S) qo'shadi!
+            // Shuning uchun bu yerda faqatgina foydalanuvchiga xabar berib, 
+            // ma'lumotlar bazadan yangilanishi uchun sahifani refresh qilamiz.
+            
+            alert(`Tabriklaymiz! Mukofot serverga yuborildi. Yangi balansni ko'rish uchun sahifa yangilanadi! Sizda bugun yana ${adsLeft} marta imkoniyat qoldi.`);
+            
+            // 1 soniyadan keyin sahifani yangilash (Backend pulni yozib ulgurishi uchun)
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
 
         }).catch((error) => {
             console.log("Ad not seen or error:", error);
-            alert("To receive a reward, you must watch the ad to the end or the ad was not found. Please try again.");
+            alert("Mukofot olish uchun reklamani oxirigacha ko'rishingiz kerak.");
         });
     };
 
     // ADSGRAM TASK 
     const taskElement = document.querySelector("adsgram-task[data-block-id='task-25934']");
+    
+    // Foydalanuvchi qayta-qayta bosavermasligi uchun himoya
+    let isTaskRewarded = false; 
 
     if (taskElement) {
         taskElement.addEventListener("reward", (event) => {
-            let currentDiamond = getDiamond();
-            let currentTotalKeys = getKeysTotal();
-            let currentUsedKeys = getKeysUsed();
+            if (isTaskRewarded) return; // Allaqachon bosilgan bo'lsa, to'xtatish
+            isTaskRewarded = true;
 
-            setDiamond(currentDiamond + 3000);
-            setKeysTotal(currentTotalKeys + 2);
-            setKeysUsed(currentUsedKeys + 2);
+            console.log(`Task muvaffaqiyatli bajarildi! S2S server kutilmoqda... ID: ${event.detail}`);
 
-            updateKeyDisplay();
-            const top = document.getElementById('diamondTop');
-            if (top) top.textContent = '💎 ' + getDiamond();
-
-            const s = getGlobalState();
-            if (s && typeof saveState === 'function') {
-                saveState(s);
-                if (typeof saveUserState === 'function') saveUserState(s);
-            }
-
+            // Animatsiya chiqarish (ixtiyoriy, chiroyli ko'rinishi uchun)
             try { animateRewardParticles(taskElement, 20); } catch (e) { }
-            alert("Congratulations! You completed the task and received 3000 💎 and 2 🗝️ key!");
+
+            // Vazifani darhol ekrandan yashirish (qayta bosmasligi uchun)
+            taskElement.style.display = 'none';
+
+            // 🔥 DIQQAT: Pulni endi JS emas, Backend (S2S webhook) qo'shadi!
+            // Shuning uchun bu yerda faqatgina foydalanuvchiga xabar berib, 
+            // ma'lumotlar bazadan yangilanishi uchun sahifani refresh qilamiz.
+            alert("Congratulations! Task completed. The reward has been sent to the server. The page will reload to update your balance!");
+
+            // 1 soniyadan keyin sahifani yangilash (Backend pulni yozib ulgurishi uchun)
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         });
 
         taskElement.addEventListener("onError", (event) => {
+            console.log(`Task xatosi: ${event.detail}`);
             taskElement.style.display = 'none';
         });
 
         taskElement.addEventListener("onBannerNotFound", (event) => {
+            console.log(`Task topilmadi: ${event.detail}`);
             taskElement.style.display = 'none';
         });
     }
