@@ -229,10 +229,27 @@
                 }
 
             } else {
-                // XATOLIK: Oldin bajargan yoki bazada task yo'q
-                alert(data.message || "Xatolik yuz berdi");
-                claimBtn.classList.remove('processing');
-                claimBtn.innerHTML = 'Claim';
+                // 🚀 AQLLI HIMOYA: Agar backend "allaqachon bajargan" desa
+                if (data.message && data.message.includes('allaqachon')) {
+                    // Xato ko'rsatmasdan, darhol UI'ni to'g'irlab qo'yamiz (Done qilib yashil qilamiz)
+                    item.classList.add('is-completed');
+                    const arrowDiv = item.querySelector('.invite-arrow');
+                    if (arrowDiv) {
+                        arrowDiv.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/done.svg" alt=""></span>`;
+                    }
+
+                    // Va mahalliy xotirani ham to'g'irlab qo'yamiz
+                    const s = getGlobalState();
+                    if (s) {
+                        s.completedTasks = (s.completedTasks ? s.completedTasks + "," : "") + taskId;
+                        if (typeof saveState === 'function') saveState(s);
+                    }
+                } else {
+                    // Haqiqiy xatolik bo'lsagina alert chiqaramiz
+                    alert(data.message || "Xatolik yuz berdi");
+                    claimBtn.classList.remove('processing');
+                    claimBtn.innerHTML = 'Claim';
+                }
             }
 
         } catch (err) {
