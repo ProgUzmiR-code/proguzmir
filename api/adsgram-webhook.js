@@ -1,5 +1,4 @@
 // api/adsgram-webhook.js
-// api/adsgram-webhook.js
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
