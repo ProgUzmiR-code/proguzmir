@@ -12,6 +12,7 @@
     { "src": "api/save.js", "use": "@vercel/node" },
     { "src": "api/load.js", "use": "@vercel/node" },
     { "src": "api/earn.js", "use": "@vercel/node" },
+    { "src": "api/adsgram-webhook.js", "use": "@vercel/node" },
     { "src": "/**", "use": "@vercel/static" }
   ],
   "routes": [
@@ -26,6 +27,8 @@
     { "src": "/api/save", "dest": "/api/save.js" },
     { "src": "/api/load", "dest": "/api/load.js" },
     { "src": "/api/earn", "dest": "/api/earn.js" },
+    { "src": "/api/earn", "dest": "/api/earn.js" },
+    { "src": "/api/adsgram-webhook", "dest": "/api/adsgram-webhook.js" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
