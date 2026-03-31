@@ -347,25 +347,14 @@
         }
 
         AdController.show().then((result) => {
-            let currentDiamond = getDiamond();
-            let currentTotalKeys = getKeysTotal();
-            let currentUsedKeys = getKeysUsed();
+            console.log("Reklama to'liq ko'rildi! S2S server kutilmoqda...");
 
-            setDiamond(currentDiamond + 2000);
-            setKeysTotal(currentTotalKeys + 2);
-            setKeysUsed(currentUsedKeys + 2);
-
+            // 1. Limitni bittaga oshirish (Buni JS o'zida qoldiraveramiz, chunki bu shunchaki vizual limit)
             s.dailyAdsWatched += 1;
-            adsLeft = 5 - s.dailyAdsWatched;
-
-            updateKeyDisplay();
-            const top = document.getElementById('diamondTop');
-            if (top) top.textContent = '💎 ' + getDiamond();
+            let adsLeft = 5 - s.dailyAdsWatched;
 
             const counterEl = document.getElementById('adCounterDisplay');
-            if (counterEl) {
-                counterEl.innerText = adsLeft;
-            }
+            if (counterEl) counterEl.innerText = adsLeft;
 
             if (adsLeft <= 0) {
                 btnElement.classList.add('is-completed');
@@ -375,16 +364,23 @@
                 }
             }
 
+            // Zarralar animatsiyasi 
             try { animateRewardParticles(btnElement, 15); } catch (e) { }
 
-            if (s && typeof saveState === 'function') {
-                saveState(s);
-                if (typeof saveUserState === 'function') saveUserState(s);
-            }
+            // 🔥 DIQQAT: Pulni endi JS emas, Backend (S2S) qo'shadi!
+            // Shuning uchun bu yerda faqatgina foydalanuvchiga xabar berib, 
+            // ma'lumotlar bazadan yangilanishi uchun sahifani refresh qilamiz.
+            
+            alert(`Tabriklaymiz! Mukofot serverga yuborildi. Yangi balansni ko'rish uchun sahifa yangilanadi! Sizda bugun yana ${adsLeft} marta imkoniyat qoldi.`);
+            
+            // 1 soniyadan keyin sahifani yangilash (Backend pulni yozib ulgurishi uchun)
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
 
         }).catch((error) => {
             console.log("Ad not seen or error:", error);
-            alert("To receive a reward, you must watch the ad to the end or the ad was not found. Please try again.");
+            alert("Mukofot olish uchun reklamani oxirigacha ko'rishingiz kerak.");
         });
     };
 
