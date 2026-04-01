@@ -153,11 +153,11 @@ function fmtPRC(wei) {
 
 function getRankFromWei(wei) {
     // Exact thresholds in Wei (18 decimals)
-    const SILVER_THRESHOLD = BigInt('1000');              // 0.01000 PRC -> 1e7 wei
-    const GOLD_THRESHOLD = BigInt('100000');             // 1.00000 PRC -> 1e9 wei
-    const SMART_GOLD_THRESHOLD = BigInt('1000000');    // 10.00000 PRC -> 1e12 wei
-    const PLATINIUM_THRESHOLD = BigInt('10000000');  // 100.00000 PRC -> 1e15 wei
-    const MASTER_THRESHOLD = BigInt('100000000');   // 1000.00000 PRC -> 1e17 wei
+    const SILVER_THRESHOLD = BigInt('100000');              // 1.00000 PRC -> 1e7 wei
+    const GOLD_THRESHOLD = BigInt('1000000');             // 10.00000 PRC -> 1e9 wei
+    const SMART_GOLD_THRESHOLD = BigInt('10000000');    // 100.00000 PRC -> 1e12 wei
+    const PLATINIUM_THRESHOLD = BigInt('100000000');  // 1000.00000 PRC -> 1e15 wei
+    const MASTER_THRESHOLD = BigInt('1000000000');   // 10000.00000 PRC -> 1e17 wei
 
     if (wei >= MASTER_THRESHOLD) return 'master';
     if (wei >= PLATINIUM_THRESHOLD) return 'platinium';     // match rank.html spelling
@@ -262,7 +262,7 @@ function renderGame() {
           <div  class="reklanma2 bton">
             <img class="reklanma" width="20" src="./image/reklanma.png" alt="">
             <div class="reklanma1">
-                <span>+1000PRC</span>
+                <span>+1000💎</span>
             </div>
           </div>
         </div>
@@ -315,7 +315,8 @@ function renderGame() {
                         setClaimDateForCurrentUser(todayStr);
 
                         const st = loadState();
-                        st.prcWei = BigInt(st.prcWei) + BASE_WEI;
+                        // PRC qo'shish o'rniga Diamond qo'shamiz
+                        st.diamond += 1000; 
 
                         // YANGI: Also save the claim date to Supabase via saveUserState
                         saveState(st);
@@ -329,8 +330,12 @@ function renderGame() {
                             console.warn('Failed to sync claim date to Supabase:', e);
                         }
 
-                        animateAddPRC('+' + fmtPRC(BASE_WEI));
-                        showToast('🎉 +1000PRC');
+                        // Animatsiya va xabarlarni Diamondga moslaymiz
+                        animateAddPRC('+1000💎');
+                        showToast('🎉 +1000💎');
+                        
+                        // Ekranning yuqorisidagi Diamond miqdorini darhol yangilaymiz
+                        updateHeaderDiamond();
                         // faqat reklanma elementini countdown ga o'tkazamiz, sahifani qayta render qilmaymiz
                         showReklanmaCountdown(rek);
                     });
