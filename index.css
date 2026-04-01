@@ -738,3 +738,33 @@ body.is-gaming {
         opacity: 1;
     }
 }
+
+/* Tangani bosganda silliq qimirlashi uchun */
+#tapBtn {
+  transition: transform 0.1s ease;
+}
+
+/* Uchib chiqadigan olmos animatsiyasi */
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-80px) scale(1.5);
+  }
+}
+
+.floating-diamond {
+  position: fixed;
+  pointer-events: none; /* Bosilganda xalaqit bermasligi uchun */
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  animation: floatUp 1s ease-out forwards;
+  z-index: 9999;
+  user-select: none;
+  /* Yozuvga chiroyli soya beramiz */
+  text-shadow: 0 0 5px rgba(0,0,0,0.5); 
+}

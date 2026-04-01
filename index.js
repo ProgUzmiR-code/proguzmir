@@ -382,31 +382,54 @@ function renderGame() {
         e.preventDefault();
         e.stopPropagation();
 
-        if (state.energy <= 0) {
-            // Energiya tugaganda indamaymiz yoki yozuv chiqaramiz
-            return; 
-        }
+        if (state.energy <= 0) return;
 
-        // 🔥 1. Xotiradan multitap darajasini o'qiymiz (Kamida 1 bo'ladi)
         let tapPower = (state.boosts && state.boosts.multitapLevel) ? state.boosts.multitapLevel : 1;
-        
-        // Agar energiyamiz qolgan tap quvvatidan kam bo'lsa (Masalan kuchimiz +5, lekin energiya 3 ta qolgan bo'lsa)
         if (state.energy < tapPower) {
-            tapPower = state.energy; // Qancha energiya qolgan bo'lsa, shuncha olamiz
+            tapPower = state.energy; 
         }
 
         if (tapPower <= 0) return;
 
-        // 🔥 2. Modelni yangilash: Energiyadan ayirib, Diamondga qo'shamiz
+        // 🔥 1. TANGA ANIMATSIYASI (Kichrayib qaytishi)
+        tapBtn.style.transform = 'scale(0.92)';
+        setTimeout(() => {
+            tapBtn.style.transform = 'scale(1)';
+        }, 100);
+
+        // 🔥 2. BOSILGAN JOYDAN 💎 CHIQARISH
+        // Koordinatalarni olish (telefon va kompyuter uchun xavfsiz)
+        const x = e.clientX || (e.touches && e.touches[0].clientX);
+        const y = e.clientY || (e.touches && e.touches[0].clientY);
+
+        if (x && y) {
+            const diamondDrop = document.createElement('div');
+            // Ekranga faqat 💎 yoki yozuv bilan birga chiqarish (masalan: 💎 +1)
+            diamondDrop.innerHTML = `💎<span style="font-size: 16px;">+${tapPower}</span>`;
+            diamondDrop.className = 'floating-diamond';
+            
+            // Barmoqlar tez bosilganda olmoslar ustma-ust tushib qolmasligi uchun biroz random joylashuv
+            const randomX = (Math.random() - 0.5) * 40; 
+            diamondDrop.style.left = `${x + randomX}px`;
+            diamondDrop.style.top = `${y}px`;
+            
+            document.body.appendChild(diamondDrop);
+
+            // Animatsiya tugagach, DOM'dan o'chirib tashlaymiz (xotirani to'ldirmasligi uchun)
+            setTimeout(() => {
+                diamondDrop.remove();
+            }, 1000);
+        }
+
+        // 🔥 3. KODINGIZNING DAVOMI (Energiya va Balansni yangilash)
         state.energy = Math.max(0, state.energy - tapPower);
         state.diamond += tapPower;
 
-        // 🔥 3. PRC esa xuddi siz aytgandek FAQT 1 marta (baseWei) qo'shiladi
         const baseWei = typeof BASE_WEI !== 'undefined' ? BigInt(BASE_WEI) : 0n;
         const currentPrc = typeof state.prcWei === 'bigint' ? state.prcWei : BigInt(state.prcWei || 0);
         state.prcWei = currentPrc + baseWei;
 
-        // 4. Ekranni darhol yangilaymiz
+        // Ekranni darhol yangilaymiz
         const diamondEl = document.getElementById('diamondTop');
         if (diamondEl) diamondEl.textContent = '💎 ' + state.diamond;
 
@@ -415,7 +438,7 @@ function renderGame() {
 
         if (typeof updateHeaderPRC === 'function') updateHeaderPRC();
 
-        // 5. Saqlash
+        // Saqlash
         try {
             saveState(state);
         } catch (err) {}
