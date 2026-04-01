@@ -392,7 +392,7 @@ function renderGame() {
         if (tapPower <= 0) return;
 
         // 🔥 1. TANGA ANIMATSIYASI (Kichrayib qaytishi)
-        tapBtn.style.transform = 'scale(0.92)';
+        tapBtn.style.transform = 'scale(0.97)';
         setTimeout(() => {
             tapBtn.style.transform = 'scale(1)';
         }, 100);
@@ -405,7 +405,7 @@ function renderGame() {
         if (x && y) {
             const diamondDrop = document.createElement('div');
             // Ekranga faqat 💎 yoki yozuv bilan birga chiqarish (masalan: 💎 +1)
-            diamondDrop.innerHTML = `💎<span style="font-size: 16px;">+${tapPower}</span>`;
+            diamondDrop.innerHTML = `💎<span style="font-size: 16px; color: #00f7ff;">+${tapPower}</span>`;
             diamondDrop.className = 'floating-diamond';
             
             // Barmoqlar tez bosilganda olmoslar ustma-ust tushib qolmasligi uchun biroz random joylashuv
