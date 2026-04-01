@@ -221,13 +221,13 @@ function renderGame() {
             <!-- Lucky Code key next to Daily -->
             <div id="luckyKeyBtn" class=" bton" title="Lucky Code" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
               <img src="./image/lukcy.png" alt="Lucky" class="luckyImg">
-              <span style="">Lucky Code</span>
+              <span style="">Coded Bonus</span>
             </div>
 
             <!-- daily income -->
             <div id="incomeBtn" class=" bton" title="Daily Income" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
-              <img src="./image/lukcy.png" alt="Lucky" class="luckyImg">
-              <span style="">Daily Income</span>
+              <img src="./image/mine.png" alt="Lucky" class="luckyImg">
+              <span style="">Mine</span>
             </div>
 
           </div>
@@ -392,7 +392,7 @@ function renderGame() {
         if (tapPower <= 0) return;
 
         // 🔥 1. TANGA ANIMATSIYASI (Kichrayib qaytishi)
-        tapBtn.style.transform = 'scale(0.97)';
+        tapBtn.style.transform = 'scale(0.98)';
         setTimeout(() => {
             tapBtn.style.transform = 'scale(1)';
         }, 100);
