@@ -370,3 +370,16 @@
   height: 14px;
   margin-left: 25px;
 }
+
+#earncontent .coins-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#earncontent .flex {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 25px;
+}

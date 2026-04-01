@@ -237,7 +237,7 @@
                     if (arrowDiv) {
                         arrowDiv.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/done.svg" alt=""></span>`;
                     }
-                    
+
                     // Va mahalliy xotirani ham to'g'irlab qo'yamiz
                     const s = getGlobalState();
                     if (s) {
@@ -328,119 +328,119 @@
 
     // Adsgram reklama funksiyasi
     // --- Yordamchi funksiyalar (Kunlik ad limit uchun) ---
-    function getTodayString() {
-        const d = new Date();
-        return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-    }
+    function getTodayString() {
+        const d = new Date();
+        return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    }
 
-    function getAdData() {
-        let dataStr = localStorage.getItem('adWatchData');
-        let today = getTodayString();
-        
-        if (dataStr) {
-            let data = JSON.parse(dataStr);
-            // Agar saqlangan sana bugungi sana bo'lmasa, hisoblagichni nolga tushiramiz (Yangi kun)
-            if (data.date !== today) {
-                data = { date: today, count: 0 };
-                localStorage.setItem('adWatchData', JSON.stringify(data));
-            }
-            return data;
-        } else {
-            // Agar umuman ma'lumot yo'q bo'lsa, yangi yaratamiz
-            let data = { date: today, count: 0 };
-            localStorage.setItem('adWatchData', JSON.stringify(data));
-            return data;
-        }
-    }
+    function getAdData() {
+        let dataStr = localStorage.getItem('adWatchData');
+        let today = getTodayString();
 
-    function incrementAdData() {
-        let data = getAdData();
-        data.count += 1;
-        localStorage.setItem('adWatchData', JSON.stringify(data));
-        return data;
-    }
-    // -----------------------------------------------------
+        if (dataStr) {
+            let data = JSON.parse(dataStr);
+            // Agar saqlangan sana bugungi sana bo'lmasa, hisoblagichni nolga tushiramiz (Yangi kun)
+            if (data.date !== today) {
+                data = { date: today, count: 0 };
+                localStorage.setItem('adWatchData', JSON.stringify(data));
+            }
+            return data;
+        } else {
+            // Agar umuman ma'lumot yo'q bo'lsa, yangi yaratamiz
+            let data = { date: today, count: 0 };
+            localStorage.setItem('adWatchData', JSON.stringify(data));
+            return data;
+        }
+    }
 
-    // Ads Limit funksiyasi (Yangilangan)
-    function initAdLimit() {
-        const adData = getAdData();
-        const adsLeft = 5 - adData.count;
+    function incrementAdData() {
+        let data = getAdData();
+        data.count += 1;
+        localStorage.setItem('adWatchData', JSON.stringify(data));
+        return data;
+    }
+    // -----------------------------------------------------
 
-        const counterEl = document.getElementById('adCounterDisplay');
-        if (counterEl) counterEl.innerText = adsLeft > 0 ? adsLeft : 0;
+    // Ads Limit funksiyasi (Yangilangan)
+    function initAdLimit() {
+        const adData = getAdData();
+        const adsLeft = 5 - adData.count;
 
-        if (adsLeft <= 0) {
-            const btn = document.getElementById('watchAdBtn');
-            if (btn) {
-                btn.classList.add('is-completed');
-                const arrowDiv = btn.querySelector('.invite-arrow');
-                if (arrowDiv) arrowDiv.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/done.svg" alt=""></span>`;
-            }
-        }
-    }
-    setTimeout(initAdLimit, 500);
+        const counterEl = document.getElementById('adCounterDisplay');
+        if (counterEl) counterEl.innerText = adsLeft > 0 ? adsLeft : 0;
 
-    // Adsgram reklama funksiyasi (Yangilangan)
-    window.showRewardedAd = function (btnElement) {
-        if (typeof AdController === 'undefined' || !AdController) {
-            alert("Reklama tizimi yuklanmoqda, biroz kuting...");
-            return;
-        }
+        if (adsLeft <= 0) {
+            const btn = document.getElementById('watchAdBtn');
+            if (btn) {
+                btn.classList.add('is-completed');
+                const arrowDiv = btn.querySelector('.invite-arrow');
+                if (arrowDiv) arrowDiv.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/done.svg" alt=""></span>`;
+            }
+        }
+    }
+    setTimeout(initAdLimit, 500);
 
-        const adData = getAdData();
-        let adsLeft = 5 - adData.count;
+    // Adsgram reklama funksiyasi (Yangilangan)
+    window.showRewardedAd = function (btnElement) {
+        if (typeof AdController === 'undefined' || !AdController) {
+            alert("Reklama tizimi yuklanmoqda, biroz kuting...");
+            return;
+        }
 
-        if (adsLeft <= 0) {
-            alert("Siz bugungi barcha reklamalarni ko'rib bo'ldingiz. Iltimos ertaga qayta urinib ko'ring!");
-            return;
-        }
+        const adData = getAdData();
+        let adsLeft = 5 - adData.count;
 
-        AdController.show().then((result) => {
-            // Mukofotlarni berish
-            let currentDiamond = getDiamond();
-            let currentTotalKeys = getKeysTotal();
-            let currentUsedKeys = getKeysUsed();
+        if (adsLeft <= 0) {
+            alert("Siz bugungi barcha reklamalarni ko'rib bo'ldingiz. Iltimos ertaga qayta urinib ko'ring!");
+            return;
+        }
 
-            setDiamond(currentDiamond + 2000);
-            setKeysTotal(currentTotalKeys + 2);
-            setKeysUsed(currentUsedKeys + 2);
+        AdController.show().then((result) => {
+            // Mukofotlarni berish
+            let currentDiamond = getDiamond();
+            let currentTotalKeys = getKeysTotal();
+            let currentUsedKeys = getKeysUsed();
 
-            // 1 ta reklama ko'rildi deb localStorage'ga saqlash
-            const newData = incrementAdData();
-            adsLeft = 5 - newData.count;
+            setDiamond(currentDiamond + 2000);
+            setKeysTotal(currentTotalKeys + 2);
+            setKeysUsed(currentUsedKeys + 2);
 
-            // UIni yangilash
-            updateKeyDisplay();
-            const top = document.getElementById('diamondTop');
-            if (top) top.textContent = '💎 ' + getDiamond();
+            // 1 ta reklama ko'rildi deb localStorage'ga saqlash
+            const newData = incrementAdData();
+            adsLeft = 5 - newData.count;
 
-            const counterEl = document.getElementById('adCounterDisplay');
-            if (counterEl) {
-                counterEl.innerText = adsLeft > 0 ? adsLeft : 0;
-            }
+            // UIni yangilash
+            updateKeyDisplay();
+            const top = document.getElementById('diamondTop');
+            if (top) top.textContent = '💎 ' + getDiamond();
 
-            if (adsLeft <= 0) {
-                btnElement.classList.add('is-completed');
-                const arrowDiv = btnElement.querySelector('.invite-arrow');
-                if (arrowDiv) {
-                    arrowDiv.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/done.svg" alt=""></span>`;
-                }
-            }
+            const counterEl = document.getElementById('adCounterDisplay');
+            if (counterEl) {
+                counterEl.innerText = adsLeft > 0 ? adsLeft : 0;
+            }
 
-            try { animateRewardParticles(btnElement, 15); } catch (e) { }
+            if (adsLeft <= 0) {
+                btnElement.classList.add('is-completed');
+                const arrowDiv = btnElement.querySelector('.invite-arrow');
+                if (arrowDiv) {
+                    arrowDiv.innerHTML = `<span data-v-df5a9ee0="" aria-hidden="true" class="scoped-svg-icon"><img src="/image/done.svg" alt=""></span>`;
+                }
+            }
 
-            // Asosiy state'ni ham saqlab qo'yamiz (Olmos va kalitlar uchun)
-            const s = getGlobalState();
-            if (s && typeof saveState === 'function') {
-                saveState(s);
-                if (typeof saveUserState === 'function') saveUserState(s);
-            }
+            try { animateRewardParticles(btnElement, 15); } catch (e) { }
 
-        }).catch((error) => {
-            console.log("Ad not seen or error:", error);
-            alert("To receive a reward, you must watch the ad to the end or the ad was not found. Please try again.");
-        });
-    };
+            // Asosiy state'ni ham saqlab qo'yamiz (Olmos va kalitlar uchun)
+            const s = getGlobalState();
+            if (s && typeof saveState === 'function') {
+                saveState(s);
+                if (typeof saveUserState === 'function') saveUserState(s);
+            }
+
+        }).catch((error) => {
+            console.log("Ad not seen or error:", error);
+            alert("To receive a reward, you must watch the ad to the end or the ad was not found. Please try again.");
+        });
+    };
 
     // ADSGRAM TASK 
     const taskElement = document.querySelector("adsgram-task[data-block-id='task-25934']");
