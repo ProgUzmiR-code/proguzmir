@@ -310,33 +310,35 @@ function renderGame() {
                 `;
                 const claimBtn = document.getElementById('claimBtn');
                 if (claimBtn) {
-                    claimBtn.addEventListener('click', () => {
+                   claimBtn.addEventListener('click', () => {
                         const todayStr = new Date().toISOString().slice(0, 10);
                         setClaimDateForCurrentUser(todayStr);
 
-                        const st = loadState();
-                        // PRC qo'shish o'rniga Diamond qo'shamiz
-                        st.diamond += 1000; 
+                        // 1. Yangi nusxa (loadState) olmaymiz! To'g'ridan-to'g'ri global 'state' ni o'zgartiramiz
+                        state.diamond += 1000; 
 
-                        // YANGI: Also save the claim date to Supabase via saveUserState
-                        saveState(st);
+                        // 2. O'zgargan global state'ni saqlaymiz
+                        saveState(state);
 
-                        // YANGI: Ensure claim date is synced to Supabase
+                        // 3. Supabase'ga (serverga) yuboramiz
                         try {
                             if (typeof saveUserState === 'function') {
-                                saveUserState(st);
+                                saveUserState(state);
                             }
                         } catch (e) {
                             console.warn('Failed to sync claim date to Supabase:', e);
                         }
 
-                        // Animatsiya va xabarlarni Diamondga moslaymiz
+                        // 4. Animatsiya va xabarlar
                         animateAddPRC('+1000💎');
                         showToast('🎉 +1000💎');
                         
-                        // Ekranning yuqorisidagi Diamond miqdorini darhol yangilaymiz
+                        // 5. UI (Ekranni) darhol yangilaymiz (xuddi earn.js dagi kabi)
+                        const diamondEl = document.getElementById('diamondTop');
+                        if (diamondEl) diamondEl.textContent = '💎 ' + state.diamond;
                         updateHeaderDiamond();
-                        // faqat reklanma elementini countdown ga o'tkazamiz, sahifani qayta render qilmaymiz
+                        
+                        // 6. Tugmani vaqt sanagichga o'tkazamiz
                         showReklanmaCountdown(rek);
                     });
                 }
