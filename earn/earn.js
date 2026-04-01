@@ -465,8 +465,7 @@
                 if (typeof saveUserState === 'function') saveUserState(s);
             }
 
-            try { animateRewardParticles(taskElement, 20); } catch (e) { }
-            alert("Congratulations! You completed the task and received 3000 💎 and 2 🗝️ key!");
+            try { animateRewardParticles(taskElement, 20); } catch (e) { console.error("Animatsiyada xatolik:", e); }
         });
 
         taskElement.addEventListener("onError", (event) => {
