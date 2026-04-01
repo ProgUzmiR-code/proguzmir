@@ -409,7 +409,7 @@ function renderGame() {
             diamondDrop.className = 'floating-diamond';
             
             // Barmoqlar tez bosilganda olmoslar ustma-ust tushib qolmasligi uchun biroz random joylashuv
-            const randomX = (Math.random() - 0.5) * 40; 
+            const randomX = (Math.random() - 0.5) * 60; 
             diamondDrop.style.left = `${x + randomX}px`;
             diamondDrop.style.top = `${y}px`;
             
