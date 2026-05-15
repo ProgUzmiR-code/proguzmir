@@ -291,7 +291,7 @@ function renderGame() {
             const currentUrl = (location.protocol === 'file:' ? 'https://proguzmir.vercel.app/image/story.png' : window.location.origin + '/image/story.png');
             const args = {
                 link: currentUrl,
-                text: 'I have successfully withdrawn 0.01 TON from ProgUzmiR, you can also play!',
+                text: 'I received my reward from ProgUzmiR, you can play too!',
                 btnName: 'Play ProgUzmiR',
                 currentUrl: currentUrl
             };
