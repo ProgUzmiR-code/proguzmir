@@ -227,7 +227,7 @@ function renderGame() {
             <!-- daily income -->
             <div id="incomeBtn" class=" bton" title="Daily Income" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
               <img src="./image/mine.png" alt="Lucky" class="luckyImg">
-              <span style="">Mine</span>
+              <span style="">Cashout</span>
             </div>
 
           </div>
