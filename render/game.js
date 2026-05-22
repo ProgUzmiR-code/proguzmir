@@ -44,13 +44,108 @@ function renderGames() {
                         </div>
                     </div>
                     <!-- Added extra placeholder items for scroll testing if needed -->
-                     <div style="background:rgba(255,255,255,0.03); backdrop-filter: blur(7px); border: 1px #ffffff1f solid; border-radius:12px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; height:160px;">
-                        <img src="${g.img}" alt="${g.name}" style="width:100%; height:90px; object-fit:cover; border-radius:8px;">
+                    <div style="background:rgba(255,255,255,0.03); backdrop-filter: blur(7px); border: 1px #ffffff1f solid; border-radius:12px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; height:160px;">
+                        <img src="${g.img}" alt="${g.name}" style="width:100%; height:90px; object-fit:cover; border-radius:8px; filter: blur(6px) grayscale(40%); transform: scale(1.1);">
                         <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
                             <div>
-                                <b style="color: white;">${g.name}</b>
+                                <b style="color: white; filter: blur(2.5px);">${g.name}</b>
                             </div>
-                            <button class="playGameBtn" data-id="${g.id}"  >Play</button>
+                            <button class="playGameBtn" style="filter: blur(2.5px);" data-id="${g.id}"  >Play</button>
+                        </div>
+                        <!-- Markazda "Tez kunda" yozuvi -->
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; z-index: 10;">
+                            <span style="background: rgba(0,0,0,0.7); color: #ffe600; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; border: 1px solid rgba(255,230,0,0.3); backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Coming soon</span>
+                        </div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); backdrop-filter: blur(7px); border: 1px #ffffff1f solid; border-radius:12px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; height:160px;">
+                        <img src="${g.img}" alt="${g.name}" style="width:100%; height:90px; object-fit:cover; border-radius:8px; filter: blur(6px) grayscale(40%); transform: scale(1.1);">
+                        <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <b style="color: white; filter: blur(2.5px);">${g.name}</b>
+                            </div>
+                            <button class="playGameBtn" style="filter: blur(2.5px);" data-id="${g.id}"  >Play</button>
+                        </div>
+                        <!-- Markazda "Tez kunda" yozuvi -->
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; z-index: 10;">
+                            <span style="background: rgba(0,0,0,0.7); color: #ffe600; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; border: 1px solid rgba(255,230,0,0.3); backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Coming soon</span>
+                        </div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); backdrop-filter: blur(7px); border: 1px #ffffff1f solid; border-radius:12px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; height:160px;">
+                        <img src="${g.img}" alt="${g.name}" style="width:100%; height:90px; object-fit:cover; border-radius:8px; filter: blur(6px) grayscale(40%); transform: scale(1.1);">
+                        <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <b style="color: white; filter: blur(2.5px);">${g.name}</b>
+                            </div>
+                            <button class="playGameBtn" style="filter: blur(2.5px);" data-id="${g.id}"  >Play</button>
+                        </div>
+                        <!-- Markazda "Tez kunda" yozuvi -->
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; z-index: 10;">
+                            <span style="background: rgba(0,0,0,0.7); color: #ffe600; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; border: 1px solid rgba(255,230,0,0.3); backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Coming soon</span>
+                        </div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); backdrop-filter: blur(7px); border: 1px #ffffff1f solid; border-radius:12px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; height:160px;">
+                        <img src="${g.img}" alt="${g.name}" style="width:100%; height:90px; object-fit:cover; border-radius:8px; filter: blur(6px) grayscale(40%); transform: scale(1.1);">
+                        <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <b style="color: white; filter: blur(2.5px);">${g.name}</b>
+                            </div>
+                            <button class="playGameBtn" style="filter: blur(2.5px);" data-id="${g.id}"  >Play</button>
+                        </div>
+                        <!-- Markazda "Tez kunda" yozuvi -->
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; z-index: 10;">
+                            <span style="background: rgba(0,0,0,0.7); color: #ffe600; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; border: 1px solid rgba(255,230,0,0.3); backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Coming soon</span>
+                        </div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); backdrop-filter: blur(7px); border: 1px #ffffff1f solid; border-radius:12px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; height:160px;">
+                        <img src="${g.img}" alt="${g.name}" style="width:100%; height:90px; object-fit:cover; border-radius:8px; filter: blur(6px) grayscale(40%); transform: scale(1.1);">
+                        <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <b style="color: white; filter: blur(2.5px);">${g.name}</b>
+                            </div>
+                            <button class="playGameBtn" style="filter: blur(2.5px);" data-id="${g.id}"  >Play</button>
+                        </div>
+                        <!-- Markazda "Tez kunda" yozuvi -->
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; z-index: 10;">
+                            <span style="background: rgba(0,0,0,0.7); color: #ffe600; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; border: 1px solid rgba(255,230,0,0.3); backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Coming soon</span>
+                        </div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); backdrop-filter: blur(7px); border: 1px #ffffff1f solid; border-radius:12px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; height:160px;">
+                        <img src="${g.img}" alt="${g.name}" style="width:100%; height:90px; object-fit:cover; border-radius:8px; filter: blur(6px) grayscale(40%); transform: scale(1.1);">
+                        <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <b style="color: white; filter: blur(2.5px);">${g.name}</b>
+                            </div>
+                            <button class="playGameBtn" style="filter: blur(2.5px);" data-id="${g.id}"  >Play</button>
+                        </div>
+                        <!-- Markazda "Tez kunda" yozuvi -->
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; z-index: 10;">
+                            <span style="background: rgba(0,0,0,0.7); color: #ffe600; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; border: 1px solid rgba(255,230,0,0.3); backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Coming soon</span>
+                        </div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); backdrop-filter: blur(7px); border: 1px #ffffff1f solid; border-radius:12px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; height:160px;">
+                        <img src="${g.img}" alt="${g.name}" style="width:100%; height:90px; object-fit:cover; border-radius:8px; filter: blur(6px) grayscale(40%); transform: scale(1.1);">
+                        <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <b style="color: white; filter: blur(2.5px);">${g.name}</b>
+                            </div>
+                            <button class="playGameBtn" style="filter: blur(2.5px);" data-id="${g.id}"  >Play</button>
+                        </div>
+                        <!-- Markazda "Tez kunda" yozuvi -->
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; z-index: 10;">
+                            <span style="background: rgba(0,0,0,0.7); color: #ffe600; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; border: 1px solid rgba(255,230,0,0.3); backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Coming soon</span>
+                        </div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); backdrop-filter: blur(7px); border: 1px #ffffff1f solid; border-radius:12px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; height:160px;">
+                        <img src="${g.img}" alt="${g.name}" style="width:100%; height:90px; object-fit:cover; border-radius:8px; filter: blur(6px) grayscale(40%); transform: scale(1.1);">
+                        <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <b style="color: white; filter: blur(2.5px);">${g.name}</b>
+                            </div>
+                            <button class="playGameBtn" style="filter: blur(2.5px);" data-id="${g.id}"  >Play</button>
+                        </div>
+                        <!-- Markazda "Tez kunda" yozuvi -->
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; z-index: 10;">
+                            <span style="background: rgba(0,0,0,0.7); color: #ffe600; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; border: 1px solid rgba(255,230,0,0.3); backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Coming soon</span>
                         </div>
                     </div>
                     `).join('')}
