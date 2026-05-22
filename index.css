@@ -371,20 +371,32 @@ h1 {
     border-block: 1px solid #fff;
 }
 
+
 button.btn {
     color: #fff;
     padding: 10px 10px 10px 10px;
-    background: rgba(8, 96, 211, 0.21);
     border-radius: 10px;
     margin-left: 80%;
+    z-index: 1000;
+    background-color: rgba(255, 255, 255, 0.1);
+    /* Example styling */
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
 }
 
 .playGameBtn {
-    color: #fff;
+    color: white;
     padding: 10px 10px 10px 10px;
-    background: rgba(8, 96, 211, 0.21);
+    background-color: rgba(255, 255, 255, 0.1);
+    /* Example styling */
     border-radius: 10px;
     margin-left: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    backdrop-filter: blur(3px);
 }
 
 /* nav safe-area */
@@ -741,30 +753,32 @@ body.is-gaming {
 
 /* Tangani bosganda silliq qimirlashi uchun */
 #tapBtn {
-  transition: transform 0.1s ease;
+    transition: transform 0.1s ease;
 }
 
 /* Uchib chiqadigan olmos animatsiyasi */
 @keyframes floatUp {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-200px) scale(1.5);
-  }
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-200px) scale(1.5);
+    }
 }
 
 .floating-diamond {
-  position: fixed;
-  pointer-events: none; /* Bosilganda xalaqit bermasligi uchun */
-  font-size: 18px;
-  font-weight: bold;
-  color: #fff;
-  animation: floatUp 1s ease-out forwards;
-  z-index: 9999;
-  user-select: none;
-  /* Yozuvga chiroyli soya beramiz */
-  text-shadow: 0 0 5px rgba(0,0,0,0.5); 
+    position: fixed;
+    pointer-events: none;
+    /* Bosilganda xalaqit bermasligi uchun */
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    animation: floatUp 1s ease-out forwards;
+    z-index: 9999;
+    user-select: none;
+    /* Yozuvga chiroyli soya beramiz */
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
