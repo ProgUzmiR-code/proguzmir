@@ -34,7 +34,7 @@ function renderGames() {
             <div style=" margin-top:6px; margin-left:6px; margin-right: 6px; padding-bottom: 100px;">
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
                     ${GAMES.map(g => `
-                    <div style="background:rgba(255,255,255,0.03); backdrop-filter: blur(4px); order: 1px #ffffff1f solid; border-radius:12px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; height:160px; z-index: 1;">
+                    <div style="background:rgba(255,255,255,0.03); backdrop-filter: blur(4px); border: 1px #ffffff1f solid; border-radius:12px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; height:160px; z-index: 1;">
                         <img src="${g.img}" alt="${g.name}" style="width:100%; height:90px; object-fit:cover; border-radius:8px; z-index: 100;">
                         <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
                             <div>
